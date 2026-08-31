@@ -74,7 +74,7 @@ def apply_theme_to_xaml(xaml_str):
 # Custom Dark Alert Dialog
 # ------------------------------------------------------------------------------
 class CustomExportCompletedWindow(object):
-    def __init__(self, folder_path, theme="Dark"):
+    def __init__(self, folder_path, message="Export completed.", theme="Dark"):
         bg = "#111111" if theme == "Dark" else "#F5F5F5"
         border = "#3A3A3A" if theme == "Dark" else "#DDDDDD"
         fg = "#CCCCCC" if theme == "Dark" else "#333333"
@@ -83,9 +83,13 @@ class CustomExportCompletedWindow(object):
         btn_hover = "#3D3D3D" if theme == "Dark" else "#EAEAEA"
         btn_border = "#444444" if theme == "Dark" else "#CCCCCC"
         
+        # Adjust height based on number of message lines
+        lines_count = len(message.split('\n'))
+        win_height = 160 + (lines_count - 1) * 20
+        
         xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Export Manager" Width="360" Height="160"
+        Title="Export Manager" Width="360" Height="{win_height}"
         WindowStartupLocation="CenterScreen" 
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize">
@@ -129,7 +133,7 @@ class CustomExportCompletedWindow(object):
             </Border>
 
             <!-- MESSAGE -->
-            <TextBlock Grid.Row="1" Text="Export completed." 
+            <TextBlock Grid.Row="1" Text="{msg}" TextAlignment="Center"
                        Foreground="{fg}" FontSize="13" TextWrapping="Wrap" 
                        HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20"/>
 
@@ -149,8 +153,8 @@ class CustomExportCompletedWindow(object):
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="bd" Background="{{TemplateBinding Background}}" 
-                                                    BorderBrush="{{TemplateBinding BorderBrush}}" 
-                                                    BorderThickness="{{TemplateBinding BorderThickness}}" CornerRadius="6">
+                                                     BorderBrush="{{TemplateBinding BorderBrush}}" 
+                                                     BorderThickness="{{TemplateBinding BorderThickness}}" CornerRadius="6">
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                             <ControlTemplate.Triggers>
@@ -168,7 +172,7 @@ class CustomExportCompletedWindow(object):
             </Border>
         </Grid>
     </Border>
-</Window>""".format(bg=bg, border=border, fg=fg, tb_bg=tb_bg, btn_bg=btn_bg, btn_hover=btn_hover, btn_border=btn_border)
+</Window>""".format(bg=bg, border=border, fg=fg, tb_bg=tb_bg, btn_bg=btn_bg, btn_hover=btn_hover, btn_border=btn_border, msg=message, win_height=win_height)
 
         from System.Windows.Markup import XamlReader
         self.win = XamlReader.Parse(xaml_code)
@@ -2470,10 +2474,19 @@ class ExportManagerForm(forms.WPFWindow):
             
         locked = False
         try:
-            with open(full_path, 'a'):
-                pass
-        except IOError:
+            if os.path.exists(full_path):
+                # Try opening with read/write access
+                with open(full_path, 'r+'):
+                    pass
+        except (IOError, OSError):
             locked = True
+            
+        if not locked and os.path.exists(full_path):
+            try:
+                # Try to rename to check if other apps hold locks (like Acrobat or browsers)
+                os.rename(full_path, full_path)
+            except (IOError, OSError):
+                locked = True
             
         # Check 'apply to all' flags first (only for unlocked files)
         if not locked:
@@ -2729,7 +2742,23 @@ class ExportManagerForm(forms.WPFWindow):
 
             if not self._cancel_export:
                 theme = load_settings().get("theme", "Dark")
-                cw = CustomExportCompletedWindow(folder, theme)
+                
+                done_items = [item for item in self.queue_items if item.Status == "Done"]
+                error_items = [item for item in self.queue_items if item.Status == "Error"]
+                skipped_items = [item for item in self.queue_items if item.Status == "Skipped"]
+                
+                if len(done_items) == total:
+                    msg = "Export completed successfully."
+                elif len(error_items) == total:
+                    msg = "Export failed.\nAll files were open or encountered errors."
+                elif len(skipped_items) == total:
+                    msg = "Export skipped.\nNo files were exported."
+                else:
+                    msg = "Export finished with errors.\nSuccessfully exported: {}/{}\nFailed: {}\nSkipped: {}".format(
+                        len(done_items), total, len(error_items), len(skipped_items)
+                    )
+                
+                cw = CustomExportCompletedWindow(folder, msg, theme)
                 cw.ShowDialog()
                 
         except Exception as e:
