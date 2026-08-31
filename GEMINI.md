@@ -15,3 +15,24 @@ When working on scripts in this repository, strictly adhere to the following rul
    - **Correct Approach**: Avoid importing modules locally (e.g., rom pyrevit import forms) inside except blocks if that variable is intended to be used or imported elsewhere in the same function scope. Rely on global imports at the top of the file.
 
 5. **List Instantiation for ElementIds**: When passing lists of ElementId to Revit API methods like doc.Delete() or MoveElements(), always construct them explicitly using System.Collections.Generic.List[DB.ElementId]().
+
+6. **Active Document Caching (pyRevit Cached Engines)**:
+   - pyRevit වල Cached Engines ක්‍රියාත්මක වන විට, module-level variables (උදා: `doc = revit.doc` හෝ `uidoc = revit.uidoc`) පරණ document එකටම ලොක් වී පැවතිය හැක.
+   - **නිවැරදි ක්‍රමය**: සැමවිටම main execution එක ආරම්භයේදීම (උදා: `main()` හි මුලදීම) active document එක refresh කරගන්න:
+     ```python
+     global doc, uidoc
+     uidoc = __revit__.ActiveUIDocument
+     doc = uidoc.Document
+     ```
+
+7. **Detail Item Table Scaling and Bounding Box Alignment**:
+   - Table එකේ `HEIGHT` සහ `Elevation Height` parameters වෙනස් කරද්දී, Table එක එහි මැද (origin) සිට දෙපැත්තටම (උඩට සහ පල්ලෙහාට) stretch විය හැක.
+   - **නිවැරදි ක්‍රමය**: Table එක stretch කිරීමෙන් පසු `doc.Regenerate()` කර එහි bounding box එක මැන බලන්න. එහි top boundary එක උඩට ගිය ප්‍රමාණය මැන, මුළු table එකම නැවත එම ප්‍රමාණයෙන් පහළට Move කර උඩ ඉර (top boundary) නිවැරදිව පෙළගස්වන්න.
+
+8. **FFL Line සහ Annotations/Groups පල්ලෙහාට ගැනීම**:
+   - Table එක stretch වෙද්දී FFL Line එක සහ ඊට පහළින් ඇති labels/groups ස්වයංක්‍රීයව පහළට යන්නේ නැත.
+   - **නිවැරදි ක්‍රමය**: Copied elements වල bounding box `Min.Y` එක FFL line එකට වඩා 500mm ක් ඇතුළත හෝ ඊට පහළින් ඇති දැයි පරීක්ෂා කර, එම elements සියල්ලම `delta_height` ප්‍රමාණයෙන් පහළට Move කරන්න.
+
+9. **Template එක Mutate නොකිරීම (Always Copy)**:
+   -  පළමු copy එක සඳහා `offset == 0` වුවත්, කිසිවිටෙක original template elements සෘජුව mutate නොකරන්න. එයින් template එක විනාශ වී ඊළඟ copies ඔක්කොම අවුල් වේ.
+   - **නිවැරදි ක්‍රමය**: සැමවිටම `DB.ElementTransformUtils.CopyElements` භාවිතයෙන් අලුත්ම කොපියක් සාදා එය mutate කරන්න. අවසානයේදී original template elements ටික Delete කර දමන්න.
