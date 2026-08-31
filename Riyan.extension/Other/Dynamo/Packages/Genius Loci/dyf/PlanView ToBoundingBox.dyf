@@ -1,0 +1,182 @@
+{
+  "Uuid": "c174f797-c6aa-41e9-9deb-1a2e4fbd632a",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Create boundingBox from plan view based on the view range settings. (Z is calculed from ProjectElevation)",
+  "Name": "PlanView ToBoundingBox",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Elements.Views.View3D": {
+        "Key": "Revit.Elements.Views.View3D",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Elements.Views.FloorPlanView": {
+        "Key": "Revit.Elements.Views.FloorPlanView",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference('RevitServices')\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nclr.AddReference(\"RevitAPI\")\nfrom Autodesk.Revit.DB import PlanViewPlane, XYZ, BoundingBoxXYZ\n\nviews = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nresult = []\n\nfor v in views:\n\tbbxView = v.CropBox\r\n\ttransform = bbxView.Transform\r\n\tmin = transform.OfPoint(bbxView.Min)\r\n\tmax = transform.OfPoint(bbxView.Max)\r\n\n\tviewRange = v.GetViewRange() \n\ttopLevel = doc.GetElement(viewRange.GetLevelId(PlanViewPlane.TopClipPlane))\n\ttopOffset = viewRange.GetOffset(PlanViewPlane.TopClipPlane)\n\t\n\tbttmLevel = doc.GetElement(viewRange.GetLevelId(PlanViewPlane.BottomClipPlane))\n\tbttmOffset = viewRange.GetOffset(PlanViewPlane.BottomClipPlane)\n\n\tcutLevel = doc.GetElement(viewRange.GetLevelId(PlanViewPlane.CutPlane))\n\tcutOffset = viewRange.GetOffset(PlanViewPlane.CutPlane)\n\n\tif bttmLevel : newmin = XYZ(min.X, min.Y, bttmLevel.ProjectElevation + bttmOffset)\r\n\telse: newmin = XYZ(min.X, min.Y, cutLevel.ProjectElevation + bttmOffset)\r\n\tif topLevel : newmax = XYZ(max.X, max.Y, topLevel.ProjectElevation + topOffset)\r\n\telse: newmax = XYZ(max.X, max.Y, cutLevel.ProjectElevation + cutOffset)\n\t\n\tnewbox = BoundingBoxXYZ()\n\tnewbox.Max = newmax\n\tnewbox.Min = newmin\n\tresult.append(newbox.ToProtoType())\r\n\r\nif isinstance(IN[0], (list)): OUT = result\r\nelse: OUT = result[0]",
+      "VariableInputPorts": true,
+      "Id": "e0ece8d76c634141ae0aceea3e411ab4",
+      "Inputs": [
+        {
+          "Id": "d4df51bd8a3d43089f793f4c8faf55ea",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "bec5dd0dce6b43a48470850efec6ca0c",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "PlanView",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": ""
+      },
+      "Id": "4d1ce89906774e2e8216d57a5105a5aa",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ddc71c01276b40578aa247f47fbe30ba",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "BoundingBox",
+      "Id": "76dd6aae7f16483b9068e051667fff73",
+      "Inputs": [
+        {
+          "Id": "e5d9680f26a34f69b257a9cac5e03bb8",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "bec5dd0dce6b43a48470850efec6ca0c",
+      "End": "e5d9680f26a34f69b257a9cac5e03bb8",
+      "Id": "779bf3cdd298460d8d38dfee663ed257"
+    },
+    {
+      "Start": "ddc71c01276b40578aa247f47fbe30ba",
+      "End": "d4df51bd8a3d43089f793f4c8faf55ea",
+      "Id": "25d0418bb4bc4d088cf13914b3c03670"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "e0ece8d76c634141ae0aceea3e411ab4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 280.77709611091,
+        "Y": 274.428294077676
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "4d1ce89906774e2e8216d57a5105a5aa",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -402.42290388909,
+        "Y": 274.428294077676
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "76dd6aae7f16483b9068e051667fff73",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 505.17709611091,
+        "Y": 274.428294077676
+      }
+    ],
+    "Annotations": [],
+    "X": 137.118832429659,
+    "Y": 200.975330952677,
+    "Zoom": 0.555002712934566
+  }
+}

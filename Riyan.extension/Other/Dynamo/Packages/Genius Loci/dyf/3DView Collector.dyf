@@ -1,0 +1,167 @@
+{
+  "Uuid": "e693ae2d-85bf-4f45-a281-6e5764ce1491",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Retrieves the 3D views in the active or given document.",
+  "Name": "3DView Collector",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "3DViews",
+      "Id": "f5c2bb73e7f44ec38eb7ee8f552365f0",
+      "Inputs": [
+        {
+          "Id": "4da28fc157b045e4b50dc737c5661101",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "docOrRevitLinkInstance",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": "null",
+        "Description": " Use only if you want to query a linked model\nAutodesk.Revit.DB.Document or RevitLinkInstance"
+      },
+      "Id": "ed5375a0594e4b3fbfaa7a8d3518798c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8b09fd6047e44de4a33d69a9d5047a4a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\n# Import DocumentManager and TransactionManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import View, ViewType, FilteredElementCollector, RevitLinkInstance, Document\n\nthreeD = []\n#Part of script from Clockwork\ninputdocs = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nfor inputdoc in inputdocs:\n\tif inputdoc == None:\n\t\tdoc = DocumentManager.Instance.CurrentDBDocument\n\telif isinstance (inputdoc, RevitLinkInstance) :\n\t\tdoc = inputdoc.GetLinkDocument()\n\telif isinstance (inputdoc, Document) :\n\t\tdoc = inputdoc\n\telse: doc = DocumentManager.Instance.CurrentDBDocument\n\n\t#collect all views in the model\n\tviews = FilteredElementCollector(doc).OfClass(View).ToElements()\n\t#sort views into separate lists based on view type\n\tfor i in views:\n\t\tif not i.IsTemplate:\n\t\t\tif i.ViewType == ViewType.ThreeD:\n\t\t\t\tthreeD.append(i)\n\t\t\telse:\n\t\t\t\tcontinue\n\t\t\t\t\nif len(threeD)>1 : OUT = threeD\nelse: OUT = threeD[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "cb5dd82b410a4184aff2af701c2cbd35",
+      "Inputs": [
+        {
+          "Id": "a215ee7569754f979eac92ed110ec067",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "3da93af532fd45f8bcee20648afe1be7",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "8b09fd6047e44de4a33d69a9d5047a4a",
+      "End": "a215ee7569754f979eac92ed110ec067",
+      "Id": "b9111efd1b544ca786d267e746b49110"
+    },
+    {
+      "Start": "3da93af532fd45f8bcee20648afe1be7",
+      "End": "4da28fc157b045e4b50dc737c5661101",
+      "Id": "1b3c07b3c7cf437d95df8749acdcaf16"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "f5c2bb73e7f44ec38eb7ee8f552365f0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 417.833828993002,
+        "Y": 241.504254436669
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "ed5375a0594e4b3fbfaa7a8d3518798c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -261.37395952203815,
+        "Y": 244.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "cb5dd82b410a4184aff2af701c2cbd35",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 249.133187006949,
+        "Y": 244.170692786144
+      }
+    ],
+    "Annotations": [],
+    "X": 150.41795703143015,
+    "Y": 65.982224535876526,
+    "Zoom": 0.5414529351612829
+  }
+}

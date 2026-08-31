@@ -1,0 +1,165 @@
+{
+  "Uuid": "d1760333-ad7e-4e5f-8076-1448b0b7467e",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Level",
+  "Description": "Return the closest level below the given element.",
+  "Name": "Closest Level",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nitems = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nsearch = []\n\nlevels = FilteredElementCollector(doc).OfClass(Level).ToElements()\nsortedLevels = sorted(levels,key=lambda level : level.Elevation, reverse=True)\n\ndef closest(sortedLevels, number): \n\ttry:\n\t\tresult= min([level for level in sortedLevels if level.ProjectElevation <= number], key=lambda x: abs(x.ProjectElevation-number))\n\texcept:\n\t\tresult= min([level for level in sortedLevels if level.ProjectElevation >= number], key=lambda x: abs(x.ProjectElevation-number))\n\treturn result\n\t\nfor item in items:\n\tif hasattr(item, \"Location\") :\n\t\tloc = item.Location\n\t\tif loc:\n\t\t\t# line-based elements (e.g. walls)\n\t\t\tif isinstance(loc,LocationCurve):\n\t\t\t\ttry:elementZ=loc.Curve.Evaluate(0.5, True).Z\n\t\t\t\texcept:elementZ=loc.Curve.Evaluate(0.5, False).Z\n\t\t\t# point-based elements (e.g. most loadable families)\n\t\t\telif isinstance(loc,LocationPoint):\n\t\t\t\telementZ=loc.Point.Z\n\t\t\telif isinstance(item,Instance):\n\t\t\t\telementZ = item.GetTotalTransform().Origin.Z\n\t\t\telif hasattr(item, \"Origin\"):\n\t\t\t\telementZ = item.Origin.Z\n\t\t\t##Section Marker and ReferenceElevationMarker(Doesn't work for ReferenceElevationMarker)\n\t\t\telif ElementId(BuiltInCategory.OST_Viewers) == item.Category.Id :\n\t\t\t\tviewSection = doc.GetElement(ElementId(element.Id.IntegerValue + 1))\n\t\t\t\telementZ = viewSection.Origin.Z\n\t\t\t#Elevation Marker\n\t\t\telif isinstance(item,Autodesk.Revit.DB.ElevationMarker) :\n\t\t\t\tmarker = doc.GetElement(ElementId(item.Id.IntegerValue + 1))\n\t\t\t\tbox=marker.BoundingBox[doc.ActiveView]\n\t\t\t\telementZ = ((box.Min+box.Max)/2).Z\n\t\t\t# Grid\t\n\t\t\telif isinstance(item,Autodesk.Revit.DB.Grid):\n\t\t\t\telementZ=item.Curve.Evaluate(0.5,True).Z\n\t\t\t# view specific elements (e.g. filled regions)\n\t\t\telif hasattr(item, \"OwnerViewId\") and item.OwnerViewId != ElementId.InvalidElementId :\n\t\t\t\tview=item.Document.GetElement(item.OwnerViewId)\n\t\t\t\tbox = item.BoundingBox[view]\n\t\t\t\telementZ = ((box.Min+box.Max)/2).Z\n\t\t\t# sketch-based elements (e.g. floors)\n\t\t\telse :\n\t\t\t\tbox = item.get_BoundingBox(None)\n\t\t\t\telementZ = box.Max.Z\n\t\ttry:search.append(closest(sortedLevels, elementZ))\r\n\t\texcept:search.append(None)\n\nOUT = search",
+      "VariableInputPorts": true,
+      "Id": "d255d7aa72464455b64f47b9da43769c",
+      "Inputs": [
+        {
+          "Id": "ec270ce545024013b2dc564010b09785",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "e5af136e3e374e2aa44231b7afb633f5",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "b91ba998880e40faa16c02c2c24757f0",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "0a58727151c0408b9d7d6b5c683c5b0a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Level",
+      "Id": "9690f69c5752404fa133b4e22642db18",
+      "Inputs": [
+        {
+          "Id": "8e8ff49a2ae7418cb0e0c5985721b4ef",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "e5af136e3e374e2aa44231b7afb633f5",
+      "End": "8e8ff49a2ae7418cb0e0c5985721b4ef",
+      "Id": "055e3724157c4f738a1d38555eb5c4b9"
+    },
+    {
+      "Start": "0a58727151c0408b9d7d6b5c683c5b0a",
+      "End": "ec270ce545024013b2dc564010b09785",
+      "Id": "491d6528cc724964b64eb22462fbcb03"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "d255d7aa72464455b64f47b9da43769c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 299.4,
+        "Y": 300.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "b91ba998880e40faa16c02c2c24757f0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 111.0,
+        "Y": 300.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "9690f69c5752404fa133b4e22642db18",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 523.8,
+        "Y": 300.0
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

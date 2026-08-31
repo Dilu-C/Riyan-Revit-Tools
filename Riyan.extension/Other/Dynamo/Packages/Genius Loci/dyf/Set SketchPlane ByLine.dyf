@@ -1,0 +1,165 @@
+{
+  "Uuid": "9ecb5990-0a2e-4436-a765-f132caab949c",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Geometry",
+  "Description": "Works only in Revit 2016 and later.\r\nSelects a line, constructs a plane and assigns the sketch plane to the active view. \r\nAn active sketch plane is required for model curve creation.",
+  "Name": "Set SketchPlane ByLine",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Inspired by Konrad Sobon, archilab\nimport clr\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\n# Import ToDSType  (bool) extension method\nclr.AddReference(\"RevitNodes\")\nimport Revit\n# Adds ToProtoType, ToRevitType geometry conversion extension methods to objects\nclr.ImportExtensions(Revit.GeometryConversion)\n# Import Element wrapper extension methods\nclr.ImportExtensions(Revit.Elements)\n\ncurves = UnwrapElement(IN[0]).ToRevitType()\n\nif not hasattr(curves, '__iter__'):\n\tcurves = [curves]\n\nfor curve in curves:\n\tcoord1 = curve.GetEndPoint(0)\n\tcoord2 = curve.GetEndPoint(1)\n\n\t#process as vertical\n\tif (round(coord1.X, 4),round(coord1.Y, 4))== (round(coord2.X, 4),round(coord2.Y, 4)):\n\t\tline = Line.CreateBound(XYZ(coord1.X + 1, coord1.Y, coord1.Z), XYZ(coord1.X + 1, coord1.Y, coord2.Z))\n\t\tgeomPlane = Plane.CreateByNormalAndOrigin(XYZ.BasisX, line.Evaluate(0.5, True))\n\n\telse:\n\t#process as horizontal\n\t\tline = Line.CreateBound(XYZ(coord1.X, coord1.Y + 1, coord1.Z), XYZ(coord2.X, coord2.Y + 1, coord1.Z));\n\t\tgeomPlane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, line.Evaluate(0.5, True))\n\n\tTransactionManager.Instance.EnsureInTransaction(doc)\n\tplane = SketchPlane.Create(doc, geomPlane)\n\tdoc.ActiveView.SketchPlane = plane\n\tTransactionManager.Instance.TransactionTaskDone()\nOUT = plane",
+      "VariableInputPorts": true,
+      "Id": "b86fcc0c734d4652bfaa0d43dc6cc091",
+      "Inputs": [
+        {
+          "Id": "90e86e48ed604f228a11922a13b57cf8",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5780800f61fe453e850c65c3bccc3987",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "line",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Dynamo Curve"
+      },
+      "Id": "967835ac2cf1432dbfe58290ec0099da",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "1ffdaa4b63fb47d5b2fdef3adfa2899f",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Active SketchPlane",
+      "Id": "8e2d2f924deb4caa8cb5333754e8a4db",
+      "Inputs": [
+        {
+          "Id": "43754ed7d872424eb62c58dc921f7329",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "5780800f61fe453e850c65c3bccc3987",
+      "End": "43754ed7d872424eb62c58dc921f7329",
+      "Id": "5d6f15d0e3f34b7db03cdf03d741fad6"
+    },
+    {
+      "Start": "1ffdaa4b63fb47d5b2fdef3adfa2899f",
+      "End": "90e86e48ed604f228a11922a13b57cf8",
+      "Id": "98cd8d9bd57f45fb9bd70ea43c8f4063"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": 65.323394775390625,
+      "EyeY": 63.628574371337891,
+      "EyeZ": -55.433387756347656,
+      "LookX": -16.610115051269531,
+      "LookY": -62.507144927978516,
+      "LookZ": 60.760643005371094,
+      "UpX": -0.14129436016082764,
+      "UpY": 0.84432792663574219,
+      "UpZ": 0.51686191558837891
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Set SketchPlane ByLine",
+        "Id": "b86fcc0c734d4652bfaa0d43dc6cc091",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 413.6,
+        "Y": 280.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "967835ac2cf1432dbfe58290ec0099da",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 204.4,
+        "Y": 275.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "8e2d2f924deb4caa8cb5333754e8a4db",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 606.0,
+        "Y": 278.4
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

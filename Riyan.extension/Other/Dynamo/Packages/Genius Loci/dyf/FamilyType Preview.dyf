@@ -1,0 +1,165 @@
+{
+  "Uuid": "17927dd0-1d24-4e9b-8cc6-c85328d59f89",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Family",
+  "Description": "Get the preview image of an element. \r\nThis image is similar to what is seen in the Revit UI when selecting the type of an element.\r\nInspired by Forum Dynamo",
+  "Name": "FamilyType Preview",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Inspired by Sean Page\n#https://forum.dynamobim.com/t/export-families-in-isometric-view-as-an-image-to-excel/45962/10\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\n\nclr.AddReference(\"System.Drawing\")\nfrom System.Drawing import Size\n\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\nimages = []\nsize = Size(1000,1000)\nfor elem in elements:\n\tif isinstance(elem, Autodesk.Revit.DB.ElementType):\n\t\telemType=elem\n\telse :\n\t\telemType = elem.Document.GetElement(elem.GetTypeId())\n\timages.Add(elemType.GetPreviewImage(size))\n\nif isinstance(IN[0], list): OUT = images\nelse: OUT = images[0]",
+      "VariableInputPorts": true,
+      "Id": "7557b64b8e3646f1b928f9dd30de2818",
+      "Inputs": [
+        {
+          "Id": "b1316ca7a2db47cd94be1481bfbbdf4a",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "f2e94b8b47654f5a903894930b4b527f",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Image",
+      "Id": "d6f1539dab7342c8af8e17c3af0c18f4",
+      "Inputs": [
+        {
+          "Id": "9f8628cf3eb042cfab9d8a5ddfe1e6a3",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "familyInstanceOrFamilyType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "625a96f2168e455a9d8b244ffa6b31fc",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6838e91538ba4ba78879380f2e3961bd",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "f2e94b8b47654f5a903894930b4b527f",
+      "End": "9f8628cf3eb042cfab9d8a5ddfe1e6a3",
+      "Id": "e2060e8ba5904adaaef7bb16e547b494"
+    },
+    {
+      "Start": "6838e91538ba4ba78879380f2e3961bd",
+      "End": "b1316ca7a2db47cd94be1481bfbbdf4a",
+      "Id": "5b777274cf6a4c41b69e7f02e6186bfb"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "7557b64b8e3646f1b928f9dd30de2818",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 268.0,
+        "Y": 208.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "d6f1539dab7342c8af8e17c3af0c18f4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 470.4,
+        "Y": 212.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "625a96f2168e455a9d8b244ffa6b31fc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -8.80000000000013,
+        "Y": 210.4
+      }
+    ],
+    "Annotations": [],
+    "X": 56.8000000000001,
+    "Y": 7.19999999999999,
+    "Zoom": 1.0
+  }
+}

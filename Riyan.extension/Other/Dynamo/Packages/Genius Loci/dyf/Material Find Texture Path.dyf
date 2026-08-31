@@ -1,0 +1,165 @@
+{
+  "Uuid": "f0ed32e5-3563-4f6a-8a04-58e30538858e",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Works only in Revit 2018.1 and later.\r\nFind the texture paths of the materials (if any).",
+  "Name": "Material Find Texture Path",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "material",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "6662e8240c54473d91756e0bd5fcb2a3",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "97c84dc6fac94b12999de225418fd43f",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "FilePath",
+      "Id": "2f292eace88f48b1a9b30e5f1afeea56",
+      "Inputs": [
+        {
+          "Id": "563df8cbf36747338ed469d0982d16fe",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nmat = UnwrapElement(IN[0])\npaths,propertyName,library=[],[],[]\n\nassetElem = doc.GetElement(mat.AppearanceAssetId)\nif assetElem:\n\twith Visual.AppearanceAssetEditScope(doc) as editScope:\n\t\tasset = editScope.Start(assetElem.Id)\n\t\tfor idx in range(0, asset.Size):\n\t\t#idx=0\n\t\t#while idx < asset.Size:\n\t\t\tproperty=asset.Get(idx)\n\t\t\t#if property.NumberOfConnectedProperties < 1 :\n\t\t\tconnectedAsset=property.GetSingleConnectedAsset()\n\t\t\tif connectedAsset:\n\t\t\t\tif connectedAsset.Name == \"UnifiedBitmapSchema\":\n\t\t\t\t\t#path.append(connectedAsset[\"unifiedbitmap_Bitmap\"].Value)\n\t\t\t\t\t#path.append(connectedAsset.FindByName(\"unifiedbitmap_Bitmap\").Value)\n\t\t\t\t\tpaths.append(connectedAsset.FindByName(\"unifiedbitmap_Bitmap\").Value)\n\t\t\t\telif connectedAsset.Name == \"BumpMapSchema\":\t\n\t\t\t\t\tpaths.append(connectedAsset.FindByName(\"bumpmap_Bitmap\").Value)\n\t\t\t\tpath=filter(None,paths)\n\t\t\t\t\t#propertyName.append(property.Name) \n\t\t\t\t\t#library.append(connectedAsset.LibraryName)\n\t\t\t#idx += 1\n\nOUT= path if len(path)>1 else path[0]",
+      "VariableInputPorts": true,
+      "Id": "d3db4a8a1d27497b9db0ef6bf0131a1b",
+      "Inputs": [
+        {
+          "Id": "ba4d79383a9f41a293842d8807610c9c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "fb92de1951e042798c0d8251d3a50919",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "97c84dc6fac94b12999de225418fd43f",
+      "End": "ba4d79383a9f41a293842d8807610c9c",
+      "Id": "f036a1d966a8417bb0f8f408c4018b1c"
+    },
+    {
+      "Start": "fb92de1951e042798c0d8251d3a50919",
+      "End": "563df8cbf36747338ed469d0982d16fe",
+      "Id": "b81315429b3c4b7f9f4940842f529f08"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6662e8240c54473d91756e0bd5fcb2a3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 297.439887244443,
+        "Y": 305.161590731918
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "2f292eace88f48b1a9b30e5f1afeea56",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 718.239887244443,
+        "Y": 305.161590731918
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "d3db4a8a1d27497b9db0ef6bf0131a1b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 493.439887244443,
+        "Y": 305.161590731918
+      }
+    ],
+    "Annotations": [],
+    "X": 8.29228174480258,
+    "Y": 60.7909607920359,
+    "Zoom": 0.784369328044827
+  }
+}

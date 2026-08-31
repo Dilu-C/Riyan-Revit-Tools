@@ -1,0 +1,217 @@
+{
+  "Uuid": "ddcc6470-d02e-410a-a4d0-03b57ed8f3dd",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Set the AppearanceAsset Element of the given material.",
+  "Name": "Material Set AppearanceAsset",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n\r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndef toList(obj):\r\n    if hasattr(obj, '__iter__'): return obj\r\n    else: return [obj]\r\n    \r\nmats = toList(UnwrapElement(IN[0]))\r\nassetElements = toList(UnwrapElement(IN[1]))\r\n\r\nTransactionManager.Instance.ForceCloseTransaction()\r\nfor mat,assetElement in zip(mats,assetElements):\r\n\tdoc = mat.Document\r\n\tTransactionManager.Instance.EnsureInTransaction(doc)\r\n\tmat.AppearanceAssetId = assetElement.Id\r\n\tTransactionManager.Instance.TransactionTaskDone()\r\n\r\nif isinstance(IN[0], list): OUT = mats\r\nelse: OUT = mats[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "7580236fbe45441abfa424092bb75176",
+      "Inputs": [
+        {
+          "Id": "2dff5ae4383e4beab77de879c986ca6b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "0a423c35244c4cc38e68966ff10a323a",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0ddcaec4c6924856bcb1e97f98fc50bb",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Material",
+      "Id": "069271f0bea2476e87d599847083fc2e",
+      "Inputs": [
+        {
+          "Id": "581ef104e8aa48f0aa5523f734717e4b",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "material",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "fdffbe1db8494e8d8c2bc6156819de03",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ed93f9c86ae34737b3759d47fd06cfa6",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "appearanceAsset",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "6ce7a869504e43e5bd8687c020a88959",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3674ebb1c9f047ce86d21a82e48b6f87",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "0ddcaec4c6924856bcb1e97f98fc50bb",
+      "End": "581ef104e8aa48f0aa5523f734717e4b",
+      "Id": "c1153f94489842d69a5763a762d412e0"
+    },
+    {
+      "Start": "ed93f9c86ae34737b3759d47fd06cfa6",
+      "End": "2dff5ae4383e4beab77de879c986ca6b",
+      "Id": "ba24129e4fd94b738779dfa936d6250b"
+    },
+    {
+      "Start": "3674ebb1c9f047ce86d21a82e48b6f87",
+      "End": "0a423c35244c4cc38e68966ff10a323a",
+      "Id": "5e0f98e6b0ea4af9bb2ae54c2cb1043b"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "7580236fbe45441abfa424092bb75176",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Set Material.AppearanceAsset",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 264.30667581325366,
+        "Y": 305.38145802682834
+      },
+      {
+        "Id": "069271f0bea2476e87d599847083fc2e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 553.85267047422326,
+        "Y": 302.19926098975509
+      },
+      {
+        "Id": "fdffbe1db8494e8d8c2bc6156819de03",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -4.3964391691394553,
+        "Y": 298.87596439169135
+      },
+      {
+        "Id": "6ce7a869504e43e5bd8687c020a88959",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -64.2183976261129,
+        "Y": 371.48130563798225
+      }
+    ],
+    "Annotations": [],
+    "X": 243.94692594091248,
+    "Y": 99.667799566023731,
+    "Zoom": 0.59376714062500013
+  }
+}

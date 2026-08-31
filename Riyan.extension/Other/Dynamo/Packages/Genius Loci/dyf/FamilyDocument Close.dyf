@@ -1,0 +1,217 @@
+{
+  "Uuid": "9226b25d-4b49-47ca-b09e-fd0da110f28e",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Family",
+  "Description": "Close the given document with the option to save the changes.",
+  "Name": "FamilyDocument Close",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Closed?",
+      "Id": "44a169699cab4dc2b695bd2025540d90",
+      "Inputs": [
+        {
+          "Id": "d25344fc0b0b4e7984ecdb0bda1c88a9",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "document",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Autodesk.Revit.DB.Document"
+      },
+      "Id": "c2584c7448344c9f9a1df7c0d91d19cd",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "99eb03d353924fff8f80b7a153ca3960",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "save",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": "Save the open document ?"
+      },
+      "Id": "b9fa318bb7f54faa84dbe797b380f421",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ad096b2d66d74eedae6defb6518b2325",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Transactions import TransactionManager\n\nfamDocs = IN[0] if isinstance(IN[0],list) else [IN[0]]\nsave=IN[1]\nresult=[]\n\nTransactionManager.Instance.ForceCloseTransaction()\nfor famDoc in famDocs:\n\ttry:\n\t\tresult.append(famDoc.Close(save))\n\texcept:\n\t\tresult.append(\"Failed\")\nif isinstance(IN[0], list): OUT = result\nelse: OUT = result[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "d35cc4cb57d8440285e63aa93cb7985e",
+      "Inputs": [
+        {
+          "Id": "0136ff03da774fed997bf34a949bfd72",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "df851cb6cd9849c8978e367dad797fbc",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "43478c283a6b46539cc3de9ae789b020",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "99eb03d353924fff8f80b7a153ca3960",
+      "End": "0136ff03da774fed997bf34a949bfd72",
+      "Id": "370a93eab09b498294cbc52be36b0a47"
+    },
+    {
+      "Start": "ad096b2d66d74eedae6defb6518b2325",
+      "End": "df851cb6cd9849c8978e367dad797fbc",
+      "Id": "535f62b2735a41789a2af586afa43e3b"
+    },
+    {
+      "Start": "43478c283a6b46539cc3de9ae789b020",
+      "End": "d25344fc0b0b4e7984ecdb0bda1c88a9",
+      "Id": "7eafe3e61bfa4c7aa2dda75822e289cc"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "44a169699cab4dc2b695bd2025540d90",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 336.60436010151,
+        "Y": 314.598400009272
+      },
+      {
+        "Id": "c2584c7448344c9f9a1df7c0d91d19cd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -232.99563989849,
+        "Y": 285.598400009272
+      },
+      {
+        "Id": "b9fa318bb7f54faa84dbe797b380f421",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -232.99563989849,
+        "Y": 369.598400009272
+      },
+      {
+        "Id": "d35cc4cb57d8440285e63aa93cb7985e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 111.80436010151,
+        "Y": 314.598400009272
+      }
+    ],
+    "Annotations": [],
+    "X": 228.202436015644,
+    "Y": 50.707878649566,
+    "Zoom": 0.847618571998229
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "Uuid": "83cff94e-9d37-4d7c-88b0-ce9cac92b666",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Modify the path of an existing railing.",
+  "Name": "Railing SetPath",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.Elements)\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nrailing = UnwrapElement(IN[0])\ncurves = UnwrapElement(IN[1]) if isinstance(IN[1],list) else [UnwrapElement(IN[1])]\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nrevitCurves=[]\nfor curve in curves:\n\trevitCurves.append(curve.ToRevitType())\n\ncurveloop = CurveLoop.Create(revitCurves)\nrpath = railing.SetPath(curveloop)\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = railing",
+      "VariableInputPorts": true,
+      "Id": "70d05ca03557428c96ddbbb6f04084fe",
+      "Inputs": [
+        {
+          "Id": "0b88080680274f4cbbc790b248c9d7f5",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "4fb30a143e8042e1818f989cb970b904",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2acc66f59acb4935ba39badd736076cd",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Railing",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "c9816fd54b7745159da59c5ebdcf28bf",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c7f526d25e8f4a0cad29c18c6ffe6cf4",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "curve",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Dynamo curve"
+      },
+      "Id": "b499c33aa61e4b378d18e565e933ffec",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b6a08ace0fc648dca8c4075c24e39ab0",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Railing",
+      "Id": "0e4e1fca06ae4f3795effc52307c96c6",
+      "Inputs": [
+        {
+          "Id": "6aa843900a0a449086235c8c95cf47f8",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "2acc66f59acb4935ba39badd736076cd",
+      "End": "6aa843900a0a449086235c8c95cf47f8",
+      "Id": "7bddea4c96b348fba146b00910024271"
+    },
+    {
+      "Start": "c7f526d25e8f4a0cad29c18c6ffe6cf4",
+      "End": "0b88080680274f4cbbc790b248c9d7f5",
+      "Id": "491e1da727c64394a4b6be48dc6a1b01"
+    },
+    {
+      "Start": "b6a08ace0fc648dca8c4075c24e39ab0",
+      "End": "4fb30a143e8042e1818f989cb970b904",
+      "Id": "9835240bad5247a685799a0009b95e42"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "70d05ca03557428c96ddbbb6f04084fe",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 590.4,
+        "Y": 299.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "c9816fd54b7745159da59c5ebdcf28bf",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 372.8,
+        "Y": 276.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "b499c33aa61e4b378d18e565e933ffec",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 372.8,
+        "Y": 368.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "0e4e1fca06ae4f3795effc52307c96c6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 806.4,
+        "Y": 306.4
+      }
+    ],
+    "Annotations": [],
+    "X": -58.1796838098136,
+    "Y": 68.9860301327192,
+    "Zoom": 0.803321593462598
+  }
+}

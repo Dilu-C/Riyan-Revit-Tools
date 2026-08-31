@@ -1,0 +1,365 @@
+{
+  "Uuid": "40d7c9d6-d751-42ee-b10a-6a99e851e27d",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.CompoundStructure",
+  "Description": "Creates a new layer at the specified index in the compound system family (wall, floor, roof or ceiling).",
+  "Name": "Create Compound Layer",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nimport System\nfrom System.Collections.Generic import IDictionary\n\nif version < 2021:\n\tUIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Length).DisplayUnits\nelse:\n\tUIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()\n\ndef tolist(obj1):\n    if hasattr(obj1,\"__iter__\"): return obj1\n    else: return [obj1]\n\nelements = tolist(UnwrapElement(IN[0]))\nfunctions = tolist(IN[1])\nmaterials = tolist(UnwrapElement(IN[2]))\nwidths = tolist(IN[3])\nindex = tolist(IN[4])\n\noutList,boolList = [], []\n\n# Out error Dictionaries for CompoundStructure.IsValid() method...\nisValidError = clr.StrongBox[IDictionary[int, CompoundStructureError]]()\nisValidError2Layer = clr.StrongBox[IDictionary[int, int]]()\n\nfor elem in elements :\n\tif isinstance(elem, ElementType):\n\t\tfamType=elem\n\telif isinstance(elem, Wall):\n\t\tfamType = elem.WallType\n\telif isinstance(elem, Floor):\n\t\tfamType = elem.FloorType\n\telif isinstance(elem, FootPrintRoof) or isinstance(elem, ExtrusionRoof) or isinstance(elem, RoofBase) :\n\t\tfamType = elem.RoofType\n\telif isinstance(elem, Ceiling) or isinstance(elem, FaceWall) :\n\t\tfamType = doc.GetElement(elem.GetTypeId())\n\telse:\n\t\tpass\n\t\t\n\tcompStr = famType.GetCompoundStructure()\n\tlayers = list(compStr.GetLayers())\n\tstructural=compStr.StructuralMaterialIndex\n\tvariable=compStr.VariableLayerIndex\n\t\n\tidx = 0\n\twhile idx < compStr.LayerCount:\n\t\tboolList.Add(compStr.ParticipatesInWrapping(idx))\n\t\tidx = idx+1\n\tfirstCoreLayerIndex = compStr.GetFirstCoreLayerIndex()\n\tlastCoreLayerIndex = compStr.GetLastCoreLayerIndex()\n\tnumberOfShellLayExt = compStr.GetNumberOfShellLayers(ShellLayerType.Exterior)\n\tnumberOfShellLayInt = compStr.GetNumberOfShellLayers(ShellLayerType.Interior)\n\t\n\tfor indx,material,width,function in zip(index,materials,widths,functions):\t\n\t\tif isinstance(function, Autodesk.Revit.DB.MaterialFunctionAssignment):\n\t\t\tlayerFunction=function\n\t\telse:\n\t\t\tlayerFunction=System.Enum.Parse(Autodesk.Revit.DB.MaterialFunctionAssignment, function)\n\t\t\n\t\tcompoundStructureLayer = CompoundStructureLayer((UnitUtils.ConvertToInternalUnits(width,UIunit)),layerFunction,material.Id)\n\t\tboolList.insert(indx, True)\n\t\tlayers.insert(indx, compoundStructureLayer)\n\t\tif indx < firstCoreLayerIndex :\n\t\t\tnumberOfShellLayExt += 1\n\t\tif indx > lastCoreLayerIndex:\n\t\t\tnumberOfShellLayInt += 1\n\t\tif indx <= variable:\n\t\t\tvariable += 1\n\t\tif indx <= structural: \n\t\t\tstructural += 1\n\t\t\t\n\tcompStr.SetLayers(layers)\n\tcompStr.SetNumberOfShellLayers(ShellLayerType.Exterior, numberOfShellLayExt)\n\tcompStr.SetNumberOfShellLayers(ShellLayerType.Interior, numberOfShellLayInt)\n\tcompStr.StructuralMaterialIndex=structural\n\tcompStr.VariableLayerIndex=variable\n\t\t\n\tidx = 0\n\twhile idx < compStr.LayerCount:\n\t\tif idx < compStr.GetFirstCoreLayerIndex() or idx > compStr.GetLastCoreLayerIndex() :\n\t\t\tcompStr.SetParticipatesInWrapping(idx, boolList[idx])\n\t\tidx = idx+1\n\t\t\t\n\tTransactionManager.Instance.EnsureInTransaction(doc)\n\tif compStr.IsValid(doc, isValidError, isValidError2Layer):\n\t\tfamType.SetCompoundStructure(compStr)\n\t\toutList.append(famType)\n\telse:\n\t\txErrInfo = list(isValidError.Value)\t\n\t\toutList.append(xErrInfo)\n\tTransactionManager.Instance.TransactionTaskDone()\n\tTransactionManager.Instance.ForceCloseTransaction()\n\t\t\nif isinstance(IN[0], list): OUT = outList\nelse: OUT = outList[0]",
+      "VariableInputPorts": true,
+      "Id": "d80d29eff1f3473da62773a725d64826",
+      "Inputs": [
+        {
+          "Id": "0543be043c9b4cad9cc00f3a2fbdfac0",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "e8f6b3c01b424be59ef24e3483d1bc4a",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "34679c934b58432dac457edea6c8e217",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "cbb1d688c6a94781a69c9f51866d6062",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "17a1b337a21345dcb63d54b5106e486c",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "9b8268950ca74bb4800a44cc4d243efd",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ElementOrFamilyType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "84417d4874914a189dfc1adf62ee6973",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f4a2d686d6814cae8629c7a07fd02d31",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "FamilyType",
+      "Id": "504d634598474461ba0c44d7c2ac168a",
+      "Inputs": [
+        {
+          "Id": "9f6d415fa3e64d85982091431be40001",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "LayerFunction",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "\"Structure\"",
+        "Description": "String or MaterialFunctionAssignement\nUse the Enumerate LayerFunction node"
+      },
+      "Id": "b299e014d41446a1a925b0a79c4ec7c9",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b43b5e2ca65a4d8287f22d2f8f558f35",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "material",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "One material per layer"
+      },
+      "Id": "7b6a639acee44a5c86b44952eb5977fb",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b5c77b99a3f9495eabb3358da4c6b3bf",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Thickness",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "One thickness per layer\nIn Document Units"
+      },
+      "Id": "f244c8ee3eb4442b9df7f4322bd58f7d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "83425d72ca4845f3828242b13d41a7eb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "index",
+        "TypeName": "int",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The index of the layer (The first index is 0)\nCounts from the exterior of the wall and from \nthe top of roof, floor and ceiling. "
+      },
+      "Id": "79f5b935f39f4843a4519a646a4e26fe",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "83d75f44b7f14ae1803fdbfd6ba95e5b",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "9b8268950ca74bb4800a44cc4d243efd",
+      "End": "9f6d415fa3e64d85982091431be40001",
+      "Id": "b2bf63181c48424dbd60f36743588c9a"
+    },
+    {
+      "Start": "f4a2d686d6814cae8629c7a07fd02d31",
+      "End": "0543be043c9b4cad9cc00f3a2fbdfac0",
+      "Id": "d538e555129e4917803425b7fdadbbd4"
+    },
+    {
+      "Start": "b43b5e2ca65a4d8287f22d2f8f558f35",
+      "End": "e8f6b3c01b424be59ef24e3483d1bc4a",
+      "Id": "76504d38d751439f8f09b6c40cc036fd"
+    },
+    {
+      "Start": "b5c77b99a3f9495eabb3358da4c6b3bf",
+      "End": "34679c934b58432dac457edea6c8e217",
+      "Id": "76761e328165452fac26fc198de94bff"
+    },
+    {
+      "Start": "83425d72ca4845f3828242b13d41a7eb",
+      "End": "cbb1d688c6a94781a69c9f51866d6062",
+      "Id": "b32fc108a0df4422be8baab3b837cc7a"
+    },
+    {
+      "Start": "83d75f44b7f14ae1803fdbfd6ba95e5b",
+      "End": "17a1b337a21345dcb63d54b5106e486c",
+      "Id": "bce630edf55f4bb3bf09ec324395ae42"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "d80d29eff1f3473da62773a725d64826",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 293.605641934867,
+        "Y": 377.866994742962
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "84417d4874914a189dfc1adf62ee6973",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -233.594358065133,
+        "Y": 240.866994742962
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "504d634598474461ba0c44d7c2ac168a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 518.405641934867,
+        "Y": 377.866994742962
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "b299e014d41446a1a925b0a79c4ec7c9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -233.594358065133,
+        "Y": 324.866994742962
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "7b6a639acee44a5c86b44952eb5977fb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -233.594358065133,
+        "Y": 434.866994742962
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "f244c8ee3eb4442b9df7f4322bd58f7d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -233.594358065133,
+        "Y": 527.866994742962
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "79f5b935f39f4843a4519a646a4e26fe",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -233.594358065133,
+        "Y": 620.866994742962
+      }
+    ],
+    "Annotations": [],
+    "X": 386.447701644989,
+    "Y": -127.06174403486,
+    "Zoom": 1.00600419002725
+  }
+}

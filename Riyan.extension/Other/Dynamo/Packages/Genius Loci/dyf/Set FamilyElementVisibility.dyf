@@ -1,0 +1,317 @@
+{
+  "Uuid": "d639614d-4d98-4ae9-b232-423e739ca355",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Family",
+  "Description": "In familyDocument, sets the visibility parameters of family elements (coarse, medium and fine detail levels).",
+  "Name": "Set FamilyElementVisibility",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2022\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n#https://github.com/albandechasteigner/GeniusLociForDynamo\r\nimport clr\r\nclr.AddReference('RevitServices')\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB import * \r\n\r\ndef tolist(obj1):\r\n    if hasattr(obj1,\"__iter__\"): return obj1\r\n    else: return [obj1]\r\n\r\nelems = tolist(UnwrapElement(IN[0]))\r\ncoarses = tolist(IN[1])\r\nmediums = tolist(IN[2])\r\nfines = tolist(IN[3])\r\n\r\nfor elem, coarse, medium, fine in zip(elems, coarses, mediums, fines):\r\n\tTransactionManager.Instance.ForceCloseTransaction()\r\n\tTransactionManager.Instance.EnsureInTransaction(elem.Document)\r\n\ttry:\r\n\t\tfev = FamilyElementVisibility(FamilyElementVisibilityType.Model)\r\n\t\tif isinstance(coarse, int) :\r\n\t\t\tfev.IsShownInCoarse = coarse\r\n\t\tif isinstance(medium, int) :\r\n\t\t\tfev.IsShownInMedium = medium\r\n\t\tif isinstance(fine, int) :\r\n\t\t\tfev.IsShownInFine = fine\r\n\t\telem.SetVisibility(fev)\r\n\texcept:\r\n\t\tfev = FamilyElementVisibility(FamilyElementVisibilityType.ViewSpecific)\r\n\t\tif isinstance(coarse, int) :\r\n\t\t\tfev.IsShownInCoarse = coarse\r\n\t\tif isinstance(coarse, int) :\r\n\t\t\tfev.IsShownInMedium = medium\r\n\t\tif isinstance(fine, int) :\r\n\t\t\tfev.IsShownInFine = fine\r\n\t\telem.SetVisibility(fev)\r\n\tTransactionManager.Instance.TransactionTaskDone()\r\n\t\r\nOUT = IN[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "11d67e3cc1594bce8b96930efc5fcad4",
+      "Inputs": [
+        {
+          "Id": "f144b113b03d4edba805de8628db96de",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "af0148a873594d88836affe631e6e411",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "ad54e7edbeba4e638e23eaddc46c4df1",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "30164a40a12041389b82e75b04a42656",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b548f7bc0eb74f18bb85eedf83f6e9d4",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "element",
+      "Id": "209b6e5e6dba43ec9e3c72f96eb18347",
+      "Inputs": [
+        {
+          "Id": "aea4391d41fc42b6951f211c9f956953",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "538d18e4372d4ab08f6d509434b56756",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d96cca8161ff4276bcc828fe51d3e2f3",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "coarse",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "boolean"
+      },
+      "Id": "3563e4168f5246a38033b8bb6ad9143e",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "362757899df04d599b2bdcd8ae82be54",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "medium",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "boolean"
+      },
+      "Id": "f0217c8a62344651bbd37b97cff00289",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b5be29e53e5c429cb97c7dbf880d6f2a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "fine",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "boolean"
+      },
+      "Id": "8ccb7b463edd494a93fdb8aeb6924f44",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "80abdfbe7e3c40deb237b7b1eeccf91d",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "b548f7bc0eb74f18bb85eedf83f6e9d4",
+      "End": "aea4391d41fc42b6951f211c9f956953",
+      "Id": "e07abbf83bbf42bc976e1a6a3a8ea545"
+    },
+    {
+      "Start": "d96cca8161ff4276bcc828fe51d3e2f3",
+      "End": "f144b113b03d4edba805de8628db96de",
+      "Id": "f41bfd043bca4c05b699b2232bd68519"
+    },
+    {
+      "Start": "362757899df04d599b2bdcd8ae82be54",
+      "End": "af0148a873594d88836affe631e6e411",
+      "Id": "067f3bba831e4136914498c700c71516"
+    },
+    {
+      "Start": "b5be29e53e5c429cb97c7dbf880d6f2a",
+      "End": "ad54e7edbeba4e638e23eaddc46c4df1",
+      "Id": "5ac2fc5ad0634c2687e0e92ca0162da1"
+    },
+    {
+      "Start": "80abdfbe7e3c40deb237b7b1eeccf91d",
+      "End": "30164a40a12041389b82e75b04a42656",
+      "Id": "5923fff577dd42608ecd287c5f07f86a"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "11d67e3cc1594bce8b96930efc5fcad4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Set FamilyElementVisibility",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 605.24056661609029,
+        "Y": 243.20000000000005
+      },
+      {
+        "Id": "209b6e5e6dba43ec9e3c72f96eb18347",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 938.83784179586314,
+        "Y": 248.2828316930852
+      },
+      {
+        "Id": "538d18e4372d4ab08f6d509434b56756",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 320.10406052473377,
+        "Y": 230.21441552415342
+      },
+      {
+        "Id": "3563e4168f5246a38033b8bb6ad9143e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 275.20727519411776,
+        "Y": 306.95280359834658
+      },
+      {
+        "Id": "f0217c8a62344651bbd37b97cff00289",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 286.07512980011609,
+        "Y": 398.77512875065122
+      },
+      {
+        "Id": "8ccb7b463edd494a93fdb8aeb6924f44",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 299.7264495402278,
+        "Y": 497.09720278699126
+      }
+    ],
+    "Annotations": [],
+    "X": -52.538900367331479,
+    "Y": 43.040580572916554,
+    "Zoom": 0.729950825270786
+  }
+}

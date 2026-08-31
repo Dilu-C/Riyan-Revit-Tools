@@ -1,0 +1,273 @@
+{
+  "Uuid": "4d1c8e35-4df2-4183-80ef-3a7901a3521a",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.ColorScheme",
+  "Description": "Works only in Revit 2022 and later.\r\nApplies color fill scheme to the given view. ",
+  "Name": "View Set ColorFill Scheme",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "##Alban de Chasteigner 2021\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n#https://github.com/albandechasteigner/GeniusLociForDynamo\r\n\r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitServices')\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nversion=int(app.VersionNumber)\r\n\r\ndef SetColorFillScheme(view):\r\n\tif version < 2022: return \"This method is only available for Revit 2022 and later\"\r\n\telif hasattr(view, \"SetColorFillSchemeId\"):\r\n\t\tTransactionManager.Instance.EnsureInTransaction(doc)\r\n\t\ttry:\r\n\t\t\tview.SetColorFillSchemeId(category.Id,colorScheme.Id)\r\n\t\t\tresult= colorScheme\r\n\t\texcept: result = \"Failed\"\r\n\t\tTransactionManager.Instance.TransactionTaskDone()\r\n\t\treturn result\r\n\r\nviews = UnwrapElement(IN[0])\r\ncategory = UnwrapElement(IN[1])\r\ncolorScheme = UnwrapElement(IN[2])\r\n\r\nif isinstance(IN[0], list): OUT = [SetColorFillScheme(x) for x in views]\r\nelse: OUT = SetColorFillScheme(views)",
+      "VariableInputPorts": true,
+      "Id": "8b4e90653e024da0924bbc9ed9aa25e3",
+      "Inputs": [
+        {
+          "Id": "bc6edad89f5644b89f19b50466776869",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "410ac181af7c49928b3dc5d2d41ea274",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "95f7f3b67cc843038b05233534b3a2fa",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "106cdddc75b940eabdf7606ccf22e491",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded IronPython script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": ""
+      },
+      "Id": "3d062711bd6243b09bf3a0423655cca8",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9e51176f7d9848d68e28629321d5aeb5",
+          "Name": "",
+          "Description": "Symbol",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "A function parameter, use with custom nodes.\r\n\r\nYou can specify the type and default value for parameter. E.g.,\r\n\r\ninput : var[]..[]\r\nvalue : bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ColorFillScheme",
+      "Id": "495ef1a70728447eb5d6def91e505328",
+      "Inputs": [
+        {
+          "Id": "93f144073a734143b62fd6f5a1ee89f7",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "A function output, use with custom nodes"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "category",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The category which the color fill scheme element belongs to. \nRooms, zones, spaces, areas, pipes or ducts"
+      },
+      "Id": "e8df0e2a8118435987f6ec05c7c8e503",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "5291d4cc6fce4168bd91d1de6f311880",
+          "Name": "",
+          "Description": "Symbol",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "A function parameter, use with custom nodes.\r\n\r\nYou can specify the type and default value for parameter. E.g.,\r\n\r\ninput : var[]..[]\r\nvalue : bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "colorFillScheme",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "colorFillScheme element"
+      },
+      "Id": "203daf1c1a7b4123abd43f6770ddbade",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c333b357d9d34b6296872a67c0f095af",
+          "Name": "",
+          "Description": "Symbol",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "A function parameter, use with custom nodes.\r\n\r\nYou can specify the type and default value for parameter. E.g.,\r\n\r\ninput : var[]..[]\r\nvalue : bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "106cdddc75b940eabdf7606ccf22e491",
+      "End": "93f144073a734143b62fd6f5a1ee89f7",
+      "Id": "b5a6e1fbeb9e4fdf83c6cfdf7dc3a99c"
+    },
+    {
+      "Start": "9e51176f7d9848d68e28629321d5aeb5",
+      "End": "bc6edad89f5644b89f19b50466776869",
+      "Id": "9167f64384f340e3b0949ae46d1d80fb"
+    },
+    {
+      "Start": "5291d4cc6fce4168bd91d1de6f311880",
+      "End": "410ac181af7c49928b3dc5d2d41ea274",
+      "Id": "395c0aed55074b88b395a04a2cabcbaa"
+    },
+    {
+      "Start": "c333b357d9d34b6296872a67c0f095af",
+      "End": "95f7f3b67cc843038b05233534b3a2fa",
+      "Id": "1658bfd9fa8e4d1cb368cbbd970d3193"
+    }
+  ],
+  "Dependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.0.4.12684",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Background Preview",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "8b4e90653e024da0924bbc9ed9aa25e3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 389.60000000000008,
+        "Y": 275.20000000000005
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "3d062711bd6243b09bf3a0423655cca8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -227.6016783348141,
+        "Y": 267.97581955635718
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "495ef1a70728447eb5d6def91e505328",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 568.90043339762,
+        "Y": 273.59999999999991
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "e8df0e2a8118435987f6ec05c7c8e503",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -226.50138632501222,
+        "Y": 342.374653418747
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "203daf1c1a7b4123abd43f6770ddbade",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -220.66907420466453,
+        "Y": 453.28259498506634
+      }
+    ],
+    "Annotations": [],
+    "X": 174.59895589967363,
+    "Y": 174.55296147612921,
+    "Zoom": 0.56885383927529931
+  }
+}

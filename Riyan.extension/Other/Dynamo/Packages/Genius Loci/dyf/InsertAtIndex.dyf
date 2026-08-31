@@ -1,0 +1,265 @@
+{
+  "Uuid": "197facff-cc84-404d-a6b2-1fd2887ec32f",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Utilities",
+  "Description": "Inserts items into lists at specified indices.",
+  "Name": "InsertAtIndex",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "list",
+        "TypeName": "var",
+        "TypeRank": 1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "b3ff7a2809d141da8cc0ef052df8427c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "2d8c460729374df98b8ae34046632677",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": 1,
+        "DefaultValue": null,
+        "Description": "As many elements as the maximum number of indexes"
+      },
+      "Id": "f0b68849e36149a5bf5442145dc14187",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6c072b63041143fa8038353c9a5fac27",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "index",
+        "TypeName": "var",
+        "TypeRank": 1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "7f6b3689d666430db1d1ac982bc9ebbb",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b4ae4f7f8cc54e839665399eb6fa7c49",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "list",
+      "Id": "84a46dad481d4871901c524598b20e6b",
+      "Inputs": [
+        {
+          "Id": "ae5e906570c74ec7b29f7ed3f56b02e7",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\noriginalList = IN[0]\nnewItems = IN[1]\nindices = IN[2]\n\nfor newItem,index in zip(newItems,indices):\n\toriginalList.insert(index,newItem)\n\nOUT = originalList",
+      "VariableInputPorts": true,
+      "Id": "7f2875c1afff404e826bbd56700b6009",
+      "Inputs": [
+        {
+          "Id": "d285f5f1b4d24369a528c1502a2a709f",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d928334b60754f6f9eb825bbe7bd2188",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "e52ed8a582264f64ad669b9ff679dd82",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "647f818e246642ba98433857e4cdb6f0",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "2d8c460729374df98b8ae34046632677",
+      "End": "d285f5f1b4d24369a528c1502a2a709f",
+      "Id": "3965bde0b83f4bd8be97298001905faa"
+    },
+    {
+      "Start": "6c072b63041143fa8038353c9a5fac27",
+      "End": "d928334b60754f6f9eb825bbe7bd2188",
+      "Id": "141f078a223a4f01bb41c07895a2bd3d"
+    },
+    {
+      "Start": "b4ae4f7f8cc54e839665399eb6fa7c49",
+      "End": "e52ed8a582264f64ad669b9ff679dd82",
+      "Id": "47f7bf03e185409cb4d2b46ede2e389f"
+    },
+    {
+      "Start": "647f818e246642ba98433857e4cdb6f0",
+      "End": "ae5e906570c74ec7b29f7ed3f56b02e7",
+      "Id": "ecc0fa63568b40c1b56d62e1fd0bf18e"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "b3ff7a2809d141da8cc0ef052df8427c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 38.0000000000001,
+        "Y": 115.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "f0b68849e36149a5bf5442145dc14187",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -288.053745237933,
+        "Y": 195.305340948447
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "7f6b3689d666430db1d1ac982bc9ebbb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 38.0000000000001,
+        "Y": 281.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "84a46dad481d4871901c524598b20e6b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 500.4,
+        "Y": 172.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "7f2875c1afff404e826bbd56700b6009",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 276.0,
+        "Y": 172.0
+      }
+    ],
+    "Annotations": [],
+    "X": 262.648436775,
+    "Y": 65.2483270749999,
+    "Zoom": 0.593767140625
+  }
+}

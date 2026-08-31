@@ -1,0 +1,215 @@
+{
+  "Uuid": "1ad046da-824d-44a1-b168-3fbe0c012b3f",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Level",
+  "Description": "Change the element to the selected level without moving the element.\r\nDoesn't work with hosted family (Wall Based) and Work Plane based family (without Reference Level or with read-only Schedule Level).",
+  "Name": "Element Change Level",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "51cf98c59d8840d9bde7ce8734b1a19f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "90cc5ef191054db09808aa858daa2441",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "level",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "9551a4c864054b7498f3c4ec49ed6f19",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "39cd6603679e4ca78501af919f63bcf1",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Result",
+      "Id": "7d418a37433a4c3ca1b62c03f54b4999",
+      "Inputs": [
+        {
+          "Id": "0521425c5b304069938d85316b66c29d",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nelement = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nref_level = UnwrapElement(IN[1])\nresult = []\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor x in element:\n\tref_levelid = ref_level.Id\n\tif x.ToString() == 'Autodesk.Revit.DB.Wall' or x.ToString() == \"Autodesk.Revit.DB.Opening\":\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.WALL_BASE_CONSTRAINT)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET)\n\telif x.ToString() == 'Autodesk.Revit.DB.Floor':\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.LEVEL_PARAM)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM)\n\telif x.ToString() == 'Autodesk.Revit.DB.FootPrintRoof':\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.ROOF_BASE_LEVEL_PARAM)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.ROOF_LEVEL_OFFSET_PARAM)\n\telif x.ToString() == 'Autodesk.Revit.DB.ExtrusionRoof':\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.ROOF_CONSTRAINT_LEVEL_PARAM)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.ROOF_CONSTRAINT_OFFSET_PARAM)\n\telif x.ToString() == 'Autodesk.Revit.DB.RoofBase' or x.ToString() == 'Autodesk.Revit.DB.FaceWall':\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.FACEROOF_LEVEL_PARAM)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.FACEROOF_OFFSET_PARAM)\n\telif x.ToString() == 'Autodesk.Revit.DB.Ceiling':\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.LEVEL_PARAM)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.CEILING_HEIGHTABOVELEVEL_PARAM)\n\telif x.ToString() == 'Autodesk.Revit.DB.Group':\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.GROUP_LEVEL)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.GROUP_OFFSET_FROM_LEVEL)\n\telif x.ToString() == 'Autodesk.Revit.DB.Architecture.Railing':\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.STAIRS_RAILING_BASE_LEVEL_PARAM)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.STAIRS_RAILING_HEIGHT_OFFSET)\n\telif x.ToString() == \"Autodesk.Revit.DB.Architecture.Stairs\" or x.Category.Id == ElementId(BuiltInCategory.OST_Ramps):\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.STAIRS_BASE_OFFSET)\n\telif x.Category.Id == ElementId(BuiltInCategory.OST_StructuralColumns):\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_PARAM)\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_OFFSET_PARAM)\n\t#BuildingPads\n\telif isinstance(x, Autodesk.Revit.DB.Architecture.BuildingPad):\n\t\tobject_param_level = x.get_Parameter(BuiltInParameter.LEVEL_PARAM)\n\t\t#if x.LookupParameter(\"Level\") != None :\n\t\t\t#object_param_level = x.LookupParameter(\"Level\")\n\t\t#elif x.LookupParameter(\"Niveau\") != None :\n\t\t\t#object_param_level = x.LookupParameter(\"Niveau\")\n\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.BUILDINGPAD_HEIGHTABOVELEVEL_PARAM)\n\t#Familyinstances without Schedule Level\n\telif hasattr(x, \"Symbol\") and doc.GetElement(x.get_Parameter(BuiltInParameter.INSTANCE_SCHEDULE_ONLY_LEVEL_PARAM).AsElementId()) == None :\t\n\t\ttry:\n\t\t\tobject_param_level = x.get_Parameter(BuiltInParameter.FAMILY_LEVEL_PARAM)\n\t\t\tobject_param_offset = x.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)\n\t\texcept:\n\t\t\tpass\t\t\t\n\ttry:\n\t\tobject_level = doc.GetElement(object_param_level.AsElementId())\n\t\tobject_newoffset = object_param_offset.AsDouble() + object_level.Elevation - ref_level.Elevation\n\t\tobject_param_level.Set(ref_levelid)\n\t\tobject_param_offset.Set(object_newoffset)\n\texcept:\n\t\tpass\n\t\t\n\t#System families\n\tif hasattr(x, \"ConnectorManager\") :\n\t\tobject_param_level = x.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM)\n\telif x.Category.Id == ElementId(BuiltInCategory.OST_StructuralFraming):\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM)\n\t\tif x.get_Parameter(BuiltInParameter.STRUCTURAL_BEAM_END0_ELEVATION) != None and x.get_Parameter(BuiltInParameter.STRUCTURAL_BEAM_END0_ELEVATION).AsDouble() == 0  :\n\t\t\ttry :\n\t\t\t\tnewoffset = (x.get_Parameter(BuiltInParameter.STRUCTURAL_BEAM_END0_ELEVATION)).Set(x.get_Parameter(BuiltInParameter.STRUCTURAL_BEAM_END0_ELEVATION).AsDouble()+1)\n\t\t\t\tobject_newoffset = (x.get_Parameter(BuiltInParameter.STRUCTURAL_BEAM_END0_ELEVATION)).Set(x.get_Parameter(BuiltInParameter.STRUCTURAL_BEAM_END0_ELEVATION).AsDouble()-1)\n\t\t\texcept:\n\t\t\t\tpass\n\telif x.ToString() == 'Autodesk.Revit.DB.Structure.Truss':\n\t\tobject_param_level =  x.get_Parameter(BuiltInParameter.TRUSS_ELEMENT_REFERENCE_LEVEL_PARAM)\n\t\tif round(x.get_Parameter(BuiltInParameter.TRUSS_ELEMENT_END0_ELEVATION).AsDouble(),10) == 0 :\n\t\t\tnewoffset = (x.get_Parameter(BuiltInParameter.TRUSS_ELEMENT_END0_ELEVATION)).Set(x.get_Parameter(BuiltInParameter.TRUSS_ELEMENT_END0_ELEVATION).AsDouble()+1)\n\t\t\tobject_newoffset = (x.get_Parameter(BuiltInParameter.TRUSS_ELEMENT_END0_ELEVATION)).Set(x.get_Parameter(BuiltInParameter.TRUSS_ELEMENT_END0_ELEVATION).AsDouble()-1)\n\t#Familyinstances with Schedule Level\n\telif hasattr(x, \"Symbol\") and doc.GetElement(x.get_Parameter(BuiltInParameter.INSTANCE_SCHEDULE_ONLY_LEVEL_PARAM).AsElementId()) != None :\n\t\tobject_param_level = x.get_Parameter(BuiltInParameter.INSTANCE_SCHEDULE_ONLY_LEVEL_PARAM)\n\t\t\n\ttry:\n\t\tobject_param_level.Set(ref_levelid)\n\t\tresult.append(x)\n\texcept:\n\t\tresult.append(False)\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = result",
+      "VariableInputPorts": true,
+      "Id": "e6699aef9072415a83b9298b26c90097",
+      "Inputs": [
+        {
+          "Id": "eaee2d5d60ad490697545142234b7e23",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "b39c34cdae5d4608b96f11d632e59222",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "f8133901f95244cda1d03b503cfda0d1",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "90cc5ef191054db09808aa858daa2441",
+      "End": "eaee2d5d60ad490697545142234b7e23",
+      "Id": "83a400ca2b624a8e9aecfe3029378f7a"
+    },
+    {
+      "Start": "39cd6603679e4ca78501af919f63bcf1",
+      "End": "b39c34cdae5d4608b96f11d632e59222",
+      "Id": "9f565e10d48540088907cc2c80c6790e"
+    },
+    {
+      "Start": "f8133901f95244cda1d03b503cfda0d1",
+      "End": "0521425c5b304069938d85316b66c29d",
+      "Id": "0322f526ad874f809383a73f0791115d"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "51cf98c59d8840d9bde7ce8734b1a19f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 266.4,
+        "Y": 229.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "9551a4c864054b7498f3c4ec49ed6f19",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 266.4,
+        "Y": 313.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "7d418a37433a4c3ca1b62c03f54b4999",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 679.2,
+        "Y": 258.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "e6699aef9072415a83b9298b26c90097",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 454.8,
+        "Y": 258.6
+      }
+    ],
+    "Annotations": [],
+    "X": -95.6328696606048,
+    "Y": 31.5778623361883,
+    "Zoom": 0.784369328044827
+  }
+}

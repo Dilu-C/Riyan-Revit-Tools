@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GeniusLoci</name>
+    </assembly>
+    <members>
+        <member name="M:Printing.Merge.MergePDFs(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Merge existing PDF
+            </summary>
+            <param name="Filenames">PDF files to merge</param>
+            <param name="TargetPdf">Name of the new merged PDF file. Must include : final directory + name +.pdf extension. </param>
+        </member>
+    </members>
+</doc>

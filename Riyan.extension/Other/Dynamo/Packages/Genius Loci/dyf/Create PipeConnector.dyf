@@ -1,0 +1,267 @@
+{
+  "Uuid": "efd69474-e728-4181-82a5-8ad8ccfc11e1",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.ConnectorElement",
+  "Description": "In a familyDocument, creates a new pipe ConnectorElement.",
+  "Name": "Create PipeConnector",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "familyDocument",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Autodesk.Revit.DB.Document\nOptional input"
+      },
+      "Id": "53c43abad2464f6c99e0435aa447479b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4d52d08e182f470e858042df66f5e90a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ConnectorElement",
+      "Id": "f56d73f0ef7a46888882bc3c53df3057",
+      "Inputs": [
+        {
+          "Id": "a56ff892458843bfa8308673b626f894",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "pipeSystemType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Autodesk.Revit.DB.Plumbing.PipeSystemType or string"
+      },
+      "Id": "0d71cbc3a72444c0a7798aa6c6e69250",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8cf60546cd324bb4a0b8b30b5d234880",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "reference",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Autodesk.Revit.DB.Reference"
+      },
+      "Id": "3415c1a5085146198c5df1b9bf3edd22",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "40bc164719bd4cb899898522a9e54ba3",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2022\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n#https://github.com/albandechasteigner/GeniusLociForDynamo\r\n\r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitServices')\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nimport System\r\n\r\ninputdoc = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\r\nmepSystemTypes = IN[1] if isinstance(IN[1],list) else [IN[1]]\r\nreferences = IN[2] if isinstance(IN[2],list) else [IN[2]]\r\nconnector=[]\r\nif inputdoc[0] == None and (DocumentManager.Instance.CurrentDBDocument).IsFamilyDocument :\r\n\tdoc = DocumentManager.Instance.CurrentDBDocument\r\nelse : doc = inputdoc[0]\r\n\r\nTransactionManager.Instance.ForceCloseTransaction()\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\nfor mepSystemType, ref in zip(mepSystemTypes, references):\r\n\tif isinstance(mepSystemType, Autodesk.Revit.DB.Plumbing.PipeSystemType):\r\n\t\tmepSys=mepSystemType\r\n\telse:\r\n\t\tmepSys=System.Enum.Parse(Autodesk.Revit.DB.Plumbing.PipeSystemType, mepSystemType)\r\n\tconnector.append(ConnectorElement.CreatePipeConnector(doc, mepSys, ref))\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = connector if isinstance(IN[2], list) else connector[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "d7c0a0b0a80e4f69bb38e18f168db950",
+      "Inputs": [
+        {
+          "Id": "63efcc7aea75482fb4bbe36306e750c7",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a9be481cdd9f4963918272e6e12d8c7a",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "2c151fc08b4b4084aaa81a402d734fe9",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0b626eaba5904f83bd503d3600c764e3",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "4d52d08e182f470e858042df66f5e90a",
+      "End": "63efcc7aea75482fb4bbe36306e750c7",
+      "Id": "e088b0e329014e89995f43883665ff85"
+    },
+    {
+      "Start": "8cf60546cd324bb4a0b8b30b5d234880",
+      "End": "a9be481cdd9f4963918272e6e12d8c7a",
+      "Id": "fa30cf94d35b4ffbbaf54a2774f5d944"
+    },
+    {
+      "Start": "40bc164719bd4cb899898522a9e54ba3",
+      "End": "2c151fc08b4b4084aaa81a402d734fe9",
+      "Id": "4034739650da4522b37726e59d76227d"
+    },
+    {
+      "Start": "0b626eaba5904f83bd503d3600c764e3",
+      "End": "a56ff892458843bfa8308673b626f894",
+      "Id": "b4eafc06665c482f8441073081e58404"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "53c43abad2464f6c99e0435aa447479b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 650.8,
+        "Y": 356.4
+      },
+      {
+        "Id": "f56d73f0ef7a46888882bc3c53df3057",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 1346.5025781301745,
+        "Y": 401.09271809270626
+      },
+      {
+        "Id": "0d71cbc3a72444c0a7798aa6c6e69250",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 460.71528317353716,
+        "Y": 479.55590160007148
+      },
+      {
+        "Id": "3415c1a5085146198c5df1b9bf3edd22",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 652.35019849112143,
+        "Y": 599.98701810699356
+      },
+      {
+        "Id": "d7c0a0b0a80e4f69bb38e18f168db950",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Create PipeConnector",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 1041.7734438383225,
+        "Y": 400.44056958822455
+      }
+    ],
+    "Annotations": [],
+    "X": -288.08030313425922,
+    "Y": -38.02646800793184,
+    "Zoom": 0.91006380393143915
+  }
+}

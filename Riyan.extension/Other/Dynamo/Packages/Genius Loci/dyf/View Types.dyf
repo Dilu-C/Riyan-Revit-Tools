@@ -1,0 +1,114 @@
+{
+  "Uuid": "2518a4f5-6984-4afe-922a-d91727034f28",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Enumerates the available view types.",
+  "Name": "View Types",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\nimport System\n\nviewTypes = [strview.ToString() for strview in System.Enum.GetValues(Autodesk.Revit.DB.ViewType)]\nviewTypes.Add(\"View Template\")\n\nOUT = sorted(viewTypes)",
+      "VariableInputPorts": true,
+      "Id": "f199e001be56419f9cbd26216c5771a5",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4ef45981e59e4a5883728b486a8aca2a",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ViewType",
+      "Id": "f4f16a2c20884835a44b8836e6346eaf",
+      "Inputs": [
+        {
+          "Id": "cfbb59fc54124b96ab458a38d422db9b",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "4ef45981e59e4a5883728b486a8aca2a",
+      "End": "cfbb59fc54124b96ab458a38d422db9b",
+      "Id": "e0ecca816f7d4dcbb8238b8946b2ffc4"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "View Type",
+        "Id": "f199e001be56419f9cbd26216c5771a5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 474.8,
+        "Y": 292.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "f4f16a2c20884835a44b8836e6346eaf",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 612.4,
+        "Y": 294.0
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

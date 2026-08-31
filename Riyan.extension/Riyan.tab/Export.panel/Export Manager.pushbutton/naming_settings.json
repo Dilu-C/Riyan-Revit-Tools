@@ -1,0 +1,396 @@
+{
+    "view_sets": {
+        "111": [
+            "00-000-000-00L", 
+            "00-000-000-00P", 
+            "00-000-000-00P"
+        ]
+    }, 
+    "theme": "Light", 
+    "combined_schemes": {
+        "RYN_Bobo_Combined": [
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_ProjectNumber", 
+                "Suffix": "-RYN-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingNumber", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingCode", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_Discipline", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingName", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ], 
+        "Default": [
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_ProjectNumber", 
+                "Suffix": "-RYN-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingNumber", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingCode", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_Discipline", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingName", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ], 
+        "RYN_Hurasveli_Combined": [
+            {
+                "Prefix": "", 
+                "ParameterName": "Project Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Discipline", 
+                "Suffix": "-DWG-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Building Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Building Name", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ], 
+        "RYN_Ehdhuffaru_Combined": [
+            {
+                "Prefix": "2231-RIY-", 
+                "ParameterName": "Building Code", 
+                "Suffix": "-ST-DWG", 
+                "Separator": "-"
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Building Name", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ], 
+        "RYN_Export_Combined": [
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_ProjectNumber", 
+                "Suffix": "-RYN-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingNumber", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingCode", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_Discipline", 
+                "Suffix": "-DWG-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingName", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ]
+    }, 
+    "split_by_format": true, 
+    "profile_settings": {
+        "RYN_Bobo_Combined": {
+            "is_dwg_checked": false, 
+            "is_pdf_checked": true, 
+            "pdf_setting": "Bluebeam PDF_A1", 
+            "dwg_setting": "RYN_CadExport_Standard", 
+            "is_combined": true
+        }, 
+        "RYN_Bobo_Sheetwise": {
+            "dwg_setting": "RYN_CadExport_Standard", 
+            "pdf_setting": "Bluebeam PDF_A1"
+        }, 
+        "RYN_Hurasveli_Combined": {
+            "dwg_setting": "Export CAD", 
+            "is_pdf_checked": true, 
+            "is_dwg_checked": false, 
+            "pdf_setting": "Bluebeam PDF_A1"
+        }, 
+        "RYN_Ehdhuffaru_Combined": {
+            "dwg_setting": "ISO Colour", 
+            "is_pdf_checked": true, 
+            "is_dwg_checked": false, 
+            "pdf_setting": "Default"
+        }, 
+        "RYN_Export_Combined": {
+            "dwg_setting": "RYN_CadExport_Standard", 
+            "is_pdf_checked": true, 
+            "is_dwg_checked": false, 
+            "pdf_setting": "Bluebeam PDF_A1"
+        }
+    }, 
+    "schemes": {
+        "RYN_Hurasveli_Sheetwise": [
+            {
+                "Prefix": "", 
+                "ParameterName": "Project Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Discipline", 
+                "Suffix": "-DWG-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Building Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Current Revision", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ], 
+        "Default": [
+            {
+                "Prefix": "", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "", 
+                "Separator": " - "
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Sheet Name", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ], 
+        "RYN_Export_Sheetwise": [
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_ProjectNumber", 
+                "Suffix": "-RYN-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingNumber", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingCode", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_Discipline", 
+                "Suffix": "-DWG-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Current Revision", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ], 
+        "RYN_Hurasveli_Combined": [
+            {
+                "Prefix": "", 
+                "ParameterName": "Project Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Discipline", 
+                "Suffix": "-DWG-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Building Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Current Revision", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ], 
+        "RYN_Ehdhuffaru_Sheetwise": [
+            {
+                "Prefix": "2231-RIY-", 
+                "ParameterName": "Building Code", 
+                "Suffix": "-ST-DWG", 
+                "Separator": "-"
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "View Sub Type", 
+                "Suffix": "", 
+                "Separator": "-"
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "", 
+                "Separator": "-"
+            }, 
+            {
+                "Prefix": "(", 
+                "ParameterName": "Current Revision", 
+                "Suffix": ")", 
+                "Separator": ""
+            }
+        ], 
+        "RYN_Ehdhuffaru_Combined": [
+            {
+                "Prefix": "2231-RIY-", 
+                "ParameterName": "Building Code", 
+                "Suffix": "-ST-DWG", 
+                "Separator": "-"
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "View Sub Type", 
+                "Suffix": "", 
+                "Separator": "-"
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "", 
+                "Separator": "-"
+            }, 
+            {
+                "Prefix": "(", 
+                "ParameterName": "Current Revision", 
+                "Suffix": ")", 
+                "Separator": ""
+            }
+        ], 
+        "RYN_Export_Combined": [
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_ProjectNumber", 
+                "Suffix": "-RYN-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingNumber", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_BuildingCode", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "RYN_PrInfo_Discipline", 
+                "Suffix": "-DWG-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "-", 
+                "Separator": ""
+            }, 
+            {
+                "Prefix": "", 
+                "ParameterName": "Current Revision", 
+                "Suffix": "", 
+                "Separator": ""
+            }
+        ]
+    }, 
+    "active_combined_scheme": "RYN_Hurasveli_Combined", 
+    "active_scheme": "RYN_Export_Sheetwise", 
+    "export_options": {
+        "reveal_constraints_off": true, 
+        "reveal_hidden_off": true, 
+        "worksharing_off": true, 
+        "temp_hide_off": true
+    }
+}

@@ -1,0 +1,113 @@
+{
+  "Uuid": "0ba62a45-209f-4517-8e9b-980e98f58002",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Lists the 14 standard material schemas and the 5 \"advanced\" material schemas.\r\nFor use with the AppearanceAsset Create node.",
+  "Name": "AppearanceAsset Schema",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Schemas",
+      "Id": "34e9f7c000f84213a7885b14c5a55c34",
+      "Inputs": [
+        {
+          "Id": "f13d6ad14dbb48b9bfb7a2aef2df8395",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "[\"CeramicSchema\",\"ConcreteSchema\",\"GenericSchema\",\"GlazingSchema\",\"HardwoodSchema\",\"MasonryCMUSchema\",\"MetalSchema\",\"MetallicPaintSchema\",\"MirrorSchema\",\"PrismLayeredSchema\",\"PrismMetalSchema\",\"PrismOpaqueSchema\",\"PrismTransparentSchema\",\"PrismWoodSchema\",\"PlasticVinylSchema\",\"SolidGlassSchema\",\"StoneSchema\",\"WallPaintSchema\",\"WaterSchema\"];",
+      "Id": "a03d54b2aa6d4beca915dcc515d3bd89",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6e7f0d8b3e004325a9d30cd58de6cd8b",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "6e7f0d8b3e004325a9d30cd58de6cd8b",
+      "End": "f13d6ad14dbb48b9bfb7a2aef2df8395",
+      "Id": "75ee9ab1e8514cabac4f9ba5611e75bb"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "34e9f7c000f84213a7885b14c5a55c34",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 357.2,
+        "Y": 311.137017134005
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "a03d54b2aa6d4beca915dcc515d3bd89",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -380.868457939517,
+        "Y": 309.390057113351
+      }
+    ],
+    "Annotations": [],
+    "X": 223.2655795125,
+    "Y": 94.08353023125,
+    "Zoom": 0.593767140625
+  }
+}

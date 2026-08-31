@@ -1,0 +1,228 @@
+{
+  "Uuid": "a966e7d8-2444-4499-8c1d-a4aba12f8c3b",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Use a boolean True to toggle the 3D view to isometric. \r\nFalse toggles the 3D view to perspective.",
+  "Name": "3DView Toggle To Isometric",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Elements.Views.View3D": {
+        "Key": "Revit.Elements.Views.View3D",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ThreeDView",
+        "TypeName": "Revit.Elements.Views.View3D",
+        "TypeRank": 0,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": ""
+      },
+      "Id": "bca19e8dcd3447929b7e35dcf8fb7634",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "45f72139987d493dacd41e63fb37f33e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ThreeDView",
+      "Id": "efc82b0acaa447ac9686056359ae3fe0",
+      "Inputs": [
+        {
+          "Id": "167ce24281734d9780a183ddfed35ebe",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Toggle",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "true",
+        "Description": "True = Isometric\nFalse = Perspective"
+      },
+      "Id": "78801be8f07b46d69c886f4ddb370d10",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6bff37adea524d2393c16fc5c1510d48",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2019\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('ProtoGeometry')\nfrom Autodesk.DesignScript.Geometry import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.Elements)\n\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\n\ndef ProcessList(_func, _list):\n    return map( lambda x: ProcessList(_func, x) if type(x)==list else _func(x), _list )\n\ndef Unwrap(item):\n    return UnwrapElement(item)\n\nif isinstance(IN[0], list):\n    views = ProcessList(Unwrap, IN[0])\nelse:\n    views = [Unwrap(IN[0])]\n\ntoggle = IN[1]\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor view in views:\n\tview.Unlock()\n\tif toggle == True:\n\t\tview.ToggleToIsometric()\n\telse:\n\t\tview.ToggleToPerspective()\nTransactionManager.Instance.TransactionTaskDone()\n\n#Affectez la sortie à la variable OUT.\nOUT = views",
+      "VariableInputPorts": true,
+      "Id": "a7e517580db94972b3716481989fee9d",
+      "Inputs": [
+        {
+          "Id": "c90d3890b08d44528f8d4f025dd3e482",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "207d6bc2bc0f4733a2295d9202304d42",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4564ef9293d5469aba05b8dd7a3b5515",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "45f72139987d493dacd41e63fb37f33e",
+      "End": "c90d3890b08d44528f8d4f025dd3e482",
+      "Id": "a2bc03a801524cdb8e120f303fc33aab"
+    },
+    {
+      "Start": "6bff37adea524d2393c16fc5c1510d48",
+      "End": "207d6bc2bc0f4733a2295d9202304d42",
+      "Id": "ed8f56effc824d20aedc72fc1a2650f9"
+    },
+    {
+      "Start": "4564ef9293d5469aba05b8dd7a3b5515",
+      "End": "167ce24281734d9780a183ddfed35ebe",
+      "Id": "1e6fadcd47cb46dc8f41b702b98051fd"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "bca19e8dcd3447929b7e35dcf8fb7634",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 37.9358163658022,
+        "Y": 383.853077988747
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "efc82b0acaa447ac9686056359ae3fe0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 956.8,
+        "Y": 403.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "78801be8f07b46d69c886f4ddb370d10",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 525.2,
+        "Y": 465.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "3Dview Toggle",
+        "Id": "a7e517580db94972b3716481989fee9d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 784.8,
+        "Y": 400.8
+      }
+    ],
+    "Annotations": [],
+    "X": -336.916260370043,
+    "Y": -96.3342909608397,
+    "Zoom": 0.888789228297156
+  }
+}

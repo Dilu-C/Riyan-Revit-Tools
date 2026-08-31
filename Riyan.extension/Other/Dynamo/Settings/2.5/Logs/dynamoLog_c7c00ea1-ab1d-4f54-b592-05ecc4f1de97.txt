@@ -1,0 +1,46 @@
+Dynamo log started 2023-11-15 05:29:57Z
+2023-11-15 05:29:57Z : Python template set to default.
+2023-11-15 05:29:57Z : Dynamo -- Build 2.5.0.7460
+2023-11-15 05:29:58Z : Duplicate migration type registered for SunPathDirection
+2023-11-15 05:29:58Z : The folder '%AppData%\Roaming\pyRevit\Extensions\Riyan.extension\Other\Dynamo\Packages' does not exist
+2023-11-15 05:29:58Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-11-15 05:29:58Z : Exception encountered scanning the package directory at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+2023-11-15 05:29:58Z : notification:Dynamo.Exceptions.LibraryLoadFailedException: Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+   at Dynamo.PackageManager.PackageLoader.CheckPackageNodeLibraryCertificates(String packageDirectoryPath, Package discoveredPkg)
+   at Dynamo.PackageManager.PackageLoader.ScanPackageDirectory(String directory, Boolean checkCertificates):
+ Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit: 
+ "A package called GenerativeDesign found at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit could not be verified to have signed dll files.  A dll file found at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit\bin\GenerativeDesignNodes.dll did not have a signed certificate.  Ignoring it."
+2023-11-15 05:29:58Z : Dynamo.Exceptions.LibraryLoadFailedException:
+2023-11-15 05:29:58Z : Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+2023-11-15 05:29:58Z :    at Dynamo.PackageManager.PackageLoader.CheckPackageNodeLibraryCertificates(String packageDirectoryPath, Package discoveredPkg)
+   at Dynamo.PackageManager.PackageLoader.ScanPackageDirectory(String directory, Boolean checkCertificates)
+2023-11-15 05:29:58Z : The folder '%AppData%\Roaming\pyRevit\Extensions\Riyan.extension\Other\Dynamo\Packages' does not exist
+2023-11-15 05:29:58Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-11-15 05:29:58Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-11-15 05:29:58Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2021\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2021\en-US;C:\Program Files\Autodesk\Revit 2021;C:\Python27\;C:\Python27\Scripts;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Program Files\Git\cmd;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;C:\Users\asanka.d.LOCAL\AppData\Roaming\pyRevit-Master\bin;C:\Users\asanka.d.LOCAL\AppData\Local\GitHubDesktop\bin;C:\Program Files\JetBrains\PyCharm Community Edition 2023.2.4\bin;;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit
+2023-11-15 05:29:58Z : RENDER : Rendering Tier: 2
+2023-11-15 05:29:58Z : RENDER : Pixel Shader 3 Supported: True
+2023-11-15 05:29:58Z : RENDER : Pixel Shader 4 Supported: False
+2023-11-15 05:29:58Z : RENDER : Software Effect Rendering Supported: True
+2023-11-15 05:29:58Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-11-15 05:29:59Z : RENDER : Rendering Tier: 2
+2023-11-15 05:29:59Z : RENDER : Pixel Shader 3 Supported: True
+2023-11-15 05:29:59Z : RENDER : Pixel Shader 4 Supported: False
+2023-11-15 05:29:59Z : RENDER : Software Effect Rendering Supported: True
+2023-11-15 05:29:59Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-11-15 05:29:59Z : DynamoManipulationExtension (id: 58B0496A-E3F8-43D9-86D2-94823D1D0F98) view extension is added
+2023-11-15 05:29:59Z : LibraryUI (id: 85941358-5525-4FF4-8D61-6CA831F122AB) view extension is added
+2023-11-15 05:29:59Z : NotificationsExtension (id: ef6cd025-514f-44cd-b6b1-69d9f5cce004) view extension is added
+2023-11-15 05:29:59Z : PackageManagerViewExtension (id: 100f5ec3-fde7-4205-80a7-c968b3a5a27b) view extension is added
+2023-11-15 05:29:59Z : Workspace References (id: A6706BF5-11C2-458F-B7C8-B745A77EF7FD) view extension is added
+2023-11-15 05:29:59Z : Welcome to Dynamo!
+2023-11-15 05:29:59Z : 00:00:00.3482744 elapsed for loading Dynamo main window.
+2023-11-15 05:29:59Z : Preparing to load the library resources.
+2023-11-15 05:29:59Z : WPF Render Mode: Default
+2023-11-15 05:30:02Z : Clearing workspace...
+2023-11-15 05:30:58Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-11-15 05:30:58Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-11-15 05:31:11Z : Dynamo Unhandled Exception
+2023-11-15 05:31:11Z : The system cannot find the file specified. (Exception from HRESULT: 0x80070002)
+2023-11-15 05:31:15Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is removed
+2023-11-15 05:31:15Z : Goodbye

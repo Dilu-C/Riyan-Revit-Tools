@@ -1,0 +1,174 @@
+{
+  "Uuid": "d096cd55-4824-48e7-9b3e-547bed4b4fc5",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Returns the level to which a view is associated.",
+  "Name": "View Level",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Level",
+      "Id": "28d8e1a03605490a8c1ed24cdae8c6b0",
+      "Inputs": [
+        {
+          "Id": "9d9f2a5ac0f7482fbebf1e30506d3ff6",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": ""
+      },
+      "Id": "8ace3e7d59234723bc1b4f93cea5f9c2",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "5b4caf6fe0014452a65372b57f443e22",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import View\n\ndef GetLevel(view) :\n\tif hasattr(view, \"GenLevel\") : return view.GenLevel\n\telse : return None\n\nviews = UnwrapElement(IN[0])\n\nif isinstance(IN[0], list): OUT = [GetLevel(x) for x in views]\nelse: OUT = GetLevel(views)",
+      "VariableInputPorts": true,
+      "Id": "f7dd661b82b04402b3efaee612c866b8",
+      "Inputs": [
+        {
+          "Id": "f8834d0416ce44cebfb6afad4b23c6a1",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "02221d9596ff4404b5bdc14fc0242bfd",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "5b4caf6fe0014452a65372b57f443e22",
+      "End": "f8834d0416ce44cebfb6afad4b23c6a1",
+      "Id": "ce627c09ce4644228d4057de161f6546"
+    },
+    {
+      "Start": "02221d9596ff4404b5bdc14fc0242bfd",
+      "End": "9d9f2a5ac0f7482fbebf1e30506d3ff6",
+      "Id": "aedec035650f435e8b113ff6b591ab49"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "28d8e1a03605490a8c1ed24cdae8c6b0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 376.8,
+        "Y": 292.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "8ace3e7d59234723bc1b4f93cea5f9c2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -362.4,
+        "Y": 294.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "f7dd661b82b04402b3efaee612c866b8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 218.4,
+        "Y": 294.4
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

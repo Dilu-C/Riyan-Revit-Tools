@@ -1,0 +1,215 @@
+{
+  "Uuid": "b2334f5c-e0c8-46e8-ac7c-efc1eb1c4c43",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Set the material appearance keywords.",
+  "Name": "Material Set Appearance Keyword",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2023\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\ndef toList(obj):\n    if hasattr(obj, '__iter__'): return obj\n    else: return [obj]\n    \nmats = toList(UnwrapElement(IN[0]))\nvalue = toList(IN[1])[0]\n\nfor mat in mats :\n\tappearanceAssetId = mat.AppearanceAssetId\n\tassetElem = doc.GetElement(appearanceAssetId)\n\tTransactionManager.Instance.EnsureInTransaction(doc)\n\twith Visual.AppearanceAssetEditScope(assetElem.Document) as editScope:\n\t\teditableAsset = editScope.Start(assetElem.Id)\n\t\tkey = editableAsset.FindByName(\"keyword\")\n\t\tif key.IsValidValue(value):\n\t\t\tkey.Value = value\n\t\teditScope.Commit(True)\n\tTransactionManager.Instance.TransactionTaskDone()\n\nif isinstance(IN[0], list): OUT = mats\nelse: OUT = mats[0]",
+      "VariableInputPorts": true,
+      "Id": "2faa3440481b46d69e7f97d40137eb43",
+      "Inputs": [
+        {
+          "Id": "8b435069309140acb42d50bb1bf6e337",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "68d364d0914e4bb18b810e00f435ec4a",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "6b80902c61da40beae82b587eec0d8af",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "material",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "f0b58244bfdf4ed6ba51e05fc2588ceb",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d59f3350f2f44a47810cbaaa45dfba9e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Material",
+      "Id": "3065e960f1bc4952881b94c1e1bddbd9",
+      "Inputs": [
+        {
+          "Id": "2dbba03b55e84aff9c1099648c4a473a",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "keyword",
+        "TypeName": "string",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "bf7c9446e597452aa66dce2e815ec791",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "caaee7ad1568490382d8169d3bdb24f0",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "6b80902c61da40beae82b587eec0d8af",
+      "End": "2dbba03b55e84aff9c1099648c4a473a",
+      "Id": "77d7f0f01315487f9bfe04ee9bcc3f70"
+    },
+    {
+      "Start": "d59f3350f2f44a47810cbaaa45dfba9e",
+      "End": "8b435069309140acb42d50bb1bf6e337",
+      "Id": "674fe0f7af69469eb7ea22aa5da7f1b4"
+    },
+    {
+      "Start": "caaee7ad1568490382d8169d3bdb24f0",
+      "End": "68d364d0914e4bb18b810e00f435ec4a",
+      "Id": "908a22a69a5c4d6ca34f2da8221e2223"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.2.15705",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Material Set Appareance Keyword",
+        "Id": "2faa3440481b46d69e7f97d40137eb43",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 643.19999999999993,
+        "Y": 356.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "f0b58244bfdf4ed6ba51e05fc2588ceb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 396.40000000000015,
+        "Y": 353.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "3065e960f1bc4952881b94c1e1bddbd9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 967.20000000000027,
+        "Y": 363.59999999999997
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "bf7c9446e597452aa66dce2e815ec791",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 348.00000000000006,
+        "Y": 437.2
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

@@ -1,0 +1,524 @@
+{
+  "Uuid": "8bb4a1b2-ceb2-414c-9886-ee799731a1b3",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Tag",
+  "Description": "Note : This method is deprecated in Revit 2019.\r\nCreates a tag at a given location, of a given type and in a supplied view.\r\nWorks also with linked rooms.\r\nArea tag, Multi Category tag and Material Tag have been added to the original node.\r\nBased on an archilab node",
+  "Name": "Create Tag (Deprecated)",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Tag",
+      "Id": "9d791e1c84434a608eb0c8d8cd9d1ffa",
+      "Inputs": [
+        {
+          "Id": "b7af8fed53804f64ae64201ecd9615eb",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Copyright(c) 2015, Konrad K Sobon\n# @arch_laboratory, http://archi-lab.net\n#This node is an update to Create Annotation Tag node that can be found in archi-lab package. Thanks to Konrad K Sobon for making the original one.\n# Additions by Kulkul, T_Pover, Fcampojr and Alban de Chasteigner\n\nimport clr\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n# Import Element wrapper extension methods\nclr.AddReference(\"RevitNodes\")\nimport Revit\n# Import geometry conversion extension methods\nclr.ImportExtensions(Revit.GeometryConversion)\n\n# Import DocumentManager and TransactionManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nimport sys\nsys.path.append(r\"C:\\Program Files (x86)\\IronPython 2.7\\Lib\")\n\nviews = UnwrapElement(IN[0])\nelements = UnwrapElement(IN[1]) if isinstance(IN[1],list) else [UnwrapElement(IN[1])]\nlocationPts = UnwrapElement(IN[2]) if isinstance(IN[2],list) else [UnwrapElement(IN[2])]\ntagType = UnwrapElement(IN[3])\n\ntagOrientation = IN[4]\nif tagOrientation == True :\n\ttagOrientation = TagOrientation.Horizontal\n\tspTagOrientation = SpatialElementTagOrientation.Horizontal\nelif tagOrientation == False :\n\ttagOrientation = TagOrientation.Vertical\n\tspTagOrientation = SpatialElementTagOrientation.Vertical\n\nleader = IN[5]\n\nif IN[6] != None:\n\tlink = UnwrapElement(IN[6])\nelse:\n\tlink = None\n\t\nRunIt = IN[7]\n\ndef toRvtPoint(point):\n\treturn point.ToXyz()\n\ndef toRvtId(_id):\n\tif isinstance(_id, int) or isinstance(_id, str):\n\t\tid = ElementId(int(_id))\n\t\treturn id\n\telif isinstance(_id, ElementId):\n\t\treturn _id\n\ntagTypeId = toRvtId(tagType.Id)\nchk = []\ntry:\n\terrorReport = None\n\tif RunIt:\n\t\tif tagType.Category.Id == ElementId(BuiltInCategory.OST_RoomTags):\n\t\t\troomTags = []\n\t\t\tif isinstance(IN[0], list):\n\t\t\t\tfor j in views:\n\t\t\t\t\tfor i, k in zip(elements, locationPts):\n\t\t\t\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\t\t\t\t#added the if statement to get roomId from the linked element.\n\t\t\t\t\t\tif link != None:\n\t\t\t\t\t\t\troomId = LinkElementId(link.Id, i.Id)\n\t\t\t\t\t\telse:\n\t\t\t\t\t\t\troomId = LinkElementId(i.Id)\n\t\t\t\t\t\tlocation = Autodesk.Revit.DB.UV(toRvtPoint(k).X, toRvtPoint(k).Y)\n\t\t\t\t\t\troomTag = doc.Create.NewRoomTag(roomId, location, j.Id)\n\t\t\t\t\t\troomTag.RoomTagType = tagType\n\t\t\t\t\t\troomTag.TagOrientation = spTagOrientation\n\t\t\t\t\t\troomTag.HasLeader = leader\n\t\t\t\t\t\tchk.append(roomId)\n\t\t\t\t\t\troomTags.append(roomTag)\n\t\t\t\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\t\t\telse:\n\t\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\t\tfor i, j in zip(elements, locationPts):\n\t\t\t\t\tif link != None:\n\t\t\t\t\t\troomId = LinkElementId(link.Id, i.Id)\n\t\t\t\t\telse:\n\t\t\t\t\t\troomId = LinkElementId(i.Id)\n\t\t\t\t\tlocation = Autodesk.Revit.DB.UV(toRvtPoint(j).X, toRvtPoint(j).Y)\n\t\t\t\t\troomTag = doc.Create.NewRoomTag(roomId, location, views.Id)\n\t\t\t\t\troomTag.RoomTagType = tagType\n\t\t\t\t\troomTag.TagOrientation = spTagOrientation\n\t\t\t\t\troomTag.HasLeader = leader\n\t\t\t\t\troomTags.append(roomTag)\n\t\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\t\t\tresult = roomTags\n\t\telif tagType.Category.Id == ElementId(BuiltInCategory.OST_MEPSpaceTags):\n\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\troomTags = []\n\t\t\tif isinstance(IN[0], list):\n\t\t\t\tfor j in views:\n\t\t\t\t\tfor i, k in zip(elements, locationPts):\n\t\t\t\t\t\tlocation = Autodesk.Revit.DB.UV(toRvtPoint(k).X, toRvtPoint(k).Y)\n\t\t\t\t\t\tspaceTag = doc.Create.NewSpaceTag(i, location, j)\n\t\t\t\t\t\tspaceTag.SpaceTagType = tagType\n\t\t\t\t\t\tspaceTag.TagOrientation = spTagOrientation\n\t\t\t\t\t\tspaceTag.HasLeader = leader\n\t\t\t\t\t\troomTags.append(spaceTag)\n\t\t\telse:\n\t\t\t\tfor i, j in zip(elements, locationPts):\n\t\t\t\t\tlocation = Autodesk.Revit.DB.UV(toRvtPoint(j).X, toRvtPoint(j).Y)\n\t\t\t\t\tspaceTag = doc.Create.NewSpaceTag(i,location, views)\n\t\t\t\t\tspaceTag.SpaceTagType = tagType\n\t\t\t\t\tspaceTag.TagOrientation = spTagOrientation\n\t\t\t\t\tspaceTag.HasLeader = leader\n\t\t\t\t\troomTags.append(spaceTag)\n\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\t\t\tresult = roomTags\n\t\telif tagType.Category.Id == ElementId(BuiltInCategory.OST_AreaTags):\n\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\troomTags = []\n\t\t\tif isinstance(IN[0], list):\n\t\t\t\tfor j in views:\n\t\t\t\t\tfor i,k in zip(elements, locationPts):\n\t\t\t\t\t\tlocation = Autodesk.Revit.DB.UV(toRvtPoint(k).X, toRvtPoint(k).Y)\n\t\t\t\t\t\tareaTag = doc.Create.NewAreaTag(j,i, location)\n\t\t\t\t\t\tareaTag.AreaTagType = tagType\n\t\t\t\t\t\tareaTag.TagOrientation = spTagOrientation\n\t\t\t\t\t\tareaTag.HasLeader = leader\n\t\t\t\t\t\troomTags.append(areaTag)\n\t\t\telse:\n\t\t\t\tfor i, j in zip(elements, locationPts):\n\t\t\t\t\tlocation = Autodesk.Revit.DB.UV(toRvtPoint(j).X, toRvtPoint(j).Y)\n\t\t\t\t\tareaTag = doc.Create.NewAreaTag(views,i,location)\n\t\t\t\t\tareaTag.AreaTagType = tagType\n\t\t\t\t\tareaTag.TagOrientation = spTagOrientation\n\t\t\t\t\tareaTag.HasLeader = leader\n\t\t\t\t\troomTags.append(areaTag)\n\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\t\t\tresult = roomTags\n\t\telif tagType.Category.Id == ElementId(BuiltInCategory.OST_MultiCategoryTags):\n\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\tmultitags = []\n\t\t\tif isinstance(IN[0], list):\n\t\t\t\tfor j in views:\n\t\t\t\t\tfor i, k in zip(elements, locationPts):\n\t\t\t\t\t\tlocation = toRvtPoint(k)\n\t\t\t\t\t\ttag = doc.Create.NewTag(j, i, leader, TagMode.TM_ADDBY_MULTICATEGORY, tagOrientation, location)\n\t\t\t\t\t\ttag.ChangeTypeId(tagTypeId)\n\t\t\t\t\t\tmultitags.append(tag)\n\t\t\telse:\n\t\t\t\tfor i, j in zip(elements, locationPts):\n\t\t\t\t\tlocation = toRvtPoint(j)\n\t\t\t\t\ttag = doc.Create.NewTag(views, i, leader, TagMode.TM_ADDBY_MULTICATEGORY, tagOrientation, location)\n\t\t\t\t\ttag.ChangeTypeId(tagTypeId)\n\t\t\t\t\tmultitags.append(tag)\n\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\t\t\tresult = multitags\n\t\telif tagType.Category.Id == ElementId(BuiltInCategory.OST_MaterialTags):\n\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\tMattags = []\n\t\t\tif isinstance(IN[0], list):\n\t\t\t\tfor j in views:\n\t\t\t\t\tfor i, k in zip(elements, locationPts):\n\t\t\t\t\t\ttag = doc.Create.NewTag(j, i, leader, TagMode.TM_ADDBY_MATERIAL, tagOrientation, location)\n\t\t\t\t\t\ttag.ChangeTypeId(tagTypeId)\n\t\t\t\t\t\tMattags.append(tag)\n\t\t\telse:\n\t\t\t\tfor i, j in zip(elements, locationPts):\n\t\t\t\t\tlocation = toRvtPoint(j)\n\t\t\t\t\ttag = doc.Create.NewTag(views, i, leader, TagMode.TM_ADDBY_MATERIAL, tagOrientation, location)\n\t\t\t\t\ttag.ChangeTypeId(tagTypeId)\n\t\t\t\t\tMattags.append(tag)\n\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\t\t\tresult = Mattags\n\t\telse:\n\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\ttags = []\n\t\t\tif isinstance(IN[0], list):\n\t\t\t\tfor j in views:\n\t\t\t\t\tfor i, k in zip(elements, locationPts):\n\t\t\t\t\t\tlocation = toRvtPoint(k)\n\t\t\t\t\t\ttag = doc.Create.NewTag(j, i, leader, TagMode.TM_ADDBY_CATEGORY, tagOrientation, location)\n\t\t\t\t\t\ttag.ChangeTypeId(tagTypeId)\n\t\t\t\t\t\ttags.append(tag)\n\t\t\telse:\n\t\t\t\tfor i, j in zip(elements, locationPts):\n\t\t\t\t\tlocation = toRvtPoint(j)\n\t\t\t\t\ttag = doc.Create.NewTag(views, i, leader, TagMode.TM_ADDBY_CATEGORY, tagOrientation, location)\n\t\t\t\t\ttag.ChangeTypeId(tagTypeId)\n\t\t\t\t\ttags.append(tag)\n\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\t\t\tresult = tags\n\telse:\n\t\tresult = \"RunIt is set to False.\"\nexcept:\n\t# if error accurs anywhere in the process catch it\n\timport traceback\n\terrorReport = traceback.format_exc()\n\n#Assign your output to the OUT variable\nif errorReport == None:\n\tOUT = result\nelse:\n\tOUT = errorReport",
+      "VariableInputPorts": true,
+      "Id": "faa588b0967c46a182766d5e95a7df28",
+      "Inputs": [
+        {
+          "Id": "4321b6d9bf9240b1a432d58ea23b357d",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "9da6afe9f6ed466f854de0f328da2bec",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c5dab6bf2b9e43e9979a6c817cd161b5",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "ee89ae57949a4e78aaf40428159634f3",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "834f11a620e645eaaab8f0285099c786",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d8b7d3c5a20843d39c28459254675b85",
+          "Name": "IN[5]",
+          "Description": "Input #5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "24d46d8c943f47208d554a7fa825b58e",
+          "Name": "IN[6]",
+          "Description": "Input #6",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "5ab74f86d6c346d595de02e13c90bee2",
+          "Name": "IN[7]",
+          "Description": "Input #7",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5d9cc8a806ee4a96863332ab4855f835",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": "View to tag in."
+      },
+      "Id": "54e5301765d54750a5bbe27be062fd5b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "91d96a3414ac4444825a6d653c2d06b9",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Element to tag"
+      },
+      "Id": "9f2bf1b5ed1149ff962d0b0ebd20f533",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8a6e4aa7d21e46ca8151bc3dbdde0899",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "TagLocation",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Point"
+      },
+      "Id": "6cdb497f39994bfdba3425beaa516cd1",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "880384e65639458d82bb84d809322559",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "TagType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Family Type to use"
+      },
+      "Id": "6b77b19121a348e88e6f19c6bd19c09a",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d0917c8c4c9346b5ac83a1347492462f",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "horizontal",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "true",
+        "Description": "Optional : Place tag horizontal, defaults to true"
+      },
+      "Id": "76775cd612134839937daaad5159cb34",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "45500cf49ca74045995a1e57ee2f5c13",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "addLeader",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": "Optional : Add a leader, defaults to false"
+      },
+      "Id": "cdc59f8d73584070b2991252a271c277",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "7ee9a4ce957f4459999972b8ef0b4118",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "LinkInstance",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": "null",
+        "Description": "For linked rooms"
+      },
+      "Id": "eec9039d6e104f7d86f40c04a54ec827",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "86fa0d5add57407daa2a2921f6dface4",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "RunIt",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": ""
+      },
+      "Id": "6d954858166040e6939f3f84f23d54ca",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f0e13ab5dcd1443ebad5701091722e44",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "5d9cc8a806ee4a96863332ab4855f835",
+      "End": "b7af8fed53804f64ae64201ecd9615eb",
+      "Id": "ce37775185af4912bab7cc5e16b0e4d1"
+    },
+    {
+      "Start": "91d96a3414ac4444825a6d653c2d06b9",
+      "End": "4321b6d9bf9240b1a432d58ea23b357d",
+      "Id": "ced91f5104244bb9b8f9fe5fa34b5533"
+    },
+    {
+      "Start": "8a6e4aa7d21e46ca8151bc3dbdde0899",
+      "End": "9da6afe9f6ed466f854de0f328da2bec",
+      "Id": "d02bb4a250294e5aa0cd4e3f82ee9e03"
+    },
+    {
+      "Start": "880384e65639458d82bb84d809322559",
+      "End": "c5dab6bf2b9e43e9979a6c817cd161b5",
+      "Id": "869f7fd43dab4329a5c55629f6599745"
+    },
+    {
+      "Start": "d0917c8c4c9346b5ac83a1347492462f",
+      "End": "ee89ae57949a4e78aaf40428159634f3",
+      "Id": "9621bcfc96024dea9fe1f67373c92fe1"
+    },
+    {
+      "Start": "45500cf49ca74045995a1e57ee2f5c13",
+      "End": "834f11a620e645eaaab8f0285099c786",
+      "Id": "1199c8201fb145d9823fcb858906039a"
+    },
+    {
+      "Start": "7ee9a4ce957f4459999972b8ef0b4118",
+      "End": "d8b7d3c5a20843d39c28459254675b85",
+      "Id": "fd81f1c44db644f9829adf89f2893063"
+    },
+    {
+      "Start": "86fa0d5add57407daa2a2921f6dface4",
+      "End": "24d46d8c943f47208d554a7fa825b58e",
+      "Id": "4ba76fea19b849a0b003485f4f7a8550"
+    },
+    {
+      "Start": "f0e13ab5dcd1443ebad5701091722e44",
+      "End": "5ab74f86d6c346d595de02e13c90bee2",
+      "Id": "a38dd8cb01a54a098a752ae91a8d2252"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "9d791e1c84434a608eb0c8d8cd9d1ffa",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1404.41877362313,
+        "Y": 541.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "faa588b0967c46a182766d5e95a7df28",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1179.61877362313,
+        "Y": 541.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "54e5301765d54750a5bbe27be062fd5b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 554.818773623127,
+        "Y": 306.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "9f2bf1b5ed1149ff962d0b0ebd20f533",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 554.818773623127,
+        "Y": 399.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6cdb497f39994bfdba3425beaa516cd1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 554.818773623127,
+        "Y": 492.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6b77b19121a348e88e6f19c6bd19c09a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 554.818773623127,
+        "Y": 585.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "76775cd612134839937daaad5159cb34",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 554.818773623127,
+        "Y": 679.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "cdc59f8d73584070b2991252a271c277",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 554.818773623127,
+        "Y": 772.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "eec9039d6e104f7d86f40c04a54ec827",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 554.818773623127,
+        "Y": 865.507229731404
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6d954858166040e6939f3f84f23d54ca",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 554.818773623127,
+        "Y": 958.507229731404
+      }
+    ],
+    "Annotations": [],
+    "X": -190.034367458377,
+    "Y": -41.9524451271946,
+    "Zoom": 0.53491931476683
+  }
+}

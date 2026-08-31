@@ -1,0 +1,165 @@
+{
+  "Uuid": "36d2fd73-a1c3-4837-ae92-22a24390bfb7",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Shows the linked elements by zoom to fit in the current view.",
+  "Name": "Show Linked Element",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Linked element"
+      },
+      "Id": "bab48c9694634de984e8a6ccc531005d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "fae4aaa956ec43dfa0cab4b49792afc6",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Element",
+      "Id": "10d0af75b5a14ad4be97025623479d93",
+      "Inputs": [
+        {
+          "Id": "e417763a07ed4211a01050266538211a",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Inspired by Cyril Poupin\n#Alban de Chasteigner 2021\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitAPIUI')\nfrom Autodesk.Revit.UI import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\n\nuiviews = uidoc.GetOpenUIViews()\nview = doc.ActiveView\nuiview = [x for x in uiviews if x.ViewId == view.Id][0]\n\ndef SumBoxes(boxes):\n\tminx = min([b.Min.X for b in boxes])\n\tminy = min([b.Min.Y for b in boxes])\n\tminz = min([b.Min.Z for b in boxes])\n\tmaxx = max([b.Max.X for b in boxes])\n\tmaxy = max([b.Max.Y for b in boxes])\n\tmaxz = max([b.Max.Z for b in boxes])\n\tbb = BoundingBoxXYZ()\n\tbb.Min = XYZ(minx,miny,minz)\n\tbb.Max = XYZ(maxx,maxy,maxz)\n\treturn bb\n\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nbbx=[]\n\nfor elem in elements :\n\tlnkinst=FilteredElementCollector(doc).OfClass(RevitLinkInstance).ToElements().Find(lambda x : doc.GetElement(x.GetTypeId()).IsLoaded(doc, x.GetTypeId()) and x.GetLinkDocument().Title == elem.Document.Title)\n\ttfLnk = lnkinst.GetTotalTransform()\n\tif not isinstance(elem,DatumPlane):\n\t\tbox = elem.get_BoundingBox(None)\n\t\tbox.Min = tfLnk.OfPoint(box.Min)\n\t\tbox.Max = tfLnk.OfPoint(box.Max)\n\telif isinstance(elem,Grid):\n\t\tline=elem.Curve\n\t\tstart=line.GetEndPoint(0)\n\t\tend=line.GetEndPoint(1)    \n\t\tbox=BoundingBoxXYZ()\n\t\tbox.Min = tfLnk.OfPoint(start)\n\t\tbox.Max = tfLnk.OfPoint(end)\t\n\telif isinstance(elem,ReferencePlane):\n\t\tview = doc.ActiveView\n\t\tfor crv in elem.GetCurvesInView(DatumExtentType.ViewSpecific,view):\n\t\t\tline = crv\n\t\tstart=line.GetEndPoint(0)\n\t\tend=line.GetEndPoint(1)    \n\t\tbox = BoundingBoxXYZ()\n\t\tbox.Min = tfLnk.OfPoint(start)\n\t\tbox.Max = tfLnk.OfPoint(end)\t\n\tbbx.append(box)\n\tsumBox = SumBoxes(bbx)\t\n\tuiview.ZoomAndCenterRectangle(sumBox.Min, sumBox.Max)\n\nOUT = elements",
+      "VariableInputPorts": true,
+      "Id": "db01bc3895e541fc9dfc106d2c23ab3c",
+      "Inputs": [
+        {
+          "Id": "d5f04f30451e424097d8329843d3788b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "e1589b3b4ba6434496e597ea105834c5",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "fae4aaa956ec43dfa0cab4b49792afc6",
+      "End": "d5f04f30451e424097d8329843d3788b",
+      "Id": "7e79973ed9c94ba7a0667515381a12cc"
+    },
+    {
+      "Start": "e1589b3b4ba6434496e597ea105834c5",
+      "End": "e417763a07ed4211a01050266538211a",
+      "Id": "0f27e6b6f36140ab9b0d36b28be4171b"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "bab48c9694634de984e8a6ccc531005d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -14.8,
+        "Y": 291.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "10d0af75b5a14ad4be97025623479d93",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 338.8,
+        "Y": 296.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "db01bc3895e541fc9dfc106d2c23ab3c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 176.4,
+        "Y": 298.0
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

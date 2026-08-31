@@ -1,0 +1,165 @@
+{
+  "Uuid": "35967f2e-4a36-40c7-ac51-35651a6216c1",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Sheet",
+  "Description": "Returns the ViewSheet where this view is placed.",
+  "Name": "View ToSheet",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nviews = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nsheet=[]\n\nfor view in views:\n\tsheetNumber=view.get_Parameter(BuiltInParameter.VIEWER_SHEET_NUMBER).AsString()\n\tpvp = ParameterValueProvider(ElementId(BuiltInParameter.SHEET_NUMBER))\n\tfsr = FilterStringEquals()\n\tfRule = FilterStringRule(pvp, fsr, sheetNumber, True)\n\tfilter = ElementParameterFilter(fRule)\n\tsheet.append(FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Sheets).WherePasses(filter).FirstElement())\n\nif isinstance(IN[0], list): OUT = sheet\nelse: OUT = sheet[0]",
+      "VariableInputPorts": true,
+      "Id": "8d02405efb5c4f42969773c0a3bc7e91",
+      "Inputs": [
+        {
+          "Id": "7028093db02e4b1886e0a5d374d49e67",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "d2bf9409b2c54f618e4f27fdd36bd4b8",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "957c5f40154242e2aa6f9ed8604a555b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "2e84a49bcbbb4c89a04ec19265df3dbe",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Sheet",
+      "Id": "51e512668ff846a0b5b6acab7eb9ccd9",
+      "Inputs": [
+        {
+          "Id": "9fa95b2a884e45768d7d0fcf07b739ed",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "d2bf9409b2c54f618e4f27fdd36bd4b8",
+      "End": "9fa95b2a884e45768d7d0fcf07b739ed",
+      "Id": "a2d955508daa4d9593136add3055cf2f"
+    },
+    {
+      "Start": "2e84a49bcbbb4c89a04ec19265df3dbe",
+      "End": "7028093db02e4b1886e0a5d374d49e67",
+      "Id": "c23a6bd097c54eeea0a213c19e985c1c"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -10.092836380004883,
+      "EyeY": 5.18774938583374,
+      "EyeZ": 21.392967224121094,
+      "LookX": 4.788691520690918,
+      "LookY": -5.18774938583374,
+      "LookZ": -23.145341873168945,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "8d02405efb5c4f42969773c0a3bc7e91",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 466.8,
+        "Y": 280.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "957c5f40154242e2aa6f9ed8604a555b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 365.6,
+        "Y": 280.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "51e512668ff846a0b5b6acab7eb9ccd9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 617.2,
+        "Y": 281.2
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

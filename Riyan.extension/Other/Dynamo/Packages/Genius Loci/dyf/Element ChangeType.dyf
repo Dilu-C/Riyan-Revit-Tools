@@ -1,0 +1,307 @@
+{
+  "Uuid": "8664a90b-f69a-4ec6-96e1-23ccd2fe7a51",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Changes the type of the given instance to the specified type.",
+  "Name": "Element ChangeType",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];",
+      "Id": "9f8d5161ee854bafb212c2c1713f3c55",
+      "Inputs": [
+        {
+          "Id": "b043c50d4ce84ceb8819ca971caf27d3",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "c34de2f6c07f44e690a42acf9a5cda4b",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "b13b8de2f7884bedb0033aaa98d23399",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Cyril Poupin on Dynamo Forum https://forum.dynamobim.com/t/change-pipe-type-error/71196/6\r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitServices')\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\n\r\ntoList = lambda x : x if hasattr(x, '__iter__') else [x]\r\nlstElems = toList(UnwrapElement(IN[0]))\r\nnewType = toList(UnwrapElement(IN[1]))\r\nftp_len = len(newType) == 1\r\n\r\nlstErrorElementIds,lstSuccessElements = [],[]\r\n\r\nclass CreateFailureAdvancedHandler(IFailuresPreprocessor): #You can get information out, but you would need to create your own class to store the information. IFailurePreprocessor is more for resolving the messages beforehand.\r\n\tdef __init__(self):\r\n\t\tself.lstErrorElementIds = []\r\n\t\t\r\n\tdef PreprocessFailures(self, failuresAccessor): #The implementation of the PreprocessFailures method has an argument failuresAccessor which is used for reviewing and dealing with failure messages.\r\n\t\tfailMessages = failuresAccessor.GetFailureMessages()\r\n\t\tif failMessages.Count == 0:\r\n\t\t\treturn FailureProcessingResult.Continue\r\n\t\ttransName = failuresAccessor.GetTransactionName()  #Retrieves the name of the transaction for which failures are being processed.\r\n\t\tif transName == \"ChangeType\":\r\n\t\t\t# if alert is an warn remove it \r\n\t\t\tif failuresAccessor.GetSeverity() == FailureSeverity.Warning:\r\n\t\t\t\tfor currentMessage in failMessages:\t\r\n\t\t\t\t\tfailuresAccessor.DeleteWarning(currentMessage)  \r\n\t\t\t\treturn FailureProcessingResult.Continue\r\n\t\t\t# if alert is an error resolve it (by delete elements or by split group etc...)       \r\n\t\t\telif failuresAccessor.GetSeverity() == FailureSeverity.Error:\r\n\t\t\t\tfor currentMessage in failMessages:\r\n\t\t\t\t\tself.lstErrorElementIds.extend(currentMessage.GetFailingElementIds())\r\n\t\t\t\t\tfailuresAccessor.ResolveFailure(currentMessage)\r\n\t\t\t\treturn FailureProcessingResult.ProceedWithCommit\r\n\t\t\telse:\r\n\t\t\t\tpass      \r\n\t\treturn FailureProcessingResult.Continue\r\n\r\nTransactionManager.Instance.ForceCloseTransaction()\r\nwith Transaction(doc) as t:\r\n\tt.Start(\"ChangeType\")\r\n\tfailureOptions = t.GetFailureHandlingOptions() \r\n\thandler = CreateFailureAdvancedHandler()\r\n\tfailureOptions.SetFailuresPreprocessor(handler)\r\n\tt.SetFailureHandlingOptions(failureOptions)\r\n\ttry:\r\n\t\tfor i in xrange(len(lstElems)):\r\n\t\t\te = lstElems[i]\r\n\t\t\tj = 0 if ftp_len else i\r\n\t\t\te.ChangeTypeId(newType[j].Id)\r\n\texcept:pass\r\n\tt.Commit()\r\n\r\nlstSuccessElements = [x for x in lstElems if x.IsValidObject and  x.Id not in handler.lstErrorElementIds]\r\nlstErrorElements = [x for x in lstElems if x.IsValidObject and  x.Id in handler.lstErrorElementIds]\r\n\r\nOUT = lstSuccessElements,lstErrorElements",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "c94b5a69361a448484d5404b05243099",
+      "Inputs": [
+        {
+          "Id": "70fce6d7c29e44bcb82262a4080a94f0",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "04e113be77304235a246d0befb51221e",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0a5c9cd50f754383bc48be2f076cab77",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "f165d19601d048ce9158a9a89603f294",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c3cdcd447ef441d4a47ef6ab280c739e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "elementType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "7184871691d24ea48b7f29f2bd290833",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "e8f53caa67204d929b3f7e288dad09bb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "SuccessElements",
+      "Id": "fa1f34f0d2e74d77b31c43c741b36128",
+      "Inputs": [
+        {
+          "Id": "553d9897c28f458b95476a896241ea7a",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ErrorElements",
+      "Id": "5ba61102f73442eca8e311f3dd81d2e4",
+      "Inputs": [
+        {
+          "Id": "743addd0390f45a1a0d71a8ee182e00c",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "c34de2f6c07f44e690a42acf9a5cda4b",
+      "End": "553d9897c28f458b95476a896241ea7a",
+      "Id": "b62764df38774aa39833150ab26de196"
+    },
+    {
+      "Start": "b13b8de2f7884bedb0033aaa98d23399",
+      "End": "743addd0390f45a1a0d71a8ee182e00c",
+      "Id": "dbecfaf3660d4798999b305e068e282e"
+    },
+    {
+      "Start": "0a5c9cd50f754383bc48be2f076cab77",
+      "End": "b043c50d4ce84ceb8819ca971caf27d3",
+      "Id": "833ebb1db9464a39b28b4362f541e9e1"
+    },
+    {
+      "Start": "c3cdcd447ef441d4a47ef6ab280c739e",
+      "End": "70fce6d7c29e44bcb82262a4080a94f0",
+      "Id": "b8929f026e5e4b4eba66b6170bc0a7c2"
+    },
+    {
+      "Start": "e8f53caa67204d929b3f7e288dad09bb",
+      "End": "04e113be77304235a246d0befb51221e",
+      "Id": "0c633d76073a4699bec6230a4a64db12"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "9f8d5161ee854bafb212c2c1713f3c55",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 501.614155342196,
+        "Y": 220.7922770048628
+      },
+      {
+        "Id": "c94b5a69361a448484d5404b05243099",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 338.0,
+        "Y": 216.8
+      },
+      {
+        "Id": "f165d19601d048ce9158a9a89603f294",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 56.708280650204017,
+        "Y": 206.76210010932095
+      },
+      {
+        "Id": "7184871691d24ea48b7f29f2bd290833",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 15.108280650203938,
+        "Y": 285.96210010932094
+      },
+      {
+        "Id": "fa1f34f0d2e74d77b31c43c741b36128",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 696.18266348455472,
+        "Y": 206.25937425789803
+      },
+      {
+        "Id": "5ba61102f73442eca8e311f3dd81d2e4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 694.80106111066743,
+        "Y": 272.81723775938167
+      }
+    ],
+    "Annotations": [],
+    "X": 200.08439550145965,
+    "Y": 67.529761290578463,
+    "Zoom": 0.52486542792448365
+  }
+}

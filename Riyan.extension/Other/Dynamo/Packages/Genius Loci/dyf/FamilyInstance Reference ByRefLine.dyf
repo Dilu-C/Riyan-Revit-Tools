@@ -1,0 +1,153 @@
+{
+  "Uuid": "b7c788fe-fedc-4cd8-a0eb-4dd0484db9f0",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Reference",
+  "Description": "Works only in Revit 2018.1 and later.\r\nGets the reference corresponding to the given Reference Line in the family instance.",
+  "Name": "FamilyInstance Reference ByRefLine",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "familyInstance",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "61917842ff5b44d385d62262da371027",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "512f215cd164419a873d7580379d7a0b",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ReferenceType",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": "null",
+        "Description": "Default = StrongReference"
+      },
+      "Id": "e3fa699757a64c8f98080cceb95e02e6",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "5e7326b92e724cd699d1f7f7d38b9cbf",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Reference",
+      "Id": "4133a999d7f243bfa869842ed703e768",
+      "Inputs": [
+        {
+          "Id": "f9b866a7bde74344ba29166c9fa7b8c9",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\n\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nreftype = UnwrapElement(IN[1])\nreferences=[]\n\n#Get Reference Lines from Families\nfor element in elements:\n\tif reftype == None:\n\t\treference = element.GetReferences(FamilyInstanceReferenceType.StrongReference)\n\telse :\n\t\treference = element.GetReferences(reftype)\n\tif len(reference) == 1:\t\n\t\treferences.append(reference[0])\n\telse:\n\t\treferences.append(reference)\n\nif len(references) == 1 : OUT = references[0]\nelse: OUT = references",
+      "Engine": "IronPython2",
+      "EngineName": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "ce26979a21c1456dbcb5ae6f956fc676",
+      "Inputs": [
+        {
+          "Id": "3c468cdcf14c4b4e937940707a4ef8b9",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c23d3c5753b94bb6a63601f47863e487",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0e6c37a466804621a9938df55b7de195",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "512f215cd164419a873d7580379d7a0b",
+      "End": "3c468cdcf14c4b4e937940707a4ef8b9",
+      "Id": "8fbb3335174a4bab978d7a1f9f37ebde",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "5e7326b92e724cd699d1f7f7d38b9cbf",
+      "End": "c23d3c5753b94bb6a63601f47863e487",
+      "Id": "4d22141428c84495a14510234e9d027c",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "0e6c37a466804621a9938df55b7de195",
+      "End": "f9b866a7bde74344ba29166c9fa7b8c9",
+      "Id": "4b9fbc053e4a4f21ad97ef07efc83ede",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": []
+}

@@ -1,0 +1,93 @@
+<Workspace Version="1.3.4.6666" X="160.491954425725" Y="131.948131612956" zoom="0.568853839275299" ScaleFactor="1" Name="Create DWG Export Setup" Description="Sets export option values and creates a DWG Export Settings." ID="443557aa-3a94-45cd-b741-33e982420f51" Category="GeniusLoci.CAD Export">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="57747851-4d8b-4058-be55-d5b765858d84" type="PythonNodeModels.PythonNode" nickname="Python Script" x="237.019595615614" y="324.115762381682" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="6">
+      <PortInfo index="0" default="False" />
+      <PortInfo index="1" default="False" />
+      <PortInfo index="2" default="False" />
+      <PortInfo index="3" default="False" />
+      <PortInfo index="4" default="False" />
+      <PortInfo index="5" default="False" />
+      <Script>#Alban de Chasteigner 2020
+#twitter : @geniusloci_bim
+#geniusloci.bim@gmail.com
+#https://github.com/albandechasteigner/GeniusLociForDynamo
+
+import clr
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+doc = DocumentManager.Instance.CurrentDBDocument
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+import System
+
+name = IN[0]
+options = DWGExportOptions()
+if isinstance(IN[1], Autodesk.Revit.DB.ExportColorMode):
+	colors=IN[1]
+else:
+	colors=System.Enum.Parse(Autodesk.Revit.DB.ExportColorMode, IN[1])
+options.Colors = colors
+if isinstance(IN[2], Autodesk.Revit.DB.ACADVersion):
+	version=IN[2]
+else:
+	version=System.Enum.Parse(Autodesk.Revit.DB.ACADVersion, IN[2])
+options.FileVersion = version
+if isinstance(IN[3], Autodesk.Revit.DB.ExportUnit):
+	unit=IN[3]
+else:
+	unit=System.Enum.Parse(Autodesk.Revit.DB.ExportUnit, IN[3])
+options.TargetUnit = unit
+options.SharedCoords = IN[4]
+options.MergedViews = IN[5]
+options.LayerMapping = ""
+
+TransactionManager.Instance.EnsureInTransaction(doc)
+result = Autodesk.Revit.DB.ExportDWGSettings.Create(doc,name,options)
+TransactionManager.Instance.TransactionTaskDone()
+
+OUT = result</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="7101a34b-fe64-4c9e-b84f-97a88b933e3e" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-264.580404384386" y="141.115762381682" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="DWGExportSetupName : string" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="4df44d56-0837-4202-b079-f247dba57ca3" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-264.580404384386" y="224.115762381682" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//String or Autodesk.Revit.DB.ExportColorMode&#xD;&#xA;//Use the Enumerate DWG export options node&#xD;&#xA;ColorMode : string = &quot;IndexColors&quot;" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="47e008ac-9d43-41b6-87ae-95b48f563b0f" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-264.580404384386" y="334.115762381682" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//String or Autodesk.Revit.DB.ACADVersion&#xD;&#xA;//Use the Enumerate DWG export options node&#xD;&#xA;AutoCADVersion : string = &quot;Default&quot;" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="89387ead-df7f-4ff6-b541-d3d364efa28c" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-264.580404384386" y="444.115762381682" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//String or Autodesk.Revit.DB.ExportUnit&#xD;&#xA;//Use the Enumerate DWG export options node&#xD;&#xA;units : string = &quot;Meter&quot;" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="ca529ae6-2a68-4f0f-ace4-d0d7f7c5d78a" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-264.580404384386" y="554.115762381683" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="SharedCoordinates:bool=true" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="db8d3673-5e87-41b5-ad06-748cbf9fd629" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-264.580404384386" y="637.115762381683" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="MergeViews : bool = true" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="2ad2bff9-0da5-41e3-b8a5-d36644c97921" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="461.419595615614" y="324.115762381682" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="ExportDWGSettings" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="57747851-4d8b-4058-be55-d5b765858d84" start_index="0" end="2ad2bff9-0da5-41e3-b8a5-d36644c97921" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="7101a34b-fe64-4c9e-b84f-97a88b933e3e" start_index="0" end="57747851-4d8b-4058-be55-d5b765858d84" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4df44d56-0837-4202-b079-f247dba57ca3" start_index="0" end="57747851-4d8b-4058-be55-d5b765858d84" end_index="1" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="47e008ac-9d43-41b6-87ae-95b48f563b0f" start_index="0" end="57747851-4d8b-4058-be55-d5b765858d84" end_index="2" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="89387ead-df7f-4ff6-b541-d3d364efa28c" start_index="0" end="57747851-4d8b-4058-be55-d5b765858d84" end_index="3" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="ca529ae6-2a68-4f0f-ace4-d0d7f7c5d78a" start_index="0" end="57747851-4d8b-4058-be55-d5b765858d84" end_index="4" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="db8d3673-5e87-41b5-ad06-748cbf9fd629" start_index="0" end="57747851-4d8b-4058-be55-d5b765858d84" end_index="5" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Aperçu en arrière-plan" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

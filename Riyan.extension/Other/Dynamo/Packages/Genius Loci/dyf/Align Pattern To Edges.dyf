@@ -1,0 +1,226 @@
+{
+  "Uuid": "119e5685-194e-49ac-90fb-a13f58a0009f",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Aligns the lines of the surface (model) pattern with the bottom and right edges. \r\nThe element can be a roof, a floor, a ceiling or a wall.",
+  "Name": "Align Pattern To Edges",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Autodesk.Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Autodesk.DesignScript.Geometry.Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Roof, floor, ceiling or wall"
+      },
+      "Id": "ffc2c8dde27441cdb4b3225a4c14b81b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "40d5511804aa41a394b38803931c7420",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Result",
+      "Id": "c0cf4dac3e074aa1a33172220e7f26eb",
+      "Inputs": [
+        {
+          "Id": "57b295c015cc47b591276739359121a5",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Inspired by Fair59 https://forums.autodesk.com/t5/revit-api-forum/use-of-align-function-programatically-to-change-the-alignment-of/td-p/6008184\n#Suggestion by Mark Ackerley\n#Improvement by Piotr Spyra\n\n#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\n# Import GeometryConversion\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nDynPoints = [i.ToXyz() for i in IN[1]] if isinstance(IN[1],list) else [IN[1].ToXyz()]\n\nfor item, DynPoint in zip(elements, DynPoints) :\n\tif item.ToString() == 'Autodesk.Revit.DB.Floor' or item.ToString() == 'Autodesk.Revit.DB.RoofBase' or item.ToString() == 'Autodesk.Revit.DB.FootPrintRoof':\n\t\text = HostObjectUtils.GetTopFaces(item)\n\t\tend=0\n\telif item.ToString() == 'Autodesk.Revit.DB.Wall':\n\t\t#get the external face reference of the item as an array\n\t\text = HostObjectUtils.GetSideFaces(item,ShellLayerType.Exterior)\n\t\tend=1\n\telse :\n\t\text = HostObjectUtils.GetBottomFaces(item)\n\t\tend=1\n\t#for (the array containing) the external face reference, get it's geometry\n\tfor e in ext:\n\t\textFace = item.GetGeometryObjectFromReference(e)\n\t\t#get the external face surface edges as lines, get the first line (the bottom)\n\t\tfor\tcv in extFace.GetEdgesAsCurveLoops()[0]:\n\t\t\t#get the finish point of the line\n\t\t\tcorner = cv.GetEndPoint(end)\n\t\t#Check for model surfacepattern\n\t\tmat=doc.GetElement(extFace.MaterialElementId)\n\t\tpatternType = doc.GetElement(mat.SurfaceForegroundPatternId)\n\t\tpattern = patternType.GetFillPattern()\n\t\t#Get number of gridLines in pattern                \n\t\tgridCount = pattern.GridCount\n\t\t#Construct StableRepresentation to top face reference\n\t\tStableRef = e.ConvertToStableRepresentation(doc)\n\t\t\n\t\t#we want horizontal and vertical refs so we want 2 arrays\n\t\tfor hatchindex in range(0, gridCount):\n\t\t\trefAr = ReferenceArray()\n\t\t\tip=0\n\t\t\twhile ip<2:\n\t\t\t\t#generate an index for each hatch reference\n\t\t\t\tindex = (hatchindex+1) + (ip * gridCount *2)\n\t\t\t\t#create a string for each hatch reference using the face reference and hatch index\n\t\t\t\tStableHatchString = StableRef + str.Format(\"/{0}\", index)\n\t\t\t\t#generate a new reference for each hatch reference using the string\n\t\t\t\tHatchRef = Reference.ParseFromStableRepresentation(doc, StableHatchString)\n\t\t\t\trefAr.Append(HatchRef)\n\t\t\t\tip += 1\n\n\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\t#create dimension to use it's references and length\n\t\t\t#this uses 2 references to the hatch pattern for each orientation\n\t\t\t_dimension = doc.Create.NewDimension(doc.ActiveView, Line.CreateBound(XYZ.Zero, XYZ(10, 0, 0)), refAr)\n\t\t\tElementTransformUtils.MoveElement(doc, _dimension.Id, XYZ(.1, 0, 0))\n\t\t\tr1 = _dimension.References.get_Item(0)\n\t\t\tdirection =_dimension.Curve.Direction\n\t\t\thatchDirection = direction.CrossProduct(extFace.FaceNormal).Normalize()\n\t\t\t#move back by half because origin is always centered on the dimension\n\t\t\torigin = _dimension.Origin.Subtract(direction.Multiply(_dimension.Value/2))\n\t\t\t#create reference plane at the pattern location\n\t\t\tpl = doc.Create.NewReferencePlane(origin.Add(hatchDirection.Multiply(3)),origin,extFace.FaceNormal.Multiply(3),doc.ActiveView)\n\t\t\t#generate a unique name for the reference plane using it's Guid\n\t\t\t#pl.Name = str.Format(\"{0}_{1}\",\"ref\", Guid.NewGuid())\n\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\n\t\t\tstableRef = str.Format(\"{0}:0:{1}\",pl.UniqueId,\"SURFACE\")\n\t\t\tref2Plane = Reference.ParseFromStableRepresentation(doc,stableRef)\n\t\n\t\t\tTransactionManager.Instance.ForceCloseTransaction()\n\t\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\t\tdoc.Create.NewAlignment(doc.ActiveView,ref2Plane,r1)\n\t\t\t\n\t\t\tif DynPoint != XYZ(0,0,0):\n\t\t\t\ttranslation = origin.Subtract(DynPoint)\n\t\t\telse:\n\t\t\t\ttranslation = origin.Subtract(corner)\n\t\t\tElementTransformUtils.MoveElement(doc,pl.Id,-translation)\n\t\t\t\n\t\t\t#we don't need the dimensions or reference planes any more\n\t\t\tdoc.Delete(_dimension.Id)\n\t\t\tdoc.Delete(pl.Id)\n\t\t\tTransactionManager.Instance.TransactionTaskDone()\n\nOUT=\"Success\"",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "5f71ce5e772f4fad8049e6c7fa26ca1e",
+      "Inputs": [
+        {
+          "Id": "d2ed08e167f84857aef120293a6ca420",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "fe13e5f8c3f445a5b4a5534414d24490",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "7e04bd0b1065441aa2ea972157cdec9d",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "point",
+        "TypeName": "Autodesk.DesignScript.Geometry.Point",
+        "TypeRank": -1,
+        "DefaultValue": "Autodesk.DesignScript.Geometry.Point.ByCoordinates(0, 0, 0)",
+        "Description": "Optional input"
+      },
+      "Id": "f215dabba6e74b13ad7ebac5de71b9ac",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6309515771ae48f7b8c18947d7c77e47",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "40d5511804aa41a394b38803931c7420",
+      "End": "d2ed08e167f84857aef120293a6ca420",
+      "Id": "4e1651cf98f948eca283100ceaebb31c"
+    },
+    {
+      "Start": "7e04bd0b1065441aa2ea972157cdec9d",
+      "End": "57b295c015cc47b591276739359121a5",
+      "Id": "cd3d01a9aa8446e78f4a90c3cb8ec725"
+    },
+    {
+      "Start": "6309515771ae48f7b8c18947d7c77e47",
+      "End": "fe13e5f8c3f445a5b4a5534414d24490",
+      "Id": "fe1fd3e168494d41bcff6d251366eefc"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "ffc2c8dde27441cdb4b3225a4c14b81b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -91.2,
+        "Y": 245.2
+      },
+      {
+        "Id": "c0cf4dac3e074aa1a33172220e7f26eb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 473.6,
+        "Y": 254.4
+      },
+      {
+        "Id": "5f71ce5e772f4fad8049e6c7fa26ca1e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 285.08780484291049,
+        "Y": 244.47561491902405
+      },
+      {
+        "Id": "f215dabba6e74b13ad7ebac5de71b9ac",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -464.62959601387922,
+        "Y": 341.55179757352357
+      }
+    ],
+    "Annotations": [],
+    "X": 505.1490030552693,
+    "Y": 103.11927547053614,
+    "Zoom": 0.61228307854334629
+  }
+}

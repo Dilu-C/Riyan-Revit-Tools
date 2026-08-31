@@ -1,0 +1,345 @@
+{
+  "Uuid": "8c071a1e-9133-428a-b658-e201fc5b2e82",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.MEP",
+  "Description": "Returns the Calculations, Fluid Type, Fluid Temperature and Flow Conversion Method of the given System Type.",
+  "Name": "Get SystemType Properties",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Calculations",
+      "Id": "028b7525662a40d98a6d8807ad6e22ff",
+      "Inputs": [
+        {
+          "Id": "f3edeb62835e4f6b8384eb3a82b2d270",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "SystemType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "fd8de1be54914cbfa6b6e3ec8bcbc973",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "380b453f56ed40299cdaf828b12a27e8",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2021\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nif version < 2021:\n\tUIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Piping_Temperature).DisplayUnits\nelse:\n\tUIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.PipingTemperature).GetUnitTypeId()\n\t\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\ncalculations,fluids,temp,flow=[],[],[],[]\n\nfor elem in elements:\n\tcalculations.append(elem.CalculationLevel)\n\tif isinstance(elem,Autodesk.Revit.DB.Plumbing.PipingSystemType):\n\t\tfluids.append(doc.GetElement(elem.FluidType))\n\t\ttemp.append(round(UnitUtils.ConvertFromInternalUnits(elem.FluidTemperature,UIunit),4))\n\t\tflow.append(elem.FlowConversionMethod)\n\telse:\n\t\tfluids.append(None)\n\t\ttemp.append(None)\n\t\tflow.append(None)\n\t\t\nif isinstance(IN[0], list): OUT = calculations,fluids,temp,flow\nelse: OUT = calculations[0],fluids[0],temp[0],flow[0]",
+      "VariableInputPorts": true,
+      "Id": "ab39067862d7481aae432611b5b46894",
+      "Inputs": [
+        {
+          "Id": "a226caf8be0b42668a6809eae3e40a4c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a67abc1584614239b5082559c9acb576",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];\nx[2];\nx[3];",
+      "Id": "268caa5661364b678080763f7395edfd",
+      "Inputs": [
+        {
+          "Id": "33946f64b58e4e979cd79f01e0f71b78",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4be18be4b1c74b45b32c7e7c09a6512d",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "9ad33b31a0394409a31fce15ad190d56",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "295d929772ab4ae193298f56d8cf2ee5",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "dcfe98196a0f47a9931f2e0caf31dca5",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "FluidType",
+      "Id": "40bc9dd329ee423ea5ccc2ae6ce2e198",
+      "Inputs": [
+        {
+          "Id": "ff6f8b170d5544338209c8d2bdb18e3e",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "FluidTemperature",
+      "Id": "673771ec60bd49f1abe4c0491038c666",
+      "Inputs": [
+        {
+          "Id": "762a3b2d1578400586d73123760ecd85",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "FlowConversionMethod",
+      "Id": "0e74e52b5ad34a8b8b9ac8cd00ddeca0",
+      "Inputs": [
+        {
+          "Id": "b30cf8df1e5b4e4ebd955c7a9a5c807b",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "380b453f56ed40299cdaf828b12a27e8",
+      "End": "a226caf8be0b42668a6809eae3e40a4c",
+      "Id": "9300481dbdac4906a5d4e131177e01b7"
+    },
+    {
+      "Start": "a67abc1584614239b5082559c9acb576",
+      "End": "33946f64b58e4e979cd79f01e0f71b78",
+      "Id": "cbe4d82c4491469392b54ef98c6fc0c7"
+    },
+    {
+      "Start": "4be18be4b1c74b45b32c7e7c09a6512d",
+      "End": "f3edeb62835e4f6b8384eb3a82b2d270",
+      "Id": "33c33651cfc44fee96747b2c2e2e6322"
+    },
+    {
+      "Start": "9ad33b31a0394409a31fce15ad190d56",
+      "End": "ff6f8b170d5544338209c8d2bdb18e3e",
+      "Id": "3a59de00b2e642d4a86820eecc49ac30"
+    },
+    {
+      "Start": "295d929772ab4ae193298f56d8cf2ee5",
+      "End": "762a3b2d1578400586d73123760ecd85",
+      "Id": "52a842cda461429990ffdab02ba6609c"
+    },
+    {
+      "Start": "dcfe98196a0f47a9931f2e0caf31dca5",
+      "End": "b30cf8df1e5b4e4ebd955c7a9a5c807b",
+      "Id": "1cf7f2851f6843b28c0195b59404e609"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "028b7525662a40d98a6d8807ad6e22ff",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 857.4917890719,
+        "Y": 161.582451475051
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "fd8de1be54914cbfa6b6e3ec8bcbc973",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 336.389542274282,
+        "Y": 167.798437771786
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Get SystemType Properties",
+        "Id": "ab39067862d7481aae432611b5b46894",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 488.366026705714,
+        "Y": 166.234865669065
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "268caa5661364b678080763f7395edfd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 713.732122664515,
+        "Y": 167.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "40bc9dd329ee423ea5ccc2ae6ce2e198",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 858.158373870542,
+        "Y": 228.676450241093
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "673771ec60bd49f1abe4c0491038c666",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 860.299770715445,
+        "Y": 313.894509011307
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "0e74e52b5ad34a8b8b9ac8cd00ddeca0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 846.723961250154,
+        "Y": 397.989910187935
+      }
+    ],
+    "Annotations": [],
+    "X": -115.667326144445,
+    "Y": 75.698239866941,
+    "Zoom": 0.712594832628488
+  }
+}

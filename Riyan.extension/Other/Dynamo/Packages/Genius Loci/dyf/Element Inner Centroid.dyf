@@ -1,0 +1,490 @@
+{
+  "Uuid": "9b5710e3-513f-4a5c-a527-e939fb824808",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Geometry",
+  "Description": "Finds pole of inaccessibility for a given polygon.\r\nCalculates the visual center of a polygon (inside the polygon).\r\nBased on Vladimir Agafonkin's algorithm Polylabel.\r\nPlease note that the node doesn't work with ellipsoidal or circular surfaces.",
+  "Name": "Element Inner Centroid",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\n\"\"\"Finds pole of inaccessibility for a given polygon. Based on Vladimir Agafonkin's https://github.com/mapbox/polylabel\"\"\"\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nfrom math import sqrt\nimport time\n\nimport sys\nsys.path.append(r\"C:\\Program Files (x86)\\IronPython 2.7\\Lib\")\nfrom Queue import PriorityQueue\ninf = float(\"inf\")\n\nif version < 2021:\n\tUIUnit = doc.GetUnits().GetFormatOptions(UnitType.UT_Length).DisplayUnits\nelse:\n\tUIUnit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()\n\ndef _point_to_polygon_distance(x, y, polygon):\n    inside = False\n    min_dist_sq = inf\n\n    for ring in polygon:\n        b = ring[-1]\n        for a in ring:\n\n            if ((a[1] > y) != (b[1] > y) and\n                    (x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0])):\n                inside = not inside\n\n            min_dist_sq = min(min_dist_sq, _get_seg_dist_sq(x, y, a, b))\n            b = a\n\n    result = sqrt(min_dist_sq)\n    if not inside:\n        return -result\n    return result\n\n\ndef _get_seg_dist_sq(px, py, a, b):\n    x = a[0]\n    y = a[1]\n    dx = b[0] - x\n    dy = b[1] - y\n\n    if dx != 0 or dy != 0:\n        t = ((px - x) * dx + (py - y) * dy) / (dx * dx + dy * dy)\n\n        if t > 1:\n            x = b[0]\n            y = b[1]\n\n        elif t > 0:\n            x += dx * t\n            y += dy * t\n\n    dx = px - x\n    dy = py - y\n\n    return dx * dx + dy * dy\n\n\nclass Cell(object):\n    def __init__(self, x, y, h, polygon):\n        self.h = h\n        self.y = y\n        self.x = x\n        self.d = _point_to_polygon_distance(x, y, polygon)\n        self.max = self.d + self.h * sqrt(2)\n\n    def __lt__(self, other):\n        return self.max < other.max\n\n    def __lte__(self, other):\n        return self.max <= other.max\n\n    def __gt__(self, other):\n        return self.max > other.max\n\n    def __gte__(self, other):\n        return self.max >= other.max\n\n    def __eq__(self, other):\n        return self.max == other.max\n\n\ndef _get_centroid_cell(polygon):\n    area = 0\n    x = 0\n    y = 0\n    points = polygon[0]\n    b = points[-1]  # prev\n    for a in points:\n        f = a[0] * b[1] - b[0] * a[1]\n        x += (a[0] + b[0]) * f\n        y += (a[1] + b[1]) * f\n        area += f * 3\n        b = a\n    if area == 0:\n        return Cell(points[0][0], points[0][1], 0, polygon)\n    return Cell(x / area, y / area, 0, polygon)\n    pass\n\n\ndef polylabel(polygon, precision=1.0, debug=IN[1], with_distance=IN[2]):\n    mess=[]\n    # find bounding box\n    first_item = polygon[0][0]\n    min_x = first_item[0]\n    min_y = first_item[1]\n    max_x = first_item[0]\n    max_y = first_item[1]\n    for p in polygon[0]:\n        if p[0] < min_x:\n            min_x = p[0]\n        if p[1] < min_y:\n            min_y = p[1]\n        if p[0] > max_x:\n            max_x = p[0]\n        if p[1] > max_y:\n            max_y = p[1]\n\n    width = max_x - min_x\n    height = max_y - min_y\n    cell_size = min(width, height)\n    h = cell_size / 2.0\n\n    cell_queue = PriorityQueue()\n\n    if cell_size == 0:\n        if with_distance:\n            return [min_x, min_y], None\n        else:\n            return [min_x, min_y]\n\n    # cover polygon with initial cells\n    x = min_x\n    while x < max_x:\n        y = min_y\n        while y < max_y:\n            c = Cell(x + h, y + h, h, polygon)\n            y += cell_size\n            cell_queue.put((-c.max, time.time(), c))\n        x += cell_size\n\n    best_cell = _get_centroid_cell(polygon)\n\n    bbox_cell = Cell(min_x + width / 2, min_y + height / 2, 0, polygon)\n    if bbox_cell.d > best_cell.d:\n        best_cell = bbox_cell\n\n    num_of_probes = cell_queue.qsize()\n    while not cell_queue.empty():\n        _, __, cell = cell_queue.get()\n\n        if cell.d > best_cell.d:\n            best_cell = cell\n\n            if debug:\n                mess.append('found best {} after {} probes'.format(\n                    round(1e4 * UnitUtils.ConvertToInternalUnits(best_cell.d,UIUnit)) / 1e4, num_of_probes))\n\n        if cell.max - best_cell.d <= precision:\n            continue\n\n        h = cell.h / 2\n        c = Cell(cell.x - h, cell.y - h, h, polygon)\n        cell_queue.put((-c.max, time.time(), c))\n        c = Cell(cell.x + h, cell.y - h, h, polygon)\n        cell_queue.put((-c.max, time.time(), c))\n        c = Cell(cell.x - h, cell.y + h, h, polygon)\n        cell_queue.put((-c.max, time.time(), c))\n        c = Cell(cell.x + h, cell.y + h, h, polygon)\n        cell_queue.put((-c.max, time.time(), c))\n        num_of_probes += 4\n\n    if debug:\n        mess.append('num probes: {}'.format(num_of_probes))\n        mess.append('best distance: {}'.format(UnitUtils.ConvertToInternalUnits(best_cell.d,UIUnit)))\n    if with_distance:\n        return XYZ(best_cell.x, best_cell.y,z).ToPoint(),mess, UnitUtils.ConvertToInternalUnits(best_cell.d,UIUnit)\n    else:\n        return XYZ(best_cell.x, best_cell.y,z).ToPoint(), mess\n\nitems = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\ncurveList,surfaces,pointList=[],[],[]\n#opt = Options()\n#opt.IncludeNonVisibleObjects = True\n#opt.View = doc.ActiveView\nfor item in items:\n\tcurves,points=[],[]\n\tgeoEle=item.get_Geometry(Options())\n\tfor geo in geoEle:\n\t\tif isinstance(geo, Autodesk.Revit.DB.Solid):\n\t\t\t#sorted_faces=[sorted(geo.Faces,key=lambda face:face.Area, reverse=True) for face in geo.Faces][0]\n\t\t\tfor face in geo.Faces:\n\t\t\t\tif face.ComputeNormal(UV(0.5,0.5)).IsAlmostEqualTo(XYZ(0,0,-1)) : \n\t\t\t\t\tdownFace = face\n\t\t\t\t\tsurfaces.append(downFace.ToProtoType()[0])\n\t\t\tfor edges in downFace.EdgeLoops:\n\t\t\t\tfor edg in edges:\n\t\t\t\t\tcurves.append(edg.AsCurve().ToProtoType())\n\t\t\t\t\tpoints.append([edg.AsCurve().GetEndPoint(0).X,edg.AsCurve().GetEndPoint(0).Y])\n\t\t\t\t\tz=edg.AsCurve().GetEndPoint(0).Z\n\t\t\t\tpointList.append(points)\n\t\t\t\tcurveList.append(curves)\n\ncentroids = [polylabel([listPoint]) for listPoint in pointList]\n\nif isinstance(IN[0], list): OUT = surfaces, curveList, map(list, zip(*centroids))\nelse: OUT = surfaces[0], curveList[0], centroids[0]",
+      "VariableInputPorts": true,
+      "Id": "83f9c873e67d4d8083d03a088dd60fc3",
+      "Inputs": [
+        {
+          "Id": "39cd69edb2c24a6eb5477bcd291d085b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "5118308932ac48be864e3ac053b82504",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "bed83553ddec419d8bd4664e6edc780c",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "d228b8f13c7747719df6682af74680c6",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];\nx[2][0];\nx[2][1];\nx[2][2];",
+      "Id": "f0a1755f88444c4f84d25f62b0511b6e",
+      "Inputs": [
+        {
+          "Id": "b8d02e13b9a642fa8d61ce8f082d7b75",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "cbed1e77d7864725afb9324098144a88",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "f9e80b4b48284c3298e8a9e61480a307",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "5d3789751dfe4ca88346aa16ebb2d64e",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a67a762a00e4416f8582b326e7927524",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "b1ea1120d1eb48a2ae4b204b7955816f",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "fa56052df98c4665b464777900da588c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "731b80c3896046548573df548e6ef3a4",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "debug",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": "Number of probes"
+      },
+      "Id": "dbb1b16e3d2d4b09952e88e044f2fa21",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "88a3c18fb2504f8dae6c5c97c0fbf93e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "with_distance",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": "returns also distance"
+      },
+      "Id": "936d2d256cf547c1b0fe6db61cda90c2",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "17732fc6588c40b8a741df384395d5b0",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Surface",
+      "Id": "e3d45d60eef84e01b4a462cdec4f1afd",
+      "Inputs": [
+        {
+          "Id": "bf041731197741fcbe90625d53a34070",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Curves",
+      "Id": "9b0a4e2683f843e39e42f57bc1a6012e",
+      "Inputs": [
+        {
+          "Id": "901ff77d905647dea154d0948ae76d0c",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Centroid",
+      "Id": "58161f0f5ddd463285dce806097a101a",
+      "Inputs": [
+        {
+          "Id": "0e29eaa552d4432cb57b8f21688e497d",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "debug",
+      "Id": "7aea3161291048d9abdc9f4320560a41",
+      "Inputs": [
+        {
+          "Id": "70a3681b27de4112b4bd382c70b604d9",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Distance",
+      "Id": "52613690900c48e1a367dacc71a46453",
+      "Inputs": [
+        {
+          "Id": "ebd77f359da44de580497218d6830f82",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "d228b8f13c7747719df6682af74680c6",
+      "End": "b8d02e13b9a642fa8d61ce8f082d7b75",
+      "Id": "7f8ee4ae5eb249cd898a785a2ba09341"
+    },
+    {
+      "Start": "cbed1e77d7864725afb9324098144a88",
+      "End": "bf041731197741fcbe90625d53a34070",
+      "Id": "12ee9be4c7ad4c298fa4d03441e58268"
+    },
+    {
+      "Start": "f9e80b4b48284c3298e8a9e61480a307",
+      "End": "901ff77d905647dea154d0948ae76d0c",
+      "Id": "f9025698532e4134ba31cf6a2252f0a5"
+    },
+    {
+      "Start": "5d3789751dfe4ca88346aa16ebb2d64e",
+      "End": "0e29eaa552d4432cb57b8f21688e497d",
+      "Id": "ba8ffdc41a4d4470ac068b04a5136da2"
+    },
+    {
+      "Start": "a67a762a00e4416f8582b326e7927524",
+      "End": "70a3681b27de4112b4bd382c70b604d9",
+      "Id": "32906f129d3a4ad1887240b72ecbc1c1"
+    },
+    {
+      "Start": "b1ea1120d1eb48a2ae4b204b7955816f",
+      "End": "ebd77f359da44de580497218d6830f82",
+      "Id": "5ff8bd3280704458b4db3560fc111c8e"
+    },
+    {
+      "Start": "731b80c3896046548573df548e6ef3a4",
+      "End": "39cd69edb2c24a6eb5477bcd291d085b",
+      "Id": "81e4deca7cd544d3b5e7bd40cd047d76"
+    },
+    {
+      "Start": "88a3c18fb2504f8dae6c5c97c0fbf93e",
+      "End": "5118308932ac48be864e3ac053b82504",
+      "Id": "a602d590337c4da2b4f9d6a0e8ba3a56"
+    },
+    {
+      "Start": "17732fc6588c40b8a741df384395d5b0",
+      "End": "bed83553ddec419d8bd4664e6edc780c",
+      "Id": "4265472d7c1e4047a9a543300a145507"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "83f9c873e67d4d8083d03a088dd60fc3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 588.24925479822,
+        "Y": 220.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "f0a1755f88444c4f84d25f62b0511b6e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 761.669851193773,
+        "Y": 225.3498998409
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "fa56052df98c4665b464777900da588c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 387.318298225333,
+        "Y": 185.646489052834
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "dbb1b16e3d2d4b09952e88e044f2fa21",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 298.0,
+        "Y": 252.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "936d2d256cf547c1b0fe6db61cda90c2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 290.0,
+        "Y": 324.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "e3d45d60eef84e01b4a462cdec4f1afd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 998.985956211336,
+        "Y": 147.49595206368
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "9b0a4e2683f843e39e42f57bc1a6012e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 999.411276331001,
+        "Y": 219.09595206368
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "58161f0f5ddd463285dce806097a101a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 996.611276331001,
+        "Y": 295.09595206368
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "7aea3161291048d9abdc9f4320560a41",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 997.763403549335,
+        "Y": 368.436802951014
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "52613690900c48e1a367dacc71a46453",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 994.611276331001,
+        "Y": 441.49595206368
+      }
+    ],
+    "Annotations": [],
+    "X": 170.2762425,
+    "Y": 137.3647275,
+    "Zoom": 0.70823125
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "Uuid": "829a4f58-5478-47fc-8a85-acdb6be911db",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.ColorScheme",
+  "Description": "Works only in Revit 2022 and later.\r\nRemoves unused entries from the given color scheme.",
+  "Name": "ColorFill Scheme RemoveEntry",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "colorFillScheme",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "ColorFillScheme element or ColorFillScheme Name"
+      },
+      "Id": "3acfbcf17ac6408e96f497570ee28685",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "33a96ce6359943e2b9a0e514426472fc",
+          "Name": "",
+          "Description": "Symbol",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "entry",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Autodesk.Revit.DB.ColorFillSchemeEntry.\nThe entry can not be removed if it is in use."
+      },
+      "Id": "e3251893892d4bbca8f15d34d22a2e81",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "e173bfb5508845f89525302a668efdc1",
+          "Name": "",
+          "Description": "Symbol",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2021\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n#https://github.com/albandechasteigner/GeniusLociForDynamo\r\n \r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nclr.AddReference('RevitNodes')\r\nimport Revit\r\nclr.AddReference('RevitServices')\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\n\r\ndef tolist(obj1):\r\n    if hasattr(obj1,\"__iter__\"): return obj1\r\n    else: return [obj1]\r\n    \r\nelement = tolist(UnwrapElement(IN[0]))[0]\r\nentries = tolist(UnwrapElement(IN[1]))\r\n\r\nif isinstance(element, Autodesk.Revit.DB.ColorFillScheme):\r\n\tscheme = element\r\nelif isinstance(element, basestring):\r\n\tscheme = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_ColorFillSchema).ToElements().Find(lambda x : x.Name == element)\r\n\t\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\nfor entry in entries:\r\n\tif scheme.CanRemoveEntry(entry):\r\n\t\ttry : scheme.RemoveEntry(entry)\t\r\n\t\texcept : pass\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = scheme",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "118484ee2cff4cb4a974593a9c5381c4",
+      "Inputs": [
+        {
+          "Id": "736bd0328f6d47a8aae40923a3addcc9",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "755e347ecd924ccb9f0e8c7e639d8963",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2fb5d068f5264d5ab50cc0856857bf64",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ColorFillScheme",
+      "Id": "ac6b4a4a42e2415e8efb487f07734381",
+      "Inputs": [
+        {
+          "Id": "ccf958ad355c4342b37670cadc9703d6",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "33a96ce6359943e2b9a0e514426472fc",
+      "End": "736bd0328f6d47a8aae40923a3addcc9",
+      "Id": "fc923de17b0f4399b9335da7b101d981"
+    },
+    {
+      "Start": "e173bfb5508845f89525302a668efdc1",
+      "End": "755e347ecd924ccb9f0e8c7e639d8963",
+      "Id": "af7bb0dab27944fab33aba14b20ea652"
+    },
+    {
+      "Start": "2fb5d068f5264d5ab50cc0856857bf64",
+      "End": "ccf958ad355c4342b37670cadc9703d6",
+      "Id": "4b4daf5bce5d4057b9436e21d2094de8"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "3acfbcf17ac6408e96f497570ee28685",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -643.10086112659656,
+        "Y": -41.646591910306711
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "e3251893892d4bbca8f15d34d22a2e81",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -602.422794609553,
+        "Y": 39.709541123780809
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "118484ee2cff4cb4a974593a9c5381c4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 0.0,
+        "Y": 0.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "ac6b4a4a42e2415e8efb487f07734381",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 255.69070382141786,
+        "Y": 1.9370507865257878
+      }
+    ],
+    "Annotations": [],
+    "X": 230.07061327451103,
+    "Y": 222.99929061144508,
+    "Zoom": 0.41299898049384776
+  }
+}

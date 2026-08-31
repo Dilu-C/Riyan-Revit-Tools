@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<PreferenceSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IsFirstRun>false</IsFirstRun>
+  <IsAnalyticsReportingApproved>true</IsAnalyticsReportingApproved>
+  <LibraryWidth>304</LibraryWidth>
+  <ConsoleHeight>0</ConsoleHeight>
+  <ShowPreviewBubbles>true</ShowPreviewBubbles>
+  <ShowCodeBlockLineNumber>true</ShowCodeBlockLineNumber>
+  <ShowConnector>true</ShowConnector>
+  <ShowConnectorToolTip>true</ShowConnectorToolTip>
+  <ConnectorType>BEZIER</ConnectorType>
+  <BackgroundPreviews>
+    <BackgroundPreviewActiveState>
+      <Name>IsBackgroundPreviewActive</Name>
+      <IsActive>true</IsActive>
+    </BackgroundPreviewActiveState>
+    <BackgroundPreviewActiveState>
+      <Name>IsRevitBackgroundPreviewActive</Name>
+      <IsActive>true</IsActive>
+    </BackgroundPreviewActiveState>
+  </BackgroundPreviews>
+  <IsBackgroundGridVisible>true</IsBackgroundGridVisible>
+  <RenderPrecision>128</RenderPrecision>
+  <ShowEdges>false</ShowEdges>
+  <ShowDetailedLayout>true</ShowDetailedLayout>
+  <WindowX>-1928</WindowX>
+  <WindowY>-53</WindowY>
+  <WindowW>1936</WindowW>
+  <WindowH>1096</WindowH>
+  <UseHardwareAcceleration>true</UseHardwareAcceleration>
+  <NumberFormat>f2</NumberFormat>
+  <MaxNumRecentFiles>10</MaxNumRecentFiles>
+  <RecentFiles>
+    <string>D:\asanka\dynamo\final\Door&amp;Windows Legend EXPERIMENT PART1.dyn</string>
+    <string>D:\asanka\dynamo\final\New folder\Door&amp;Windows Legend EXPERIMENT PART1.dyn</string>
+    <string>D:\asanka\dynamo\Copy,duplicate columns from Linked file.dyn</string>
+    <string>D:\asanka\dynamo\beam by roof.dyn</string>
+    <string>D:\asanka\dynamo\Copy,duplicate Shaft Openings from Linked file.dyn</string>
+  </RecentFiles>
+  <BackupFiles>
+    <string>C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN</string>
+  </BackupFiles>
+  <CustomPackageFolders>
+    <string>%BuiltInPackages%</string>
+    <string>C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17</string>
+    <string>C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages</string>
+  </CustomPackageFolders>
+  <DisableTrustWarnings>false</DisableTrustWarnings>
+  <TrustedLocations>
+    <string>C:\ProgramData\Autodesk</string>
+    <string>C:\Program Files\Autodesk</string>
+  </TrustedLocations>
+  <PackageDirectoriesToUninstall />
+  <PythonTemplateFilePath />
+  <BackupInterval>60000</BackupInterval>
+  <BackupFilesCount>1</BackupFilesCount>
+  <PackageDownloadTouAccepted>true</PackageDownloadTouAccepted>
+  <OpenFileInManualExecutionMode>false</OpenFileInManualExecutionMode>
+  <IsIronPythonDialogDisabled>false</IsIronPythonDialogDisabled>
+  <ShowTabsAndSpacesInScriptEditor>false</ShowTabsAndSpacesInScriptEditor>
+  <EnableNodeAutoComplete>true</EnableNodeAutoComplete>
+  <HideNodesBelowSpecificConfidenceLevel>false</HideNodesBelowSpecificConfidenceLevel>
+  <MLRecommendationConfidenceLevel>10</MLRecommendationConfidenceLevel>
+  <MLRecommendationNumberOfResults>10</MLRecommendationNumberOfResults>
+  <EnableNotificationCenter>true</EnableNotificationCenter>
+  <EnableStaticSplashScreen>true</EnableStaticSplashScreen>
+  <DefaultPythonEngine />
+  <SelectedPackagePathForInstall>C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17</SelectedPackagePathForInstall>
+  <NamespacesToExcludeFromLibrary>
+    <string>ProtoGeometry.dll:Autodesk.DesignScript.Geometry.TSpline</string>
+  </NamespacesToExcludeFromLibrary>
+  <ViewExtensionSettings>
+    <ViewExtensionSettings>
+      <Name>Workspace References</Name>
+      <UniqueId>A6706BF5-11C2-458F-B7C8-B745A77EF7FD</UniqueId>
+      <DisplayMode>DockRight</DisplayMode>
+    </ViewExtensionSettings>
+    <ViewExtensionSettings>
+      <Name>Documentation Browser</Name>
+      <UniqueId>68B45FC0-0BD1-435C-BF28-B97CB03C71C8</UniqueId>
+      <DisplayMode>DockRight</DisplayMode>
+    </ViewExtensionSettings>
+  </ViewExtensionSettings>
+  <DisableBuiltinPackages>false</DisableBuiltinPackages>
+  <DisableCustomPackageLocations>false</DisableCustomPackageLocations>
+  <DefaultRunType>Automatic</DefaultRunType>
+  <DefaultNodeAutocompleteSuggestion>MLRecommendation</DefaultNodeAutocompleteSuggestion>
+  <ShowRunPreview>false</ShowRunPreview>
+  <GroupStyleItemsList>
+    <GroupStyleItem>
+      <Name>Actions</Name>
+      <HexColorString>B9F9E1</HexColorString>
+      <IsDefault>true</IsDefault>
+      <FontSize>36</FontSize>
+      <GroupStyleId>4d68be4a-a04d-4945-9dd5-cdf61079d790</GroupStyleId>
+    </GroupStyleItem>
+    <GroupStyleItem>
+      <Name>Inputs</Name>
+      <HexColorString>FFB8D8</HexColorString>
+      <IsDefault>true</IsDefault>
+      <FontSize>36</FontSize>
+      <GroupStyleId>883066aa-1fe2-44a4-9bd1-c3df86bfe9f6</GroupStyleId>
+    </GroupStyleItem>
+    <GroupStyleItem>
+      <Name>Outputs</Name>
+      <HexColorString>FFC999</HexColorString>
+      <IsDefault>true</IsDefault>
+      <FontSize>36</FontSize>
+      <GroupStyleId>07655dc1-2d65-4fed-8d6a-37235d3e3a8d</GroupStyleId>
+    </GroupStyleItem>
+    <GroupStyleItem>
+      <Name>Review</Name>
+      <HexColorString>A4E1FF</HexColorString>
+      <IsDefault>true</IsDefault>
+      <FontSize>36</FontSize>
+      <GroupStyleId>bc688959-ce34-4bf5-90f8-6ddd23f80989</GroupStyleId>
+    </GroupStyleItem>
+  </GroupStyleItemsList>
+  <NodeSearchTagSizeLimit>300</NodeSearchTagSizeLimit>
+  <IronPythonResolveTargetVersion>2.4.0</IronPythonResolveTargetVersion>
+  <ReadNotificationIds />
+  <DynamoPlayerFolderGroups />
+</PreferenceSettings>

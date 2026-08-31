@@ -1,0 +1,112 @@
+{
+  "Uuid": "d87dc150-b4a3-4f87-80d8-0d5214470af0",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Rebar",
+  "Description": "Returns the RebarShape element that defines the shape of the rebar. ",
+  "Name": "Rebar RebarShape",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2023\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n#https://github.com/albandechasteigner/GeniusLociForDynamo\r\n \r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB.Structure import *\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\n\r\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\r\nshapes=[]\r\n\r\nfor elem in elements:\r\n    shapes.append(doc.GetElement(elem.GetShapeId()))\r\n\r\nOUT = shapes",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "7d8302e873a446f1b55a48fe108ad1f1",
+      "Inputs": [
+        {
+          "Id": "e3cf606a293a4046ab4de43947d89981",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a6f7b7a99b4049b59f85f0984c5f56c9",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "rebar",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "534e113fd8a24a049decd23b38432ee1",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4cd8b8ae99cf4ea7988ff54a55adf90d",
+          "Name": "",
+          "Description": "Données d'entrée",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "RebarShape",
+      "Id": "351fccd0bb0a4ac28e868e79716008b7",
+      "Inputs": [
+        {
+          "Id": "0a02cbfef0bd4aeda2ccd9007e9dbf85",
+          "Name": "",
+          "Description": "Données de sortie",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "a6f7b7a99b4049b59f85f0984c5f56c9",
+      "End": "0a02cbfef0bd4aeda2ccd9007e9dbf85",
+      "Id": "42eec527397148a892b657b2dc3243a0",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "4cd8b8ae99cf4ea7988ff54a55adf90d",
+      "End": "e3cf606a293a4046ab4de43947d89981",
+      "Id": "3845eb2c05624b83b4e6a77b4c5e7a59",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": []
+}

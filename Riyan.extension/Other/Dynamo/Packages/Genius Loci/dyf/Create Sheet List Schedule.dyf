@@ -1,0 +1,273 @@
+{
+  "Uuid": "d976888f-88f0-4c40-9a82-3ccd7e8512bc",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Schedule",
+  "Description": "Create a Sheet List Schedule with Sheet Number, Sheet Name, Current Revision and Current Revision Date.",
+  "Name": "Create Sheet List Schedule",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.Elements)\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nTransactionManager.Instance.EnsureInTransaction(doc) \nsheetList = Autodesk.Revit.DB.ViewSchedule.CreateSheetList(doc) \nTransactionManager.Instance.TransactionTaskDone()\n\nfields = sheetList.Definition.GetSchedulableFields()\nfieldList=[]\nfor f in fields:\n\tname=f.GetName(doc) \n\tfieldList.append(name)\nOUT = sheetList,fieldList,fields",
+      "VariableInputPorts": true,
+      "Id": "c81ba68493f04a768affa3fe81b6684e",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b3a596b85fc74103954cd30189a559d7",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[2];",
+      "Id": "dd78b973142143ac9746db57aeb32c7e",
+      "Inputs": [
+        {
+          "Id": "271b8bf9263f4925a09776efa96c2621",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "001ae35fad7e4752874b86664e4541b8",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a6bd3869c54e40b1beb4e4fc833c390c",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[[23,24,18,16]];",
+      "Id": "708fc616310e42bbab1fbc8a84f17807",
+      "Inputs": [
+        {
+          "Id": "6b8499002d0a49eba7c1c9ae68d6a00d",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "553e5f8ded0e44e7bcc0a1f4710edda5",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.Elements)\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nviewSchedule = UnwrapElement(IN[0])\nschedulableFields = UnwrapElement(IN[1])\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor schedulableField in schedulableFields:\n\tviewSchedule.Definition.AddField(schedulableField) \nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = viewSchedule",
+      "VariableInputPorts": true,
+      "Id": "415ab445c64f4ad59af24caa9b7df1e8",
+      "Inputs": [
+        {
+          "Id": "b68ada524c784c92aa6e888e26da59e3",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "360d0573baf642c78293b07274d6499d",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "39f57b8656854e82b635778efee0ea88",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ViewSchedule",
+      "Id": "558984d42c8c44a39e98dc4d7c13bb38",
+      "Inputs": [
+        {
+          "Id": "b59740136c6b49b0aa0688f7a6770ec3",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "b3a596b85fc74103954cd30189a559d7",
+      "End": "271b8bf9263f4925a09776efa96c2621",
+      "Id": "0ba02d4b12e84f16936add5fbf9d2572"
+    },
+    {
+      "Start": "001ae35fad7e4752874b86664e4541b8",
+      "End": "b68ada524c784c92aa6e888e26da59e3",
+      "Id": "8ebc034381bf47178711a12106475e92"
+    },
+    {
+      "Start": "a6bd3869c54e40b1beb4e4fc833c390c",
+      "End": "6b8499002d0a49eba7c1c9ae68d6a00d",
+      "Id": "56b2df7d90c64bb291fc67add2cd3dd9"
+    },
+    {
+      "Start": "553e5f8ded0e44e7bcc0a1f4710edda5",
+      "End": "360d0573baf642c78293b07274d6499d",
+      "Id": "876dd7fc3fe844ada87bd6145ec0a8a3"
+    },
+    {
+      "Start": "39f57b8656854e82b635778efee0ea88",
+      "End": "b59740136c6b49b0aa0688f7a6770ec3",
+      "Id": "510b3fe78d8f43eca28f921ab3d60d02"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Sheet List",
+        "Id": "c81ba68493f04a768affa3fe81b6684e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 397.8,
+        "Y": 376.270701105734
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "dd78b973142143ac9746db57aeb32c7e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 580.6,
+        "Y": 380.484034439067
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "708fc616310e42bbab1fbc8a84f17807",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 771.8,
+        "Y": 402.270701105734
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "ScheduleView.AddFields",
+        "Id": "415ab445c64f4ad59af24caa9b7df1e8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1061.8,
+        "Y": 372.057367772401
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "558984d42c8c44a39e98dc4d7c13bb38",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1323.0,
+        "Y": 372.057367772401
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

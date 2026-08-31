@@ -1,0 +1,114 @@
+{
+  "Uuid": "8bca20ee-3169-4863-a11c-b2626328f959",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Workset",
+  "Description": "Enumerates the set of user-created worksets to open in memory. For use with the Document SaveAs node.",
+  "Name": "OpenWorksets Enumeration",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import SimpleWorksetConfiguration\nimport System\n\nOUT = System.Enum.GetValues(Autodesk.Revit.DB.SimpleWorksetConfiguration)",
+      "VariableInputPorts": true,
+      "Id": "66012a1deb7049448bcf965968e608fa",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ebb17f4b9408425a92ccb291752ba835",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "WorksetConfiguration",
+      "Id": "007dcfdfacdc4d1cb5b3523c0e441348",
+      "Inputs": [
+        {
+          "Id": "c9548bee15664cd8bc776e07e1073e2d",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "ebb17f4b9408425a92ccb291752ba835",
+      "End": "c9548bee15664cd8bc776e07e1073e2d",
+      "Id": "b8a793bacd1a4bff8b98f6f909b86224"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "66012a1deb7049448bcf965968e608fa",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 457.6,
+        "Y": 281.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "007dcfdfacdc4d1cb5b3523c0e441348",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 598.246840279923,
+        "Y": 280.725423369839
+      }
+    ],
+    "Annotations": [],
+    "X": 55.9028925,
+    "Y": 89.9814825,
+    "Zoom": 0.70823125
+  }
+}

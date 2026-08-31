@@ -1,0 +1,215 @@
+{
+  "Uuid": "69e069bb-d610-4fb8-b578-700d9b9ea643",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Select",
+  "Description": "Collects elements by Category, Element Type, Wall/Floor/Roof/CeilingType or Family Type and Level in the active or given document.\r\nWith linked documents, use the \"Collector of Levels\" node to obtain the linked level input.",
+  "Name": "SelectByCateOrTypeAndLevel",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "level",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Collected level in active or linked document\n@L1 for several levels"
+      },
+      "Id": "48cafe865a004a6ca01c6921c269138d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "890df264b1c74957820d8e68594e64ce",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "CategoryOrType",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": null,
+        "Description": "Category, Element Type, Wall Type or Family Type"
+      },
+      "Id": "8d4d0025ce8147a09da8079c7fe6957b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f4f845eb463f434db22ef6a0fdd7d190",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Elements",
+      "Id": "30a497ae5bb44a24a427aeee4000db57",
+      "Inputs": [
+        {
+          "Id": "4cf654b095e3431999263ca6699be242",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2019\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.Elements)\n\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import Category, FamilySymbol, FilteredElementCollector, Document, RevitLinkInstance, ElementParameterFilter, ElementMulticlassFilter, ElementMulticategoryFilter, FilterElementIdRule, ParameterValueProvider, FilterNumericEquals, ElementId, BuiltInCategory,BuiltInParameter, Level, HostObjAttributes\nimport System\nfrom System.Collections.Generic import List\n\ndef tolist(obj1):\n\tif hasattr(obj1,\"__iter__\"): return obj1\n\telse: return [obj1]\n\nSelectedLevel = tolist(UnwrapElement(IN[0]))[0]\ncats = tolist(UnwrapElement(IN[1]))\n\ndoc = SelectedLevel.Document\nelem = []\n\n#ueWrapper by Dimitar Venkov\nueWrapper = None\nwrappers = clr.GetClrType(Revit.Elements.ElementWrapper).GetMethods()\nfor w in wrappers:\n\tif w.ToString().startswith(\"Revit.Elements.UnknownElement\"):\n\t\tueWrapper = w\n\t\tbreak\n\t\t\nprovider = ParameterValueProvider(ElementId(BuiltInParameter.ELEM_FAMILY_PARAM))\nprovider2 = ParameterValueProvider(ElementId(BuiltInParameter.ELEM_TYPE_PARAM))\nevaluator = FilterNumericEquals()\n\nfor cat in cats:\n\tif isinstance(cat, Category):\n\t\tcatId = List[ElementId](x.Id for x in cats)\n\t\tfilter = ElementMulticategoryFilter(catId)\n\t\tfec = FilteredElementCollector(doc).WhereElementIsNotElementType()\n\telif isinstance(cat, System.Type): \n\t\tcatId = List[System.Type](cats)\n\t\tfilter = ElementMulticlassFilter(catId)\t\n\t\tfec = FilteredElementCollector(doc)\n\telif isinstance(cat, FamilySymbol):\n\t\tfilter = ElementParameterFilter(FilterElementIdRule(provider, evaluator, cat.Id))\t\n\t\tfec = FilteredElementCollector(doc).OfCategoryId(cat.Category.Id)\n\telif isinstance(cat, HostObjAttributes):\n\t\tfilter = ElementParameterFilter(FilterElementIdRule(provider2, evaluator, cat.Id))\t\n\t\tfec = FilteredElementCollector(doc).OfCategoryId(cat.Category.Id)\ncollector = fec.WherePasses(filter)\n#Inspired by Clockwork\ndef GetLevel(item):\n\tval = None\n\tif hasattr(item, \"LevelId\"): \n\t\tval = item.Document.GetElement(item.LevelId)\n\t\tif val: return val\n\tif hasattr(item, \"Level\"):\n\t\tval = item.Level\n\t\tif val: return val\n\tif hasattr(item, \"GenLevel\"):\n\t\tval = item.GenLevel\n\t\tif val: return val\n\tif (item.GetType().ToString() in (\"Autodesk.Revit.DB.Architecture.StairsRun\", \"Autodesk.Revit.DB.Architecture.StairsLanding\")):\n\t\titem = item.GetStairs()\n\tif (item.GetType().ToString() == \"Autodesk.Revit.DB.Architecture.Stairs\") or item.Category.Id == ElementId(BuiltInCategory.OST_Ramps):\n\t\ttry: return item.Document.GetElement(item.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM).AsElementId())\n\t\texcept: pass\n\tif (item.GetType().ToString() == \"Autodesk.Revit.DB.ExtrusionRoof\"):\n\t\ttry: return item.Document.GetElement(item.get_Parameter(BuiltInParameter.ROOF_CONSTRAINT_LEVEL_PARAM).AsElementId())\n\t\texcept: pass\n\tif (item.GetType().ToString() == \"Autodesk.Revit.DB.Mechanical.Duct\" or \"Autodesk.Revit.DB.Electrical.Conduit\"):\n\t\ttry: return item.Document.GetElement(item.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId())\n\t\texcept: pass\n\tif hasattr(item, \"OwnerViewId\"):\n\t\tview = item.Document.GetElement(item.OwnerViewId)\n\t\tif hasattr(view, \"GenLevel\"):\n\t\t\tval = view.GenLevel\n\t\t\tif val: return val\n\tif not val:\n\t\ttry: return item.Document.GetElement(item.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId())\n\t\texcept: \n\t\t\ttry: return item.Document.GetElement(item.get_Parameter(BuiltInParameter.INSTANCE_SCHEDULE_ONLY_LEVEL_PARAM).AsElementId())\n\t\t\texcept: \n\t\t\t\ttry: return item.Document.GetElement(item.get_Parameter(BuiltInParameter.SCHEDULE_LEVEL_PARAM).AsElementId())\n\t\t\t\texcept:\n\t\t\t\t\t#if item is work plane based\n\t\t\t\t\tcollector = FilteredElementCollector(item.Document).OfClass(Level).ToElements()\n\t\t\t\t\ttry: return [level for level in collector if item.get_Parameter(BuiltInParameter.SKETCH_PLANE_PARAM).AsString().split(\": \")[-1] == level.Name][0]\n\t\t\t\t\texcept: return None\n\nfor col in collector :\n\tif GetLevel(col) and GetLevel(col).Id == SelectedLevel.Id:\n\t\ttry:\n\t\t\telem.append(col.ToDSType(True))\n\t\texcept:\n\t\t\tif ueWrapper:\n\t\t\t\telem.append(ueWrapper.Invoke(None,(col, True)))\n\nOUT = elem\ncollector.Dispose()\nfilter.Dispose()",
+      "VariableInputPorts": true,
+      "Id": "f3200156908d483fbad8f96a374e6c67",
+      "Inputs": [
+        {
+          "Id": "381afbbd0ac3434c826c74b068d5fbe2",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "8c95f930bf824a4bbf6bb6cd7654760d",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "97d61efccbdd4ad691005d54cd2d50df",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "890df264b1c74957820d8e68594e64ce",
+      "End": "381afbbd0ac3434c826c74b068d5fbe2",
+      "Id": "7e9a2e8adef64629aeb0b3a51d27016d"
+    },
+    {
+      "Start": "f4f845eb463f434db22ef6a0fdd7d190",
+      "End": "8c95f930bf824a4bbf6bb6cd7654760d",
+      "Id": "4fabc45b5b504c1ebfc0b8f289a33baf"
+    },
+    {
+      "Start": "97d61efccbdd4ad691005d54cd2d50df",
+      "End": "4cf654b095e3431999263ca6699be242",
+      "Id": "f4cce27772614f0b9690fe215859168f"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "48cafe865a004a6ca01c6921c269138d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -176.952425740865,
+        "Y": 306.11034721294
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "8d4d0025ce8147a09da8079c7fe6957b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -179.181887371307,
+        "Y": 415.552981805329
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "30a497ae5bb44a24a427aeee4000db57",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 565.447574259135,
+        "Y": 381.11034721294
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "SelectByCategory",
+        "Id": "f3200156908d483fbad8f96a374e6c67",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 341.047574259135,
+        "Y": 381.11034721294
+      }
+    ],
+    "Annotations": [],
+    "X": 169.547547147477,
+    "Y": -45.9781104365634,
+    "Zoom": 0.717662048161244
+  }
+}

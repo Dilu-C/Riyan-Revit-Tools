@@ -1,0 +1,167 @@
+{
+  "Uuid": "287e18d1-075e-4231-a204-50f1032f2a9a",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Family",
+  "Description": "Load the family as familyDocument, existing family will be overwritten.\r\nUse the \"FamilyDocument Close\" node to close the familyDocument.",
+  "Name": "FamilyDocument Load",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "familyDocument",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Autodesk.Revit.DB.Document or FilePath"
+      },
+      "Id": "48d9f79e4900402897db7c8ceebe1f1d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f136563144ae4eb3be6a25a501eafb8f",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Family",
+      "Id": "20f60d7f0f1949f8a305a11755d5d4f1",
+      "Inputs": [
+        {
+          "Id": "cd4b8e0bb4b44370914f91e5338c4221",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import Document, FamilySource, IFamilyLoadOptions\n\nclr.AddReference('RevitServices')\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nfamDocs = IN[0] if isinstance(IN[0],list) else [IN[0]]\noutput = []\n#Ensure loaded families can overwrite existing families.\nclass FamilyOption(IFamilyLoadOptions):\n\tdef OnFamilyFound(self, familyInUse, overwriteParameterValues):\n\t\toverwriteParameterValues = True\n\t\treturn True\n\n\tdef OnSharedFamilyFound(self, sharedFamily, familyInUse, source, overwriteParameterValues):\n\t\tsource = FamilySource.Family\n\t\toverwriteParameterValues = True\n\t\treturn True\n\nfor famDoc in famDocs:\n\tif isinstance(famDoc, basestring):\n\t\tTransactionManager.Instance.EnsureInTransaction(doc)\n\t\toutput.append(doc.LoadFamily(famDoc,FamilyOption()))\n\t\tTransactionManager.Instance.TransactionTaskDone()\n\telse:\n\t\tTransactionManager.Instance.ForceCloseTransaction()\n\t\toutput.append(famDoc.LoadFamily(doc, FamilyOption()))\n\t\nOUT = output",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "7ad017a1bff44210a579afeea1baa189",
+      "Inputs": [
+        {
+          "Id": "1fe49f5d83ac4b0fb6294e2dd2b222a8",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b8bd6ec3f4c942fe9995192c85876b88",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "f136563144ae4eb3be6a25a501eafb8f",
+      "End": "1fe49f5d83ac4b0fb6294e2dd2b222a8",
+      "Id": "f230cb16c76547a0b83bbc2f1b57a74d"
+    },
+    {
+      "Start": "b8bd6ec3f4c942fe9995192c85876b88",
+      "End": "cd4b8e0bb4b44370914f91e5338c4221",
+      "Id": "5253f55b901b4914a0f7a064387f3173"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "48d9f79e4900402897db7c8ceebe1f1d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -81.137872539135572,
+        "Y": 343.00053535913435
+      },
+      {
+        "Id": "20f60d7f0f1949f8a305a11755d5d4f1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 542.237009451362,
+        "Y": 340.700660977611
+      },
+      {
+        "Id": "7ad017a1bff44210a579afeea1baa189",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 355.09005886008543,
+        "Y": 342.20357404713656
+      }
+    ],
+    "Annotations": [],
+    "X": 264.7458322376425,
+    "Y": 23.327964625189708,
+    "Zoom": 0.78436932804482684
+  }
+}

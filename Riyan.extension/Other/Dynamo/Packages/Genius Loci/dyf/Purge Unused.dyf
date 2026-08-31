@@ -1,0 +1,355 @@
+{
+  "Uuid": "2581c877-7262-4e73-b6c1-caa6efaa8509",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Utilities",
+  "Description": "Purge the document completely including materials an assets using the API.\r\nThe optional input \"deeply\" allows to purge unused view templates, unused view filters, imported line Patterns from DWG and \"Imports in Families\" Object Styles.\r\nCan be used with documents open in the background.\r\nWorks only in Revit 2017 and later.",
+  "Name": "Purge Unused",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Part of script by Matthew Taylor translated in Python by Oliver E Green\n\n#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nimport System\nfrom System.Collections.Generic import List\n\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\nbool=IN[0]\ndeeply=IN[1]\ninputdoc = UnwrapElement(IN[2]) if isinstance(IN[2],list) else [UnwrapElement(IN[2])]\ninputdoc = inputdoc[0]\n\nif inputdoc == None:\n\tdoc = DocumentManager.Instance.CurrentDBDocument\nelif isinstance (inputdoc, Document) :\n\tdoc = inputdoc\nelif isinstance (inputdoc, RevitLinkInstance) :\n\tdoc = inputdoc.GetLinkDocument()\nelse: doc = DocumentManager.Instance.CurrentDBDocument\n\n#GetPurgeableElements by Oliver E Green \ndef GetPurgeableElements(doc, rule_id_list):\n\tfailure_messages = PerformanceAdviser.GetPerformanceAdviser().ExecuteRules(doc, rule_id_list)\n\tif failure_messages.Count > 0:\n\t\tpurgeable_element_ids = failure_messages[0].GetFailingElements()\n\t\treturn purgeable_element_ids\n\n#A constant \nPURGE_GUID = \"e8c63650-70b7-435a-9010-ec97660c1bda\"\n\n#A generic list of PerformanceAdviserRuleIds as required by the ExecuteRules method\nrule_id_list = List[PerformanceAdviserRuleId]()\n\n#Iterating through all PerformanceAdviser rules looking to find that which matches PURGE_GUID\nfor rule_id in PerformanceAdviser.GetPerformanceAdviser().GetAllRuleIds():\n\tif str(rule_id.Guid) == PURGE_GUID:\n\t\trule_id_list.Add(rule_id)\n\t\tbreak\n\n#Attempting to retrieve the elements which can be purged\npurgeable_element_ids = GetPurgeableElements(doc, rule_id_list)\n\nTransactionManager.Instance.ForceCloseTransaction()\n\ntrans = Transaction(doc,'Purge')\ntrans.Start()\n\nif bool and purgeable_element_ids != None:\n\tdoc.Delete(purgeable_element_ids)\n\n#Materials to delete\ntoKeep=[]\nelements = FilteredElementCollector(doc).WhereElementIsElementType().ToElements()\nfor elem in elements:\n\tmatlist=[]\n\tfor matid in elem.GetMaterialIds(False):\n\t\tmatlist.append(matid)\n\ttoKeep.extend(matlist)\n\ncompound=FilteredElementCollector(doc).OfClass(HostObjAttributes).WhereElementIsElementType().ToElements()\ncompoundStructure = [comp.GetCompoundStructure() for comp in compound]\nfor compoundStr in compoundStructure:\n\tif compoundStr != None:\n\t\tlayerCount=compoundStr.LayerCount\n\t\tfor j in range (0, layerCount):\n\t\t\tif compoundStr.GetMaterialId(j) != ElementId(-1):\n\t\t\t\ttoKeep.append(compoundStr.GetMaterialId(j))\n\nmaterials = FilteredElementCollector(doc).OfClass(Material).ToElementIds()\n\n#Assets to delete\nappearanceAssetIds = FilteredElementCollector(doc).OfClass(AppearanceAssetElement).ToElementIds()\n#The PropertySetElement contains either the Thermal or Structural Asset\npropertySet = FilteredElementCollector(doc).OfClass(PropertySetElement).ToElementIds()\n\nthermal=[doc.GetElement(id).ThermalAssetId for id in set(toKeep)]\nstructural=[doc.GetElement(id).StructuralAssetId for id in set(toKeep)]\nappearanceAssets=[doc.GetElement(id).AppearanceAssetId for id in set(toKeep)]\n\npropertySet2 = [e for e in propertySet if e not in thermal and e not in structural]\nappearanceAssetIds2 = [e for e in appearanceAssetIds if e not in appearanceAssets]\nmatToDelete=[m for m in materials if not m in toKeep]\n\nviews = FilteredElementCollector(doc).OfClass(View).WhereElementIsNotElementType().ToElements()\n\n#Unused filters to delete\nfilterIds = FilteredElementCollector(doc).OfClass(ParameterFilterElement).ToElementIds()\n\nusedFilterIds = []\nif not doc.IsFamilyDocument:\n\tfor view in views:\n\t\tviewFilterIds = []\n\t\tif view.AreGraphicsOverridesAllowed():\n\t\t\tviewFilterIds = view.GetFilters()\n\t\tusedFilterIds.extend(viewFilterIds)\nunusedFilterIds = [u for u in filterIds if u not in usedFilterIds]\n\t\n#Unused view Templates to delete\nappliedtemplates = [v.ViewTemplateId for v in views]\ntemplates = [v.Id for v in views if v.IsTemplate == True]\ntemplatesToDelete = [t for t in templates if t not in appliedtemplates]\n\n#LinePatterns to delete\nlinePatterns = FilteredElementCollector(doc).OfClass(LinePatternElement).ToElements()\nlinesToDelete = [l.Id for l in linePatterns if l.Name.startswith(\"IMPORT\")]\n\n#\"Imports in Families\" Object Styles to delete\nImportCat = doc.Settings.Categories.get_Item(BuiltInCategory.OST_ImportObjectStyles)\nimportsInFamily=[c.Id for c in ImportCat.SubCategories]\n\nif bool and matToDelete != None:\n\t[doc.Delete(m) for m in matToDelete]\nif bool and appearanceAssetIds2 != None:\n\tfor a in appearanceAssetIds2:\n\t\ttry:doc.Delete(a)\n\t\texcept:pass\nif bool and propertySet2 != None:\n\t[doc.Delete(p) for p in propertySet2]\nif deeply and unusedFilterIds != None:\n\t[doc.Delete(u) for u in unusedFilterIds]\nif deeply and templatesToDelete != None:\n\t[doc.Delete(t) for t in templatesToDelete]\nif deeply and linesToDelete != None:\n\t[doc.Delete(l) for l in linesToDelete]\nif deeply and importsInFamily != None:\n\t[doc.Delete(i) for i in importsInFamily]\n\ntrans.Commit()\n\nif purgeable_element_ids != None:\n\tOUT= '%d elements deleted' %(len([purg for purg in purgeable_element_ids]+matToDelete+appearanceAssetIds2+propertySet2+[f for f in unusedFilterIds]+templatesToDelete+linesToDelete+importsInFamily)),[purg for purg in purgeable_element_ids]+matToDelete+appearanceAssetIds2+propertySet2+[f for f in unusedFilterIds]+templatesToDelete+linesToDelete+importsInFamily\nelse:\n\tOUT= '%d elements deleted' %(len(matToDelete+appearanceAssetIds2+propertySet2+[f for f in unusedFilterIds]+templatesToDelete+linesToDelete+importsInFamily)),matToDelete+appearanceAssetIds2+propertySet2+[f for f in unusedFilterIds]+templatesToDelete+linesToDelete+importsInFamily",
+      "VariableInputPorts": true,
+      "Id": "57d2acdd51b14cbb92cfeabfd08ee923",
+      "Inputs": [
+        {
+          "Id": "c8d28edd6a2a4369894681dcfb1ec765",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "8f87a8d9f9e4406e9cf7504593649048",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "774e24f4b74a446fa93f145223c3e1b5",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0bfc6f6c7a814b53963dd3b95836772a",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];",
+      "Id": "4cacee57836d460db1b2e6fb31dc9f1a",
+      "Inputs": [
+        {
+          "Id": "dc2270bde5ca48d5bde987fcea19d81c",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a4e5752ee0cd434daaf242ef02520976",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "45c509208d974fb88e3ef452b2968941",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Count",
+      "Id": "6df82c785bcd48e095b856d14d983612",
+      "Inputs": [
+        {
+          "Id": "0e352c19fdd842a7bd1dbf9ee20b5638",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Id",
+      "Id": "6cbb024986c6426880f401b1dec0d640",
+      "Inputs": [
+        {
+          "Id": "8ab8e1eeaa604fb78cae9738fa8d7525",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "RunIt",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": ""
+      },
+      "Id": "eed695df40bb4e019ebe9410a5927431",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "68d25df64cca4107881455fd32d024bb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Deeply",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": "Purge view templates, view filters, imported line Patterns\nand \"Imports in Families\" Object Styles"
+      },
+      "Id": "be9b1103749647cd90fa44c4dc0afaf2",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d678e49803414e959fa33cf99598ab1b",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "document",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": "null",
+        "Description": "Optional input. Project or Family Document (Autodesk.Revit.DB.Document)\nUse only if you want to query a document open in the background"
+      },
+      "Id": "fcae574498924c2c876d23e8c4d06e52",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8d17c519d65e42cc86e5ea3a057e36be",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "0bfc6f6c7a814b53963dd3b95836772a",
+      "End": "dc2270bde5ca48d5bde987fcea19d81c",
+      "Id": "44db87d39b764defaa4b708206260217"
+    },
+    {
+      "Start": "a4e5752ee0cd434daaf242ef02520976",
+      "End": "0e352c19fdd842a7bd1dbf9ee20b5638",
+      "Id": "dfdcd934e07047edbee4b11e65d00433"
+    },
+    {
+      "Start": "45c509208d974fb88e3ef452b2968941",
+      "End": "8ab8e1eeaa604fb78cae9738fa8d7525",
+      "Id": "b448ee1df70147fe81c6c150ba701e07"
+    },
+    {
+      "Start": "68d25df64cca4107881455fd32d024bb",
+      "End": "c8d28edd6a2a4369894681dcfb1ec765",
+      "Id": "69d79603622148a69726f209b2bc5cfb"
+    },
+    {
+      "Start": "d678e49803414e959fa33cf99598ab1b",
+      "End": "8f87a8d9f9e4406e9cf7504593649048",
+      "Id": "c396d3553cc640209c05b521432bbb7d"
+    },
+    {
+      "Start": "8d17c519d65e42cc86e5ea3a057e36be",
+      "End": "774e24f4b74a446fa93f145223c3e1b5",
+      "Id": "9561f436bbd542b8845f7c078254361d"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "57d2acdd51b14cbb92cfeabfd08ee923",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 210.848808362738,
+        "Y": 197.188651435701
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "4cacee57836d460db1b2e6fb31dc9f1a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 435.648808362738,
+        "Y": 201.401984769034
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "6df82c785bcd48e095b856d14d983612",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 626.848808362738,
+        "Y": 163.975318102367
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "6cbb024986c6426880f401b1dec0d640",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 626.848808362738,
+        "Y": 247.975318102367
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "eed695df40bb4e019ebe9410a5927431",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -521.151191637262,
+        "Y": 136.188651435701
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "be9b1103749647cd90fa44c4dc0afaf2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -521.151191637262,
+        "Y": 220.188651435701
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "fcae574498924c2c876d23e8c4d06e52",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -521.151191637262,
+        "Y": 313.188651435701
+      }
+    ],
+    "Annotations": [],
+    "X": 327.445375089805,
+    "Y": 181.195073431032,
+    "Zoom": 0.5688538392753
+  }
+}

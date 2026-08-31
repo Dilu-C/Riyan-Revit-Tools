@@ -1,0 +1,165 @@
+{
+  "Uuid": "c95cc636-ea1d-4bd0-8d21-509a2e26e387",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.TextNote",
+  "Description": "Removes all leaders attached to the text note.",
+  "Name": "TextNote RemoveLeader",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "textNote",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "38e8de0de3b3431c8a4f8a1dde9ea639",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "18232c01358d4a8c8b958ba3d6f108da",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "TextNote",
+      "Id": "45ebab820d7148e9858d4ccc5028604f",
+      "Inputs": [
+        {
+          "Id": "e861727d1a1241b3bda9e880ed61c694",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2021\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import TextNote\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nElements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor textNote in Elements:\n\ttextNote.RemoveLeaders()\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = IN[0]",
+      "VariableInputPorts": true,
+      "Id": "ed9c50ffa4204ad7bbc0787596772453",
+      "Inputs": [
+        {
+          "Id": "c8888a815c824360b8b71fee9eb12aa5",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "9a450cd06afe4930b39b9c3005fe3e5b",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "18232c01358d4a8c8b958ba3d6f108da",
+      "End": "c8888a815c824360b8b71fee9eb12aa5",
+      "Id": "54da9752a6364edfbf9ee7c38d1aa440"
+    },
+    {
+      "Start": "9a450cd06afe4930b39b9c3005fe3e5b",
+      "End": "e861727d1a1241b3bda9e880ed61c694",
+      "Id": "3bb0cacc263041228519d9ed1fcdbb63"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -10.220145225524902,
+      "EyeY": 61.843719482421875,
+      "EyeZ": 24.629222869873047,
+      "LookX": 5.2201452255249023,
+      "LookY": -50.843719482421875,
+      "LookZ": -32.629222869873047,
+      "UpX": 0.11092253029346466,
+      "UpY": 0.712026059627533,
+      "UpZ": -0.69333618879318237
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "38e8de0de3b3431c8a4f8a1dde9ea639",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 264.0,
+        "Y": 276.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "45ebab820d7148e9858d4ccc5028604f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 580.954752438598,
+        "Y": 276.378653457585
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "ed9c50ffa4204ad7bbc0787596772453",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 408.847802037975,
+        "Y": 276.048841599896
+      }
+    ],
+    "Annotations": [],
+    "X": 97.1352452325937,
+    "Y": 109.428294940453,
+    "Zoom": 0.496186487382813
+  }
+}

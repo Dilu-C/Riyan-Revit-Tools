@@ -1,0 +1,615 @@
+{
+  "Uuid": "5441601f-cecd-4e9d-bfba-6cb8c6205645",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.FillPattern",
+  "Description": "Creates a new FillPatternElement with a repeating sequence of angles, origins, shifts, offsets, \r\ndashes and spaces.",
+  "Name": "Create Fill Pattern",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nclr.AddReference('System')\nimport System\nfrom System.Collections.Generic import List\n\nif version < 2021:\n\tUIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Length).DisplayUnits\n\tut_degrees = DisplayUnitType.DUT_DECIMAL_DEGREES\nelse:\n\tUIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()\n\tut_degrees = UnitTypeId.Degrees\n\npatternName, angles, x_origins, y_origins, shifts, offsets, segments1, segments2 = IN[0],IN[3],IN[4],IN[5],IN[6],IN[7],IN[8],IN[9]\nif isinstance(IN[1],Autodesk.Revit.DB.FillPatternTarget) :\n\tfillPatternTarget = IN[1]\nelse :\n\tfillPatternTarget = System.Enum.Parse(Autodesk.Revit.DB.FillPatternTarget, IN[1])\n\t\nif isinstance(IN[2],Autodesk.Revit.DB.FillPatternHostOrientation) :\n\tfillPatternHostOrientation = IN[2]\nelse :\n\tfillPatternHostOrientation = System.Enum.Parse(Autodesk.Revit.DB.FillPatternHostOrientation, IN[2])\n\n#Creates and returns a new fill grid\ndef CreateGrid(angle, origin, shift, offset, *segments) :\n\tfillGrid = FillGrid()\n\tfillGrid.Angle = angle\n\tfillGrid.Origin = origin\n\tfillGrid.Shift = shift\n\tfillGrid.Offset = offset\n\tsegmentsList = List[float]()\n\tfor d in segments :\n\t\tsegmentsList.Add(d)\n\tfillGrid.SetSegments(segmentsList)\n\treturn fillGrid\n\n#Create the fill pattern\nfillPattern = FillPattern(patternName, fillPatternTarget, fillPatternHostOrientation)\n#Add grids\nlstGrids = List[FillGrid]()\n\n#The arguments: angle, origin, shift (delta between location of start point per line), offset (vertical distance between lines) \n#The last two arguments are the segments: e.g. 1.0 units on, 0.1 units off (units are Revit units (ft))\nfor angle, x_origin, y_origin, shift, offset, segment1, segment2 in zip(angles, x_origins, y_origins, shifts, offsets, segments1, segments2):\n\tlstGrids.Add(CreateGrid(UnitUtils.ConvertToInternalUnits(angle, ut_degrees), UV(UnitUtils.ConvertToInternalUnits(x_origin,UIunit), UnitUtils.ConvertToInternalUnits(y_origin,UIunit)), UnitUtils.ConvertToInternalUnits(shift,UIunit), UnitUtils.ConvertToInternalUnits(offset,UIunit), UnitUtils.ConvertToInternalUnits(segment1,UIunit), UnitUtils.ConvertToInternalUnits(abs(segment2),UIunit)))\n\t\nfillPattern.SetFillGrids(lstGrids)\n#Create the fill pattern element.\nTransactionManager.Instance.EnsureInTransaction(doc)\npatternElement = FillPatternElement.Create(doc, fillPattern)\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT=patternElement",
+      "VariableInputPorts": true,
+      "Id": "b2d87c60c8534b66a56f2e6a4cca7685",
+      "Inputs": [
+        {
+          "Id": "1b197abed0a84039a0875aab833e3953",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "002d23ce1a0b4c7ebc0949e0a2df0573",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "5b8cdfa35ce54f00afa39084a51a8a48",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a677f7e4328543a781e47adaac529d82",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "cd5383609e2a446c90b47ecba36ca77e",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "806cf4247fed44f2a3edf7862bc6ff6f",
+          "Name": "IN[5]",
+          "Description": "Input #5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "eb42f03ff6c1416599a93f653a2336eb",
+          "Name": "IN[6]",
+          "Description": "Input #6",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c663840ebb4c4aea8e07a494c794fef9",
+          "Name": "IN[7]",
+          "Description": "Input #7",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "96fb1fa95b084b48a76d1d19e788d4b1",
+          "Name": "IN[8]",
+          "Description": "Input #8",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "da0ed2f4dd284a21bd1ca6e4bbbd2b5f",
+          "Name": "IN[9]",
+          "Description": "Input #9",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b99f5bdf969347c799c40e3f542b0971",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Name",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "eef4717cbc614b42886e3fa120ee0b57",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "e498ba6483fe42a290610c4c2c0eb6e8",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "FillPatternElement",
+      "Id": "892a0bde98aa452183bab838304c2ef3",
+      "Inputs": [
+        {
+          "Id": "21dfe1a3f8914609bcc855215cbfa321",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "fillPatternTarget",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "String or Revit.DB.FillPatternTarget\nTo use with the Fill Pattern Targets node"
+      },
+      "Id": "1aadb7e074fb4100a0886c9685f62b6f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "909df458f51c4edd87b532fbc4059597",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "fillPatternHostOrientation",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "String or Revit.DB.FillPatternHostOrientation\nTo use with the FillPattern HostOrientation node"
+      },
+      "Id": "7cddb5616bcb42a692072abb920a3214",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6f2ef2b5293d49fb810a036adac337bf",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "angles",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Degrees. The angle specifies the direction"
+      },
+      "Id": "3b5adcf9e62a4a478461fb939e092783",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c64e64afee8d44cebc778a8669e58036",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "x_origins",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The line in the set starts at the specified x origin."
+      },
+      "Id": "d0429e498e524f8d94604db3c7125358",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6677cccebdb0459a8d425cf98ecf8147",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "y_origins",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The line in the set starts at the specified y origin."
+      },
+      "Id": "e1603ad674824b7f835766defc971890",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b1b887cfb928466dae0adb7cbfc63b5c",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "shifts",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Shift moves the pattern of dashes and spaces along \nthe length of each new parallel line."
+      },
+      "Id": "ed06255672ce41baabf50539240bcb83",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "402f4381074043d2834097b58d567813",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "offsets",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Offset defines the vertical distance between parallel lines."
+      },
+      "Id": "67b8da10705a49c4a15b1cddd471984c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f429416b62904cddaaacacac94f5e52c",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "dashes",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The dash-space sequence defines a repeating pattern for a line."
+      },
+      "Id": "5797ee739aca4b6697e09eab8a1ed2db",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "27f7d6d439bb4617b8789d1fc4d8ab81",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "spaces",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The dash-space sequence defines a repeating pattern for a line. "
+      },
+      "Id": "1a6175545c154d959d97fbc02681809f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "448bc4f3a20549be87206fe9634dc7ce",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "b99f5bdf969347c799c40e3f542b0971",
+      "End": "21dfe1a3f8914609bcc855215cbfa321",
+      "Id": "19728df0941742108d9e9bb5c20f93d4"
+    },
+    {
+      "Start": "e498ba6483fe42a290610c4c2c0eb6e8",
+      "End": "1b197abed0a84039a0875aab833e3953",
+      "Id": "1ec27d7cce4a44e09c33277d8ca0a947"
+    },
+    {
+      "Start": "909df458f51c4edd87b532fbc4059597",
+      "End": "002d23ce1a0b4c7ebc0949e0a2df0573",
+      "Id": "b37de5c3100346b8b7668245d97635b2"
+    },
+    {
+      "Start": "6f2ef2b5293d49fb810a036adac337bf",
+      "End": "5b8cdfa35ce54f00afa39084a51a8a48",
+      "Id": "eb61d584f86a4a9a8b212a80164d0e29"
+    },
+    {
+      "Start": "c64e64afee8d44cebc778a8669e58036",
+      "End": "a677f7e4328543a781e47adaac529d82",
+      "Id": "187db8f16da042b399b5b9975761beed"
+    },
+    {
+      "Start": "6677cccebdb0459a8d425cf98ecf8147",
+      "End": "cd5383609e2a446c90b47ecba36ca77e",
+      "Id": "50f5221cd7ce462d919c8b8cdd0da828"
+    },
+    {
+      "Start": "b1b887cfb928466dae0adb7cbfc63b5c",
+      "End": "806cf4247fed44f2a3edf7862bc6ff6f",
+      "Id": "1a5e36105d7f4f5c93251089e98028f9"
+    },
+    {
+      "Start": "402f4381074043d2834097b58d567813",
+      "End": "eb42f03ff6c1416599a93f653a2336eb",
+      "Id": "6993f3e81e0742dbb38413360b95ff2c"
+    },
+    {
+      "Start": "f429416b62904cddaaacacac94f5e52c",
+      "End": "c663840ebb4c4aea8e07a494c794fef9",
+      "Id": "ce71245eef744694af86b2f5d6f2aba4"
+    },
+    {
+      "Start": "27f7d6d439bb4617b8789d1fc4d8ab81",
+      "End": "96fb1fa95b084b48a76d1d19e788d4b1",
+      "Id": "c026878a6a484691bc6c7f045ec62cf1"
+    },
+    {
+      "Start": "448bc4f3a20549be87206fe9634dc7ce",
+      "End": "da0ed2f4dd284a21bd1ca6e4bbbd2b5f",
+      "Id": "8c18a1f1d3fa414594a28a6b50afab44"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "b2d87c60c8534b66a56f2e6a4cca7685",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 310.044812709156,
+        "Y": 406.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "eef4717cbc614b42886e3fa120ee0b57",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 82.4961828927661
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "892a0bde98aa452183bab838304c2ef3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 534.444812709156,
+        "Y": 406.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "1aadb7e074fb4100a0886c9685f62b6f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 166.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "7cddb5616bcb42a692072abb920a3214",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 276.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "3b5adcf9e62a4a478461fb939e092783",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 386.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "d0429e498e524f8d94604db3c7125358",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 479.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "e1603ad674824b7f835766defc971890",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 572.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "ed06255672ce41baabf50539240bcb83",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 665.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "67b8da10705a49c4a15b1cddd471984c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 775.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "5797ee739aca4b6697e09eab8a1ed2db",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 868.496182892766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "1a6175545c154d959d97fbc02681809f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -471.955187290844,
+        "Y": 961.496182892766
+      }
+    ],
+    "Annotations": [],
+    "X": 304.253205408619,
+    "Y": 18.3805650501067,
+    "Zoom": 0.48415498653946
+  }
+}

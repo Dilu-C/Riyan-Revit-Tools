@@ -1,0 +1,165 @@
+{
+  "Uuid": "17368c49-5ab9-46a9-a399-efdfa7f1d1d5",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.CompoundStructure",
+  "Description": "Obtains the curves which bound the wall's elevation profile.\r\nOnly works with a wall whose profile has been edited.",
+  "Name": "Wall's Elevation Profile",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2019\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\nclr.ImportExtensions(Revit.Elements)\nfrom Revit.Elements import *\n\nclr.AddReference('RevitAPIIFC')\nfrom Autodesk.Revit.DB.IFC import *\n\nwalls = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\ncurvess=[]\nfor wall in walls :\n\tif ExporterIFCUtils.HasElevationProfile(wall):\n\t\tprofile = ExporterIFCUtils.GetElevationProfile(wall)\n\t\tfor curve in profile:\n\t\t\tcurves=[]\n\t\t\tfor curv in curve:\n\t\t\t\tcurves.append(curv.ToProtoType())\n\t\t\tcurvess.append(curves)\n\telse:\n\t\tpass\n\t\t\nOUT = curvess",
+      "VariableInputPorts": true,
+      "Id": "f7bfc21a458b4fc1945a016f16c0d157",
+      "Inputs": [
+        {
+          "Id": "d2675f7389694162960945df4d3a537c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "769294aff70b472ab089a0898fd7a856",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "wall",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "f3692376cc5e46fba465125e5d529d5d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3d1a829586244697bba2e6f09fda9ccd",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Curves",
+      "Id": "ea2c2ca5de1d459a9f2ba4257aa098cc",
+      "Inputs": [
+        {
+          "Id": "b065daad4da94380be622c50c28911d6",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "769294aff70b472ab089a0898fd7a856",
+      "End": "b065daad4da94380be622c50c28911d6",
+      "Id": "aea36ebb07a04c07a296b79c8953736f"
+    },
+    {
+      "Start": "3d1a829586244697bba2e6f09fda9ccd",
+      "End": "d2675f7389694162960945df4d3a537c",
+      "Id": "ca6167001c9049e7808d2b539b8c63ad"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "f7bfc21a458b4fc1945a016f16c0d157",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 322.8,
+        "Y": 237.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "f3692376cc5e46fba465125e5d529d5d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 219.2,
+        "Y": 233.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "ea2c2ca5de1d459a9f2ba4257aa098cc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 489.6,
+        "Y": 239.2
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

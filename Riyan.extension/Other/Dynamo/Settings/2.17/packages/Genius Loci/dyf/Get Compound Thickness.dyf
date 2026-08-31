@@ -1,0 +1,91 @@
+<Workspace Version="1.3.4.6666" X="-271.667733342775" Y="-46.1682985620046" zoom="1.02988563947099" ScaleFactor="1" Name="Get Compound Thickness" Description="Obtains the thickness of the wall, floor, roof or ceiling instance or Type." ID="447ec3f7-e965-478f-aeac-6179533349ee" Category="GeniusLoci.CompoundStructure">
+  <NamespaceResolutionMap />
+  <Elements>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="19f7298c-4c3d-4a96-aad6-836a1619bc02" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="276" y="276.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="ElementOrFamilyType" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="b72085be-50d5-4581-995e-6cd97204a0c6" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="667.016959283456" y="273.801262343569" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Thickness" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <PythonNodeModels.PythonNode guid="90a8e0e6-7809-4cfb-80b6-057241926eea" type="PythonNodeModels.PythonNode" nickname="Python Script" x="503.395106889831" y="273.784728610826" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="1">
+      <PortInfo index="0" default="False" />
+      <Script>#Alban de Chasteigner 2021
+#twitter : @geniusloci_bim
+#geniusloci.bim@gmail.com
+#https://github.com/albandechasteigner/GeniusLociForDynamo
+
+import clr
+clr.AddReference('RevitAPI')
+import Autodesk
+from Autodesk.Revit.DB import *
+
+clr.AddReference('RevitServices')
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+version=int(app.VersionNumber)
+
+elements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]
+	
+thickness = []
+for elem in elements :
+	famTypes= []
+	doc =  elem.Document
+	if version &lt; 2021:
+		UIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Length).DisplayUnits
+	else:
+		UIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()
+	if isinstance(elem, ElementType) or isinstance(elem, FamilySymbol) :
+		famTypes.append(elem)
+	elif isinstance(elem, Wall):
+		famTypes.append(elem.WallType)
+	elif isinstance(elem, Floor):
+		famTypes.append(elem.FloorType)
+	elif isinstance(elem, FootPrintRoof) or isinstance(elem, ExtrusionRoof) or isinstance(elem, RoofBase) :
+		famTypes.append(elem.RoofType)
+	elif isinstance(elem, Ceiling) or isinstance(elem, FaceWall) :
+		famTypes.append(doc.GetElement(elem.GetTypeId()))
+	elif isinstance(elem,FamilyInstance) and elem.Category.Id == ElementId(BuiltInCategory.OST_StructuralFraming) and elem.Symbol.Family.CanHaveStructuralSection() and hasattr(elem.Symbol.GetStructuralSection(), "Width"):
+		famTypes.append(elem.Symbol)
+	else:
+		thickness.append(None)
+		#try:
+			#bb = elem.get_BoundingBox(None)
+			#min = bb.Min
+			#max = bb.Max
+			#w = abs(min.X - max.X)
+			#l = abs(min.Y - max.Y)
+			#if w &lt; l :
+			#	thickness.append(round(UnitUtils.ConvertFromInternalUnits(w,UIunit),3))
+			#else : thickness.append(round(UnitUtils.ConvertFromInternalUnits(l,UIunit),3))
+		#except:
+			#thickness.append(None)
+	for famType in famTypes:
+		if isinstance(famType, WallType):
+			thickness.append(UnitUtils.ConvertFromInternalUnits(famType.get_Parameter(BuiltInParameter.WALL_ATTR_WIDTH_PARAM).AsDouble(),UIunit))
+		elif isinstance(famType, FloorType):
+			thickness.append(UnitUtils.ConvertFromInternalUnits(famType.get_Parameter(BuiltInParameter.FLOOR_ATTR_DEFAULT_THICKNESS_PARAM).AsDouble(),UIunit))
+		elif isinstance(famType, RoofType):
+			thickness.append(UnitUtils.ConvertFromInternalUnits(famType.get_Parameter(BuiltInParameter.ROOF_ATTR_DEFAULT_THICKNESS_PARAM).AsDouble(),UIunit))
+		elif isinstance(famType, CeilingType):
+			thickness.append(UnitUtils.ConvertFromInternalUnits(famType.get_Parameter(BuiltInParameter.CEILING_THICKNESS).AsDouble(),UIunit))
+		elif isinstance(famType,FamilySymbol) and famType.Category.Id == ElementId(BuiltInCategory.OST_StructuralFraming) :
+			thickness.append(round(UnitUtils.ConvertFromInternalUnits(famType.GetStructuralSection().Width,UIunit),3))
+			
+if isinstance(IN[0], (list)): OUT = thickness
+else: OUT = thickness[0]</Script>
+    </PythonNodeModels.PythonNode>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="19f7298c-4c3d-4a96-aad6-836a1619bc02" start_index="0" end="90a8e0e6-7809-4cfb-80b6-057241926eea" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="90a8e0e6-7809-4cfb-80b6-057241926eea" start_index="0" end="b72085be-50d5-4581-995e-6cd97204a0c6" end_index="0" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

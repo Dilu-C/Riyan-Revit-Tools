@@ -1,0 +1,165 @@
+{
+  "Uuid": "aadb7ca2-fe47-4f1d-9306-a2c3c50c0579",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Sheet",
+  "Description": "Returns the ViewSheets where this RevisionCloud appears.",
+  "Name": "RevisionCloud ToSheet",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Sheet",
+      "Id": "9ed01981aee54a47ba98258915a2a326",
+      "Inputs": [
+        {
+          "Id": "b67285e2423246f4a57fe537dd69dabd",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "revisionCloud",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "e341dce35edb44e5826924a2eaf4e472",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d74af7026ca14cdd929665e2903c8c17",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\n# Import RevitAPI Classes\nclr.AddReference('RevitAPI')\nimport Autodesk\n\nimport System\n# Load System.Core assembly that contains HashSet\nclr.AddReference(\"System.Core\")\nfrom System.Collections.Generic import HashSet\n\ndef flatten_list(a, result=None):\n\tif result is None:\n\t\tresult = []\n\tfor x in a:\n\t\tfor y in x:\n\t\t\tif isinstance(y, list):\n\t\t\t\tflatten_list(y, result)\n\t\t\telse:\n\t\t\t\tresult.append(y)\n\treturn result\n\nrevisions = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\niSet=[]\nfor elem in revisions:\n\tiSet.append(elem.GetSheetIds())\n\tsheets=[]\n\tfor iSe in flatten_list(iSet):\n\t\thashSet = HashSet[Autodesk.Revit.DB.ElementId]()\n\t\thashSet.Add(iSe)\n\t\tfor id in hashSet :\n\t\t\tsheets.append(elem.Document.GetElement(id))\n\nif isinstance(IN[0], list): OUT = sheets\nelse: OUT = sheets[0]",
+      "VariableInputPorts": true,
+      "Id": "c7d844dc42e74e2fa0d91a8985122453",
+      "Inputs": [
+        {
+          "Id": "d8fc3bc650684ce0933f26efdb646908",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "8f0432fe25ad4c6f8764bf10592286d2",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "d74af7026ca14cdd929665e2903c8c17",
+      "End": "d8fc3bc650684ce0933f26efdb646908",
+      "Id": "a4234bdcf7414f019239060acf81c5b4"
+    },
+    {
+      "Start": "8f0432fe25ad4c6f8764bf10592286d2",
+      "End": "b67285e2423246f4a57fe537dd69dabd",
+      "Id": "8ce29e9115f84b2284feb9d400f03f1f"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "9ed01981aee54a47ba98258915a2a326",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 290.4,
+        "Y": 444.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "e341dce35edb44e5826924a2eaf4e472",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -44.8,
+        "Y": 442.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "c7d844dc42e74e2fa0d91a8985122453",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 144.8,
+        "Y": 444.0
+      }
+    ],
+    "Annotations": [],
+    "X": 179.2,
+    "Y": -24.8,
+    "Zoom": 1.0
+  }
+}

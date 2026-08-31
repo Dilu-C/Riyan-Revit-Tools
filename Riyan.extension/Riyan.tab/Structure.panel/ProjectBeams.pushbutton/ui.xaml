@@ -1,0 +1,63 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Project Beams Tool" Height="480" Width="450"
+        WindowStartupLocation="CenterScreen" Background="#0b0b0b">
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0">
+                <TextBlock Text="Project Beams" FontWeight="Bold" FontSize="22" Foreground="White" Margin="0,0,0,5" FontFamily="Segoe UI"/>
+                <TextBlock Text="Project selected model lines onto a roof or floor surface to generate beams." 
+                           FontSize="12" Foreground="#888888" TextWrapping="Wrap" FontFamily="Segoe UI"/>
+            </StackPanel>
+        </Grid>
+        
+        <Separator Grid.Row="1" Background="#7b2222" Height="1" Margin="0,15,0,15" BorderThickness="0"/>
+        
+        <!-- Step 1: Surface -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,15">
+            <TextBlock Text="1. Target Surface" FontSize="14" Foreground="#e0e0e0" Margin="0,0,0,8" FontFamily="Segoe UI"/>
+            <Rectangle Height="2" Fill="#7b2222" HorizontalAlignment="Left" Width="100" Margin="0,0,0,10"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Pick Surface" Width="110" Height="28" Background="#111111" Foreground="#e0e0e0" BorderBrush="#555555" Click="select_surface_clicked"/>
+                <TextBlock x:Name="surface_status" Text="Not Selected" VerticalAlignment="Center" Margin="15,0,0,0" Foreground="#ff4444" FontFamily="Segoe UI"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Step 2: Lines -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,15">
+            <TextBlock Text="2. Model Lines" FontSize="14" Foreground="#e0e0e0" Margin="0,0,0,8" FontFamily="Segoe UI"/>
+            <Rectangle Height="2" Fill="#7b2222" HorizontalAlignment="Left" Width="100" Margin="0,0,0,10"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Pick Lines" Width="110" Height="28" Background="#111111" Foreground="#e0e0e0" BorderBrush="#555555" Click="select_lines_clicked"/>
+                <TextBlock x:Name="lines_status" Text="0 Selected" VerticalAlignment="Center" Margin="15,0,0,0" Foreground="#ff4444" FontFamily="Segoe UI"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Step 3: Beam Type -->
+        <StackPanel Grid.Row="4" Margin="0,0,0,15">
+            <TextBlock Text="3. Beam Type" FontSize="14" Foreground="#e0e0e0" Margin="0,0,0,8" FontFamily="Segoe UI"/>
+            <Rectangle Height="2" Fill="#7b2222" HorizontalAlignment="Left" Width="100" Margin="0,0,0,10"/>
+            <ComboBox x:Name="beam_type_cb" Height="28" Background="#222222" Foreground="Black" BorderBrush="#555555"/>
+        </StackPanel>
+        
+        <Grid Grid.Row="6" Margin="0,20,0,0" VerticalAlignment="Bottom">
+            <Button x:Name="generate_button" Content="Generate Beams" Height="35" 
+                    Background="#7b2222" Foreground="White" BorderThickness="0" FontWeight="Bold" Click="create_beams_clicked"/>
+        </Grid>
+    </Grid>
+</Window>

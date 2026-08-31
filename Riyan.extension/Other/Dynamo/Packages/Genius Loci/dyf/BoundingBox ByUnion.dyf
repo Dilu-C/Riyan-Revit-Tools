@@ -1,0 +1,215 @@
+{
+  "Uuid": "b36597e1-1bf1-4ef3-baeb-d2453905b9e9",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Geometry",
+  "Description": "Creates a single bounding box for one or more elements and returns a solid.\r\nThe optional input Rotation allows to be not aligned with the axis.\r\nBy Vsevolod Chugreev",
+  "Name": "BoundingBox ByUnion",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Main part of the script by Vsevolod Chugreev\n#https://twitter.com/vschugr/status/1260581659214258176\nimport clr\nclr.AddReference('ProtoGeometry') \nimport Autodesk.DesignScript.Geometry as DG\n\nclr.AddReference(\"RevitNodes\")\nimport Revit \nclr.ImportExtensions(Revit.GeometryConversion) \n\nclr.AddReference('RevitAPI') \nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices \nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nimport math\n\nif version < 2021:\n\tUIunit = Document.GetUnits(doc).GetFormatOptions(UnitType.UT_Length).DisplayUnits\nelse:\n\tUIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()\n\ndef flatten(x):\n    result = []\n    for el in x:\n        if hasattr(el, \"__iter__\") and not isinstance(el, basestring):\n            result.extend(flatten(el))\n        else:\n            result.append(el)\n    return result\n\ndef RotatedBox(elements,angle):\n\tdef SumBoxes(boxes):\n\t\tminx = min([b.Min.X for b in boxes])\n\t\tminy = min([b.Min.Y for b in boxes])\n\t\tminz = min([b.Min.Z for b in boxes])\n\t\tmaxx = max([b.Max.X for b in boxes])\n\t\tmaxy = max([b.Max.Y for b in boxes])\n\t\tmaxz = max([b.Max.Z for b in boxes])\n\t\t\n\t\tbb = BoundingBoxXYZ()\n\t\tbb.Min = XYZ(minx,miny,minz)\n\t\tbb.Max = XYZ(maxx,maxy,maxz)\n\t\treturn bb\n\n\tdef GeoBox(g):\n\t\tbox = g.GetBoundingBox()\n\t\torigin = box.Transform.Origin\n\t\tbox.Min = box.Min.Add(origin)\n\t\tbox.Max = box.Max.Add(origin)\n\t\treturn box\n\n\tboxes = []\n\topt = Options()\n\topt.DetailLevel = ViewDetailLevel.Fine\n\t\n\tsolids,boxes = [],[]\n\tfor element in elements:\n\t\tinstGeo = element.get_Geometry(opt)\n\t\tfor ig in instGeo:\n\t\t\tif isinstance(ig,Solid):\n\t\t\t\tbox = GeoBox(ig)\n\t\t\t\tboxes.append(box)\n\t\t\t\tsolids.append(ig)\n\t\t\telse:\t\t\t\n\t\t\t\tgeo = flatten(ig.GetInstanceGeometry())\n\t\t\t\tfor g in geo:\n\t\t\t\t\tif isinstance(g,Solid):\n\t\t\t\t\t\tbox = g.GetBoundingBox()\n\t\t\t\t\t\tif box.Max.X < 99999:\t\t\t\t\t\n\t\t\t\t\t\t\tbox = GeoBox(g)\n\t\t\t\t\t\t\tboxes.append(box)\n\t\t\t\t\t\t\tsolids.append(g)\n\t\t\t\t\t\n\tsumBox = SumBoxes(boxes)\n\tcenter = box.Max.Add(box.Min).Multiply(0.5)\n\t\n\trotatedBoxes = []\n\tfor i in range(len(boxes)):\n\t\tt = Transform.CreateRotationAtPoint(XYZ.BasisZ,-angle,center)\n\t\tg = SolidUtils.CreateTransformed(solids[i],t)\n\t\trotatedBoxes.append(GeoBox(g))\n\t\t\t\t\t\n\tsumBox = SumBoxes(rotatedBoxes)\n\tminp = sumBox.Min\n\tmaxp = sumBox.Max\n\th = UnitUtils.ConvertFromInternalUnits(maxp.Z-minp.Z,UIunit)\n\t\n\tp1 = minp\n\tp3 = XYZ(maxp.X,maxp.Y,minp.Z)\n\tp2 = XYZ(minp.X,maxp.Y,minp.Z)\n\tp4 = XYZ(maxp.X,minp.Y,minp.Z)\n\t\n\tt2 = Transform.CreateRotationAtPoint(XYZ.BasisZ,angle,center)\n\tpoints = [t2.OfPoint(p).ToPoint() for p in [p1,p2,p3,p4]]\n\tpoly = DG.PolyCurve.ByPoints(points,True)\n\tsolid = poly.ExtrudeAsSolid(DG.Vector.ZAxis(),h)\n\treturn solid\n\tpoints.Dispose()\r\n\tpoly.Dispose()\r\n\t\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nangle = math.radians((IN[1] if isinstance(IN[1],list) else [IN[1]])[0])\n\nOUT =  RotatedBox(elements,angle)",
+      "VariableInputPorts": true,
+      "Id": "efc75870dc5f413fb58b36e959f03be8",
+      "Inputs": [
+        {
+          "Id": "cc1ff454ce4d4407b818f8c56ef762d3",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "227ab8517f8049e3839c61c1b73ab6fb",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "d0c2f6d217284e49bc6c4ad676517e2d",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "4759123d377a449f870a1d7acd88639c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "157bb219333648049b6e9d0c04993713",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "rotationAngle",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "0",
+        "Description": ""
+      },
+      "Id": "d1874776c2fe41b8ac5ec498da02fba0",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "bdc2fcdbc9024ac4bfc92e0854f0e4cd",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Solid",
+      "Id": "0ea5606f87ac4ce391fd6706a852571f",
+      "Inputs": [
+        {
+          "Id": "f1fde61297204f20801d3113f1200682",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "d0c2f6d217284e49bc6c4ad676517e2d",
+      "End": "f1fde61297204f20801d3113f1200682",
+      "Id": "f6821f9dc3af4487b68d238a93fc1bc7"
+    },
+    {
+      "Start": "157bb219333648049b6e9d0c04993713",
+      "End": "cc1ff454ce4d4407b818f8c56ef762d3",
+      "Id": "dee4efb258224527b01a10b3e9faf442"
+    },
+    {
+      "Start": "bdc2fcdbc9024ac4bfc92e0854f0e4cd",
+      "End": "227ab8517f8049e3839c61c1b73ab6fb",
+      "Id": "ef4978a2979c46a1985c4419a21423cb"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "efc75870dc5f413fb58b36e959f03be8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 408.553721559047,
+        "Y": 388.629373529811
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "4759123d377a449f870a1d7acd88639c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 71.7537215590467,
+        "Y": 359.629373529811
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "d1874776c2fe41b8ac5ec498da02fba0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 71.7537215590467,
+        "Y": 443.629373529811
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "0ea5606f87ac4ce391fd6706a852571f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 633.353721559047,
+        "Y": 388.629373529811
+      }
+    ],
+    "Annotations": [],
+    "X": 59.5169041753987,
+    "Y": 65.1645963731534,
+    "Zoom": 0.538046297688568
+  }
+}

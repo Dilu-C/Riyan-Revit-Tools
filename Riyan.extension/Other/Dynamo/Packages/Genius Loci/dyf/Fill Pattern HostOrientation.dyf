@@ -1,0 +1,249 @@
+{
+  "Uuid": "d2644363-6d75-456e-a33d-5b370df060ff",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.FillPattern",
+  "Description": "Enumerates the types of orientations for fill patterns (OrientToView, KeepReadable, AlignWithHost).\r\nTo use with the Create FillPattern node.",
+  "Name": "Fill Pattern HostOrientation",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\nimport System\n\nOUT = System.Enum.GetValues(Autodesk.Revit.DB.FillPatternHostOrientation)",
+      "VariableInputPorts": true,
+      "Id": "bb795b2565de466bb01dda82373a1043",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "fbdf10f6b78e4f6ba89d25e92bf290ec",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "OrientToView",
+      "Id": "f25f85f18cc547939dd003d97c644a70",
+      "Inputs": [
+        {
+          "Id": "4ccf59d3a92248568af42af96a366d2a",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];\nx[2];",
+      "Id": "30a1f4b8c1cf416b9ea962f2df1fbbe5",
+      "Inputs": [
+        {
+          "Id": "3238780a8b364a1a9422b1da93f39c26",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "eeb0b3e29ed2483a97b4d8f2645566a6",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "2760b2da7afe4200b29a8203aa2a83cd",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "f95ca32a0ef6454c81e046aa216ac161",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "KeepReadable",
+      "Id": "38e530b2d048493884e4e5c769632db6",
+      "Inputs": [
+        {
+          "Id": "2bb94f40962146d387718a4633bd2ca7",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "AlignWithHost",
+      "Id": "3d2b0a8c65a14dc19cadfe9435f92911",
+      "Inputs": [
+        {
+          "Id": "bbf3289d108944439eed1dfed5ccc60d",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "fbdf10f6b78e4f6ba89d25e92bf290ec",
+      "End": "3238780a8b364a1a9422b1da93f39c26",
+      "Id": "25ecc3a0aa284a518e13c504264a7cb5"
+    },
+    {
+      "Start": "eeb0b3e29ed2483a97b4d8f2645566a6",
+      "End": "4ccf59d3a92248568af42af96a366d2a",
+      "Id": "731f876bf44547c999536f9e32d115ac"
+    },
+    {
+      "Start": "2760b2da7afe4200b29a8203aa2a83cd",
+      "End": "2bb94f40962146d387718a4633bd2ca7",
+      "Id": "d1c3a5f36cfa459daf4b9312c87b9fba"
+    },
+    {
+      "Start": "f95ca32a0ef6454c81e046aa216ac161",
+      "End": "bbf3289d108944439eed1dfed5ccc60d",
+      "Id": "603d3407c474451abc8c0588f573109b"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "bb795b2565de466bb01dda82373a1043",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 285.872997032641,
+        "Y": 316.780079129575
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "f25f85f18cc547939dd003d97c644a70",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 671.072997032641,
+        "Y": 251.353412462908
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "30a1f4b8c1cf416b9ea962f2df1fbbe5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 479.872997032641,
+        "Y": 320.993412462908
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "38e530b2d048493884e4e5c769632db6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 671.072997032641,
+        "Y": 334.353412462908
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "3d2b0a8c65a14dc19cadfe9435f92911",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 671.072997032641,
+        "Y": 417.353412462908
+      }
+    ],
+    "Annotations": [],
+    "X": -174.753,
+    "Y": -5.273,
+    "Zoom": 0.8425
+  }
+}

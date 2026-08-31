@@ -1,0 +1,165 @@
+{
+  "Uuid": "e47339c8-2025-4f4d-a3d0-749f8ad6194b",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Utilities",
+  "Description": "Removes all Null, Empty and Blank from a list or nested list of lists.",
+  "Name": "List Clean",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#https://stackoverflow.com/questions/30488751/clean-list-or-list-of-lists-of-all-none-or-empty-lists-in-python\n\ndef ClearList(primList):\n    result = []\n    for sublist in primList:\n        if sublist is \"\":\n            continue\n        elif sublist is None:\n            continue \n        if isinstance(sublist, list):\n             sublist = ClearList(sublist)\n             if not sublist:\n                 continue\n        result.append(sublist)\n    return result\n\nOUT = ClearList(IN[0])",
+      "VariableInputPorts": true,
+      "Id": "acbd706e7a8e46e69ca072ec29532e44",
+      "Inputs": [
+        {
+          "Id": "c51b2c3aa07443a89226982576b16051",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2496dc357f6641b6a6ce88620a0c149b",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "list",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "dac95529c4ae4a8da9b591fd0c2e22b6",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f1cf11b2d7b041cdbd099d8acc14086f",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "list",
+      "Id": "a49599615b3c44f59c8eca94105239ff",
+      "Inputs": [
+        {
+          "Id": "f4244328f6e443189ffc6c0ea57beb0b",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "2496dc357f6641b6a6ce88620a0c149b",
+      "End": "f4244328f6e443189ffc6c0ea57beb0b",
+      "Id": "e03199413bc545cf915e2eb0fabe40b2"
+    },
+    {
+      "Start": "f1cf11b2d7b041cdbd099d8acc14086f",
+      "End": "c51b2c3aa07443a89226982576b16051",
+      "Id": "e7c4c41ccda64a40bb31e788d768105a"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "acbd706e7a8e46e69ca072ec29532e44",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 585.2,
+        "Y": 314.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "dac95529c4ae4a8da9b591fd0c2e22b6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 460.8,
+        "Y": 312.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "a49599615b3c44f59c8eca94105239ff",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 744.8,
+        "Y": 310.0
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

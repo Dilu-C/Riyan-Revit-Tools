@@ -1,0 +1,114 @@
+{
+  "Uuid": "86e54a80-1a2b-4f8d-b8c0-4c90030e01c2",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Reference",
+  "Description": "Works only in Revit 2018.1 and later.\r\nIdentifies references of family instances corresponding to reference planes and reference lines in the family.",
+  "Name": "FamilyInstance ReferenceType",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2019\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\nimport System\n\n#Assign your output to the OUT variable\nOUT = System.Enum.GetValues(Autodesk.Revit.DB.FamilyInstanceReferenceType)",
+      "VariableInputPorts": true,
+      "Id": "268f5278383746ccae4df7ae9efecbf8",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ed0bcfb47a264851af0ddcaa7c92ac27",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ReferenceType",
+      "Id": "21928c92fe374b4b9da1f98ca9981ec4",
+      "Inputs": [
+        {
+          "Id": "7d2d3732dc184457a69b8d064390fcdd",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "ed0bcfb47a264851af0ddcaa7c92ac27",
+      "End": "7d2d3732dc184457a69b8d064390fcdd",
+      "Id": "45356040582d47689bfd6aac8111bd9d"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "FamilyInstanceReferenceType",
+        "Id": "268f5278383746ccae4df7ae9efecbf8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 444.0,
+        "Y": 268.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "21928c92fe374b4b9da1f98ca9981ec4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 699.6,
+        "Y": 268.0
+      }
+    ],
+    "Annotations": [],
+    "X": -230.065039600747,
+    "Y": 34.6633594502513,
+    "Zoom": 0.931811528498331
+  }
+}

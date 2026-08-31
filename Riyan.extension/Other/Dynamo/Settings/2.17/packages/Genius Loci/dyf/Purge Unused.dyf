@@ -1,0 +1,189 @@
+<Workspace Version="1.3.4.6666" X="327.445375089805" Y="181.195073431032" zoom="0.5688538392753" ScaleFactor="1" Name="Purge Unused" Description="Purge the document completely including materials an assets using the API.&#xD;&#xA;The optional input &quot;deeply&quot; allows to purge unused view templates, unused view filters, imported line Patterns from DWG and &quot;Imports in Families&quot; Object Styles.&#xD;&#xA;Can be used with documents open in the background.&#xD;&#xA;Works only in Revit 2017 and later." ID="2581c877-7262-4e73-b6c1-caa6efaa8509" Category="GeniusLoci.Utilities">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="57d2acdd-51b1-4cbb-92cf-eabfd08ee923" type="PythonNodeModels.PythonNode" nickname="Python Script" x="210.848808362738" y="197.188651435701" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="3">
+      <PortInfo index="0" default="False" />
+      <PortInfo index="1" default="False" />
+      <PortInfo index="2" default="False" />
+      <Script>#Part of script by Matthew Taylor translated in Python by Oliver E Green
+
+#Alban de Chasteigner 2020
+#twitter : @geniusloci_bim
+#geniusloci.bim@gmail.com
+
+import clr
+import System
+from System.Collections.Generic import List
+
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+
+bool=IN[0]
+deeply=IN[1]
+inputdoc = UnwrapElement(IN[2]) if isinstance(IN[2],list) else [UnwrapElement(IN[2])]
+inputdoc = inputdoc[0]
+
+if inputdoc == None:
+	doc = DocumentManager.Instance.CurrentDBDocument
+elif isinstance (inputdoc, Document) :
+	doc = inputdoc
+elif isinstance (inputdoc, RevitLinkInstance) :
+	doc = inputdoc.GetLinkDocument()
+else: doc = DocumentManager.Instance.CurrentDBDocument
+
+#GetPurgeableElements by Oliver E Green 
+def GetPurgeableElements(doc, rule_id_list):
+	failure_messages = PerformanceAdviser.GetPerformanceAdviser().ExecuteRules(doc, rule_id_list)
+	if failure_messages.Count &gt; 0:
+		purgeable_element_ids = failure_messages[0].GetFailingElements()
+		return purgeable_element_ids
+
+#A constant 
+PURGE_GUID = "e8c63650-70b7-435a-9010-ec97660c1bda"
+
+#A generic list of PerformanceAdviserRuleIds as required by the ExecuteRules method
+rule_id_list = List[PerformanceAdviserRuleId]()
+
+#Iterating through all PerformanceAdviser rules looking to find that which matches PURGE_GUID
+for rule_id in PerformanceAdviser.GetPerformanceAdviser().GetAllRuleIds():
+	if str(rule_id.Guid) == PURGE_GUID:
+		rule_id_list.Add(rule_id)
+		break
+
+#Attempting to retrieve the elements which can be purged
+purgeable_element_ids = GetPurgeableElements(doc, rule_id_list)
+
+TransactionManager.Instance.ForceCloseTransaction()
+
+trans = Transaction(doc,'Purge')
+trans.Start()
+
+if bool and purgeable_element_ids != None:
+	doc.Delete(purgeable_element_ids)
+
+#Materials to delete
+toKeep=[]
+elements = FilteredElementCollector(doc).WhereElementIsElementType().ToElements()
+for elem in elements:
+	matlist=[]
+	for matid in elem.GetMaterialIds(False):
+		matlist.append(matid)
+	toKeep.extend(matlist)
+
+compound=FilteredElementCollector(doc).OfClass(HostObjAttributes).WhereElementIsElementType().ToElements()
+compoundStructure = [comp.GetCompoundStructure() for comp in compound]
+for compoundStr in compoundStructure:
+	if compoundStr != None:
+		layerCount=compoundStr.LayerCount
+		for j in range (0, layerCount):
+			if compoundStr.GetMaterialId(j) != ElementId(-1):
+				toKeep.append(compoundStr.GetMaterialId(j))
+
+materials = FilteredElementCollector(doc).OfClass(Material).ToElementIds()
+
+#Assets to delete
+appearanceAssetIds = FilteredElementCollector(doc).OfClass(AppearanceAssetElement).ToElementIds()
+#The PropertySetElement contains either the Thermal or Structural Asset
+propertySet = FilteredElementCollector(doc).OfClass(PropertySetElement).ToElementIds()
+
+thermal=[doc.GetElement(id).ThermalAssetId for id in set(toKeep)]
+structural=[doc.GetElement(id).StructuralAssetId for id in set(toKeep)]
+appearanceAssets=[doc.GetElement(id).AppearanceAssetId for id in set(toKeep)]
+
+propertySet2 = [e for e in propertySet if e not in thermal and e not in structural]
+appearanceAssetIds2 = [e for e in appearanceAssetIds if e not in appearanceAssets]
+matToDelete=[m for m in materials if not m in toKeep]
+
+views = FilteredElementCollector(doc).OfClass(View).WhereElementIsNotElementType().ToElements()
+
+#Unused filters to delete
+filterIds = FilteredElementCollector(doc).OfClass(ParameterFilterElement).ToElementIds()
+
+usedFilterIds = []
+if not doc.IsFamilyDocument:
+	for view in views:
+		viewFilterIds = []
+		if view.AreGraphicsOverridesAllowed():
+			viewFilterIds = view.GetFilters()
+		usedFilterIds.extend(viewFilterIds)
+unusedFilterIds = [u for u in filterIds if u not in usedFilterIds]
+	
+#Unused view Templates to delete
+appliedtemplates = [v.ViewTemplateId for v in views]
+templates = [v.Id for v in views if v.IsTemplate == True]
+templatesToDelete = [t for t in templates if t not in appliedtemplates]
+
+#LinePatterns to delete
+linePatterns = FilteredElementCollector(doc).OfClass(LinePatternElement).ToElements()
+linesToDelete = [l.Id for l in linePatterns if l.Name.startswith("IMPORT")]
+
+#"Imports in Families" Object Styles to delete
+ImportCat = doc.Settings.Categories.get_Item(BuiltInCategory.OST_ImportObjectStyles)
+importsInFamily=[c.Id for c in ImportCat.SubCategories]
+
+if bool and matToDelete != None:
+	[doc.Delete(m) for m in matToDelete]
+if bool and appearanceAssetIds2 != None:
+	for a in appearanceAssetIds2:
+		try:doc.Delete(a)
+		except:pass
+if bool and propertySet2 != None:
+	[doc.Delete(p) for p in propertySet2]
+if deeply and unusedFilterIds != None:
+	[doc.Delete(u) for u in unusedFilterIds]
+if deeply and templatesToDelete != None:
+	[doc.Delete(t) for t in templatesToDelete]
+if deeply and linesToDelete != None:
+	[doc.Delete(l) for l in linesToDelete]
+if deeply and importsInFamily != None:
+	[doc.Delete(i) for i in importsInFamily]
+
+trans.Commit()
+
+if purgeable_element_ids != None:
+	OUT= '%d elements deleted' %(len([purg for purg in purgeable_element_ids]+matToDelete+appearanceAssetIds2+propertySet2+[f for f in unusedFilterIds]+templatesToDelete+linesToDelete+importsInFamily)),[purg for purg in purgeable_element_ids]+matToDelete+appearanceAssetIds2+propertySet2+[f for f in unusedFilterIds]+templatesToDelete+linesToDelete+importsInFamily
+else:
+	OUT= '%d elements deleted' %(len(matToDelete+appearanceAssetIds2+propertySet2+[f for f in unusedFilterIds]+templatesToDelete+linesToDelete+importsInFamily)),matToDelete+appearanceAssetIds2+propertySet2+[f for f in unusedFilterIds]+templatesToDelete+linesToDelete+importsInFamily</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="4cacee57-836d-460d-b1b2-e6fb31dc9f1a" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="435.648808362738" y="201.401984769034" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="x[0];&#xA;x[1];" ShouldFocus="false">
+      <PortInfo index="0" default="False" />
+    </Dynamo.Graph.Nodes.CodeBlockNodeModel>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="6df82c78-5bcd-48e0-95b8-56d14d983612" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="626.848808362738" y="163.975318102367" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Count" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="6cbb0249-86c6-4268-80f4-01b1dec0d640" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="626.848808362738" y="247.975318102367" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Id" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="eed695df-40bb-4e01-9ebe-9410a5927431" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-521.151191637262" y="136.188651435701" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="RunIt :bool=false" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="be9b1103-7496-47cd-90fa-44c4dc0afaf2" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-521.151191637262" y="220.188651435701" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Purge view templates, view filters, imported line Patterns&#xD;&#xA;//and &quot;Imports in Families&quot; Object Styles&#xD;&#xA;Deeply :bool=false" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="fcae5744-9892-4c2c-876d-23e8c4d06e52" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-521.151191637262" y="313.188651435701" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Optional input. Project or Family Document (Autodesk.Revit.DB.Document)&#xD;&#xA;//Use only if you want to query a document open in the background&#xD;&#xA;document:var=null" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="57d2acdd-51b1-4cbb-92cf-eabfd08ee923" start_index="0" end="4cacee57-836d-460d-b1b2-e6fb31dc9f1a" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4cacee57-836d-460d-b1b2-e6fb31dc9f1a" start_index="0" end="6df82c78-5bcd-48e0-95b8-56d14d983612" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4cacee57-836d-460d-b1b2-e6fb31dc9f1a" start_index="1" end="6cbb0249-86c6-4268-80f4-01b1dec0d640" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="eed695df-40bb-4e01-9ebe-9410a5927431" start_index="0" end="57d2acdd-51b1-4cbb-92cf-eabfd08ee923" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="be9b1103-7496-47cd-90fa-44c4dc0afaf2" start_index="0" end="57d2acdd-51b1-4cbb-92cf-eabfd08ee923" end_index="1" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="fcae5744-9892-4c2c-876d-23e8c4d06e52" start_index="0" end="57d2acdd-51b1-4cbb-92cf-eabfd08ee923" end_index="2" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Aperçu en arrière-plan" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

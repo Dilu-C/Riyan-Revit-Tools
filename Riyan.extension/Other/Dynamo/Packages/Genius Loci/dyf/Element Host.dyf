@@ -1,0 +1,165 @@
+{
+  "Uuid": "f3228c78-e4a0-42f0-8ec3-a19daf7157bb",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Gets the host of the element.\r\nUnlike the OOTB node FamilyInstance.GetHost, it also works for elements hosted by a linked document, wall sweeps, foundations, railings and builing pads.\r\nBased on a Clockwork's node",
+  "Name": "Element Host",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\ndef GetHost(item):\n\t# family instance\n\tif hasattr(item, \"Host\") and item.Host != None and item.Host.ToString() != \"Autodesk.Revit.DB.RevitLinkInstance\" : return item.Host\n\t# element hosted by linked document\n\telif hasattr(item, \"Host\") and item.Host != None and item.Host.ToString() == \"Autodesk.Revit.DB.RevitLinkInstance\":  \n\t\tlinkdoc = item.Host.GetLinkDocument()\n\t\treturn linkdoc.GetElement(item.HostFace.LinkedElementId)\n\t# Wall sweeps\n\telif hasattr(item, \"GetHostIds\"): return [item.Document.GetElement(x) for x in item.GetHostIds()]\n\t# Wall foundations\n\telif hasattr(item, \"WallId\"): return item.Document.GetElement(item.WallId)\n\t# railings, building pads\n\telif hasattr(item, \"HostId\"): return item.Document.GetElement(item.HostId)\r\n\t# insulation\r\n\telif hasattr(item, \"HostElementId\"): return item.Document.GetElement(item.HostElementId)\n\t# Rebar\n\telif isinstance(item, Autodesk.Revit.DB.Structure.Rebar): return item.Document.GetElement(item.GetHostId())\n\t# parkings\n\telif ElementId(BuiltInCategory.OST_Parking) == item.Category.Id and not item.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_PARAM).AsString().startswith(\"Level\")  : return item.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_PARAM).AsString()\n\t#if item is work plane based\n\telif not isinstance(item,Autodesk.Revit.DB.FamilyInstance) and item.get_Parameter(BuiltInParameter.SKETCH_PLANE_PARAM):\n\t\ttry: \n\t\t\tcollector = FilteredElementCollector(item.Document).OfClass(Level).ToElements()\n\t\t\treturn [level for level in collector if item.get_Parameter(BuiltInParameter.SKETCH_PLANE_PARAM).AsString().split(\": \")[-1] == level.Name][0]\n\t\texcept: \n\t\t\ttry:\n\t\t\t\tcollector = FilteredElementCollector(item.Document).OfClass(ReferencePlane).ToElements()\n\t\t\t\treturn [refP for refP in collector if item.get_Parameter(BuiltInParameter.SKETCH_PLANE_PARAM).AsString().split(\": \")[-1] == refP.Name][0]\n\t\t\texcept:\treturn item.get_Parameter(BuiltInParameter.SKETCH_PLANE_PARAM).AsString()\n\t#family instance hosted by a level\t\n\telif hasattr(item, \"Host\") and item.Host == None and hasattr(item, \"LevelId\"): return item.Document.GetElement(item.LevelId)\n\telse: return None\n\nitems = UnwrapElement(IN[0])\nif isinstance(IN[0], list): OUT = [GetHost(x) for x in items]\nelse: OUT = GetHost(items)",
+      "VariableInputPorts": true,
+      "Id": "8f0783d2546e4446aceb9c0254eada90",
+      "Inputs": [
+        {
+          "Id": "0780b21b72ce43368c2d577991185652",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "79556d389af84f7786b8ba61497e2cfb",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "02383ebc4dc04e11878f577b5235f60f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "150611d6ffcf4b58b0295e96ca2e5fc8",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Host",
+      "Id": "b9428b89cab2477f8cb903b15737daf9",
+      "Inputs": [
+        {
+          "Id": "8ff77c3289734214bbbe7c7f0ca62395",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "79556d389af84f7786b8ba61497e2cfb",
+      "End": "8ff77c3289734214bbbe7c7f0ca62395",
+      "Id": "1e1be74dfeb649d18f03c7af8c69d293"
+    },
+    {
+      "Start": "150611d6ffcf4b58b0295e96ca2e5fc8",
+      "End": "0780b21b72ce43368c2d577991185652",
+      "Id": "ded6329cd39444bd850c167ed046dc4a"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -62783.77734375,
+      "EyeY": 78114.0859375,
+      "EyeZ": 263075.0,
+      "LookX": 27611.330078125,
+      "LookY": -18363.115234375,
+      "LookZ": 68996.1015625,
+      "UpX": 0.0097257718443870544,
+      "UpY": 0.9996572732925415,
+      "UpZ": 0.024303143844008446
+    },
+    "NodeViews": [
+      {
+        "Id": "8f0783d2546e4446aceb9c0254eada90",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 386.8,
+        "Y": 404.0
+      },
+      {
+        "Id": "02383ebc4dc04e11878f577b5235f60f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 143.21846700929251,
+        "Y": 404.79999999999995
+      },
+      {
+        "Id": "b9428b89cab2477f8cb903b15737daf9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 558.522817815777,
+        "Y": 403.931148970893
+      }
+    ],
+    "Annotations": [],
+    "X": -103.690192005772,
+    "Y": -68.0114525761603,
+    "Zoom": 0.931811528498331
+  }
+}

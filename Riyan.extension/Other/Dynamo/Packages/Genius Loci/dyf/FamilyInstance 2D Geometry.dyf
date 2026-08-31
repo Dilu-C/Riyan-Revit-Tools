@@ -1,0 +1,165 @@
+{
+  "Uuid": "1894ea38-2400-4567-82ce-3227744c435a",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Family",
+  "Description": "Gets the curves of the family instance.\r\nWorks only with the family categories : Generic Annotation and Detail Item.",
+  "Name": "FamilyInstance 2D Geometry",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nfamilies = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\ncurveList=[]\n\nopt = Options()\n#opt.IncludeNonVisibleObjects = True\n#opt.View = doc.ActiveView\n#opt.ComputeReferences = True\nopt.DetailLevel = ViewDetailLevel.Fine\n\nfor fam in families:\n\tgeoEle=fam.GetOriginalGeometry(opt)\n\tlines=[]\n\tfor geoInstance in geoEle:\n\t\tif isinstance(geoInstance, Curve):\n\t\t\ttransformCurve=geoInstance.CreateTransformed(fam.GetTransform())\n\t\t\t#Instead of importing : clr.ImportExtensions(Revit.GeometryConversion)\n\t\t\tlines.append(Revit.GeometryConversion.RevitToProtoCurve.ToProtoType(transformCurve, True))\n\t\telse:\n\t\t\tif isinstance(geoInstance, Solid) and geoInstance.Volume == 0:\n\t\t\t\tedges=[]\n\t\t\t\tedgesArray=geoInstance.Edges\n\t\t\t\tfor edge in edgesArray :\n\t\t\t\t\ttransformCurve=edge.AsCurve().CreateTransformed(fam.GetTransform())\n\t\t\t\t\tedges.append(Revit.GeometryConversion.RevitToProtoCurve.ToProtoType(transformCurve, True))\n\t\t\t\tcurveList.append(edges)\n\tcurveList.append(lines)\n\t\nOUT = filter(None,curveList)",
+      "VariableInputPorts": true,
+      "Id": "7df823e785bf4937a4c33339157cd1b1",
+      "Inputs": [
+        {
+          "Id": "7d909197934a41dda0060ec6e117f436",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0b7dafd4ecec4a05b34647d0793b6595",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Curve",
+      "Id": "c1a85acf49c04562860a3d600662aada",
+      "Inputs": [
+        {
+          "Id": "f8b8c40b37b64f55af3ad00695f709ce",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "0aa565361cf84070a3a95ea5939ad78f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "bba4058df1414530a249da1dbb9756b5",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "0b7dafd4ecec4a05b34647d0793b6595",
+      "End": "f8b8c40b37b64f55af3ad00695f709ce",
+      "Id": "760d121c0f8d45dcbb6dba6d9ac12de8"
+    },
+    {
+      "Start": "bba4058df1414530a249da1dbb9756b5",
+      "End": "7d909197934a41dda0060ec6e117f436",
+      "Id": "578b8e9f387045729d3da564fd81dafe"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "7df823e785bf4937a4c33339157cd1b1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 301.2,
+        "Y": 275.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "c1a85acf49c04562860a3d600662aada",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 466.434951391194,
+        "Y": 274.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "0aa565361cf84070a3a95ea5939ad78f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 185.6,
+        "Y": 275.2
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

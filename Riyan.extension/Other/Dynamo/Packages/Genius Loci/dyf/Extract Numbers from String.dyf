@@ -1,0 +1,165 @@
+{
+  "Uuid": "d437fb9a-44fc-4b3b-8123-7f897d33f1f3",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Utilities",
+  "Description": "Extracts a number or a list of numbers from a string and converts it to double.",
+  "Name": "Extract Numbers from String",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#https://www.geeksforgeeks.org/find-all-the-numbers-in-a-string-using-regular-expression-in-python/\n\nimport re \n# Function to extract all the numbers from the given string \ndef getNumbers(str): \n    array = re.findall(r'[-+]\\d*\\.\\d+|\\d+', str)\n    double=[float(x) for x in array]\n    return double\n\nstrings = IN[0] if isinstance(IN[0],list) else [IN[0]]\n\narray=[getNumbers(x) for x in strings]\n\nif isinstance(IN[0], list): OUT = array \nelse: OUT = array[0]",
+      "VariableInputPorts": true,
+      "Id": "31f848aefb7a487daff6da448062f615",
+      "Inputs": [
+        {
+          "Id": "71d1b754d1a447c386f9323f116174cd",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "d3a01e5eef374d8e83117b6a96ab1431",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "double",
+      "Id": "64d148a4a9b546d48db3725f363c6980",
+      "Inputs": [
+        {
+          "Id": "85bfa4c8b81743b8991933887b07f974",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "strings",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "67b2faaef07540c9a0f0ba85590f2c1c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b668dc1bd1774427a4e55165bdee8f3e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "d3a01e5eef374d8e83117b6a96ab1431",
+      "End": "85bfa4c8b81743b8991933887b07f974",
+      "Id": "e5cc5fcc738b48a5ab3ca3a37f67bed4"
+    },
+    {
+      "Start": "b668dc1bd1774427a4e55165bdee8f3e",
+      "End": "71d1b754d1a447c386f9323f116174cd",
+      "Id": "28da18bc9d67435cad9336b63bea9f53"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "31f848aefb7a487daff6da448062f615",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 286.792668355145,
+        "Y": 303.171499421976
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "64d148a4a9b546d48db3725f363c6980",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 511.592668355145,
+        "Y": 303.171499421976
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "67b2faaef07540c9a0f0ba85590f2c1c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 106.792668355145,
+        "Y": 303.171499421976
+      }
+    ],
+    "Annotations": [],
+    "X": 57.42009,
+    "Y": 50.88447,
+    "Zoom": 0.70823125
+  }
+}

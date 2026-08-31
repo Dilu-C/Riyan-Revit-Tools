@@ -1,0 +1,467 @@
+{
+  "Uuid": "c988658f-bae6-4b1e-b2aa-428c687501b1",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.ConnectorElement",
+  "Description": "In a familyDocument, sets the properties of a given ConnectorElement.",
+  "Name": "Set Connector Properties",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ConnectorElement",
+      "Id": "250c0b33d133454387e5f15078915418",
+      "Inputs": [
+        {
+          "Id": "ebc0265d7c3441cd8ab23d7abcdbd2ff",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2022\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n#https://github.com/albandechasteigner/GeniusLociForDynamo\r\n\r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nimport System\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nversion=int(app.VersionNumber)\r\n\r\ndef tolist(obj1):\r\n    if hasattr(obj1,\"__iter__\"): return obj1\r\n    else: return [obj1]\r\n\r\nconnectors = tolist(UnwrapElement(IN[0]))\r\nsystemClassifications = tolist(IN[1])\r\nshapes=tolist(IN[2])\r\nwidths=tolist(IN[3])\r\nheights = tolist(IN[4])\r\nradius = tolist(IN[5])\r\nvoltages = tolist(IN[6])\r\n\r\nTransactionManager.Instance.ForceCloseTransaction()\r\nfor connector, systemClassification, shape, width, height, rad, voltage in zip(connectors, systemClassifications, shapes, widths, heights, radius, voltages):\r\n\tdoc = connector.Document\r\n\tTransactionManager.Instance.EnsureInTransaction(doc)\r\n\tif version < 2021:\r\n\t\tUIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Length).DisplayUnits\r\n\t\tElectricalUnit = doc.GetUnits().GetFormatOptions(UT_Electrical_Potential).DisplayUnits\r\n\telse:\r\n\t\tUIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()\r\n\t\tElectricalUnit = doc.GetUnits().GetFormatOptions(SpecTypeId.ElectricalPotential).GetUnitTypeId()\r\n\tif systemClassification == None:\r\n\t\tpass\r\n\telse:\r\n\t\tif isinstance(systemClassification, Autodesk.Revit.DB.MEPSystemClassification):\r\n\t\t\tmepSys = systemClassification\r\n\t\telse:\r\n\t\t\tmepSys = System.Enum.Parse(Autodesk.Revit.DB.MEPSystemClassification, systemClassification)\t\r\n\t\tconnector.SystemClassification = mepSys\r\n\tif shape == None:\r\n\t\tpass\r\n\telse:\r\n\t\tif shape == ConnectorProfileType.Round :\r\n\t\t\tprofile = 0\r\n\t\telif shape == ConnectorProfileType.Rectangular :\r\n\t\t\tprofile = 1\r\n\t\telif shape == ConnectorProfileType.Oval :\r\n\t\t\tprofile = 2\r\n\t\telif shape == ConnectorProfileType.Invalid :\r\n\t\t\tprofile = 3\r\n\t\tconnector.get_Parameter(BuiltInParameter.CONNECTOR_PROFILE_TYPE).Set(profile)\r\n\tif width == None:\r\n\t\tpass\r\n\telse:\r\n\t\tconnector.get_Parameter(BuiltInParameter.CONNECTOR_WIDTH).Set(UnitUtils.ConvertToInternalUnits(width,UIunit))\r\n\tif height == None:\r\n\t\tpass\r\n\telse:\r\n\t\tconnector.get_Parameter(BuiltInParameter.CONNECTOR_HEIGHT).Set(UnitUtils.ConvertToInternalUnits(height,UIunit))\r\n\tif rad == None:\r\n\t\tpass\r\n\telse:\r\n\t\tconnector.get_Parameter(BuiltInParameter.CONNECTOR_RADIUS).Set(UnitUtils.ConvertToInternalUnits(rad,UIunit))\r\n\tif voltage == None:\r\n\t\tpass\r\n\telse:\r\n\t\tconnector.get_Parameter(BuiltInParameter.RBS_ELEC_VOLTAGE).Set(UnitUtils.ConvertToInternalUnits(voltage,ElectricalUnit))\r\n\tTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = IN[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "4a3158f1c3f94ef588af88dc5d96cd82",
+      "Inputs": [
+        {
+          "Id": "b0fdd7128faf4e289b0e7fe37ecaec1b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "fa12f2b7280b4f4c9b9a7924ca89340e",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "b58c31742f604b358202746dd7abb587",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "3c689437e51245198e00e378e5c4aef1",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "7eefdcf79927406eb6bbfc12a2db0811",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "edda04218af741a1ac1250070e42ad28",
+          "Name": "IN[5]",
+          "Description": "Input #5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "079c563da442418280edc4499fa37f9f",
+          "Name": "IN[6]",
+          "Description": "Input #6",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "83402196be134fa8a782520b1e6d4424",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "connectorElement",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "a37e2c4836b94f4bb35d8fcbfcbdf551",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c48df2ba1cb944fd81772f0762ea8d8e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "MEPSystemClassification",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Autodesk.Revit.DB.MEPSystemClassification or string"
+      },
+      "Id": "45286b1113134a5fa4cebc59172047a4",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "934795bc05124989aad3a6b47925e91a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "connectorProfileType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Autodesk.Revit.DB.ConnectorProfileType or string"
+      },
+      "Id": "02bcef94a28c48b9b4a200dc48e3f8cc",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "bc92bbd048d84725b38ab2627d2ec517",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "width",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": ""
+      },
+      "Id": "b9aad959361d4fa69a74960c9bd80b1b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "0564081120c44a0eb7f56d872adfe1b8",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "height",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": ""
+      },
+      "Id": "6c2ede95b52b4b7aae0a42b0c62eaf17",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "38acabebe912498d9c44487b0ecb9816",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "radius",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": ""
+      },
+      "Id": "4252f8c986db47b8af9731bdc1f37234",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "066ec471595f48fb9b99f8ed630d69a2",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "voltage",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": ""
+      },
+      "Id": "12d7c524f53e4b88b37e2528e0327ae4",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8b86bed016fe470bb7f698b87142c318",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "83402196be134fa8a782520b1e6d4424",
+      "End": "ebc0265d7c3441cd8ab23d7abcdbd2ff",
+      "Id": "52ac69305fb0413aba68074286afc445"
+    },
+    {
+      "Start": "c48df2ba1cb944fd81772f0762ea8d8e",
+      "End": "b0fdd7128faf4e289b0e7fe37ecaec1b",
+      "Id": "6a8853f3109647dea898f70ac6f965f3"
+    },
+    {
+      "Start": "934795bc05124989aad3a6b47925e91a",
+      "End": "fa12f2b7280b4f4c9b9a7924ca89340e",
+      "Id": "528466f9227346538428c677c126374c"
+    },
+    {
+      "Start": "bc92bbd048d84725b38ab2627d2ec517",
+      "End": "b58c31742f604b358202746dd7abb587",
+      "Id": "7d948e81ed424a11b3a3c125aad81ce0"
+    },
+    {
+      "Start": "0564081120c44a0eb7f56d872adfe1b8",
+      "End": "3c689437e51245198e00e378e5c4aef1",
+      "Id": "1052525feaf644bbb75d17513b1a28af"
+    },
+    {
+      "Start": "38acabebe912498d9c44487b0ecb9816",
+      "End": "7eefdcf79927406eb6bbfc12a2db0811",
+      "Id": "5cafb1ed014f496baee511634009ba81"
+    },
+    {
+      "Start": "066ec471595f48fb9b99f8ed630d69a2",
+      "End": "edda04218af741a1ac1250070e42ad28",
+      "Id": "2d4bbce56b9242e2b1589a24b079a893"
+    },
+    {
+      "Start": "8b86bed016fe470bb7f698b87142c318",
+      "End": "079c563da442418280edc4499fa37f9f",
+      "Id": "4474e1b7422540a0856aa27de692e58c"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.0.5650",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "250c0b33d133454387e5f15078915418",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1300.2128057422046,
+        "Y": 173.29262631114034
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Set Connector Properties",
+        "Id": "4a3158f1c3f94ef588af88dc5d96cd82",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 954.11530667077818,
+        "Y": 151.76245480361723
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "a37e2c4836b94f4bb35d8fcbfcbdf551",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 530.34599479295093,
+        "Y": 49.948193740370243
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "45286b1113134a5fa4cebc59172047a4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 320.59304424293265,
+        "Y": 131.18055765584327
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "02bcef94a28c48b9b4a200dc48e3f8cc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 340.96898578420672,
+        "Y": 212.84769213996836
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "b9aad959361d4fa69a74960c9bd80b1b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 584.202579611654,
+        "Y": 300.74699963762822
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6c2ede95b52b4b7aae0a42b0c62eaf17",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 553.9117440462727,
+        "Y": 391.50482650910135
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "4252f8c986db47b8af9731bdc1f37234",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 550.76980299892386,
+        "Y": 486.52401285955978
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "12d7c524f53e4b88b37e2528e0327ae4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 537.95500689578432,
+        "Y": 558.08850087282644
+      }
+    ],
+    "Annotations": [],
+    "X": -172.90908216458786,
+    "Y": 10.234952609314405,
+    "Zoom": 0.87323933894951844
+  }
+}

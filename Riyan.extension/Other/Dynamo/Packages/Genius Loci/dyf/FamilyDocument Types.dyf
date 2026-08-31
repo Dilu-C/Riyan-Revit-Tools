@@ -1,0 +1,167 @@
+{
+  "Uuid": "834e7a8b-874d-402e-ac8c-c62dc71fd898",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Family",
+  "Description": "Retrieves the family type names in the family document.",
+  "Name": "FamilyDocument Types",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import Document\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\n\ninputdocs = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\ntypeList=[]\n\nfor inputdoc in inputdocs :\n\tif inputdoc == None:\n\t\tdoc = DocumentManager.Instance.CurrentDBDocument\n\telif isinstance (inputdoc,Autodesk.Revit.DB.Document):\n\t\tdoc = inputdoc\n\telse: doc = DocumentManager.Instance.CurrentDBDocument\n\ttypes = []\n\tif doc.IsFamilyDocument:\n\t\tfor type in doc.FamilyManager.Types :\n\t\t\ttypes.append(type.Name)\n\t\ttypeList.append(types)\n\nif isinstance(IN[0], list): OUT = typeList \nelse: OUT = typeList[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "972848a52e02496f8cb14ac9c97ff5ad",
+      "Inputs": [
+        {
+          "Id": "2f7e2e0608f745c38b15a1eed45ade28",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "15a52b259400403cbf210c5809f1aa93",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "TypeName",
+      "Id": "da1ccd84075d42579d1cab87f163e9a4",
+      "Inputs": [
+        {
+          "Id": "5f1787a573514d1eaff3edfd9e37f4a9",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "familydocument",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Use only to query a Family Document\n(Autodesk.Revit.DB.Document)"
+      },
+      "Id": "e3d23d6e8c2e48a8812e6411c2070093",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c3919ec78282485fa4ef871abce74c3e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "15a52b259400403cbf210c5809f1aa93",
+      "End": "5f1787a573514d1eaff3edfd9e37f4a9",
+      "Id": "75f92dd423a6477b9b929f059a534d40"
+    },
+    {
+      "Start": "c3919ec78282485fa4ef871abce74c3e",
+      "End": "2f7e2e0608f745c38b15a1eed45ade28",
+      "Id": "a552a39521d64fa1ad9bc9e652040870"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "972848a52e02496f8cb14ac9c97ff5ad",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Python Script",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 220.8,
+        "Y": 293.2
+      },
+      {
+        "Id": "da1ccd84075d42579d1cab87f163e9a4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 377.79989159149153,
+        "Y": 292.94541993218178
+      },
+      {
+        "Id": "e3d23d6e8c2e48a8812e6411c2070093",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Input",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": -189.05366258113492,
+        "Y": 291.4091998633055
+      }
+    ],
+    "Annotations": [],
+    "X": 225.8223620772319,
+    "Y": 51.408675381421062,
+    "Zoom": 0.76582939285155172
+  }
+}

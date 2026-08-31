@@ -1,0 +1,17 @@
+{
+    "extensions": [
+        {
+            "builtin": "False",
+    "default_enabled": "True",
+    "type": "extension",
+    "rocket_mode_compatible": "False",
+    "name": "Riyan",
+    "description": "Extensions for PyRevit + Riyan pluging",
+    "author": "Asanka Dharmarathna",
+    "author_profile": "https://riyan.com.mv/",
+    "url": "https://github.com/asankadg5/Riyan.git",
+    "website": "https://riyan.com.mv/",
+    "image": "",
+    "dependencies": []
+} ]
+}

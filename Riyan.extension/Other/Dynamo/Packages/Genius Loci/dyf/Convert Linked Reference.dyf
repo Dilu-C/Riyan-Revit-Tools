@@ -1,0 +1,215 @@
+{
+  "Uuid": "5c770bc5-de60-41c7-a2cd-2bccd79a6a89",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Reference",
+  "Description": "Creates a usable reference from a reference from a linked document.",
+  "Name": "Convert Linked Reference",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Based on a C# script by Fair59\n#https://forums.autodesk.com/t5/revit-api-forum/create-dimensions-for-familyinstance-in-linked-file/td-p/8424237\nimport clr\nclr.AddReference(\"RevitAPI\")\nfrom Autodesk.Revit.DB import *\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nlinkReferences = IN[0] if isinstance(IN[0],list) else [IN[0]]\nlinkedInstance = UnwrapElement(IN[1])\n\ndef parseLinkedReference(doc, linkedRef):\n\treps = linkedRef.ConvertToStableRepresentation(doc).split(':')      \n\tres = ''\n\tfirst=True        \n\tfor i, s in enumerate(reps):\n\t\tt = s\n\t\tif \"RVTLINK\" in s:\n\t\t\tif(i<len(reps)-1):\n\t\t\t\tif reps[i+1]==\"0\":\n\t\t\t\t\tt = \"RVTLINK\"\n\t\t\t\telse:\n\t\t\t\t\tt = \"0:RVTLINK\"\n\t\t\telse:\n\t\t\t\tt = \"0:RVTLINK\"\n\t\tif not first:\n\t\t\tres = res + \":\" + t\n\t\telse:\n\t\t\tres = t\n\t\t\tfirst = False          \n\tref = Reference.ParseFromStableRepresentation(doc,res)\n\treturn ref\n\nrefArray = ReferenceArray()\nfor refLink in linkReferences:\n\tlinkedReference = refLink.CreateLinkReference(linkedInstance)\n\tref = parseLinkedReference(doc,linkedReference)\n\trefArray.Append(ref)\n\r\nif isinstance(IN[0], list): OUT = refArray\r\nelse: OUT = refArray[0]",
+      "VariableInputPorts": true,
+      "Id": "0b6fa88476734532996707375f59aeea",
+      "Inputs": [
+        {
+          "Id": "ec1064a53aff4dab96f4a35b53ee3deb",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "acb64700f0824a16b7bcba4cdfb9be4b",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "fbca03ef19454f019d5263eb7ef219ee",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "reference",
+        "TypeName": "var",
+        "TypeRank": 1,
+        "DefaultValue": null,
+        "Description": "Autodesk.DB.Reference"
+      },
+      "Id": "ab3cbefb269b41188224100902bece8c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "aed2f8058b8448beabd2778c85fc7ed5",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Reference",
+      "Id": "f0e34b916ba7425fa7ab8792fad03d6e",
+      "Inputs": [
+        {
+          "Id": "44d633c0220f44e28d83d06a96de2248",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "RevitLinkInstance",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "6f043d7bda8b44398c6ed613f800c60e",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ffac8e0f9367423d9db92e6a9a7766a1",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "fbca03ef19454f019d5263eb7ef219ee",
+      "End": "44d633c0220f44e28d83d06a96de2248",
+      "Id": "7cc46b3ce03a41dea5bf921237e9cf15"
+    },
+    {
+      "Start": "aed2f8058b8448beabd2778c85fc7ed5",
+      "End": "ec1064a53aff4dab96f4a35b53ee3deb",
+      "Id": "27bed7b9bfa24c10a9176d341a929a85"
+    },
+    {
+      "Start": "ffac8e0f9367423d9db92e6a9a7766a1",
+      "End": "acb64700f0824a16b7bcba4cdfb9be4b",
+      "Id": "6cc49f7f1d6d4ad290aed3064403731d"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "0b6fa88476734532996707375f59aeea",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 277.2,
+        "Y": 251.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "ab3cbefb269b41188224100902bece8c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 16.7088186238605,
+        "Y": 224.376063609167
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "f0e34b916ba7425fa7ab8792fad03d6e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 443.6,
+        "Y": 252.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6f043d7bda8b44398c6ed613f800c60e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 51.7961714116987,
+        "Y": 302.854081522273
+      }
+    ],
+    "Annotations": [],
+    "X": 58.587165,
+    "Y": 23.574915,
+    "Zoom": 0.70823125
+  }
+}

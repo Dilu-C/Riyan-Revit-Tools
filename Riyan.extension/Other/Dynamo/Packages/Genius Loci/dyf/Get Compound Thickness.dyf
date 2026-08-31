@@ -1,0 +1,165 @@
+{
+  "Uuid": "447ec3f7-e965-478f-aeac-6179533349ee",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.CompoundStructure",
+  "Description": "Obtains the thickness of the wall, floor, roof or ceiling instance or Type.",
+  "Name": "Get Compound Thickness",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ElementOrFamilyType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "19f7298c4c3d4a96aad6836a1619bc02",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "fb6f32fc5a85472a8be1363f83c76e5e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Thickness",
+      "Id": "b72085be50d54581995e6cd97204a0c6",
+      "Inputs": [
+        {
+          "Id": "1bd5f52772724bb6a40b1cf43f0234d6",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2021\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\t\nthickness = []\nfor elem in elements :\n\tfamTypes= []\n\tdoc =  elem.Document\n\tif version < 2021:\n\t\tUIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Length).DisplayUnits\n\telse:\n\t\tUIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()\n\tif isinstance(elem, ElementType) or isinstance(elem, FamilySymbol) :\n\t\tfamTypes.append(elem)\n\telif isinstance(elem, Wall):\n\t\tfamTypes.append(elem.WallType)\n\telif isinstance(elem, Floor):\n\t\tfamTypes.append(elem.FloorType)\n\telif isinstance(elem, FootPrintRoof) or isinstance(elem, ExtrusionRoof) or isinstance(elem, RoofBase) :\n\t\tfamTypes.append(elem.RoofType)\n\telif isinstance(elem, Ceiling) or isinstance(elem, FaceWall) :\n\t\tfamTypes.append(doc.GetElement(elem.GetTypeId()))\n\telif isinstance(elem,FamilyInstance) and elem.Category.Id == ElementId(BuiltInCategory.OST_StructuralFraming) and elem.Symbol.Family.CanHaveStructuralSection() and hasattr(elem.Symbol.GetStructuralSection(), \"Width\"):\n\t\tfamTypes.append(elem.Symbol)\n\telse:\n\t\tthickness.append(None)\n\t\t#try:\n\t\t\t#bb = elem.get_BoundingBox(None)\n\t\t\t#min = bb.Min\n\t\t\t#max = bb.Max\n\t\t\t#w = abs(min.X - max.X)\n\t\t\t#l = abs(min.Y - max.Y)\n\t\t\t#if w < l :\n\t\t\t#\tthickness.append(round(UnitUtils.ConvertFromInternalUnits(w,UIunit),3))\n\t\t\t#else : thickness.append(round(UnitUtils.ConvertFromInternalUnits(l,UIunit),3))\n\t\t#except:\n\t\t\t#thickness.append(None)\n\tfor famType in famTypes:\n\t\tif isinstance(famType, WallType):\n\t\t\tthickness.append(UnitUtils.ConvertFromInternalUnits(famType.get_Parameter(BuiltInParameter.WALL_ATTR_WIDTH_PARAM).AsDouble(),UIunit))\n\t\telif isinstance(famType, FloorType):\n\t\t\tthickness.append(UnitUtils.ConvertFromInternalUnits(famType.get_Parameter(BuiltInParameter.FLOOR_ATTR_DEFAULT_THICKNESS_PARAM).AsDouble(),UIunit))\n\t\telif isinstance(famType, RoofType):\n\t\t\tthickness.append(UnitUtils.ConvertFromInternalUnits(famType.get_Parameter(BuiltInParameter.ROOF_ATTR_DEFAULT_THICKNESS_PARAM).AsDouble(),UIunit))\n\t\telif isinstance(famType, CeilingType):\n\t\t\tthickness.append(UnitUtils.ConvertFromInternalUnits(famType.get_Parameter(BuiltInParameter.CEILING_THICKNESS).AsDouble(),UIunit))\n\t\telif isinstance(famType,FamilySymbol) and famType.Category.Id == ElementId(BuiltInCategory.OST_StructuralFraming) :\n\t\t\tthickness.append(round(UnitUtils.ConvertFromInternalUnits(famType.GetStructuralSection().Width,UIunit),3))\n\t\t\t\nif isinstance(IN[0], (list)): OUT = thickness\nelse: OUT = thickness[0]",
+      "VariableInputPorts": true,
+      "Id": "90a8e0e678094cfb80b6057241926eea",
+      "Inputs": [
+        {
+          "Id": "d6be4a763a4e42a384e6eef005809448",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "ca56b7b506084d48a360617ba31d1251",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "fb6f32fc5a85472a8be1363f83c76e5e",
+      "End": "d6be4a763a4e42a384e6eef005809448",
+      "Id": "3b57599370d34f768316df031c3a9370"
+    },
+    {
+      "Start": "ca56b7b506084d48a360617ba31d1251",
+      "End": "1bd5f52772724bb6a40b1cf43f0234d6",
+      "Id": "3742cc1b61fe43d39d2fbb577d4add60"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "19f7298c4c3d4a96aad6836a1619bc02",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 276.0,
+        "Y": 276.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "b72085be50d54581995e6cd97204a0c6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 667.016959283456,
+        "Y": 273.801262343569
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "90a8e0e678094cfb80b6057241926eea",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 503.395106889831,
+        "Y": 273.784728610826
+      }
+    ],
+    "Annotations": [],
+    "X": -271.667733342775,
+    "Y": -46.1682985620046,
+    "Zoom": 1.02988563947099
+  }
+}

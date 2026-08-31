@@ -1,0 +1,580 @@
+{
+  "Uuid": "a0cc9ae5-c4ca-4ce8-82d9-e4728b1b3d8e",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Export",
+  "Description": "Export Views to IFC file from document.\r\nThe Project Origin option works only with Revit 2018 and above.\r\nSome other IFC options are embedded inside the python script.",
+  "Name": "Export IFC in Document",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "DSCore.List": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Result",
+      "Id": "57b35ae8aab346fca35219aa500b8e6f",
+      "Inputs": [
+        {
+          "Id": "9fa6df99cd1f4576bf7ccfc497a2f23f",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Proposed by Nicklas Verdier Østergaard, nvo@niras.dk\r\n#https://github.com/pzurek/ifcexporter/blob/master/IFCExporterUI/Source/IFCExportConfiguration.cs\r\n#Revised by Alban de Chasteigner\r\n\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n# Import ToDSType(bool) extension method\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\n# Import geometry conversion extension methods\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n# Import DocumentManager and TransactionManager\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nfrom System.Collections.Generic import *\r\n# Import RevitAPI\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\n\r\ndef tolist(obj1):\r\n    if hasattr(obj1,\"__iter__\"): return obj1\r\n    else: return [obj1]\r\n\r\nfolder=UnwrapElement(IN[0])\r\nname=tolist(UnwrapElement(IN[1]))\r\nview = tolist(UnwrapElement(IN[2]))\r\nfileversion = IN[3]\r\nwallandcolumnsplitting = IN[4]\r\nexportbasequantities = IN[5]\r\nProjectorigin = IN[6]\r\nif isinstance(IN[7], list) : inputdoc = IN[7] \r\nelse : inputdoc = [IN[7]]\r\n\r\n#Inputdoc : Part of script by Andreas Dieckmann\r\nif inputdoc[0] == None:\r\n    doc = DocumentManager.Instance.CurrentDBDocument\r\nelif inputdoc[0].GetType().ToString() == \"Autodesk.Revit.DB.Document\":\r\n    doc = inputdoc[0]\r\nelse: doc = DocumentManager.Instance.CurrentDBDocument\r\n\r\nt = Transaction(doc,'export')\r\nt.Start()\r\nresult = []\r\n\r\nfor i,v in enumerate(view):\r\n\toptions=IFCExportOptions()\r\n\t\r\n\t#if fileversion != None:\r\n\t#\toptions.FileVersion = fileversion\r\n\tif fileversion == \"IFC4\":\r\n\t\toptions.FileVersion = IFCVersion.IFC4\r\n\tif fileversion == \"IFC4RV\":\r\n\t\toptions.FileVersion = IFCVersion.IFC4RV\r\n\tif fileversion == \"IFC4DTV\":\r\n\t\toptions.FileVersion = IFCVersion.IFC4DTV\r\n\tif fileversion == \"IFC2x2\":\r\n\t\toptions.FileVersion = IFCVersion.IFC2x2\r\n\tif fileversion == \"IFC2x3\":\r\n\t\toptions.FileVersion = IFCVersion.IFC2x3\r\n\tif fileversion == \"IFC2x3CV2\":\r\n\t\toptions.FileVersion = IFCVersion.IFC2x3CV2\r\n\tif fileversion == \"IFC2x3BFM\":\r\n\t\toptions.FileVersion = IFCVersion.IFC2x3BFM\r\n\tif fileversion == \"IFC2x3FM\":\r\n\t\toptions.FileVersion = IFCVersion.IFC2x3FM\r\n\tif fileversion == \"IFCBCA\":\r\n\t\toptions.FileVersion = IFCVersion.IFCBCA\r\n\tif fileversion == \"IFCCOBIE\":\r\n\t\toptions.FileVersion = IFCVersion.IFCCOBIE\r\n\tif fileversion == \"\":\r\n\t\toptions.FileVersion = IFCVersion.Default\r\n\t\t\r\n\toptions.WallAndColumnSplitting = wallandcolumnsplitting\r\n\toptions.ExportBaseQuantities = exportbasequantities\r\n\toptions.FilterViewId = v.Id\r\n\toptions.AddOption(\"ExportInternalRevitPropertySets\",\"true\");\r\n\toptions.AddOption(\"ExportIFCCommonPropertySets\",\"true\");\t\r\n\toptions.AddOption(\"ExportAnnotations \",\"true\");\r\n\toptions.AddOption(\"SpaceBoundaries \", \"0\");\r\n\toptions.AddOption(\"ExportRoomsInView\", \"false\");\t\r\n\toptions.AddOption(\"Use2DRoomBoundaryForVolume \", \"true\");\r\n\toptions.AddOption(\"UseFamilyAndTypeNameForReference \", \"true\");\r\n\toptions.AddOption(\"Export2DElements\", \"false\");\r\n\toptions.AddOption(\"ExportPartsAsBuildingElements\", \"false\");\r\n\toptions.AddOption(\"ExportBoundingBox\", \"false\");\r\n\toptions.AddOption(\"ExportSolidModelRep\", \"true\");\r\n\toptions.AddOption(\"ExportSchedulesAsPsets\", \"false\");\r\n\toptions.AddOption(\"ExportSpecificSchedules\", \"false\");\r\n\t#oesn't work. It would be necessary to use OpenInBackground.\r\n\toptions.AddOption(\"ExportLinkedFiles\", \"false\");\r\n\toptions.AddOption(\"IncludeSiteElevation\",\"true\");\r\n\toptions.AddOption(\"StoreIFCGUID\", \"true\");\r\n\toptions.AddOption(\"VisibleElementsOfCurrentView \", \"true\");\r\n\toptions.AddOption(\"UseActiveViewGeometry\", \"true\");\r\n\toptions.AddOption(\"TessellationLevelOfDetail\", \"1\");\r\n \toptions.AddOption(\"ExportUserDefinedPsets\",\"false\");\r\n \toptions.AddOption(\"SitePlacement\", IN[6]);\r\n#\toptions.AddOption(\"ExportUserDefinedPsetsFileName\",\"the filepath\")\r\n#IFCVersion Version = (IFCVersion) Enum.Parse( typeof(IFCVersion), UnwrapElement(IN[3]), true );\r\n#x.FileVersion = IFCVersion.IFC2x3CV2\r\n\r\n\tc=doc.Export(folder, name[i], options)\r\n\tresult.append(c)\r\n\r\nt.Commit()\r\n\r\nif fileversion == \"\":\r\n\tOUT=\"Default settings used\"\r\nelse:\r\n\tOUT='Success'",
+      "VariableInputPorts": true,
+      "Id": "a91114e5782349ce899c85c6182b4a74",
+      "Inputs": [
+        {
+          "Id": "2cf827a19c21407eadabe129b1dde911",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "e28618c41a22445fa7e81923531beff6",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "84e902920aa3409891a5f9fe5019a826",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "68327170d35f498897985d5275fef407",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "adc297f2b1db441c8985a8762f20964a",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "646daf3f90b949179d050b4b0a3131a5",
+          "Name": "IN[5]",
+          "Description": "Input #5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "5fcbb1a1358d45f88e9c7b74febe416b",
+          "Name": "IN[6]",
+          "Description": "Input #6",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d8db3d46ba4e41e99932c5781b709936",
+          "Name": "IN[7]",
+          "Description": "Input #7",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "7fe4f74367da4865b23a3892ff3ba473",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "document",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": " Use only if you want to query other document"
+      },
+      "Id": "a6919a2393e64ba18bc6398b543f3793",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "813f383e3b5546fcaab3fa8e6f481b4c",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "DirectoryPath",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "ea753d83f4ac4b63966e0a71f2bb6db5",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "325bfc10c66b4909aa9a6c4d3ce2d961",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "134b8550cf3b44cfa5a247ccafd34708",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4129ee010c3d4cbbbb97a8f5d649e6a4",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Filename",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "7ad06b50fcf14d178b9b6db2490bff42",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "da0089215be74c6db432111af1d39d78",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "DSCore.List.Flatten(item,-1);",
+      "Id": "8de40bf713f244678acdb1d5cc105bd4",
+      "Inputs": [
+        {
+          "Id": "092248dc346d4a41a7f4a4ee5249b143",
+          "Name": "item",
+          "Description": "item",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "f8dd9585c455449e917cd29e1b721253",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "IFCversion",
+        "TypeName": "string",
+        "TypeRank": 0,
+        "DefaultValue": "\"IFC2x3\"",
+        "Description": "IFC Version"
+      },
+      "Id": "f9fa8cf4536241f5b27f83fc8c951d75",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "52334652c2d14003b28f8dc89e472029",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ProjectOrigin",
+        "TypeName": "string",
+        "TypeRank": 0,
+        "DefaultValue": "\"3\"",
+        "Description": "SharedCoordinates =\"0\", SiteSurveyPoint =\"1\",\nProjectBasePoint=\"2\", InternalCoordinates=\"3\""
+      },
+      "Id": "2b83c5f5e5ec4af8a58e4a57706f3985",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6ebff538294549c39ab723d8bbead82c",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "WallAndColumnSplitting",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": ""
+      },
+      "Id": "97cc841b8d5e4962b20933bed3f6f9a0",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f177cab41f434d909581d840f215c056",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ExportBaseQuantities",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": ""
+      },
+      "Id": "157f6ead27e54a52af9bf4885bc529d1",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "991222066a6c47628035d75741e3baa0",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "7fe4f74367da4865b23a3892ff3ba473",
+      "End": "9fa6df99cd1f4576bf7ccfc497a2f23f",
+      "Id": "9ce3d675d0934887aa8eb7913f21e666"
+    },
+    {
+      "Start": "813f383e3b5546fcaab3fa8e6f481b4c",
+      "End": "d8db3d46ba4e41e99932c5781b709936",
+      "Id": "6ff89f582a084cf79e66a284c6099d3b"
+    },
+    {
+      "Start": "325bfc10c66b4909aa9a6c4d3ce2d961",
+      "End": "2cf827a19c21407eadabe129b1dde911",
+      "Id": "5ddca9a1de164a64ad2c7c95dcf44b87"
+    },
+    {
+      "Start": "4129ee010c3d4cbbbb97a8f5d649e6a4",
+      "End": "84e902920aa3409891a5f9fe5019a826",
+      "Id": "a09cfded02044e7a89037355c7bbde8e"
+    },
+    {
+      "Start": "da0089215be74c6db432111af1d39d78",
+      "End": "092248dc346d4a41a7f4a4ee5249b143",
+      "Id": "82dd91da71a74372b5b3c26126d5c1bc"
+    },
+    {
+      "Start": "f8dd9585c455449e917cd29e1b721253",
+      "End": "e28618c41a22445fa7e81923531beff6",
+      "Id": "aed7c2653a8b40f4bf5cf11325ea6e6d"
+    },
+    {
+      "Start": "52334652c2d14003b28f8dc89e472029",
+      "End": "68327170d35f498897985d5275fef407",
+      "Id": "54aeb0c1d65145f09542e30e03202d77"
+    },
+    {
+      "Start": "6ebff538294549c39ab723d8bbead82c",
+      "End": "5fcbb1a1358d45f88e9c7b74febe416b",
+      "Id": "877fce4b254d499bac282d9bd52a0b62"
+    },
+    {
+      "Start": "f177cab41f434d909581d840f215c056",
+      "End": "adc297f2b1db441c8985a8762f20964a",
+      "Id": "e32ba799b0df46c28000181cf086f856"
+    },
+    {
+      "Start": "991222066a6c47628035d75741e3baa0",
+      "End": "646daf3f90b949179d050b4b0a3131a5",
+      "Id": "d657f48a159946aa8c6245d93bae207e"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "57b35ae8aab346fca35219aa500b8e6f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 921.384495977327,
+        "Y": 492.412511859418
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Export IFC",
+        "Id": "a91114e5782349ce899c85c6182b4a74",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 696.584495977327,
+        "Y": 492.412511859418
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "a6919a2393e64ba18bc6398b543f3793",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 178.984495977327,
+        "Y": 907.412511859418
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "ea753d83f4ac4b63966e0a71f2bb6db5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 178.984495977327,
+        "Y": 277.412511859418
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "134b8550cf3b44cfa5a247ccafd34708",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 178.984495977327,
+        "Y": 444.412511859418
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "7ad06b50fcf14d178b9b6db2490bff42",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 3.49392352926944,
+        "Y": 361.236206164159
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "8de40bf713f244678acdb1d5cc105bd4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 178.984495977327,
+        "Y": 360.625845192751
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "f9fa8cf4536241f5b27f83fc8c951d75",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 178.984495977327,
+        "Y": 538.412511859418
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "2b83c5f5e5ec4af8a58e4a57706f3985",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 178.984495977327,
+        "Y": 797.412511859418
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "97cc841b8d5e4962b20933bed3f6f9a0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 178.984495977327,
+        "Y": 631.412511859418
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "157f6ead27e54a52af9bf4885bc529d1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 178.984495977327,
+        "Y": 714.412511859418
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "d5ec4faa94824f1eb23a0d7bda568218",
+        "Title": "IFC Version :\r\n\"IFC2x2\";\r\n\"IFC2x3\";\r\n\"IFC2x3CV2\";\r\n\"IFC2x2\";\r\n\"IFC4\";\r\n\"IFCBCA\";\r\n\"IFCCOBIE\";",
+        "Nodes": [],
+        "Left": 30.2693252353368,
+        "Top": 510.497445930673,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": 46.560744614772,
+    "Y": -3.30449555869257,
+    "Zoom": 0.503040378888985
+  }
+}

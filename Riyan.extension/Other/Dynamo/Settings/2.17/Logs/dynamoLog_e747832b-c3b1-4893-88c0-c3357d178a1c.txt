@@ -1,0 +1,128 @@
+Dynamo log started 2023-11-01 04:41:34Z
+2023-11-01 04:41:34Z : Python template set to default.
+2023-11-01 04:41:35Z : launch darkly initalized
+2023-11-01 04:41:35Z : LD startup time: 1028 
+2023-11-01 04:41:35Z : <<<<<InitDone>>>>>
+2023-11-01 04:41:35Z : feature flag exe starting
+2023-11-01 04:41:35Z : <<<<<Sod>>>>>
+2023-11-01 04:41:35Z : {"graphics-primitive-instancing":false,"testFlag":false,"EasterEggIcon1":false,"EasterEggMessage1":"NA","CER":false,"NodeAutocompleteMachineLearningIsBeta":true,"CER_v2":true}
+2023-11-01 04:41:35Z : <<<<<Eod>>>>>
+2023-11-01 04:41:35Z : EasterEggIcon1 is false FROM MODEL
+2023-11-01 04:41:35Z : EasterEggMessage1 is disabled FROM MODEL
+2023-11-01 04:41:35Z : Dynamo -- Build 2.17.0.3472
+2023-11-01 04:41:36Z : System.InvalidOperationException:
+2023-11-01 04:41:36Z : There already exists an AlsoKnownAs mapping for DSCoreNodesUI.Logic.If.
+2023-11-01 04:41:36Z : 
+2023-11-01 04:41:36Z : System.InvalidOperationException:
+2023-11-01 04:41:36Z : There already exists an AlsoKnownAs mapping for If.
+2023-11-01 04:41:36Z : 
+2023-11-01 04:41:36Z : Duplicate migration type registered for SunPathDirection
+2023-11-01 04:41:37Z : AnalyticalAutomation.dll,M:AnalyticalAutomation.AnalyticalElements.AnalyticalPanel.BySurface(Autodesk.DesignScript.Geometry.Surface,System.Boolean) {0} is missing some XML documentation tags.
+2023-11-01 04:41:37Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-11-01 04:41:37Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-11-01 04:41:37Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-11-01 04:41:37Z : A package called DynamoPlayerExtension found at C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension includes dll files but none are defined in node libraries in the package manifest.  Ignoring it.
+2023-11-01 04:41:37Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension\dyf' does not exist
+2023-11-01 04:41:37Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is added
+2023-11-01 04:41:37Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign\dyf' does not exist
+2023-11-01 04:41:37Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Extension\dyf' does not exist
+2023-11-01 04:41:37Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is added
+2023-11-01 04:41:37Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Revit\dyf' does not exist
+2023-11-01 04:41:37Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-11-01 04:41:37Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-11-01 04:41:37Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2024\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2024\en-GB;C:\Program Files\Autodesk\Revit 2024;C:\Program Files\Common Files\Autodesk Shared\RealDWG Shared 2024;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;;C:\Users\asanka.d.LOCAL\AppData\Roaming\pyRevit-Master\bin;C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit
+2023-11-01 04:41:38Z : RENDER : Rendering Tier: 2
+2023-11-01 04:41:38Z : RENDER : Pixel Shader 3 Supported: True
+2023-11-01 04:41:38Z : RENDER : Pixel Shader 4 Supported: False
+2023-11-01 04:41:38Z : RENDER : Software Effect Rendering Supported: True
+2023-11-01 04:41:38Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-11-01 04:41:38Z : RENDER : Rendering Tier: 2
+2023-11-01 04:41:38Z : RENDER : Pixel Shader 3 Supported: True
+2023-11-01 04:41:38Z : RENDER : Pixel Shader 4 Supported: False
+2023-11-01 04:41:38Z : RENDER : Software Effect Rendering Supported: True
+2023-11-01 04:41:38Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-11-01 04:41:39Z : Documentation Browser (id: 68B45FC0-0BD1-435C-BF28-B97CB03C71C8) view extension is added
+2023-11-01 04:41:39Z : DynamoManipulationExtension (id: 58B0496A-E3F8-43D9-86D2-94823D1D0F98) view extension is added
+2023-11-01 04:41:39Z : Properties (id: 28992e1d-abb9-417f-8b1b-05e053bee670) view extension is added
+2023-11-01 04:41:39Z : LibraryUI - WebView2 (id: 8b093acd-5656-4914-b6b0-c54b26ca6d0e) view extension is added
+2023-11-01 04:41:39Z : Graph Status (id: 3467481b-d20d-4918-a454-bf19fc5c25d7) view extension is added
+2023-11-01 04:41:39Z : Notifications (id: ef6cd025-514f-44cd-b6b1-69d9f5cce004) view extension is added
+2023-11-01 04:41:39Z : Package Details (id: C71CA1B9-BF9F-425A-A12C-53DF56770406) view extension is added
+2023-11-01 04:41:39Z : Generative Design Tools (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) view extension is added
+2023-11-01 04:41:39Z : PackageManagerViewExtension (id: 100f5ec3-fde7-4205-80a7-c968b3a5a27b) view extension is added
+2023-11-01 04:41:39Z : Python Migration (id: 1f8146d0-58b1-4b3c-82b7-34a3fab5ac5d) view extension is added
+2023-11-01 04:41:39Z : Workspace References (id: A6706BF5-11C2-458F-B7C8-B745A77EF7FD) view extension is added
+2023-11-01 04:41:42Z : 
+Welcome to Dynamo!
+2023-11-01 04:41:42Z : 00:00:03.8525449 elapsed for loading Dynamo main window.
+2023-11-01 04:41:46Z : EasterEggIcon1 is false from view
+2023-11-01 04:41:46Z : EasterEggMessage1 is disabled from view
+2023-11-01 04:41:46Z : Browser Loaded
+2023-11-01 04:41:46Z : WPF Render Mode: SoftwareOnly
+2023-11-01 04:41:46Z : notification:System.IO.FileLoadException:
+ Dynamo has detected a conflict with a dependency and may be unstable. If any issues are detected, please uninstall addins or packages and contact the provider.: 
+ While loading assembly DesignScriptBuiltin, Version=2.17.0.3472, Culture=neutral, PublicKeyToken=null, Dynamo detected that the dependency System.Collections.Immutable, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a was already loaded with an incompatible version. It is likely that another Revit Addin has loaded this assembly, please try uninstalling other Addins, and starting Dynamo again. Dynamo may be unstable in this state.
+It is likely one of the following assemblies loaded the incompatible version:
+
+2023-11-01 04:41:55Z : Active view is now Legend 1
+2023-11-01 04:42:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:42:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:43:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:43:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:44:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:44:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:45:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:45:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:46:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:46:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:47:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:47:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:48:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:48:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:49:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:49:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:50:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:50:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:51:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:51:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:52:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:52:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:53:37Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:53:37Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:54:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:54:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:55:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:55:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:56:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:56:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:57:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:57:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:58:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:58:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 04:59:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 04:59:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:00:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:00:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:01:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:01:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:02:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:02:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:03:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:03:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:04:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:04:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:05:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:05:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:06:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:06:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:07:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:07:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:08:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:08:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:09:38Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-11-01 05:09:38Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-11-01 05:10:00Z : Clearing workspace...
+2023-11-01 05:10:00Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is removed
+2023-11-01 05:10:00Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is removed
+2023-11-01 05:10:00Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is removed
+2023-11-01 05:10:00Z : Goodbye

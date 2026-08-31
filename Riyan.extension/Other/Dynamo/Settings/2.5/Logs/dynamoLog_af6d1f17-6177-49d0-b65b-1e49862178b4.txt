@@ -1,0 +1,229 @@
+Dynamo log started 2023-09-09 12:01:13Z
+2023-09-09 12:01:13Z : Python template set to default.
+2023-09-09 12:01:14Z : Dynamo -- Build 2.5.0.7460
+2023-09-09 12:01:14Z : Duplicate migration type registered for SunPathDirection
+2023-09-09 12:01:15Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-09-09 12:01:15Z : Exception encountered scanning the package directory at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+2023-09-09 12:01:15Z : notification:Dynamo.Exceptions.LibraryLoadFailedException: Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+   at Dynamo.PackageManager.PackageLoader.CheckPackageNodeLibraryCertificates(String packageDirectoryPath, Package discoveredPkg)
+   at Dynamo.PackageManager.PackageLoader.ScanPackageDirectory(String directory, Boolean checkCertificates):
+ Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit: 
+ "A package called GenerativeDesign found at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit could not be verified to have signed dll files.  A dll file found at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit\bin\GenerativeDesignNodes.dll did not have a signed certificate.  Ignoring it."
+2023-09-09 12:01:15Z : Dynamo.Exceptions.LibraryLoadFailedException:
+2023-09-09 12:01:15Z : Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+2023-09-09 12:01:15Z :    at Dynamo.PackageManager.PackageLoader.CheckPackageNodeLibraryCertificates(String packageDirectoryPath, Package discoveredPkg)
+   at Dynamo.PackageManager.PackageLoader.ScanPackageDirectory(String directory, Boolean checkCertificates)
+2023-09-09 12:01:15Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-09-09 12:01:15Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-09-09 12:01:15Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2021\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2021\en-US;C:\Program Files\Autodesk\Revit 2021;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit
+2023-09-09 12:01:15Z : RENDER : Rendering Tier: 2
+2023-09-09 12:01:15Z : RENDER : Pixel Shader 3 Supported: True
+2023-09-09 12:01:15Z : RENDER : Pixel Shader 4 Supported: False
+2023-09-09 12:01:15Z : RENDER : Software Effect Rendering Supported: True
+2023-09-09 12:01:15Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-09-09 12:01:16Z : RENDER : Rendering Tier: 2
+2023-09-09 12:01:16Z : RENDER : Pixel Shader 3 Supported: True
+2023-09-09 12:01:16Z : RENDER : Pixel Shader 4 Supported: False
+2023-09-09 12:01:16Z : RENDER : Software Effect Rendering Supported: True
+2023-09-09 12:01:16Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-09-09 12:01:16Z : DynamoManipulationExtension (id: 58B0496A-E3F8-43D9-86D2-94823D1D0F98) view extension is added
+2023-09-09 12:01:16Z : LibraryUI (id: 85941358-5525-4FF4-8D61-6CA831F122AB) view extension is added
+2023-09-09 12:01:16Z : NotificationsExtension (id: ef6cd025-514f-44cd-b6b1-69d9f5cce004) view extension is added
+2023-09-09 12:01:16Z : PackageManagerViewExtension (id: 100f5ec3-fde7-4205-80a7-c968b3a5a27b) view extension is added
+2023-09-09 12:01:16Z : Workspace References (id: A6706BF5-11C2-458F-B7C8-B745A77EF7FD) view extension is added
+2023-09-09 12:01:18Z : Welcome to Dynamo!
+2023-09-09 12:01:18Z : 00:00:02.1518828 elapsed for loading Dynamo main window.
+2023-09-09 12:01:18Z : Preparing to load the library resources.
+2023-09-09 12:01:18Z : WPF Render Mode: SoftwareOnly
+2023-09-09 12:01:23Z : Clearing workspace...
+2023-09-09 12:02:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:02:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:03:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:03:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:04:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:04:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:05:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:05:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:06:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:06:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:07:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:07:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:08:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:08:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:08:22Z : Active view is now WO_03_SECOND FLOOR LEVEL
+2023-09-09 12:08:47Z : Active view is now 3D - Complete
+2023-09-09 12:08:48Z : Active view is now 3D - Complete AR
+2023-09-09 12:08:49Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:09:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:09:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:10:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:10:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:11:15Z : Active view is now WO_03_SECOND FLOOR LEVEL
+2023-09-09 12:11:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:11:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:11:25Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:12:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:12:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:13:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:13:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:14:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:14:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:15:06Z : Active view is now 3D - Complete
+2023-09-09 12:15:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:15:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:16:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:16:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:17:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:17:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:18:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-09-09 12:18:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-09-09 12:19:07Z : Saving D:\asanka\dynamo\beam by roof.dyn ...
+2023-09-09 12:19:21Z : Active view is now WALL AND COLUMN SETTING DETAILS
+2023-09-09 12:19:36Z : Active view is now 3D - Complete
+2023-09-09 12:19:40Z : Active view is now WALL AND COLUMN SETTING DETAILS
+2023-09-09 12:19:42Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:19:44Z : Active view is now COLUMN BEAMS AND STAIRCAS DETAILS
+2023-09-09 12:19:46Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:19:51Z : Active view is now 3D - Complete AR
+2023-09-09 12:19:52Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:19:58Z : Active view is now PLO_00_FOUNDATION LEVEL
+2023-09-09 12:19:59Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:20:01Z : Active view is now North
+2023-09-09 12:20:01Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:20:06Z : Active view is now WO_02_FIRST FLOOR LEVEL
+2023-09-09 12:20:07Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:21:15Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:21:15Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:21:41Z : Saving D:\asanka\dynamo\beam by roof.dyn ...
+2023-09-09 12:21:41Z : Clearing workspace...
+2023-09-09 12:23:06Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 12:23:31Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:23:38Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 12:25:21Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 12:26:02Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:26:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:26:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:27:15Z : Saving D:\asanka\dynamo\beam by roof.dyn ...
+2023-09-09 12:27:15Z : Clearing workspace...
+2023-09-09 12:27:17Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:27:55Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 12:28:03Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:28:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:28:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:28:37Z : Saving D:\asanka\dynamo\beam by roof.dyn ...
+2023-09-09 12:28:37Z : Clearing workspace...
+2023-09-09 12:28:38Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:29:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:29:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:30:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:30:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:31:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:31:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:32:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:32:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:32:30Z : Active view is now 3D - Complete
+2023-09-09 12:33:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:33:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:33:16Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:33:29Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 12:33:29Z : Active view is now 3D - Complete
+2023-09-09 12:34:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:34:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:35:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:35:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:35:23Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:35:54Z : Active view is now 3D - Complete
+2023-09-09 12:36:15Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 12:36:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:36:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:37:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:37:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:37:36Z : Active view is now WO_02_FIRST FLOOR LEVEL
+2023-09-09 12:37:40Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 12:37:45Z : Clearing workspace...
+2023-09-09 12:37:50Z : Active view is now WO_03_SECOND FLOOR LEVEL
+2023-09-09 12:37:51Z : Active view is now WO_02_FIRST FLOOR LEVEL
+2023-09-09 12:38:37Z : Active view is now WO_02_FIRST FLOOR LEVEL
+2023-09-09 12:38:43Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 12:38:44Z : Active view is now 3D - Complete
+2023-09-09 12:39:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:39:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:40:13Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-09 12:40:13Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-09 12:40:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:40:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:40:52Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-09 12:40:52Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-09 12:40:57Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:41:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:41:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:41:47Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 12:41:53Z : Active view is now 3D - Complete
+2023-09-09 12:41:56Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:41:58Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 12:42:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:42:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:43:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:43:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:43:25Z : Saving D:\asanka\dynamo\beam by roof.dyn ...
+2023-09-09 12:43:55Z : Active view is now 3D - Complete
+2023-09-09 12:44:02Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:44:08Z : Active view is now 3D - Complete AR
+2023-09-09 12:44:15Z : Active view is now 3D - Complete
+2023-09-09 12:44:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:44:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:44:32Z : Saving D:\asanka\dynamo\beam by roof.dyn ...
+2023-09-09 12:44:34Z : Clearing workspace...
+2023-09-09 12:45:05Z : Active view is now 3D - Complete
+2023-09-09 12:45:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-09 12:45:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:45:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:46:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:46:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:47:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:47:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:48:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:48:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:48:42Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:48:52Z : Active view is now 3D - Complete
+2023-09-09 12:49:16Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn ...
+2023-09-09 12:49:16Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-09 12:49:50Z : Active view is now 3D - Structural_Color coded
+2023-09-09 12:50:08Z : Saving D:\asanka\dynamo\beam by roof.dyn ...
+2023-09-09 12:50:08Z : Clearing workspace...
+2023-09-09 13:32:37Z : Active view is now WO_03_SECOND FLOOR LEVEL
+2023-09-09 13:32:38Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 13:43:19Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 13:45:22Z : Active view is now WO_02_FIRST FLOOR LEVEL
+2023-09-09 13:45:23Z : Active view is now WO_03_SECOND FLOOR LEVEL
+2023-09-09 13:45:50Z : Active view is now Section 1
+2023-09-09 13:46:18Z : Active view is now WO_03_SECOND FLOOR LEVEL
+2023-09-09 13:46:33Z : Active view is now Section 1
+2023-09-09 13:46:39Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 13:54:28Z : Active view is now Section 1
+2023-09-09 13:54:30Z : Active view is now 3D - Complete
+2023-09-09 13:54:49Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 13:54:52Z : Active view is now 3D - Complete
+2023-09-09 13:54:59Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 13:55:26Z : Active view is now 3D - Complete
+2023-09-09 13:57:05Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 13:57:47Z : Active view is now 3D - Complete
+2023-09-09 13:58:17Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 14:01:02Z : Active view is now 3D - Structural_Color coded
+2023-09-09 14:11:26Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 14:11:50Z : Active view is now 3D - Structural_Color coded
+2023-09-09 14:12:44Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 14:12:46Z : Active view is now 3D - Structural_Color coded
+2023-09-09 14:22:40Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 14:22:51Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-09 14:27:37Z : Active view is now WO_02_FIRST FLOOR LEVEL
+2023-09-09 14:27:39Z : Active view is now WO_04_ROOF LEVEL
+2023-09-09 14:27:58Z : Active view is now 3D - Structural_Color coded
+2023-09-09 14:32:53Z : Active view is now 3D - Complete AR
+2023-09-09 14:32:54Z : Active view is now 3D - Structural_Color coded
+2023-09-09 14:32:55Z : Active view is now WO_03_SECOND FLOOR LEVEL
+2023-09-09 14:32:56Z : Active view is now 3D - Structural_Color coded
+2023-09-09 14:33:01Z : Active view is now Section 1
+2023-09-09 14:33:04Z : Clearing workspace...
+2023-09-09 14:33:04Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is removed
+2023-09-09 14:33:04Z : Goodbye

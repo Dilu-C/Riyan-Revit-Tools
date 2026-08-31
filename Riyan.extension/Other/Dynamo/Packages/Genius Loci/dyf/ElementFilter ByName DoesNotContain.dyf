@@ -1,0 +1,265 @@
+{
+  "Uuid": "fdcc1e38-dcb0-44ba-95a5-8474673a4ac5",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Filter elements by part of their name.",
+  "Name": "ElementFilter ByName DoesNotContain",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Element to filter by name doesn't contain"
+      },
+      "Id": "4192193bea894577a879df0a066602c3",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "489c992155bf4689ab70ab1f488169a4",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "searchString",
+        "TypeName": "string",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The string value to filter by"
+      },
+      "Id": "62437f59f4c247c98db0c4493b80c669",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4adb52e4676d46798708469c86c60281",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ignoreCase",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": ""
+      },
+      "Id": "650aea3cba734b6d9960e61585051cf0",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ac779e14daea4801b57740aba8286b72",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Element",
+      "Id": "58851a5cf95c4fb895658662259c2b7b",
+      "Inputs": [
+        {
+          "Id": "8dd176b41f4e4da6bfb23ba2b5b8cc6b",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference(\"RevitAPI\")\nfrom Autodesk.Revit.DB import Element\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.Elements)\n\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nnames = IN[1] if isinstance(IN[1],list) else [IN[1]]\nbool = IN[2]\noutList=[]\n\nfor elem in elements:\n\tif isinstance(IN[1],list):\n\t\tif bool:\n\t\t\tif all(name.lower() not in elem.ToDSType(True).Name.lower() for name in names):\n\t\t\t\toutList.append(elem)\n\t\telse:\n\t\t\tif all(name not in elem.ToDSType(True).Name for name in names):\n\t\t\t\toutList.append(elem)\n\telse:\n\t\tif bool:\n\t\t\toutList=[elem for elem in elements if not IN[1].lower() in elem.ToDSType(True).Name.lower()]\n\t\telse:\n\t\t\toutList=[elem for elem in elements if not IN[1] in elem.ToDSType(True).Name]\n\t\nif isinstance(IN[0], list): OUT = outList\nelse: OUT = outList[0]",
+      "VariableInputPorts": true,
+      "Id": "c49591e1403d4aa78aaa7d0b69f8d0d7",
+      "Inputs": [
+        {
+          "Id": "db42a91cccfe4b19b82cedaf18e8a679",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "5fed1247f6e94487b0ad43f370ac67a7",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "71492a53f9744683bc297fa8bf8153b0",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a880e9b540f14c4c88a0ee521dd865c9",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "489c992155bf4689ab70ab1f488169a4",
+      "End": "db42a91cccfe4b19b82cedaf18e8a679",
+      "Id": "2147f6d616ac45e7b58628773b2f6e3b"
+    },
+    {
+      "Start": "4adb52e4676d46798708469c86c60281",
+      "End": "5fed1247f6e94487b0ad43f370ac67a7",
+      "Id": "f7eab68edb0c4198b0de23607dadba5a"
+    },
+    {
+      "Start": "ac779e14daea4801b57740aba8286b72",
+      "End": "71492a53f9744683bc297fa8bf8153b0",
+      "Id": "9ee95948321c4429a37ccb217424e2b0"
+    },
+    {
+      "Start": "a880e9b540f14c4c88a0ee521dd865c9",
+      "End": "8dd176b41f4e4da6bfb23ba2b5b8cc6b",
+      "Id": "531731910f064cae8c1dfd109417c4a2"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "4192193bea894577a879df0a066602c3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 331.3,
+        "Y": 240.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "62437f59f4c247c98db0c4493b80c669",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 331.3,
+        "Y": 333.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "650aea3cba734b6d9960e61585051cf0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 331.3,
+        "Y": 426.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "58851a5cf95c4fb895658662259c2b7b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 983.3,
+        "Y": 307.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "c49591e1403d4aa78aaa7d0b69f8d0d7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 773.2,
+        "Y": 305.6
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

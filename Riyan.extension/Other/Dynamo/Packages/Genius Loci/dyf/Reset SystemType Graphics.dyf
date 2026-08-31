@@ -1,0 +1,165 @@
+{
+  "Uuid": "2800efe7-b9f6-4b3c-b4f8-8f1ab4b08cb3",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.MEP",
+  "Description": "Clear the line pattern, line weight, line color and  material of the given System Type.",
+  "Name": "Reset SystemType Graphics",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "SystemType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "181aa3ecc6ec4cf7978a5c549f993f39",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "fce9046a80e4460eadecd1f33793bd9d",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "SystemType",
+      "Id": "d17719d056f3464794d88d95d7ab7e32",
+      "Inputs": [
+        {
+          "Id": "da012bb1cd7d466ebc5780e550767b0e",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndef tolist(obj1):\r\n    if hasattr(obj1,\"__iter__\"): return obj1\r\n    else: return [obj1]\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nsystypes = tolist(UnwrapElement(IN[0]))\r\n\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\nfor systype in systypes:\r\n\tsystype.LineColor = Autodesk.Revit.DB.Color.InvalidColorValue\r\n\tsystype.LineWeight = -1\r\n\tsystype.LinePatternId = ElementId.InvalidElementId\r\n\tsystype.MaterialId = ElementId.InvalidElementId\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = systypes",
+      "VariableInputPorts": true,
+      "Id": "2e952c20d39f40ae95a83b2f0c633ee9",
+      "Inputs": [
+        {
+          "Id": "8dae7d0b8e9f45d69cf5dd31e246233a",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "14026fc8c6584bb7ac963c3628064279",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "fce9046a80e4460eadecd1f33793bd9d",
+      "End": "8dae7d0b8e9f45d69cf5dd31e246233a",
+      "Id": "e68f028ba0354407aa2fe4e1d7eb0aad"
+    },
+    {
+      "Start": "14026fc8c6584bb7ac963c3628064279",
+      "End": "da012bb1cd7d466ebc5780e550767b0e",
+      "Id": "7a4613f197fb4c5d911119f71794d526"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "181aa3ecc6ec4cf7978a5c549f993f39",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 296.8,
+        "Y": 304.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "d17719d056f3464794d88d95d7ab7e32",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 695.202892239852,
+        "Y": 302.320289223985
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Reset SystemType Properties",
+        "Id": "2e952c20d39f40ae95a83b2f0c633ee9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 455.490328133419,
+        "Y": 302.789931703549
+      }
+    ],
+    "Annotations": [],
+    "X": -76.4726426089278,
+    "Y": 72.1008647309479,
+    "Zoom": 0.784369328044827
+  }
+}

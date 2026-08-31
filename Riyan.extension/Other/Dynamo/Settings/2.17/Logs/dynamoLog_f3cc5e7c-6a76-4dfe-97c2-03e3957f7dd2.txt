@@ -1,0 +1,37 @@
+Dynamo log started 2023-10-31 10:50:02Z
+2023-10-31 10:50:02Z : Python template set to default.
+2023-10-31 10:50:04Z : Dynamo -- Build 2.17.0.3472
+2023-10-31 10:50:04Z : launch darkly initalized
+2023-10-31 10:50:04Z : LD startup time: 1506 
+2023-10-31 10:50:04Z : <<<<<InitDone>>>>>
+2023-10-31 10:50:04Z : feature flag exe starting
+2023-10-31 10:50:04Z : <<<<<Sod>>>>>
+2023-10-31 10:50:04Z : {"graphics-primitive-instancing":false,"testFlag":false,"EasterEggIcon1":false,"EasterEggMessage1":"NA","CER":false,"NodeAutocompleteMachineLearningIsBeta":true,"CER_v2":true}
+2023-10-31 10:50:04Z : <<<<<Eod>>>>>
+2023-10-31 10:50:04Z : EasterEggIcon1 is false FROM MODEL
+2023-10-31 10:50:04Z : EasterEggMessage1 is disabled FROM MODEL
+2023-10-31 10:50:05Z : System.InvalidOperationException:
+2023-10-31 10:50:05Z : There already exists an AlsoKnownAs mapping for DSCoreNodesUI.Logic.If.
+2023-10-31 10:50:05Z : 
+2023-10-31 10:50:05Z : System.InvalidOperationException:
+2023-10-31 10:50:05Z : There already exists an AlsoKnownAs mapping for If.
+2023-10-31 10:50:05Z : 
+2023-10-31 10:50:05Z : Duplicate migration type registered for SunPathDirection
+2023-10-31 10:50:05Z : AnalyticalAutomation.dll,M:AnalyticalAutomation.AnalyticalElements.AnalyticalPanel.BySurface(Autodesk.DesignScript.Geometry.Surface,System.Boolean) {0} is missing some XML documentation tags.
+2023-10-31 10:50:06Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-10-31 10:50:06Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-10-31 10:50:06Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-10-31 10:50:06Z : A package called DynamoPlayerExtension found at C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension includes dll files but none are defined in node libraries in the package manifest.  Ignoring it.
+2023-10-31 10:50:06Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension\dyf' does not exist
+2023-10-31 10:50:06Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is added
+2023-10-31 10:50:06Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign\dyf' does not exist
+2023-10-31 10:50:06Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Extension\dyf' does not exist
+2023-10-31 10:50:06Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is added
+2023-10-31 10:50:06Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Revit\dyf' does not exist
+2023-10-31 10:50:06Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-10-31 10:50:06Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-10-31 10:50:06Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2024\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2024\en-GB;C:\Program Files\Autodesk\Revit 2024;C:\Program Files\Common Files\Autodesk Shared\RealDWG Shared 2024;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit
+2023-10-31 10:50:08Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is removed
+2023-10-31 10:50:08Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is removed
+2023-10-31 10:50:08Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is removed
+2023-10-31 10:50:08Z : Goodbye

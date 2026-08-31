@@ -1,0 +1,88 @@
+<Workspace Version="1.3.4.6666" X="93.5969811236058" Y="149.544207958473" zoom="0.658674852158215" ScaleFactor="1" Name="Element ToRoom" Description="Reports the room of the current or linked model in which the element of the current document is located.&#xD;&#xA;Please note : The custom node maps the element phase to the room phase using the phase name. " ID="7560af17-90d2-4f3c-893d-7cd4f4804081" Category="GeniusLoci.Room">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="a8acf301-3b59-4838-aa44-fb04cf717d0c" type="PythonNodeModels.PythonNode" nickname="Python Script" x="255.6" y="262.4" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="2">
+      <PortInfo index="0" default="False" />
+      <PortInfo index="1" default="False" />
+      <Script>#Alban de Chasteigner 2021
+#twitter : @geniusloci_bim
+#geniusloci.bim@gmail.com
+#https://github.com/albandechasteigner/GeniusLociForDynamo
+ 
+import clr
+clr.AddReference('RevitAPI')
+import Autodesk
+from Autodesk.Revit.DB import *
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+from Revit.Elements import *
+
+doc = DocumentManager.Instance.CurrentDBDocument
+
+Elements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]
+inputdoc = UnwrapElement(IN[1])
+rooms=[]
+
+for e in Elements:
+	phase = doc.GetElement(e.CreatedPhaseId)
+	loc = e.Location
+	if type(loc) == LocationPoint:
+		pt=loc.Point
+	elif type(loc) == LocationCurve:
+		pt=loc.Curve.Evaluate(0.5, True)
+	# sketch-based elements (ceiling, floor and roof)
+	elif isinstance(e, CeilingAndFloor) or isinstance(e,RoofBase) :
+		for ref in HostObjectUtils.GetTopFaces(e):
+			geomFace=e.GetGeometryObjectFromReference(ref)
+			#Get UV BoundingBox
+			bbox = geomFace.GetBoundingBox()
+			uv=(bbox.Min+bbox.Max)/2
+			pt=geomFace.Evaluate(uv)
+	if not isinstance(inputdoc, RevitLinkInstance):
+		try:
+			if isinstance (e, FamilyInstance):
+				rooms.append(e.Room[phase].ToDSType(True))
+			else: 
+				rooms.append(doc.GetRoomAtPoint(pt,phase).ToDSType(True))
+		except:rooms.append(None)
+	elif isinstance (inputdoc, RevitLinkInstance):
+		try:
+			doc2 = inputdoc.GetLinkDocument()
+			phaseName = phase.Name
+			phase2 = FilteredElementCollector(doc2).OfClass(Phase).ToElements().Find(lambda x : x.Name == phaseName)
+			transform = inputdoc.GetTotalTransform()
+			locationPoint = transform.Inverse.OfPoint(pt)
+			rooms.append(doc2.GetRoomAtPoint(locationPoint,phase2).ToDSType(True))
+		except:rooms.append(None)
+	else:rooms.append(None)
+	
+OUT = rooms</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="cf2f5535-16c5-4078-81c9-19559570bce8" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="452.513100556018" y="263.645314123432" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="//Room of current document or linked model&#xD;&#xA;Room" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="8bcfaeff-2b7e-4307-9e46-34bfff088ba3" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-44.6955987482069" y="238.834985781379" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Element of current document&#xD;&#xA;element" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="3c8a440b-baa8-46b2-bae0-493cae7e8f05" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-136.18230727373" y="319.242547890417" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Optional input to retrieve linked rooms&#xD;&#xA;RevitLinksInstance : var[]..[] = null" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="a8acf301-3b59-4838-aa44-fb04cf717d0c" start_index="0" end="cf2f5535-16c5-4078-81c9-19559570bce8" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="8bcfaeff-2b7e-4307-9e46-34bfff088ba3" start_index="0" end="a8acf301-3b59-4838-aa44-fb04cf717d0c" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="3c8a440b-baa8-46b2-bae0-493cae7e8f05" start_index="0" end="a8acf301-3b59-4838-aa44-fb04cf717d0c" end_index="1" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

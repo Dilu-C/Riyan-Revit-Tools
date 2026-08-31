@@ -1,0 +1,215 @@
+{
+  "Uuid": "d27da304-8c51-40b3-ba75-16fdd6ff9d42",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.TextNote",
+  "Description": "Adds a leader to the text note.",
+  "Name": "TextNote AddLeader",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Leader",
+      "Id": "56fc49a4d0ab417fae29ed489ecde9de",
+      "Inputs": [
+        {
+          "Id": "42d9df145bdf4a7a8c76968a65f0efb8",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import TextNote,TextNoteLeaderTypes,LeaderAtachement\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nleader=[]\nElements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nleaders = IN[1]\nif isinstance(leaders, basestring):\n\texec(\"leaderTypes = TextNoteLeaderTypes.%s\" % leaders)\nelse:\n\tleaderTypes = leaders\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor textNote in Elements:\n\tleader.append(textNote.AddLeader(leaderTypes))\n\ttextNote.LeaderLeftAttachment=LeaderAtachement.Midpoint\n\ttextNote.LeaderRightAttachment=LeaderAtachement.Midpoint\nTransactionManager.Instance.TransactionTaskDone()\n\nif isinstance(IN[0], list): OUT = leader\nelse: OUT = leader[0]",
+      "VariableInputPorts": true,
+      "Id": "e4b4f4a954af40caad15e079770d7731",
+      "Inputs": [
+        {
+          "Id": "334fad7b294c4fe5ba7ce3f2d7149ad9",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "bf2729415cb9427bbaf4be6ded355fe0",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "10e79152850d4102bae145998c98d8c4",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "textNote",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "df7b656c92904841aa023e6933e96982",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "7761cbf767ab4e74a86bf6f43f328e9f",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "TextNoteLeaderTypes",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "String or DB.TextNoteLeaderTypes"
+      },
+      "Id": "1b799e74017b4c3eabe4c2abededbc91",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "233db770e45a45efadcc46200eb6f272",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "10e79152850d4102bae145998c98d8c4",
+      "End": "42d9df145bdf4a7a8c76968a65f0efb8",
+      "Id": "abb32793aba8456d831c49fab856f35a"
+    },
+    {
+      "Start": "7761cbf767ab4e74a86bf6f43f328e9f",
+      "End": "334fad7b294c4fe5ba7ce3f2d7149ad9",
+      "Id": "dcfcf8081cb240a892ee09e591a15cbc"
+    },
+    {
+      "Start": "233db770e45a45efadcc46200eb6f272",
+      "End": "bf2729415cb9427bbaf4be6ded355fe0",
+      "Id": "6456aa625b9f4796ac3a22198efad24e"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "56fc49a4d0ab417fae29ed489ecde9de",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 828.0,
+        "Y": 351.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "e4b4f4a954af40caad15e079770d7731",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 603.6,
+        "Y": 351.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "df7b656c92904841aa023e6933e96982",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 374.0,
+        "Y": 322.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "1b799e74017b4c3eabe4c2abededbc91",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 235.076807958112,
+        "Y": 410.134068069585
+      }
+    ],
+    "Annotations": [],
+    "X": -60.0504783509057,
+    "Y": 51.4532661598038,
+    "Zoom": 0.803321593462598
+  }
+}

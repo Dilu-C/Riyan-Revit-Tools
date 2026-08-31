@@ -1,0 +1,255 @@
+{
+  "Uuid": "c2979ae2-5141-4f4e-abf0-87424fef3142",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Sheet",
+  "Description": "Returns the revision of the given sheet. ",
+  "Name": "Sheet ToRevision",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "sheet",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "6385136177154ef3a357553ede3b8adc",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "289e13c0b17d4016b7ebc61013a9ef58",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Revision",
+      "Id": "415953a664de4516a8ef91f83fbb1e72",
+      "Inputs": [
+        {
+          "Id": "0fe52d8455484389a7eb29d3082b4d73",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "RevisionName",
+      "Id": "3d1fad646fc64937887687086c737a95",
+      "Inputs": [
+        {
+          "Id": "1115951e1cf64ee8b581763f1dbc2143",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2021\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import Revision, Document\n\nsheets = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nrevisions,names=[],[]\n\nfor sheet in sheets:\n\trevi,revName=[],[]\n\tdoc=sheet.Document\n\trevIds = sheet.GetAllRevisionIds()\n\tfor r in revIds:\n\t\trev = doc.GetElement(r)\n\t\tif len(revIds)>1:revi.append(rev) \n\t\telse : revi = rev\n\t\tif len(revIds)>1:revName.append(rev.Name)\n\t\telse : revName=rev.Name\n\trevisions.append(revi)\n\tnames.append(revName)\n\nif isinstance(IN[0], list): OUT = revisions,names\nelse: OUT = revisions[0],names[0]",
+      "VariableInputPorts": true,
+      "Id": "09d99a4408eb41a5aae1dc443c8c1503",
+      "Inputs": [
+        {
+          "Id": "d68933a6b5a44d039ceded719149dfa0",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "8d4b0720cf904219ab810313808c4736",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];",
+      "Id": "1c00c35aa95742e2a9f5aac55db90c43",
+      "Inputs": [
+        {
+          "Id": "c014a7adc93043ccb8d39e631a64dd83",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "1fc4ec01fdaa42bb837e4855399146c4",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "43968b970d04412393f0d44965ac45dd",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "289e13c0b17d4016b7ebc61013a9ef58",
+      "End": "d68933a6b5a44d039ceded719149dfa0",
+      "Id": "e4ec77f025544efb8e3a10e20873890d"
+    },
+    {
+      "Start": "8d4b0720cf904219ab810313808c4736",
+      "End": "c014a7adc93043ccb8d39e631a64dd83",
+      "Id": "0ca3b65d5b9a489e9d948d30f220d83f"
+    },
+    {
+      "Start": "1fc4ec01fdaa42bb837e4855399146c4",
+      "End": "0fe52d8455484389a7eb29d3082b4d73",
+      "Id": "08c2ceadb8134d118442f509f2f0b544"
+    },
+    {
+      "Start": "43968b970d04412393f0d44965ac45dd",
+      "End": "1115951e1cf64ee8b581763f1dbc2143",
+      "Id": "cb6d68aac3b744a998c4d9a4cbbaf11a"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6385136177154ef3a357553ede3b8adc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 215.2,
+        "Y": 288.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "415953a664de4516a8ef91f83fbb1e72",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 582.971776436401,
+        "Y": 295.09724558741
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "3d1fad646fc64937887687086c737a95",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 591.288674070298,
+        "Y": 365.747465304088
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "09d99a4408eb41a5aae1dc443c8c1503",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 314.801847525612,
+        "Y": 290.148438041144
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "1c00c35aa95742e2a9f5aac55db90c43",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 452.971231312274,
+        "Y": 296.556030129632
+      }
+    ],
+    "Annotations": [],
+    "X": 14.013864118796,
+    "Y": 97.2858977890999,
+    "Zoom": 0.931811528498331
+  }
+}

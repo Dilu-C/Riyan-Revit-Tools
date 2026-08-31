@@ -1,0 +1,215 @@
+{
+  "Uuid": "ec1e8e8c-9cb4-4cfe-a29f-739daac6a314",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.MEP",
+  "Description": "Connects unordered MEP system elements (pipe, duct, cable tray, conduit) to the nearest fittings.\r\nBy MEPover on the Dynamo Forum",
+  "Name": "Connect MEPCurves",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#By MEPover on the Dynamo Forum\n#https://forum.dynamobim.com/t/invalid-duct-pipe-connections/16145/10\n\nimport clr\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nclr.AddReference(\"RevitAPI\")\nfrom Autodesk.Revit.DB import *\n\npipes = UnwrapElement(IN[0])\nmargin = IN[1]\n\nconnectors = {}\nconnlist = []\n\nfor pipe in pipes:\n\ttry:\n\t\tconns = pipe.ConnectorManager.Connectors\n\texcept:\n\t\tconns = pipe.MEPModel.ConnectorManager.Connectors\n\tfor conn in conns:\n\t\tif conn.IsConnected:\n\t\t\tcontinue\n\t\tconnectors[conn] = None\n\t\tconnlist.append(conn)\n\nfor k in connectors.keys():\n\tmindist = 1000000\n\tclosest = None\n\tfor conn in connlist:\n\t\tif conn.Owner.Id.Equals(k.Owner.Id):\n\t\t\tcontinue\n\t\tdist = k.Origin.DistanceTo(conn.Origin)\n\t\tif dist < mindist:\n\t\t\tmindist = dist\n\t\t\tclosest = conn\n\tif mindist > margin:\n\t\tcontinue\n\tconnectors[k] = closest\n\tconnlist.remove(closest)\n\ttry:\n\t\tdel connectors[closest]\n\texcept:\n\t\tpass\n\nfor k,v in connectors.items():\n\tTransactionManager.Instance.EnsureInTransaction(doc)\t\t\n\ttry:\n\t\tk.ConnectTo(v)\n\texcept:\n\t\tpass\n\tTransactionManager.Instance.TransactionTaskDone()\n\nOUT = \"Done\"",
+      "VariableInputPorts": true,
+      "Id": "c17793994fbf49a1844e9bfd11adb551",
+      "Inputs": [
+        {
+          "Id": "c61874d5d1994daeb6c7b73755a2ee8b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "458c8bfb482b472e9f92a1aae1cfd956",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b9180385f5c84b8bb2378fa7f742a480",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "elements",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Fittings and ducts or pipes, cable trays, conduits"
+      },
+      "Id": "b3e979bb90824d3ca51e42158726d894",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6659afbd216e4037bca8f469091f077b",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Result",
+      "Id": "1ce3184c44354744a0acc8822add88fc",
+      "Inputs": [
+        {
+          "Id": "64c94941de9f42368b9b8f3bfc5ebe04",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "margin",
+        "TypeName": "int",
+        "TypeRank": 0,
+        "DefaultValue": "0.01",
+        "Description": ""
+      },
+      "Id": "23b5634e147c449684aed4bfbb5ed599",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "bfbec5fb154b406cb79f29b45e072de8",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "b9180385f5c84b8bb2378fa7f742a480",
+      "End": "64c94941de9f42368b9b8f3bfc5ebe04",
+      "Id": "38a261126b524112bdb347a255b42343"
+    },
+    {
+      "Start": "6659afbd216e4037bca8f469091f077b",
+      "End": "c61874d5d1994daeb6c7b73755a2ee8b",
+      "Id": "2fe968ba75904b15b9063359fa2d85d2"
+    },
+    {
+      "Start": "bfbec5fb154b406cb79f29b45e072de8",
+      "End": "458c8bfb482b472e9f92a1aae1cfd956",
+      "Id": "057c0663c2f241339f04aabc4dcfb844"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "c17793994fbf49a1844e9bfd11adb551",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 372.4,
+        "Y": 342.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "b3e979bb90824d3ca51e42158726d894",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -128.004151186495,
+        "Y": 330.635212721833
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "1ce3184c44354744a0acc8822add88fc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 539.2,
+        "Y": 340.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "23b5634e147c449684aed4bfbb5ed599",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 158.8,
+        "Y": 407.2
+      }
+    ],
+    "Annotations": [],
+    "X": 119.500055,
+    "Y": 146.992065,
+    "Zoom": 0.70823125
+  }
+}

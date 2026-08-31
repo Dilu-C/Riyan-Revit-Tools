@@ -1,0 +1,156 @@
+<Workspace Version="1.3.4.6666" X="-30.9178173997428" Y="-159.409372634941" zoom="0.87323933894952" ScaleFactor="1" Name="Compound Surfaces References" Description="Retrieves Top, Bottom and Side Faces, Materials, and references of a roof, floor, ceiling or wall if applicable.&#xD;&#xA;Also works with linked element." ID="ee4938d9-87d6-499e-855a-9466eae9f88a" Category="GeniusLoci.Reference">
+  <NamespaceResolutionMap />
+  <Elements>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="668.6" y="426.72" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="x[0];&#xA;x[1];&#xA;x[2];&#xA;x[3];&#xA;x[4];&#xA;x[5];&#xA;x[6];&#xA;x[7];&#xA;x[8];&#xA;x[9];&#xA;x[10];&#xA;x[11];" ShouldFocus="false">
+      <PortInfo index="0" default="False" />
+    </Dynamo.Graph.Nodes.CodeBlockNodeModel>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="909cf58c-99f3-45cf-b2ca-776555713bbd" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="160.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Top Surface" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="673df8a4-7bb5-44eb-97bc-c45228156c9c" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="243.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Top Material" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="197c0d5d-eef0-480d-bd05-0d0da1ebfa65" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="326.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Top Reference" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="48675836-b5ef-45cb-9520-90fe5143296b" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="409.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Bottom Material" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <PythonNodeModels.PythonNode guid="1a5e65fb-9455-49bc-bf13-376bcc5f4e08" type="PythonNodeModels.PythonNode" nickname="surfaces" x="443.8" y="422.506666666667" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="1">
+      <PortInfo index="0" default="False" />
+      <Script>#Alban de Chasteigner 2019
+#twitter : @geniusloci_bim
+#geniusloci.bim@gmail.com
+import clr
+clr.AddReference('RevitAPI')
+from Autodesk.Revit.DB import *
+from Autodesk.Revit.DB.Structure import *
+
+# Import ToDSType  (bool) extension method
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.GeometryConversion)
+clr.ImportExtensions(Revit.Elements)
+from Revit.Elements import *
+
+elements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]
+	
+topFaces,topMats,topRef,bottomFaces,bottomMats,bottomRef,extFaces,extMats,extRef,intFaces,intMats,intRef=[],[],[],[],[],[],[],[],[],[],[],[]
+
+for element in elements:
+	doc=element.Document
+	try:
+		top = HostObjectUtils.GetTopFaces(element)
+		for t in top:
+			topFace = element.GetGeometryObjectFromReference(t)
+			topFaces.append(topFace.ToProtoType())
+			topmat=doc.GetElement(topFace.MaterialElementId)
+			topMats.append(topmat)
+			topRef.append(t)
+	except:
+		topFaces.append(None)
+		topMats.append(None)
+		topRef.append(None)
+	try:
+		bottom = HostObjectUtils.GetBottomFaces(element)
+		for b in bottom:
+			bottomFace = element.GetGeometryObjectFromReference(b)
+			bottomFaces.append(bottomFace.ToProtoType())
+			bottommat=doc.GetElement(bottomFace.MaterialElementId)
+			bottomMats.append(bottommat)
+			bottomRef.append(b)
+	except:
+		bottomFaces.append(None)
+		bottomMats.append(None)
+		bottomRef.append(None)
+	try:
+		extSide = HostObjectUtils.GetSideFaces(element,ShellLayerType.Exterior)
+		for e in extSide:
+			extFace = element.GetGeometryObjectFromReference(e)
+			extFaces.append(extFace.ToProtoType())
+			extmat=doc.GetElement(extFace.MaterialElementId)
+			extMats.append(extmat)
+			extRef.append(e)
+	except:
+		extFaces.append(None)
+		extMats.append(None)
+		extRef.append(None)
+	try:
+		intSide = HostObjectUtils.GetSideFaces(element,ShellLayerType.Interior)
+		for i in intSide:
+			intFace = element.GetGeometryObjectFromReference(i)
+			intFaces.append(intFace.ToProtoType())
+			intmat=doc.GetElement(intFace.MaterialElementId)
+			intMats.append(intmat)
+			intRef.append(i)
+	except:
+		intFaces.append(None)
+		intMats.append(None)
+		intRef.append(None)
+		
+if isinstance(IN[0], (list)): OUT = topFaces,topMats,topRef,bottomFaces,bottomMats,bottomRef,extFaces,extMats,extRef,intFaces,intMats,intRef
+else: OUT = topFaces[0],topMats[0],topRef[0],bottomFaces[0],bottomMats[0],bottomRef[0],extFaces[0],extMats[0],extRef[0],intFaces[0],intMats[0],intRef[0]</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="982fb4ad-8b46-4ff0-8eec-bfbc6c3e9f84" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="65.4" y="422.506666666667" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Roof, floor, ceiling or wall&#xD;&#xA;element" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="35150cbd-59f5-40bf-82da-74db4c887015" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="492.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Bottom Surface" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="b5a10d6c-de13-4e1b-8cb1-1069617cfa67" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="575.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Bottom Reference" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="33ff5272-f223-404e-afe9-cd6b513d3a46" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="658.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Exterior Side Surface" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="77766ebd-930d-4c54-bdfa-d52c21d2a6de" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="740.493414814103" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Exterior Side Material" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="6eca0f85-66b9-4c52-a8fe-630c2b46b46d" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="859.8" y="824.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Exterior Side Reference" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="922ce1ec-3673-4c53-90b6-066019143df6" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="848.996881275835" y="900.931703717935" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Interior Side Surface" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="a578ca33-6009-4b21-ab90-89c621e17780" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="850.30468867328" y="974.332925929484" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Interior Side Material" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="bc72508c-ad0d-4cf2-ba42-58ee1975422d" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="852.62566644252" y="1047.73414814103" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Interior Side Reference" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="0" end="909cf58c-99f3-45cf-b2ca-776555713bbd" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="1" end="673df8a4-7bb5-44eb-97bc-c45228156c9c" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="2" end="197c0d5d-eef0-480d-bd05-0d0da1ebfa65" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="3" end="48675836-b5ef-45cb-9520-90fe5143296b" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="4" end="35150cbd-59f5-40bf-82da-74db4c887015" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="5" end="b5a10d6c-de13-4e1b-8cb1-1069617cfa67" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="6" end="33ff5272-f223-404e-afe9-cd6b513d3a46" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="7" end="77766ebd-930d-4c54-bdfa-d52c21d2a6de" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="8" end="6eca0f85-66b9-4c52-a8fe-630c2b46b46d" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="9" end="922ce1ec-3673-4c53-90b6-066019143df6" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="10" end="a578ca33-6009-4b21-ab90-89c621e17780" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" start_index="11" end="bc72508c-ad0d-4cf2-ba42-58ee1975422d" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="1a5e65fb-9455-49bc-bf13-376bcc5f4e08" start_index="0" end="c8112c41-2f85-46d3-87d7-e2eb5a0cbff7" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="982fb4ad-8b46-4ff0-8eec-bfbc6c3e9f84" start_index="0" end="1a5e65fb-9455-49bc-bf13-376bcc5f4e08" end_index="0" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Aperçu en arrière-plan" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

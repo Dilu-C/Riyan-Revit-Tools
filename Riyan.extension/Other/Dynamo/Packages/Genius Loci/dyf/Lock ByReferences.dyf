@@ -1,0 +1,278 @@
+{
+  "Uuid": "291072af-681e-4bd7-80b3-4934ee3d0473",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Dimension",
+  "Description": "Add a new locked alignment through elements References.\r\nPaired references must be already geometrically aligned (this function will not force them to become aligned).",
+  "Name": "Lock ByReferences",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Elements.Views.View": {
+        "Key": "Revit.Elements.Views.View",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "Revit.Elements.Views.View",
+        "TypeRank": 0,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": "View to place dimension in"
+      },
+      "Id": "8603fd110140492fa0f36716ff55e4cf",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9d52d6a30fe241bfb0746affe8e2585e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Dimension",
+      "Id": "9e7cab42d87f46b3bd92c202900bf6ac",
+      "Inputs": [
+        {
+          "Id": "fef944eb7bf946359577e1b74f653fe0",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2021\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\n# Import RevitAPI Classes\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import Document\n# Import DocumentManager and TransactionManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\ndef tolist(obj1):\n    if hasattr(obj1,\"__iter__\"): return obj1\n    else: return [obj1]\n\nview = tolist(UnwrapElement(IN[0]))[0]\nreferences1 = tolist(IN[1])\nreferences2 = tolist(IN[2])\nalign=[]\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor ref1, ref2 in zip(references1,references2):\n\talign.append(doc.Create.NewAlignment(view, ref1, ref2))\n\t#align.IsLocked = True\nTransactionManager.Instance.TransactionTaskDone()\n\nif isinstance(IN[1], list): OUT = align\nelse: OUT = align[0]",
+      "VariableInputPorts": true,
+      "Id": "7d36ad8a3e2743b4b0290392bd47c89d",
+      "Inputs": [
+        {
+          "Id": "7532b57829f44e3fb30330a83df35ffc",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c27299196f694c68be4eff983fe28c3c",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "3ab766365f184da7808e4c3d6d21eff4",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a6a293eca6304ce39ab083955053f428",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "reference1",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Aligned Autodesk.Revit.DB.Reference"
+      },
+      "Id": "150bdc27d457458fa8f3164207393be8",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "068fc7569e014779ab9525af81c68b69",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "reference2",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Aligned Autodesk.Revit.DB.Reference"
+      },
+      "Id": "4de5fef85b134891bfe4b673bea6c367",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6a887db9157c4ad4ba25041411a33cd2",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "9d52d6a30fe241bfb0746affe8e2585e",
+      "End": "7532b57829f44e3fb30330a83df35ffc",
+      "Id": "ef1a983cc4524a6a9dfb880e023107be"
+    },
+    {
+      "Start": "a6a293eca6304ce39ab083955053f428",
+      "End": "fef944eb7bf946359577e1b74f653fe0",
+      "Id": "d28678dc168046ff8e24c21f67ae06d1"
+    },
+    {
+      "Start": "068fc7569e014779ab9525af81c68b69",
+      "End": "c27299196f694c68be4eff983fe28c3c",
+      "Id": "1109a6d365fc47d6bbc993b0c238cb15"
+    },
+    {
+      "Start": "6a887db9157c4ad4ba25041411a33cd2",
+      "End": "3ab766365f184da7808e4c3d6d21eff4",
+      "Id": "2397f6307a8f427e93a96eee6fd87017"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "8603fd110140492fa0f36716ff55e4cf",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 177.713894944492,
+        "Y": 251.803380564428
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "9e7cab42d87f46b3bd92c202900bf6ac",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1176.11389494449,
+        "Y": 318.803380564428
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "7d36ad8a3e2743b4b0290392bd47c89d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 951.713894944492,
+        "Y": 318.803380564428
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "150bdc27d457458fa8f3164207393be8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 177.713894944492,
+        "Y": 344.803380564428
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "4de5fef85b134891bfe4b673bea6c367",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 177.713894944492,
+        "Y": 437.803380564428
+      }
+    ],
+    "Annotations": [],
+    "X": 26.7911505351488,
+    "Y": 142.122528490386,
+    "Zoom": 0.426455554100617
+  }
+}

@@ -1,0 +1,97 @@
+Dynamo log started 2023-11-05 09:32:39Z
+2023-11-05 09:32:39Z : Python template set to default.
+2023-11-05 09:32:39Z : Dynamo -- Build 2.17.0.3472
+2023-11-05 09:32:39Z : System.InvalidOperationException:
+2023-11-05 09:32:39Z : There already exists an AlsoKnownAs mapping for DSCoreNodesUI.Logic.If.
+2023-11-05 09:32:39Z : 
+2023-11-05 09:32:39Z : System.InvalidOperationException:
+2023-11-05 09:32:39Z : There already exists an AlsoKnownAs mapping for If.
+2023-11-05 09:32:39Z : 
+2023-11-05 09:32:39Z : Duplicate migration type registered for SunPathDirection
+2023-11-05 09:32:40Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-11-05 09:32:40Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-11-05 09:32:40Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-11-05 09:32:40Z : A package called DynamoPlayerExtension found at C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension includes dll files but none are defined in node libraries in the package manifest.  Ignoring it.
+2023-11-05 09:32:40Z : launch darkly initalized
+2023-11-05 09:32:40Z : LD startup time: 1083 
+2023-11-05 09:32:40Z : <<<<<InitDone>>>>>
+2023-11-05 09:32:40Z : feature flag exe starting
+2023-11-05 09:32:40Z : <<<<<Sod>>>>>
+2023-11-05 09:32:40Z : {"graphics-primitive-instancing":false,"testFlag":false,"EasterEggIcon1":false,"EasterEggMessage1":"NA","CER":false,"NodeAutocompleteMachineLearningIsBeta":true,"CER_v2":true}
+2023-11-05 09:32:40Z : <<<<<Eod>>>>>
+2023-11-05 09:32:40Z : EasterEggIcon1 is false FROM MODEL
+2023-11-05 09:32:40Z : EasterEggMessage1 is disabled FROM MODEL
+2023-11-05 09:32:40Z : IronPythonExtension (id: D7B449D7-4D54-47EF-B742-30C7BEDFBE92) extension is added
+2023-11-05 09:32:40Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension\dyf' does not exist
+2023-11-05 09:32:40Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is added
+2023-11-05 09:32:40Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign\dyf' does not exist
+2023-11-05 09:32:40Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Extension\dyf' does not exist
+2023-11-05 09:32:40Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is added
+2023-11-05 09:32:41Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Revit\dyf' does not exist
+2023-11-05 09:32:41Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-11-05 09:32:41Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-11-05 09:32:41Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2024\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2024\en-GB;C:\Program Files\Autodesk\Revit 2024;C:\Program Files\Common Files\Autodesk Shared\RealDWG Shared 2024;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;;C:\Users\asanka.d.LOCAL\AppData\Roaming\pyRevit-Master\bin;C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit;C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit
+2023-11-05 09:32:41Z : RENDER : Rendering Tier: 2
+2023-11-05 09:32:41Z : RENDER : Pixel Shader 3 Supported: True
+2023-11-05 09:32:41Z : RENDER : Pixel Shader 4 Supported: False
+2023-11-05 09:32:41Z : RENDER : Software Effect Rendering Supported: True
+2023-11-05 09:32:41Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-11-05 09:32:41Z : RENDER : Rendering Tier: 2
+2023-11-05 09:32:41Z : RENDER : Pixel Shader 3 Supported: True
+2023-11-05 09:32:41Z : RENDER : Pixel Shader 4 Supported: False
+2023-11-05 09:32:41Z : RENDER : Software Effect Rendering Supported: True
+2023-11-05 09:32:41Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-11-05 09:32:41Z : Documentation Browser (id: 68B45FC0-0BD1-435C-BF28-B97CB03C71C8) view extension is added
+2023-11-05 09:32:41Z : DynamoManipulationExtension (id: 58B0496A-E3F8-43D9-86D2-94823D1D0F98) view extension is added
+2023-11-05 09:32:41Z : Properties (id: 28992e1d-abb9-417f-8b1b-05e053bee670) view extension is added
+2023-11-05 09:32:41Z : LibraryUI - WebView2 (id: 8b093acd-5656-4914-b6b0-c54b26ca6d0e) view extension is added
+2023-11-05 09:32:41Z : Graph Status (id: 3467481b-d20d-4918-a454-bf19fc5c25d7) view extension is added
+2023-11-05 09:32:41Z : Notifications (id: ef6cd025-514f-44cd-b6b1-69d9f5cce004) view extension is added
+2023-11-05 09:32:41Z : Package Details (id: C71CA1B9-BF9F-425A-A12C-53DF56770406) view extension is added
+2023-11-05 09:32:41Z : Generative Design Tools (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) view extension is added
+2023-11-05 09:32:41Z : PackageManagerViewExtension (id: 100f5ec3-fde7-4205-80a7-c968b3a5a27b) view extension is added
+2023-11-05 09:32:41Z : Python Migration (id: 1f8146d0-58b1-4b3c-82b7-34a3fab5ac5d) view extension is added
+2023-11-05 09:32:41Z : Workspace References (id: A6706BF5-11C2-458F-B7C8-B745A77EF7FD) view extension is added
+2023-11-05 09:32:41Z : 
+Welcome to Dynamo!
+2023-11-05 09:32:41Z : 00:00:00.2269906 elapsed for loading Dynamo main window.
+2023-11-05 09:32:44Z : notification:Package Host Error:
+ Package targets a different host than current host application.: Genius Loci: 
+ The package or one of its dependencies targets a different environment, such as Revit, Civil 3D, Advance Steel, Alias or FormIt. This can cause instability and unexpected problems.: Genius Loci
+2023-11-05 09:32:45Z : EasterEggIcon1 is false from view
+2023-11-05 09:32:45Z : EasterEggMessage1 is disabled from view
+2023-11-05 09:32:45Z : Browser Loaded
+2023-11-05 09:32:45Z : WPF Render Mode: SoftwareOnly
+2023-11-05 09:32:45Z : notification:System.IO.FileLoadException:
+ Dynamo has detected a conflict with a dependency and may be unstable. If any issues are detected, please uninstall addins or packages and contact the provider.: 
+ While loading assembly DesignScriptBuiltin, Version=2.17.0.3472, Culture=neutral, PublicKeyToken=null, Dynamo detected that the dependency System.Collections.Immutable, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a was already loaded with an incompatible version. It is likely that another Revit Addin has loaded this assembly, please try uninstalling other Addins, and starting Dynamo again. Dynamo may be unstable in this state.
+It is likely one of the following assemblies loaded the incompatible version:
+
+2023-11-05 09:32:47Z : Loading node definition for "Dynamo.CustomNodeInfo" from: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17\packages\Genius Loci\dyf\Create Legend Component.dyf
+2023-11-05 09:32:47Z : Original file 'Create Legend Component.dyf' gets backed up at 'C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17\packages\Genius Loci\dyf\backup\Create Legend Component.dyf.1.backup'
+2023-11-05 09:32:47Z : Loading node definition for "Dynamo.CustomNodeInfo" from: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17\packages\spring nodes\dyf\TextNote.ByPoint.dyf
+2023-11-05 09:32:47Z : Loading node definition for "Dynamo.CustomNodeInfo" from: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17\packages\Clockwork for Dynamo 2.x\dyf\All Family Types Of Category.dyf
+2023-11-05 09:32:47Z : Loading node definition for "Dynamo.CustomNodeInfo" from: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17\packages\Clockwork for Dynamo 2.x\dyf\BuiltInCategory.FromInput.dyf
+2023-11-05 09:32:47Z : Loading node definition for "Dynamo.CustomNodeInfo" from: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17\packages\spring nodes\dyf\FamilyInstance.ByViewAndPoint.dyf
+2023-11-05 09:32:47Z : Active view is now Legend 1
+2023-11-05 09:32:47Z : notification:Python Migration:
+ This graph currently contains nodes that are using the old IronPython2 (Python 2) engine which has been deprecated. A new CPython3 (Python 3) has been implemented and is accessible inside the Python editor.: 
+ This graph currently contains python nodes that are using the old IronPython Engine which has been deprecated. Consider updating these nodes to use the new CPython 3.7 Engine.
+2023-11-05 09:33:41Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn ...
+2023-11-05 09:33:41Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn
+2023-11-05 09:34:41Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn ...
+2023-11-05 09:34:41Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn
+2023-11-05 09:35:41Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn ...
+2023-11-05 09:35:41Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn
+2023-11-05 09:36:41Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn ...
+2023-11-05 09:36:41Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn
+2023-11-05 09:37:41Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn ...
+2023-11-05 09:37:41Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Door&Windows Legend EXPERIMENT PART1.dyn
+2023-11-05 09:38:39Z : Clearing workspace...
+2023-11-05 09:38:40Z : Dynamo Unhandled Exception
+2023-11-05 09:38:40Z : Object reference not set to an instance of an object.
+2023-11-05 09:38:44Z : IronPythonExtension (id: D7B449D7-4D54-47EF-B742-30C7BEDFBE92) extension is removed
+2023-11-05 09:38:44Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is removed
+2023-11-05 09:38:44Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is removed
+2023-11-05 09:38:44Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is removed
+2023-11-05 09:38:44Z : Goodbye

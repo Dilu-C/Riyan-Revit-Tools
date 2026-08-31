@@ -1,0 +1,345 @@
+{
+  "Uuid": "d62a592b-955d-451a-b2ad-0b25d25dc655",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Document",
+  "Description": "Works only in Revit 2018 and later.\r\nRetrieves the project positions of the given document in the Survey Coordinate System.\r\n(Coordinates of Internal origin, project base point and survey point)",
+  "Name": "Get Project Locations",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "docOrRevitLinkInstance",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": "null",
+        "Description": " Use only if you want to query a linked model"
+      },
+      "Id": "f0365078e5464b44be6de86ce817203e",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "485bba19cbe2492e9955c1658dcc0579",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Internal Origin",
+      "Id": "99a95d78781b40048d071e2893597bb6",
+      "Inputs": [
+        {
+          "Id": "a6fcdb38847f4ab6817b3d35bc2409f5",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Project Base Point",
+      "Id": "6a8efd51e63845a6846e8efb8c62c869",
+      "Inputs": [
+        {
+          "Id": "3801e5b397aa4d6aafa3f3ca647e8367",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Project Survey Point",
+      "Id": "4d2931a6d55b4ef19d4aec2e38eab203",
+      "Inputs": [
+        {
+          "Id": "aa66ef067f3048d7af1a4289887f3513",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];\nx[2];\nx[3];",
+      "Id": "3687556414a74703836699e3f851e7ac",
+      "Inputs": [
+        {
+          "Id": "9273090babff4c9daa476d6eedf51afe",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b0534ffb3231420887699b41195e319a",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "43e2fa037ecd4ae3ae0ab69c1265e544",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "73f237d1cfd343e5a505409209cd2423",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "6d1c48473bbf4f808cb6500a96a72d77",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nimport math\nclr.AddReference(\"RevitServices\")\nimport RevitServices \nfrom RevitServices.Persistence import DocumentManager\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\ninputdoc = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\n#Inputdoc : Part of script by Andreas Dieckmann\nif inputdoc[0] == None:\n    doc = DocumentManager.Instance.CurrentDBDocument\nelif isinstance(inputdoc[0],Document):\n    doc = inputdoc[0]\nelif isinstance(inputdoc[0],RevitLinkInstance):\n    doc = inputdoc[0].GetLinkDocument()\nelse: doc = DocumentManager.Instance.CurrentDBDocument\n\nif version < 2021:\n\tangleUnit = doc.GetUnits().GetFormatOptions(UnitType.UT_Angle).DisplayUnits\nelse:\n\tangleUnit = doc.GetUnits().GetFormatOptions(SpecTypeId.Angle).GetUnitTypeId()\n\noutProjBasePt, outProjSurvPt, outProjLoc = [],[],[]\n\npbp = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_ProjectBasePoint).ToElements()\nsbp = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_SharedBasePoint).ToElements()\n\nif version < 2018:\n\tprojPos = doc.ActiveProjectLocation.get_ProjectPosition(XYZ(0,0,0))\nelse :\n\tprojPos = doc.ActiveProjectLocation.GetProjectPosition(XYZ(0,0,0))\n\t\nif version > 2019 and inputdoc != None :\n\toutProjBasePt = [pbp[0].SharedPosition.ToPoint(),abs(360-(round(Autodesk.Revit.DB.UnitUtils.ConvertFromInternalUnits(projPos.Angle,angleUnit),6)))]\n\toutProjSurvPt = sbp[0].SharedPosition.ToPoint()\nelse :\n\tpbpEW = pbp[0].get_Parameter(BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()\n\tpbpNS = pbp[0].get_Parameter(BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble()\n\tpbpElev = pbp[0].get_Parameter(BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()\n\tpbpAngle = pbp[0].get_Parameter(BuiltInParameter.BASEPOINT_ANGLETON_PARAM).AsDouble()*180/math.pi    \n\toutProjBasePt=[(XYZ(pbpEW,pbpNS,pbpElev)).ToPoint(),round(pbpAngle,6)]\n\n\tpspEW = sbp[0].get_Parameter(BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()\n\tpspNS = sbp[0].get_Parameter(BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble()\n\tpspElev = sbp[0].get_Parameter(BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()\n\toutProjSurvPt = XYZ(pspEW,pspNS,pspElev).ToPoint()\n    \t\nif projPos == None:\n\toutProjLoc.append(\"No Project Position at origin point\")\nelse:\n\toutProjLoc = XYZ(projPos.EastWest,projPos.NorthSouth,0).ToPoint()\n\t\nOUT = outProjLoc, outProjBasePt, outProjSurvPt, doc.ActiveProjectLocation.Name",
+      "VariableInputPorts": true,
+      "Id": "8a55f24fb264435896800e5e63345cca",
+      "Inputs": [
+        {
+          "Id": "ab7a47f62286484b9e3a66a4f6713db0",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "c46ee22ba4f64641bb7583fe62a17016",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Site Name",
+      "Id": "ce35d518132a4b3c8b556068778fd08d",
+      "Inputs": [
+        {
+          "Id": "2de6c314a58d4626a3188212016c1ef4",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "485bba19cbe2492e9955c1658dcc0579",
+      "End": "ab7a47f62286484b9e3a66a4f6713db0",
+      "Id": "98584b14251249a49a29d8271fb6aa71"
+    },
+    {
+      "Start": "b0534ffb3231420887699b41195e319a",
+      "End": "a6fcdb38847f4ab6817b3d35bc2409f5",
+      "Id": "2dc8e75a8c1245fcb2b5dd099b3a4747"
+    },
+    {
+      "Start": "43e2fa037ecd4ae3ae0ab69c1265e544",
+      "End": "3801e5b397aa4d6aafa3f3ca647e8367",
+      "Id": "4ad4b4f281be47a98c6038619ec042b0"
+    },
+    {
+      "Start": "73f237d1cfd343e5a505409209cd2423",
+      "End": "aa66ef067f3048d7af1a4289887f3513",
+      "Id": "1d58bb83796f4b6ba4fd1d812c5c86c8"
+    },
+    {
+      "Start": "6d1c48473bbf4f808cb6500a96a72d77",
+      "End": "2de6c314a58d4626a3188212016c1ef4",
+      "Id": "894b5760168541eda7058e3fa142cdc9"
+    },
+    {
+      "Start": "c46ee22ba4f64641bb7583fe62a17016",
+      "End": "9273090babff4c9daa476d6eedf51afe",
+      "Id": "636a6ccbe4364b66acda738b1bba67b8"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "f0365078e5464b44be6de86ce817203e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 197.6,
+        "Y": 427.166575282784
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "99a95d78781b40048d071e2893597bb6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1304.0,
+        "Y": 328.526575282784
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "6a8efd51e63845a6846e8efb8c62c869",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1304.0,
+        "Y": 411.526575282784
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "4d2931a6d55b4ef19d4aec2e38eab203",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1304.0,
+        "Y": 495.526575282784
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "3687556414a74703836699e3f851e7ac",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1112.8,
+        "Y": 431.379908616117
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Get Project Origin, BasePoint and SurveyPoint",
+        "Id": "8a55f24fb264435896800e5e63345cca",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 715.6,
+        "Y": 427.166575282784
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "ce35d518132a4b3c8b556068778fd08d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1304.0,
+        "Y": 578.526575282784
+      }
+    ],
+    "Annotations": [],
+    "X": -94.6568683069707,
+    "Y": 144.67178943958,
+    "Zoom": 0.511971324458202
+  }
+}

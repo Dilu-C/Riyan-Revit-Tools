@@ -1,0 +1,165 @@
+{
+  "Uuid": "df3a8834-12df-4701-aa8a-856e0713dda6",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.MEP",
+  "Description": "MEP LocationCurve\r\nGets the curve geometry from the MEP element (pipe, duct, cabletray, conduit, fitting, accessory).\r\nBy Cyril Poupin on the Dynamo Forum",
+  "Name": "MEP LocationCurve",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#By Cyril Poupin on the Dynamo Forum\n#https://forum.dynamobim.com/t/get-curves-from-piping/61867/2\n\nimport clr\nclr.AddReference('ProtoGeometry')\nfrom Autodesk.DesignScript.Geometry import *\n\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\nimport Autodesk.Revit.DB as DB\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nimport System\nfrom System.Collections.Generic import List\n\ntoList = lambda x : x if hasattr(x, '__iter__') else [x]\nlstElemNetWork = toList(UnwrapElement(IN[0]))\n\nlstDS_Geo = [] \nfor e in lstElemNetWork:\n\tif isinstance(e.Location, LocationCurve):\n\t\trvtCurve = e.Location.Curve\n\t\tlstDS_Geo.append(rvtCurve.ToProtoType())\n\telse:\n\t\tlstLines = []\n\t\tlocPt = e.Location.Point\n\t\tconnSet = e.MEPModel.ConnectorManager.Connectors\n\t\tlstConn = list(connSet)\n\t\tif connSet.Size == 1:\n\t\t\tlstDS_Geo.append(None)\n\t\telif connSet.Size == 2:\n\t\t\ttry:\r\n\t\t\t\tline = DB.Line.CreateBound(lstConn[0].Origin, lstConn[1].Origin)\r\n\t\t\t\tlstDS_Geo.append(line.ToProtoType())\n\t\t\texcept:  \n\t\t\t\t# Unable to create Line. Points are likely coincident\n\t\t\t\tpline = DB.PolyLine.Create(List[XYZ]([lstConn[0].Origin, locPt, lstConn[1].Origin]))\r\n\t\t\t\tlstDS_Geo.append(pline.ToProtoType())\n\t\telif connSet.Size == 3 and [con for con in connSet if con.Domain != Domain.DomainElectrical].Count == 2 :\n\t\t\tlstConn2=[con for con in connSet if con.Domain != Domain.DomainElectrical]\n\t\t\tline = DB.Line.CreateBound(lstConn2[0].Origin, lstConn2[1].Origin)\n\t\t\tlstDS_Geo.append(line.ToProtoType())\t\t\n\t\telse:\n\t\t\tfor con in connSet:\n\t\t\t\t#doc.Application.ShortCurveTolerance :\n\t\t\t\tif locPt.DistanceTo(con.Origin) > 0.00256026455729167 and con.Domain != Domain.DomainElectrical : \n\t\t\t\t\tline = DB.Line.CreateBound(locPt, con.Origin)\n\t\t\t\t\tlstLines.append(line.ToProtoType())\n\t\t\tlstDS_Geo.append(lstLines)\n\t\t\t\nOUT = lstDS_Geo",
+      "VariableInputPorts": true,
+      "Id": "ea7cc25d28bb4327b0767a27e25e0fa7",
+      "Inputs": [
+        {
+          "Id": "702eaa26828d473f95ff49be059a96d7",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "41e3ab749afa488d9a0a476f2d91e3ba",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Curve",
+      "Id": "c3edc6c9c0934d6e9269aea756d98920",
+      "Inputs": [
+        {
+          "Id": "34d9cec5931640269058172e617329e2",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Ducts or pipes, cable trays, conduits\nFittings and accessories"
+      },
+      "Id": "07b602c2b4d042a889f21eef1fe1eab6",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8ad308a258e4411ab6ff39642ed92113",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "41e3ab749afa488d9a0a476f2d91e3ba",
+      "End": "34d9cec5931640269058172e617329e2",
+      "Id": "28bda55df71a45f99204509d9a04901a"
+    },
+    {
+      "Start": "8ad308a258e4411ab6ff39642ed92113",
+      "End": "702eaa26828d473f95ff49be059a96d7",
+      "Id": "007ca98e1cbd443c9a343ef9d3f40787"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "ea7cc25d28bb4327b0767a27e25e0fa7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 216.0,
+        "Y": 312.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "c3edc6c9c0934d6e9269aea756d98920",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 394.4,
+        "Y": 306.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "07b602c2b4d042a889f21eef1fe1eab6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -213.692027504557,
+        "Y": 314.650655964815
+      }
+    ],
+    "Annotations": [],
+    "X": 236.693702387426,
+    "Y": 112.325817068163,
+    "Zoom": 0.437447777305622
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "Uuid": "1e33ecff-42cd-41a3-8cac-d414dcc8fde9",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Calculates the rotation angle between the given element and the X axis.\r\nWorks for point/ line/ sketch based elements and link instances.",
+  "Name": "Element GetRotation",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nimport math\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nitems = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\ndef GetRotation(item):\n\t# Dynamo lines\n\tif hasattr(item, \"Explode\"):\n\t\tvector = item.ToRevitType().Direction\n\t\trotationAngle = math.degrees(vector.AngleOnPlaneTo(XYZ.BasisX, XYZ.BasisZ))\n\t# CropBox\t\n\telif item.Category == None :\n\t\tview=item.Document.GetElement(item.get_Parameter(BuiltInParameter.ID_PARAM).AsElementId())\n\t\tline=view.GetCropRegionShapeManager().GetCropShape()\n\t\tvector = [l.Direction for l in line[0]]\n\t\trotationAngle = math.degrees(vector[1].AngleOnPlaneTo(XYZ.BasisX, XYZ.BasisZ))\n\telif hasattr(item, \"Location\"):\n\t\tloc = item.Location\n\t\tif loc:\t\n\t\t\t# Generic Annotation, importInstance and linkInstance\n\t\t\tif hasattr(item, \"GetTotalTransform\"):\n\t\t\t\ttrans=item.GetTotalTransform()\n\t\t\t\trotationAngle = math.degrees(trans.BasisX.AngleOnPlaneTo(XYZ.BasisX, XYZ.BasisZ))\n\t\t\t\trotationAngle=abs(rotationAngle-360)\n\t\t\t# point-based elements (e.g. most loadable families)\n\t\t\telif isinstance(loc,LocationPoint):\n\t\t\t\tif hasattr(loc, \"Rotation\"):\n\t\t\t\t\trotationAngle = math.degrees(loc.Rotation)\n\t\t\t\t# Group, assembly\n\t\t\t\telse:rotationAngle = 0\n\t\t\telif isinstance(item,MEPCurve):\r\n\t\t\t\tfor c in item.ConnectorManager.Connectors :\r\n\t\t\t\t\trotationAngle = math.asin(c.CoordinateSystem.BasisY.X) * 180/math.pi\r\n\t\t\telif isinstance(item,Grid):\r\n\t\t\t\tvector = item.Curve.Direction\r\n\t\t\t\trotationAngle = abs(math.degrees(vector.AngleOnPlaneTo(XYZ.BasisX, XYZ.BasisZ))-180)\r\n\t\t\telif isinstance(item,ReferencePlane):\r\n\t\t\t\tdoc=item.Document\r\n\t\t\t\tview = doc.ActiveView\r\n\t\t\t\tfor crv in item.GetCurvesInView(DatumExtentType.ViewSpecific,view):\r\n\t\t\t\t\tvector = crv.Direction\r\n\t\t\t\trotationAngle = abs(math.degrees(vector.AngleOnPlaneTo(XYZ.BasisX, XYZ.BasisZ))-360)\r\n\t\t\t# line-based elements (e.g. walls)\n\t\t\telif isinstance(loc,LocationCurve):\n\t\t\t\tvector = loc.Curve.Direction\n\t\t\t\trotationAngle = abs(math.degrees(vector.AngleOnPlaneTo(XYZ.BasisX, XYZ.BasisZ))-360)\n\t\t\telse:\n\t\t\t\t# sketch-based elements (ceiling, floor and roof)\n\t\t\t\tif hasattr(item, \"FindInserts\"):\n\t\t\t\t\tfor ref in HostObjectUtils.GetTopFaces(item):\n\t\t\t\t\t\tgeomFace=item.GetGeometryObjectFromReference(ref)\n\t\t\t\t\t\t#Get BoundingBox max UV point\n\t\t\t\t\t\tmaxUV = geomFace.GetBoundingBox().Max\n\t\t\t\t\t\t#Get transform\n\t\t\t\t\t\ttrans=geomFace.ComputeDerivatives(maxUV)\n\t\t\t\t\t\tif isinstance(item,Ceiling):\n\t\t\t\t\t\t\trotationAngle = math.degrees(abs(trans.BasisZ.AngleOnPlaneTo(XYZ.BasisX, XYZ.BasisZ)-2*math.pi))\n\t\t\t\t\t\telse:\n\t\t\t\t\t\t\trotationAngle = math.degrees(abs(trans.BasisY.AngleOnPlaneTo(XYZ.BasisX, XYZ.BasisZ)-math.pi))\n\t\t\t\telse:\n\t\t\t\t\trotationAngle=0\n\t\telse:\n\t\t\trotationAngle=0\n\tif round(rotationAngle,3)==360:\n\t\trotationAngle=0\n\treturn round(rotationAngle,3)\n\t\nrotations = [GetRotation(x) for x in items]\n\nif isinstance(IN[0], list): OUT = rotations\nelse: OUT = rotations[0]",
+      "VariableInputPorts": true,
+      "Id": "b8acc724744e4a99b3e82022c971aa6f",
+      "Inputs": [
+        {
+          "Id": "fb274380b9844791b25a0be156e74728",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "6ac81515cdfc4175b9ad771bc0dac40b",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "element or Dynamo line"
+      },
+      "Id": "45294bf04385499aadf01599385cd2e2",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "96f5fbaa3ad64a75a2a9dda2ad52a202",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "//Angle\r\nDegree",
+      "Id": "ae5c4d562711498e8f05d075ea050667",
+      "Inputs": [
+        {
+          "Id": "88b268790ed04277985f6dd31d0d7aca",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "6ac81515cdfc4175b9ad771bc0dac40b",
+      "End": "88b268790ed04277985f6dd31d0d7aca",
+      "Id": "9f6f6697693c4b65ae6b275de927e519"
+    },
+    {
+      "Start": "96f5fbaa3ad64a75a2a9dda2ad52a202",
+      "End": "fb274380b9844791b25a0be156e74728",
+      "Id": "b700d24bb9b146348cd90c318924fc6f"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "b8acc724744e4a99b3e82022c971aa6f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 276.0,
+        "Y": 228.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "45294bf04385499aadf01599385cd2e2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 29.1999999999999,
+        "Y": 225.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "ae5c4d562711498e8f05d075ea050667",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 430.4,
+        "Y": 229.6
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

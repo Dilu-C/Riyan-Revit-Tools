@@ -1,0 +1,165 @@
+{
+  "Uuid": "2ade91b9-c720-464d-b850-afeb5b3b2ab3",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Utilities",
+  "Description": "Using the Postable Command, run the Purge Unused function.",
+  "Name": "Purge Unused UI",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Postable Command by nathan.chapman\nimport clr\nclr.AddReference('RevitAPI')\nclr.AddReference('RevitAPIUI')\nimport Autodesk\nfrom Autodesk.Revit.UI import RevitCommandId\nfrom Autodesk.Revit.UI import UIApplication\nfrom Autodesk.Revit.UI import ExternalCommandData\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\n\nRunIt = IN[0]\n\nif RunIt ==  True:\n\tCmndID = RevitCommandId.LookupCommandId('ID_PURGE_UNUSED')\n\tCmId = CmndID.Id\n\tuiapp.PostCommand(CmndID)\n\terrorReport = 'Success'\nelse:\n\terrorReport = 'Set IN[0] to true'\n\n#Assign your output to the OUT variable\nOUT = errorReport",
+      "VariableInputPorts": true,
+      "Id": "0d0a845e4c46490eab6cd99aa0d02706",
+      "Inputs": [
+        {
+          "Id": "cd28a4992cec4d53a41bf76e63700d3f",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0e28fb81851f48649f6584b533e2d90e",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "RunIt",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": ""
+      },
+      "Id": "d9c97c572e7b41ee89d077266b5a1459",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "fc3c957d02fc4aafa7da2be617bd2a56",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Result",
+      "Id": "ec560d42fe6a414882feab86f64975da",
+      "Inputs": [
+        {
+          "Id": "7eb6b6834b6c4e86ba3437cb3318962f",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "0e28fb81851f48649f6584b533e2d90e",
+      "End": "7eb6b6834b6c4e86ba3437cb3318962f",
+      "Id": "cb0a3977b37249a1b3a7d012ceec3e6f"
+    },
+    {
+      "Start": "fc3c957d02fc4aafa7da2be617bd2a56",
+      "End": "cd28a4992cec4d53a41bf76e63700d3f",
+      "Id": "e2d69c7dfc9f4e28a9349e91daec19a9"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Purge unused",
+        "Id": "0d0a845e4c46490eab6cd99aa0d02706",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 379.51179124399,
+        "Y": 246.297894432706
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "d9c97c572e7b41ee89d077266b5a1459",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 137.622056883308,
+        "Y": 250.603047172326
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "ec560d42fe6a414882feab86f64975da",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 556.051867102837,
+        "Y": 243.056216927885
+      }
+    ],
+    "Annotations": [],
+    "X": -16.8973496773396,
+    "Y": -30.2860641088308,
+    "Zoom": 0.954042924882813
+  }
+}

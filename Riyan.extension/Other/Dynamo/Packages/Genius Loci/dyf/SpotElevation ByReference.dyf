@@ -1,0 +1,442 @@
+{
+  "Uuid": "e8b72f2d-7b6d-43c1-baf8-6485516ae2d5",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Dimension",
+  "Description": "Places a spot elevation at a given reference in a given view.\r\nInspired by the Dynamo Forum",
+  "Name": "SpotElevation ByReference",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Autodesk.DesignScript.Geometry.Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Dynamo Forum https://forum.dynamobim.com/t/place-spot-elevation-in-sectionview-and-change-type/72272/25\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import Document\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\nview = UnwrapElement(IN[0])[0] if isinstance(IN[0],list) else UnwrapElement(IN[0])\nrefs = UnwrapElement(IN[1]) if isinstance(IN[1],list) else [UnwrapElement(IN[1])]\norigins = UnwrapElement(IN[2]) if isinstance(IN[2],list) else [UnwrapElement(IN[2])]\nbends = UnwrapElement(IN[3]) if isinstance(IN[3],list) else [UnwrapElement(IN[3])]\nends = UnwrapElement(IN[4]) if isinstance(IN[4],list) else [UnwrapElement(IN[4])]\nleader = UnwrapElement(IN[5]) if isinstance(IN[5],list) else [UnwrapElement(IN[5])]\ntype= UnwrapElement(IN[6])\nelementlist = []\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor ref, pt, bend, end in zip(refs, origins, bends, ends):\n\tspot = doc.Create.NewSpotElevation(view, ref, pt.ToXyz(), bend.ToXyz(), end.ToXyz(), pt.ToXyz(), leader)\n\telementlist.append(spot)\n\tif IN[6] != None: \n\t\tspot.ChangeTypeId(type.Id)\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = elementlist",
+      "VariableInputPorts": true,
+      "Id": "5324022eb50d45b3ac02b0d5724cd309",
+      "Inputs": [
+        {
+          "Id": "559c2949608f4c05862764f295b12898",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "154c22fa0e2d4a4f84e42bcadb4d5e38",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "4c9e85656fe14ec883f65f7385be1400",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "6f5bc64ffad140789330c778723a30e5",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "6aed2c7ba7164a56b47087ad8131c15c",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "6266bfd5df864dcc8d4e7c310f1b3751",
+          "Name": "IN[5]",
+          "Description": "Input #5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "2c0ff5d03d534894a1d05b13c7a6a56c",
+          "Name": "IN[6]",
+          "Description": "Input #6",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "8b50b674986a4a4787b3978cd13e6f7f",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": "The view in which the spot elevation is to be visible."
+      },
+      "Id": "8dacfd466c19412a9a0a6c4ff3431620",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3cef5ce403fb4d94b7aebb14b312a3f7",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "reference",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Autodesk.Revit.DB.Reference The reference to which the spot elevation is to be bound."
+      },
+      "Id": "ef1f13c1b19643349856f1c114a67048",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8e5f93a1530e4e5787dc9f25a20e3e65",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "point",
+        "TypeName": "Autodesk.DesignScript.Geometry.Point",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The Point which the Spot Elevation Evaluates"
+      },
+      "Id": "6d40f6f288634ad3a8f71cd1d6495fc2",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b3f5e8f6e76a42b597bc552f03f6def6",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "bend",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The bend Point for the Spot Elevation"
+      },
+      "Id": "d68e0921fca448bd93a369ac08a51347",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "2d980015aefa4325801df5c0c029b98f",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "end",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "The end Point for the Spot Elevation"
+      },
+      "Id": "0d214f49d8864d5cb51b318a7383afdf",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c7446de64da54e268ba1a71b155dc4b6",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "hasLeader",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": ""
+      },
+      "Id": "a7c2b807b5ee48658657e0fd1172c9bb",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9cf5c06d25154da9968c5889bb48eef6",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "spotDimensionType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": ""
+      },
+      "Id": "eba15df238334641bc408b642c7ed845",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "416c4bcc8c42445684d163097131bbb9",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "3cef5ce403fb4d94b7aebb14b312a3f7",
+      "End": "559c2949608f4c05862764f295b12898",
+      "Id": "d21e62c6d2234f4cb5597090e92d998a"
+    },
+    {
+      "Start": "8e5f93a1530e4e5787dc9f25a20e3e65",
+      "End": "154c22fa0e2d4a4f84e42bcadb4d5e38",
+      "Id": "5dfc9751e8554b5b8e570ecdf9b3fbc1"
+    },
+    {
+      "Start": "b3f5e8f6e76a42b597bc552f03f6def6",
+      "End": "4c9e85656fe14ec883f65f7385be1400",
+      "Id": "f8671c0128584c78a7e5a4b2c56b220f"
+    },
+    {
+      "Start": "2d980015aefa4325801df5c0c029b98f",
+      "End": "6f5bc64ffad140789330c778723a30e5",
+      "Id": "080439316b064fa9a11dd7ae0870fd51"
+    },
+    {
+      "Start": "c7446de64da54e268ba1a71b155dc4b6",
+      "End": "6aed2c7ba7164a56b47087ad8131c15c",
+      "Id": "517678bdb1be49188830abd8c7dff383"
+    },
+    {
+      "Start": "9cf5c06d25154da9968c5889bb48eef6",
+      "End": "6266bfd5df864dcc8d4e7c310f1b3751",
+      "Id": "5b172a9e033343dab3946b299855454f"
+    },
+    {
+      "Start": "416c4bcc8c42445684d163097131bbb9",
+      "End": "2c0ff5d03d534894a1d05b13c7a6a56c",
+      "Id": "ee9b86770371471ebfcc71316bfda4bc"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "5324022eb50d45b3ac02b0d5724cd309",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 310.0,
+        "Y": 235.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "8dacfd466c19412a9a0a6c4ff3431620",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -318.752162055599,
+        "Y": 172.496716705133
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "ef1f13c1b19643349856f1c114a67048",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -482.040315650265,
+        "Y": 262.933984022635
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6d40f6f288634ad3a8f71cd1d6495fc2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -220.567031431989,
+        "Y": 367.790744317509
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "d68e0921fca448bd93a369ac08a51347",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -201.440960815733,
+        "Y": 481.736749367296
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "0d214f49d8864d5cb51b318a7383afdf",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -203.491430294442,
+        "Y": 585.462623090586
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "a7c2b807b5ee48658657e0fd1172c9bb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -83.5300323371769,
+        "Y": 675.967317877674
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "eba15df238334641bc408b642c7ed845",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -179.264317640252,
+        "Y": 767.015309494584
+      }
+    ],
+    "Annotations": [],
+    "X": 424.308116351009,
+    "Y": 46.5182510508497,
+    "Zoom": 0.597487094815786
+  }
+}

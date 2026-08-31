@@ -1,0 +1,390 @@
+{
+  "Uuid": "67634417-9e0b-41e6-a16b-4b3a8927331a",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Phase",
+  "Description": "Works only in Revit 2019 and later.\r\nThe node returns a mapping between phases in the host document and phases in the linked document.",
+  "Name": "Get Phase Map",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "RevitLinkType",
+      "Id": "3dbde12e9c1e4ebb90d82ff2cae2d400",
+      "Inputs": [
+        {
+          "Id": "0f0dfbf095ca4636b9977b2914ce1ff4",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Phase Map ID KeyValuePair",
+      "Id": "a49510babedd41708228d824aa291ada",
+      "Inputs": [
+        {
+          "Id": "c8f3a3f700494c9ca65a3a28f60ad77f",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];\nx[2];\nx[3];\nx[4];",
+      "Id": "32383f63398c4dfd9be477cd13fd3cfa",
+      "Inputs": [
+        {
+          "Id": "af0a31d68f4048eca2b1a5357f508f8e",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "dd4c10ae0e524ea3aa4bee9d6ab873ed",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "1c62d1b7ba4a48979cb7939ef228afb5",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "01744136969346238338b752e1de80ee",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "fb97ad5e412a4411b0ffcc2a2bb75166",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d9653991e1d94a0e864e8bfe8644397d",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Phase Map",
+      "Id": "3b082b18e6ad4e74ace87e63e9f266fc",
+      "Inputs": [
+        {
+          "Id": "ec04a191fb9a4245a66bcb6ce2a516b9",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Phases in the host",
+      "Id": "4f8ccf1c2fd14d6191fccc73da0ebc1c",
+      "Inputs": [
+        {
+          "Id": "064beb5a96c748a0ab3129d223106ee4",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "RevitLinkInstance",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "ab7a930cd3d140bb8b211d89db895c58",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3cd8c022ef0b4464973df0041f626a9a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nrevitlinkinstance = UnwrapElement(IN[0])\nif not hasattr(revitlinkinstance, '__iter__'):\n    revitlinkinstance = [revitlinkinstance]\n\nphasemaps, values, keys = [],[],[]\n\nlinkedDoc = revitlinkinstance[0].GetLinkDocument()\nrevitlinktype=doc.GetElement(revitlinkinstance[0].GetTypeId())\nphasemap=revitlinktype.GetPhaseMap()\nfor phase in phasemap:\n\tphasemaps.append(phase)\n\tkeys.append(doc.GetElement(phase.Key))\n\tvalues.append(linkedDoc.GetElement(phase.Value))\n\nOUT = revitlinktype,phasemaps,[[a,b] for a,b in zip(keys,values)],keys,values",
+      "VariableInputPorts": true,
+      "Id": "e0d456e5aa7a477ba6bf87b5207c5a85",
+      "Inputs": [
+        {
+          "Id": "cde741354c774e0eb8091f9926300d48",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0120ff18c65447f3b16560ada7824e7e",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Phases in the link",
+      "Id": "5fa62901b417437480a81d708146d620",
+      "Inputs": [
+        {
+          "Id": "b48020d1ece44e4aa6eec710e1dbb2c0",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "dd4c10ae0e524ea3aa4bee9d6ab873ed",
+      "End": "0f0dfbf095ca4636b9977b2914ce1ff4",
+      "Id": "f147e8ab8e954ff6b0e5d25596192a50"
+    },
+    {
+      "Start": "1c62d1b7ba4a48979cb7939ef228afb5",
+      "End": "c8f3a3f700494c9ca65a3a28f60ad77f",
+      "Id": "634419569b0e49519f427fe99f6afb2f"
+    },
+    {
+      "Start": "01744136969346238338b752e1de80ee",
+      "End": "ec04a191fb9a4245a66bcb6ce2a516b9",
+      "Id": "02833c5071854af58f29a6a1038e99a6"
+    },
+    {
+      "Start": "fb97ad5e412a4411b0ffcc2a2bb75166",
+      "End": "064beb5a96c748a0ab3129d223106ee4",
+      "Id": "8e0b92f1955c470b8818e37dab198f4d"
+    },
+    {
+      "Start": "d9653991e1d94a0e864e8bfe8644397d",
+      "End": "b48020d1ece44e4aa6eec710e1dbb2c0",
+      "Id": "1663e18944ee451382f465e89ac68011"
+    },
+    {
+      "Start": "3cd8c022ef0b4464973df0041f626a9a",
+      "End": "cde741354c774e0eb8091f9926300d48",
+      "Id": "2fb202638cad4217a1f0c17dc7d124e2"
+    },
+    {
+      "Start": "0120ff18c65447f3b16560ada7824e7e",
+      "End": "af0a31d68f4048eca2b1a5357f508f8e",
+      "Id": "5385fb8a9566458aaa4dea4d837d4f08"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "3dbde12e9c1e4ebb90d82ff2cae2d400",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 885.6,
+        "Y": 249.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "a49510babedd41708228d824aa291ada",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 876.4,
+        "Y": 326.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "32383f63398c4dfd9be477cd13fd3cfa",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 682.51359666386,
+        "Y": 374.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "3b082b18e6ad4e74ace87e63e9f266fc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 884.0,
+        "Y": 404.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "4f8ccf1c2fd14d6191fccc73da0ebc1c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 892.4,
+        "Y": 479.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "ab7a930cd3d140bb8b211d89db895c58",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 266.8,
+        "Y": 366.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "GetPhaseMap",
+        "Id": "e0d456e5aa7a477ba6bf87b5207c5a85",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 483.818348212657,
+        "Y": 364.921750494743
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "5fa62901b417437480a81d708146d620",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 894.845586368646,
+        "Y": 559.464635378236
+      }
+    ],
+    "Annotations": [],
+    "X": -154.05911182203,
+    "Y": 6.09569755382998,
+    "Zoom": 0.691676179653714
+  }
+}

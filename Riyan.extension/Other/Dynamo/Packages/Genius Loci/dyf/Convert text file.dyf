@@ -1,0 +1,230 @@
+{
+  "Uuid": "408e3cbf-f7fa-41f4-8d1e-8a253a15bbdc",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Export",
+  "Description": "Convert exported schedules from format Unicode to ANSI (or utf_8)",
+  "Name": "Convert text file",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import sys\nsys.path.append(r'C:\\Program Files (x86)\\IronPython 2.7\\Lib')\nimport codecs\n\nfilepath = IN[0]\n\nwith codecs.open(filepath, 'r', encoding = 'UTF-16') as file:\n\tlines = file.read()  \n\n#write output file\nwith codecs.open(filepath, 'w', encoding = IN[1]) as file:\n\tfile.write(lines)\n\n#Affectez la sortie à la variable OUT.\nOUT = \"Success\"",
+      "VariableInputPorts": true,
+      "Id": "5234a697bd8f4151a4a9c49abfa9a5bb",
+      "Inputs": [
+        {
+          "Id": "292568389c1d43cc8e48781811054402",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "88c6138e31b94448a23711faa4345495",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "baed113a88d9465aa2b93f958abe4e41",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Filepath",
+        "TypeName": "string",
+        "TypeRank": 0,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "0e63dd4643724b7d88894a500293bf07",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "339be6f5af624b2580e0ba99ac4f1d02",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Format",
+        "TypeName": "string",
+        "TypeRank": 0,
+        "DefaultValue": "\"latin-1\"",
+        "Description": ""
+      },
+      "Id": "d6efe96ee5014135a81ca0e31f7b9b8d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c695f5f5873b43c9b9f6bf41c813e037",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Result",
+      "Id": "4b44b21cda634694a83ba26abbf1435e",
+      "Inputs": [
+        {
+          "Id": "0a4565f505274f538c354d9187ba24e4",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "baed113a88d9465aa2b93f958abe4e41",
+      "End": "0a4565f505274f538c354d9187ba24e4",
+      "Id": "395ada7b26644e2d9c9965919cc5dd6e"
+    },
+    {
+      "Start": "339be6f5af624b2580e0ba99ac4f1d02",
+      "End": "292568389c1d43cc8e48781811054402",
+      "Id": "be7f797cdfa345ff9e1e162c47b0bc4f"
+    },
+    {
+      "Start": "c695f5f5873b43c9b9f6bf41c813e037",
+      "End": "88c6138e31b94448a23711faa4345495",
+      "Id": "d57b25ae6fec40c29835d3029232c945"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "5234a697bd8f4151a4a9c49abfa9a5bb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 682.62868202232,
+        "Y": 206.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "0e63dd4643724b7d88894a500293bf07",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 403.2,
+        "Y": 136.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "d6efe96ee5014135a81ca0e31f7b9b8d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 301.6,
+        "Y": 268.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "4b44b21cda634694a83ba26abbf1435e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 896.8,
+        "Y": 220.8
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "69d789750ed4441bb23cfa18b1287cd7",
+        "Title": "https://docs.python.org/2/library/codecs.html#standard-encodings",
+        "Nodes": [],
+        "Left": 670.795426893123,
+        "Top": 124.467384225903,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": -53.1132730260597,
+    "Y": 96.7900746771128,
+    "Zoom": 0.551520311464878
+  }
+}

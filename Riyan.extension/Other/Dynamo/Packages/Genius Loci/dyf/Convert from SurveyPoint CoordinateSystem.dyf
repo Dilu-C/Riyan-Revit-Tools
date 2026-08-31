@@ -1,0 +1,194 @@
+{
+  "Uuid": "10f202e9-2198-43dc-8632-242ca8b2c7d6",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Geometry",
+  "Description": "Convert from Survey Coordinate to Internal Origin Coordinate.",
+  "Name": "Convert from SurveyPoint CoordinateSystem",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "CoordinateSystem": {
+        "Key": "Autodesk.DesignScript.Geometry.CoordinateSystem",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Coordinates": {
+        "Key": "Revit.Elements.Coordinates",
+        "Value": "RevitNodes.dll"
+      },
+      "Autodesk.DesignScript.Geometry": {
+        "Key": "Autodesk.DesignScript.Geometry.Geometry",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Autodesk.DesignScript.Geometry.Geometry": {
+        "Key": "Autodesk.DesignScript.Geometry.Geometry",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Autodesk.DesignScript.Vector": {
+        "Key": "Autodesk.DesignScript.Geometry.Vector",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Autodesk.DesignScript.Geometry.Vector": {
+        "Key": "Autodesk.DesignScript.Geometry.Vector",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Autodesk.DesignScript.Geometry.Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "point",
+        "TypeName": "Autodesk.DesignScript.Geometry.Point",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Point in Survey Coordinate System"
+      },
+      "Id": "c389959264304ef5be9d840eaf908844",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "229d9c5d3cbe4e4eac2fa273f0f0dffe",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "//Point in Internal Origin Coordinate System\r\nPoint",
+      "Id": "c3080e04615e475a9b881c5fac9ef6d4",
+      "Inputs": [
+        {
+          "Id": "42459b2182e04fbea8338ca07bb3eeb0",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\npts = [pt.ToXyz(True) for pt in IN[0]] if isinstance(IN[0],list) else [IN[0].ToXyz(True)]\n\n#Translate point from Shared coordinates to Internal\ntranslatedPoint = [doc.ActiveProjectLocation.GetTotalTransform().OfPoint(pt).ToPoint() for pt in pts]\n\nif isinstance(IN[0], list): OUT = translatedPoint\nelse: OUT = translatedPoint[0]",
+      "VariableInputPorts": true,
+      "Id": "87e02216b5044dcd858bbd672b7a94ef",
+      "Inputs": [
+        {
+          "Id": "4745bf4d04b54630b2a314ed0be4e2f8",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "87a429c0c96e467a8aac905dddb7d25f",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "229d9c5d3cbe4e4eac2fa273f0f0dffe",
+      "End": "4745bf4d04b54630b2a314ed0be4e2f8",
+      "Id": "33083b5ae44042f88d80ce6d188ae0c4"
+    },
+    {
+      "Start": "87a429c0c96e467a8aac905dddb7d25f",
+      "End": "42459b2182e04fbea8338ca07bb3eeb0",
+      "Id": "a12b2799728e43c2bcff8d9efa5a4f9d"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "c389959264304ef5be9d840eaf908844",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -74.7405453872209,
+        "Y": 273.676885801779
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "c3080e04615e475a9b881c5fac9ef6d4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 684.459454612779,
+        "Y": 273.676885801779
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "87e02216b5044dcd858bbd672b7a94ef",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 460.059454612779,
+        "Y": 273.676885801779
+      }
+    ],
+    "Annotations": [],
+    "X": 142.141127168217,
+    "Y": 196.052384310401,
+    "Zoom": 0.487258594699403
+  }
+}

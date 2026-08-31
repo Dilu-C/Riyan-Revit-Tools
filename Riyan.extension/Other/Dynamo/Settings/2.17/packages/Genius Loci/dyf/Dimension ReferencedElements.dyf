@@ -1,0 +1,61 @@
+<Workspace Version="1.3.4.6666" X="-252.8" Y="1.60000000000002" zoom="1" ScaleFactor="1" Name="Dimension ReferencedElements" Description="Returns all elements that are referenced by a dimension. Works also for dimension of linked elements." ID="6711bf6f-97f1-413e-8ff7-8126aaca2f72" Category="GeniusLoci.Dimension">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="a56e9323-9990-40cf-9af7-bcb8ba30b999" type="PythonNodeModels.PythonNode" nickname="Python Script" x="415.2" y="296.8" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="2">
+      <PortInfo index="0" default="False" />
+      <PortInfo index="1" default="False" />
+      <Script>#Inspired by a script of Andreas Dieckmann
+#Added the ability to retrieve linked Referenced Elements
+
+import clr
+clr.AddReference('RevitAPI')
+from Autodesk.Revit.DB import *
+
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+
+dimensions = UnwrapElement(IN[0])
+inputdoc = UnwrapElement(IN[1]) if isinstance(IN[1],list) else [UnwrapElement(IN[1])][0]
+
+if inputdoc == None:
+	doc = DocumentManager.Instance.CurrentDBDocument
+elif inputdoc.GetType().ToString() == "Autodesk.Revit.DB.Document":
+	doc = inputdoc
+elif inputdoc.GetType().ToString() == "Autodesk.Revit.DB.RevitLinkInstance":
+	doc = inputdoc.GetLinkDocument()
+
+def GetDimensionReferences(item):
+	if hasattr(item, "References"):
+		if inputdoc != None:	
+			return [doc.GetElement(x.LinkedElementId) for x in item.References]
+		else:
+			return [item.Document.GetElement(x.ElementId) for x in item.References]
+	else: return None
+	
+if isinstance(IN[0], list): OUT = [GetDimensionReferences(x) for x in dimensions]
+else: OUT = GetDimensionReferences(dimensions)</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="416d48b5-a009-43aa-8b1e-bbd92a92760d" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="270.4" y="287.2" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="dimension" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="680c5cd7-1e0a-4c54-9637-c7445ea7bba3" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-43.9999999999999" y="362.4" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="// Use only if you want to query a linked model&#xD;&#xA;docOrRevitLinkInstance : var[]..[] = null" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="97c2d6cf-92ca-4a90-9c2e-02aeb09afe2c" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="596" y="296" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Element" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="a56e9323-9990-40cf-9af7-bcb8ba30b999" start_index="0" end="97c2d6cf-92ca-4a90-9c2e-02aeb09afe2c" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="416d48b5-a009-43aa-8b1e-bbd92a92760d" start_index="0" end="a56e9323-9990-40cf-9af7-bcb8ba30b999" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="680c5cd7-1e0a-4c54-9637-c7445ea7bba3" start_index="0" end="a56e9323-9990-40cf-9af7-bcb8ba30b999" end_index="1" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Aperçu en arrière-plan" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

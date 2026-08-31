@@ -1,0 +1,165 @@
+{
+  "Uuid": "b1c69d00-88c5-456d-9d89-724cc7d391ba",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Tag",
+  "Description": "Retrieves the position of the head of tag. Only works in Revit 2017 and later.",
+  "Name": "Tag GetLocation",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\ntags = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\nif isinstance(IN[0], list): OUT = [tag.TagHeadPosition.ToPoint() for tag in tags]\nelse: OUT = [tag.TagHeadPosition.ToPoint() for tag in tags][0]",
+      "VariableInputPorts": true,
+      "Id": "d496837d0c884a49893040b8aeeb22e4",
+      "Inputs": [
+        {
+          "Id": "894c291467514e9196bcc5d483186bba",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "553d332506b04d3186c681e96fb7ab21",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "tag",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "85d6b22e338e48cbb232adf954f6ef10",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3e5651a3b80a4c33832e304b3cec3bdb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "point",
+      "Id": "b55607b0645e476b9a7b1ec5a37982ed",
+      "Inputs": [
+        {
+          "Id": "9771a906f4a845ada1537589f8257163",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "553d332506b04d3186c681e96fb7ab21",
+      "End": "9771a906f4a845ada1537589f8257163",
+      "Id": "0c75d20e518649ef93a26cdf2f25fbac"
+    },
+    {
+      "Start": "3e5651a3b80a4c33832e304b3cec3bdb",
+      "End": "894c291467514e9196bcc5d483186bba",
+      "Id": "112d4111375545cfa6441eee397a8fb8"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "d496837d0c884a49893040b8aeeb22e4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 392.863197977074,
+        "Y": 313.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "85d6b22e338e48cbb232adf954f6ef10",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 233.263197977074,
+        "Y": 313.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "b55607b0645e476b9a7b1ec5a37982ed",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 617.263197977074,
+        "Y": 313.4
+      }
+    ],
+    "Annotations": [],
+    "X": -138.278739245567,
+    "Y": -30.7383575660836,
+    "Zoom": 1.02988563947099
+  }
+}

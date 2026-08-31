@@ -1,0 +1,220 @@
+{
+  "Uuid": "655edf8d-b9ac-42b0-a60f-c074ef90ff18",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Select",
+  "Description": "Select Elements by Category and Level.\r\nWith a document input, use the Collector of Levels node to get the level input.\r\nThis API filter doesn't work with MEP and Structural Framing elements.",
+  "Name": "SelectByCategoryAndLevel",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "DSCore.List": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "level",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Collected level in active or linked document"
+      },
+      "Id": "4a037dd1d35c44f2bc5f6cdea18eb042",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d5148bc4e38a43f5955314152cd8086a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "category",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "a962ecc6630e4dfc815858cc0b623da4",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b69d32f2a6684b9cb8f5e4b1c0d3306f",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Element",
+      "Id": "de48ee01c82145729630f57cfbf3acaa",
+      "Inputs": [
+        {
+          "Id": "8e6e86df03d141069384a961d39eb068",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Copyright(c) 2014, Konrad K Sobon\n# Grimshaw Architects, http://grimshaw-architects.com/\n# Archi-lab, http://wwww.archi-lab.net\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nclr.AddReference('RevitNodes')\nimport Revit\nimport System\n\ndef tolist(x):\n    if hasattr(x,'__iter__'): return x\n    else : return [x]\n\nlevelInput = tolist(UnwrapElement(IN[0]))\ncats = tolist(IN[1])\ncatlist = []\n\nfor cat in cats:\n\tif isinstance(cat, Revit.Elements.Category): id=cat.Id\n\telse: id=cat.Id.IntegerValue\n\tbic = System.Enum.ToObject(BuiltInCategory, id)\n\tfor levelIn in levelInput :\n\t\tdoc=levelIn.Document\n\t\tlevelFilter = ElementLevelFilter(levelIn.Id)\n\t\tcatlist.append(FilteredElementCollector(doc).WherePasses(levelFilter).OfCategory(bic).ToElements())\t\t\n\nif not isinstance(IN[0], list) and not isinstance(IN[1], list): OUT = catlist[0]\nelse: OUT = catlist",
+      "VariableInputPorts": true,
+      "Id": "e1ef217200c340648318288b51d7b855",
+      "Inputs": [
+        {
+          "Id": "a0c657a7b64e4bdab6788948c6af8c99",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "4b355c7b0fd74128b9f544f1050c83c8",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a022eb469bbd44e481f7bb0f0b86d544",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "d5148bc4e38a43f5955314152cd8086a",
+      "End": "a0c657a7b64e4bdab6788948c6af8c99",
+      "Id": "48ed7ae70a4a44c3acdfb29f9e733fc4"
+    },
+    {
+      "Start": "b69d32f2a6684b9cb8f5e4b1c0d3306f",
+      "End": "4b355c7b0fd74128b9f544f1050c83c8",
+      "Id": "08d55da268634ec6b44a7bda2f03e3f2"
+    },
+    {
+      "Start": "a022eb469bbd44e481f7bb0f0b86d544",
+      "End": "8e6e86df03d141069384a961d39eb068",
+      "Id": "2fb46443f71f4c0b9b8f133483813b8a"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "4a037dd1d35c44f2bc5f6cdea18eb042",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -215.722099635681,
+        "Y": 224.990561170178
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "a962ecc6630e4dfc815858cc0b623da4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 61.8912888655027,
+        "Y": 317.993046397438
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "de48ee01c82145729630f57cfbf3acaa",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 538.945662067103,
+        "Y": 290.392645621627
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "SelectByCategoryAndLevel",
+        "Id": "e1ef217200c340648318288b51d7b855",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 274.704211222526,
+        "Y": 279.28908702689
+      }
+    ],
+    "Annotations": [],
+    "X": 170.771085445831,
+    "Y": 63.4261193147121,
+    "Zoom": 0.601227966203389
+  }
+}

@@ -1,0 +1,67 @@
+Dynamo log started 2023-09-11 05:40:50Z
+2023-09-11 05:40:50Z : Python template set to default.
+2023-09-11 05:40:50Z : Dynamo -- Build 2.5.0.7460
+2023-09-11 05:40:51Z : Duplicate migration type registered for SunPathDirection
+2023-09-11 05:40:52Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-09-11 05:40:52Z : Exception encountered scanning the package directory at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+2023-09-11 05:40:52Z : notification:Dynamo.Exceptions.LibraryLoadFailedException: Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+   at Dynamo.PackageManager.PackageLoader.CheckPackageNodeLibraryCertificates(String packageDirectoryPath, Package discoveredPkg)
+   at Dynamo.PackageManager.PackageLoader.ScanPackageDirectory(String directory, Boolean checkCertificates):
+ Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit: 
+ "A package called GenerativeDesign found at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit could not be verified to have signed dll files.  A dll file found at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit\bin\GenerativeDesignNodes.dll did not have a signed certificate.  Ignoring it."
+2023-09-11 05:40:52Z : Dynamo.Exceptions.LibraryLoadFailedException:
+2023-09-11 05:40:52Z : Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+2023-09-11 05:40:52Z :    at Dynamo.PackageManager.PackageLoader.CheckPackageNodeLibraryCertificates(String packageDirectoryPath, Package discoveredPkg)
+   at Dynamo.PackageManager.PackageLoader.ScanPackageDirectory(String directory, Boolean checkCertificates)
+2023-09-11 05:40:52Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-09-11 05:40:52Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-09-11 05:40:52Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2021\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2021\en-US;C:\Program Files\Autodesk\Revit 2021;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit
+2023-09-11 05:40:52Z : RENDER : Rendering Tier: 2
+2023-09-11 05:40:52Z : RENDER : Pixel Shader 3 Supported: True
+2023-09-11 05:40:52Z : RENDER : Pixel Shader 4 Supported: False
+2023-09-11 05:40:52Z : RENDER : Software Effect Rendering Supported: True
+2023-09-11 05:40:52Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-09-11 05:40:52Z : RENDER : Rendering Tier: 2
+2023-09-11 05:40:52Z : RENDER : Pixel Shader 3 Supported: True
+2023-09-11 05:40:52Z : RENDER : Pixel Shader 4 Supported: False
+2023-09-11 05:40:52Z : RENDER : Software Effect Rendering Supported: True
+2023-09-11 05:40:52Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-09-11 05:40:52Z : DynamoManipulationExtension (id: 58B0496A-E3F8-43D9-86D2-94823D1D0F98) view extension is added
+2023-09-11 05:40:52Z : LibraryUI (id: 85941358-5525-4FF4-8D61-6CA831F122AB) view extension is added
+2023-09-11 05:40:52Z : NotificationsExtension (id: ef6cd025-514f-44cd-b6b1-69d9f5cce004) view extension is added
+2023-09-11 05:40:52Z : PackageManagerViewExtension (id: 100f5ec3-fde7-4205-80a7-c968b3a5a27b) view extension is added
+2023-09-11 05:40:52Z : Workspace References (id: A6706BF5-11C2-458F-B7C8-B745A77EF7FD) view extension is added
+2023-09-11 05:40:52Z : Welcome to Dynamo!
+2023-09-11 05:40:52Z : 00:00:00.4671055 elapsed for loading Dynamo main window.
+2023-09-11 05:40:53Z : Preparing to load the library resources.
+2023-09-11 05:40:53Z : WPF Render Mode: SoftwareOnly
+2023-09-11 05:41:02Z : Unable to create instance of custom node with id: \"98458ceb-6e1f-49f2-ab12-e054d5034efc"
+2023-09-11 05:41:02Z : Unable to create instance of custom node with id: \"ce86e653-fcd4-4809-b0c0-584a1d34e006"
+2023-09-11 05:41:02Z : Unable to create instance of custom node with id: \"1747bc42-6b08-4141-8861-99eb7bbf23cc"
+2023-09-11 05:41:02Z : Active view is now {3D}
+2023-09-11 05:41:02Z : Extension tab added to the extensions side bar.
+2023-09-11 05:41:09Z : No new tab is added, as the extension is already present in the extensions side bar.
+2023-09-11 05:41:11Z : No new tab is added, as the extension is already present in the extensions side bar.
+2023-09-11 05:41:22Z : No new tab is added, as the extension is already present in the extensions side bar.
+2023-09-11 05:41:27Z : Loading node definition for "Dynamo.CustomNodeInfo" from: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.5\packages\Bakery\dyf\Get Linked RVT Documents.dyf
+2023-09-11 05:41:27Z : Original file 'Get Linked RVT Documents.dyf' gets backed up at 'C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.5\packages\Bakery\dyf\backup\Get Linked RVT Documents.dyf.0.backup'
+2023-09-11 05:41:28Z : No new tab is added, as the extension is already present in the extensions side bar.
+2023-09-11 05:41:40Z : No new tab is added, as the extension is already present in the extensions side bar.
+2023-09-11 05:41:48Z : System.InvalidOperationException:
+2023-09-11 05:41:48Z : There already exists an AlsoKnownAs mapping for Select Rule Type.
+2023-09-11 05:41:48Z : 
+2023-09-11 05:41:48Z : Loading node definition for "Dynamo.CustomNodeInfo" from: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.5\packages\archi-lab.net\dyf\Get All Elements From Linked Model.dyf
+2023-09-11 05:41:48Z : archilab (id: bdac5a46-fa1d-4aee-b34e-00778e30e779) view extension is added
+2023-09-11 05:41:48Z : No new tab is added, as the extension is already present in the extensions side bar.
+2023-09-11 05:41:52Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Copy,duplicate Shaft Openings from Linked file.dyn ...
+2023-09-11 05:41:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Copy,duplicate Shaft Openings from Linked file.dyn
+2023-09-11 05:42:38Z : No new tab is added, as the extension is already present in the extensions side bar.
+2023-09-11 05:42:41Z : Loading node definition for "Dynamo.CustomNodeInfo" from: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.5\packages\spring nodes\dyf\Document.CopyFromLinkInstance.dyf
+2023-09-11 05:42:52Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Copy,duplicate Shaft Openings from Linked file.dyn ...
+2023-09-11 05:42:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Copy,duplicate Shaft Openings from Linked file.dyn
+2023-09-11 05:43:52Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Copy,duplicate Shaft Openings from Linked file.dyn ...
+2023-09-11 05:43:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Copy,duplicate Shaft Openings from Linked file.dyn
+2023-09-11 05:44:14Z : Saving D:\asanka\dynamo\Copy,duplicate columns from Linked file.dyn ...
+2023-09-11 05:45:44Z : Clearing workspace...
+2023-09-11 05:45:44Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is removed
+2023-09-11 05:45:44Z : Goodbye

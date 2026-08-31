@@ -1,0 +1,167 @@
+{
+  "Uuid": "62e8e34d-3a8c-4612-a5b1-719a5cf97602",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Family",
+  "Description": "Gets the familyDocument by family or family instance. (Edits the family in the background)\r\nUse the \"FamilyDocument Close\" node to close the familyDocument. ",
+  "Name": "FamilyDocument Edit",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "FamilyOrFamilyInstance",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "8ae66e3100104c02a8b3ac1583ffcb38",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3ba8a4f75def468c94993fdc76234e32",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "familyDocument",
+      "Id": "4d75f35e6c7d43ba9d49854cd70bad02",
+      "Inputs": [
+        {
+          "Id": "39c3ce50fd9f440581826407699224e0",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Transactions import TransactionManager\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nfamilies = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nfamDoc=[]\n\nTransactionManager.Instance.ForceCloseTransaction()\nfor fam in families:\n\tif isinstance(fam, Autodesk.Revit.DB.FamilyInstance) and fam.Symbol.Family.IsEditable :\n\t\tfamDoc.append(Document.EditFamily(doc,fam.Symbol.Family))\n\telse:\n\t\tif fam.IsEditable :\n\t\t#if fam.IsInPlace == False :\n\t\t\tfamDoc.append(Document.EditFamily(doc,fam))\n\nif isinstance(IN[0], list): OUT = famDoc\nelse: OUT = famDoc[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "d37d4c5b9b0c4af3b5305f6afd635ebd",
+      "Inputs": [
+        {
+          "Id": "bd96e9d415434d14bbf0b875a1e1c56f",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "c817dbc53e5445d39d898c851a09110a",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "3ba8a4f75def468c94993fdc76234e32",
+      "End": "bd96e9d415434d14bbf0b875a1e1c56f",
+      "Id": "5a1f428b9fe34be9ad09c3f25f2d1cbe"
+    },
+    {
+      "Start": "c817dbc53e5445d39d898c851a09110a",
+      "End": "39c3ce50fd9f440581826407699224e0",
+      "Id": "80924068bb504d27a9a1a9afb964c44d"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.0.5650",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "8ae66e3100104c02a8b3ac1583ffcb38",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 125.321065682995,
+        "Y": 274.426703848496
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "4d75f35e6c7d43ba9d49854cd70bad02",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 662.921065682996,
+        "Y": 274.426703848496
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "d37d4c5b9b0c4af3b5305f6afd635ebd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 495.23701654720264,
+        "Y": 272.38684846048852
+      }
+    ],
+    "Annotations": [],
+    "X": -59.4448277417949,
+    "Y": 29.1311402286053,
+    "Zoom": 0.784369328044829
+  }
+}

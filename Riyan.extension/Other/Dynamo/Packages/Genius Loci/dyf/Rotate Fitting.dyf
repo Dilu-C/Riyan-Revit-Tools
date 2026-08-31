@@ -1,0 +1,265 @@
+{
+  "Uuid": "6740d91f-3bd7-43ac-b8b6-f8122895d26c",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.MEP",
+  "Description": "Rotates a fitting, at specified degree, around the axis of the primary MEP system element (pipe, duct, cable tray, conduit...).\r\nBy MEPover on forum.dynamobim.com",
+  "Name": "Rotate Fitting",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#By T_Pover\r\nimport clr\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nimport math\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\n\r\ninn = [UnwrapElement(IN[0]),UnwrapElement(IN[1])]\r\nconns = [0,1]\r\n\r\ndef disconnect(curve):\r\n\tconnectors = curve.ConnectorManager.Connectors\r\n\tfor conn in connectors:\r\n\t\tif conn.IsConnected:\r\n\t\t\tfor c in conn.AllRefs:\r\n\t\t\t\tif conn.IsConnectedTo(c):\r\n\t\t\t\t\tconns[0] = conn\r\n\t\t\t\t\tconns[1] = c\r\n\t\t\t\t\tconn.DisconnectFrom(c)\r\n\r\nangle = (IN[2]*math.pi)/180\r\n\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\nconnectors = inn[0].MEPModel.ConnectorManager.Connectors\r\nfor c in connectors:\r\n\tif c.GetMEPConnectorInfo().IsPrimary:\r\n\t\tprimary = c\r\n\t\tbreak\r\n\tprimary = c\r\n\t\r\nloc = inn[0].Location\r\nductloc = inn[1].Location\r\ncenter = primary.CoordinateSystem.BasisZ\r\ncenterrot = XYZ(center.X,center.Y,center.Z)\r\nline = Autodesk.Revit.DB.Line.CreateUnbound(primary.Origin,center)\r\ndisconnect(inn[1])\r\nductloc.Rotate(line,angle)\r\nloc.Rotate(line,angle)\r\nconns[0].ConnectTo(conns[1])\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT =  IN[0]",
+      "VariableInputPorts": true,
+      "Id": "c9358ebce90841f495d63519cb296f1f",
+      "Inputs": [
+        {
+          "Id": "945acf2897484917a280a7927a182f2f",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "0649ce74cec74d9fb1398e6669acc1f0",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "3b1b408c62cd48e89739d374da761347",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "81898f93b50d4f3cb5d1336adcc954d9",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Fitting",
+      "Id": "be6f77803daf453887f6365591ca6b8b",
+      "Inputs": [
+        {
+          "Id": "e421bd0ee4ea4726b5af3b107c873aa4",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "fitting",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "fceb12125013450db47f4bc474569809",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "a4b20467b5454c5585656a6a914f257b",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ConnectedElement",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Duct, pipe or conduit attached to the fitting\n(not connected to the primary connector)"
+      },
+      "Id": "fec73d1f795a49a7837d1f1922dc6cc6",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b3c244ac57b74f73acb14603d119be12",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Angle",
+        "TypeName": "double",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Degrees"
+      },
+      "Id": "d774828fa0a844e0867693e0851271d0",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f71564d5715a47bfb33c33189b57f295",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "81898f93b50d4f3cb5d1336adcc954d9",
+      "End": "e421bd0ee4ea4726b5af3b107c873aa4",
+      "Id": "edc427224b5045718446bef1b36216da"
+    },
+    {
+      "Start": "a4b20467b5454c5585656a6a914f257b",
+      "End": "945acf2897484917a280a7927a182f2f",
+      "Id": "4a4ee5f67f0a4f53b11239f6c869b80b"
+    },
+    {
+      "Start": "b3c244ac57b74f73acb14603d119be12",
+      "End": "0649ce74cec74d9fb1398e6669acc1f0",
+      "Id": "c4909653c3e74a6da0e02ccfd471aaf4"
+    },
+    {
+      "Start": "f71564d5715a47bfb33c33189b57f295",
+      "End": "3b1b408c62cd48e89739d374da761347",
+      "Id": "84be5918ecbd49b88b1a82528b884d53"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "c9358ebce90841f495d63519cb296f1f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 301.607319208332,
+        "Y": 206.877448071217
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "be6f77803daf453887f6365591ca6b8b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 526.407319208332,
+        "Y": 206.877448071217
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "fceb12125013450db47f4bc474569809",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -215.992680791668,
+        "Y": 140.877448071217
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "fec73d1f795a49a7837d1f1922dc6cc6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -215.992680791668,
+        "Y": 223.877448071217
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "d774828fa0a844e0867693e0851271d0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -215.992680791668,
+        "Y": 333.877448071217
+      }
+    ],
+    "Annotations": [],
+    "X": 277.916941519659,
+    "Y": -8.7618971358383,
+    "Zoom": 0.784369328044827
+  }
+}

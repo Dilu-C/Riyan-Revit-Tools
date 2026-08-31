@@ -1,0 +1,214 @@
+{
+  "Uuid": "36f75099-2653-4739-8425-c1959fd18bcc",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Printing",
+  "Description": "Add directory and .pdf extension to filenames.\r\nBe careful with forbidden characters in filenames  (* . \" / \\ : ;)\r\nFor use with the \"Remove Special Characters from String\" node.",
+  "Name": "FilenameToFilePaths",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "FilePaths",
+      "Id": "5f82f39a1ac14c6aaeee13fdbc873ca6",
+      "Inputs": [
+        {
+          "Id": "00e4435aced148868c43b2e6c31993a6",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "DirectoryPath",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "ae324c4e0057497e818c271533208df2",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9f678059ac9d4205b465f534b53d7afe",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Filenames",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Filenames as list"
+      },
+      "Id": "95a9ca513d5547c1a628070962a4b8fa",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4244e7dcc73242ea9f951796b7f57724",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "Directorypath+\"\\\\\"+Filename+\".pdf\";",
+      "Id": "140306738d9f4991b0012c6bb9c76abe",
+      "Inputs": [
+        {
+          "Id": "478d66c3ae4d43a994a259ec9dd338a2",
+          "Name": "Directorypath",
+          "Description": "Directorypath",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c9d268f2b0a247a0b7263e7a82510c34",
+          "Name": "Filename",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "1e78ed46112d4e0987d31f9b2e8c93f5",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "9f678059ac9d4205b465f534b53d7afe",
+      "End": "478d66c3ae4d43a994a259ec9dd338a2",
+      "Id": "b54c633d147d4554b40e87d81737a8e4"
+    },
+    {
+      "Start": "4244e7dcc73242ea9f951796b7f57724",
+      "End": "c9d268f2b0a247a0b7263e7a82510c34",
+      "Id": "ace4893905a14c8ab72440c7b0fe2a45"
+    },
+    {
+      "Start": "1e78ed46112d4e0987d31f9b2e8c93f5",
+      "End": "00e4435aced148868c43b2e6c31993a6",
+      "Id": "321c82742d9f4a0f866219bea0403e07"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "5f82f39a1ac14c6aaeee13fdbc873ca6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1169.50938652413,
+        "Y": 239.957277906852
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "ae324c4e0057497e818c271533208df2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 440.820707339958,
+        "Y": 220.770221251896
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "95a9ca513d5547c1a628070962a4b8fa",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 420.438378167596,
+        "Y": 307.419009906107
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "140306738d9f4991b0012c6bb9c76abe",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 711.47160267215,
+        "Y": 241.936699700839
+      }
+    ],
+    "Annotations": [],
+    "X": -205.152420356138,
+    "Y": 21.2738930057386,
+    "Zoom": 0.712594832628489
+  }
+}

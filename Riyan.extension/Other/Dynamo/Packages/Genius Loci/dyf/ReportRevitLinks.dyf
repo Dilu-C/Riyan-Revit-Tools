@@ -1,0 +1,351 @@
+{
+  "Uuid": "e8f7a020-3f6f-4329-aacb-d454156eecd4",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Import",
+  "Description": "Inspired by Bimorph.\r\nGenerates a report of all Revit links in the document. \r\nRevit links properties are output to facilitate the Revit link model management.",
+  "Name": "ReportRevitLinks",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#node inspired by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes\n#Modification by Alban de Chasteigner, 2018\n\nimport clr\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\n# Import DocumentManager and TransactionManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\n#\ndef convertToList(listToConvert):\n\tif isinstance(listToConvert, list):\n\t\treturn listToConvert\n\telse:\n\t\treturn [listToConvert]\n\ndef rvtAuditReporter(doc):\n\trvtLinkCollector = FilteredElementCollector(doc).OfClass(RevitLinkInstance)\n\trvtLinks = rvtLinkCollector.ToElements()\n\t\n\tRVTLinkList = []\n\tRVTLinkTypeList = []\n\treport = []\n\tfor rvt in rvtLinks:\n\t\tname = rvt.get_Parameter(BuiltInParameter.RVT_LINK_INSTANCE_NAME).AsString()\n\t\tlinkname = Element.Name.GetValue(rvt)\n\t\tlinkPinned = rvt.Pinned\n\t\tworkSetId = rvt.WorksetId\n\t\tworksetNames = None\n\t\twSetsInDoc = FilteredWorksetCollector( doc )\n\t\tfor w in wSetsInDoc:\n\t\t\tif w.Id == workSetId:\n\t\t\t\tworksetNames = \"Workset : \" + w.Name\n\t\t\n\t\ttry:\n\t\t\trvtType = doc.GetElement( rvt.GetTypeId() )\n\t\t\trvtExternalRef = rvtType.GetExternalFileReference()\n\t\t\tpath = ModelPathUtils.ConvertModelPathToUserVisiblePath( rvtExternalRef.GetAbsolutePath() )\n\t\t\n\t\texcept:\n\t\t\tpath = \"Path : N/A\"\n\t\t\n\t\trvtType = doc.GetElement( rvt.GetTypeId() )\n\t\texRef = rvtType.GetExternalFileReference()\n\t\tlinkStatus = exRef.GetLinkedFileStatus()\n\t\t\n\t\tRVTLinkList.Add( rvt)\n\t\tRVTLinkTypeList.Add(rvtType)\t\t\n\t\treport.Add( [rvt, \"Assigned Name : \"+name,linkname,  \"Status : \"+ str(linkStatus),\"Pinned : \" + str(linkPinned), worksetNames, path] )\n\t\t\t\n\treturn report, RVTLinkList,RVTLinkTypeList\n\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\n\nprocessDocument = None\nif IN[0] == \"\" or IN[0] == []:\n\tdoc = DocumentManager.Instance.CurrentDBDocument\n\tprocessDocument = rvtAuditReporter(doc)\n\treport = processDocument[0]\n\tRVTLinkList = processDocument[1]\n\tRVTLinkTypeList=processDocument[2]\n\tif report == []:\n\t\tOUT = [\"No Linked Revit files found\"], [], []\n\telse:\n\t\tOUT = report, RVTLinkList,  RVTLinkTypeList\n\t\t\nelse:\n\treport = []\n\tRVTLinkList = []\n\tRVTLinkTypeList = []\n\tfilePath = convertToList(IN[0])\n\tfor path in filePath:\n\t\tdoc = app.OpenDocumentFile(FilePath( str(path) ), OpenOptions())\n\t\tprocessDocument = rvtAuditReporter(doc) \n\t\treport.Add(processDocument[0])\n\t\tRVTLinkList.Add(processDocument[1])\n\t\tRVTLinkTypeList.Add(processDocument[2])\n\n\tif report == []:\n\t\tOUT = [\"No Linked Revit files found\"], [], []\n\telse:\n\t\tOUT = report[0], [[]] if RVTLinkList == [] else RVTLinkList[0], [[]] if RVTLinkTypeList == [] else RVTLinkTypeList[0]",
+      "VariableInputPorts": true,
+      "Id": "229feaefc98244b99f3802e077cb802d",
+      "Inputs": [
+        {
+          "Id": "d2e173e364234b0a930f54254879d52d",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "cb8b416887c54dfca9290c8d44855169",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "OUT[0];\nOUT[1];\nOUT[2];",
+      "Id": "54d14d0fabf649bc9faaaa9efb73a87f",
+      "Inputs": [
+        {
+          "Id": "cafb5d3333d641c89c1debbdaa6b9297",
+          "Name": "OUT",
+          "Description": "OUT",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "79b113afc8fd4284998943f9d7cc7c80",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "2a2a59dbdc214d4fafac0f90f164dfbb",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "021d28c81c5e478da30ccb80ad26edec",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "filePath",
+        "TypeName": "string",
+        "TypeRank": 0,
+        "DefaultValue": "\"\"",
+        "Description": "To report the current document leave unconnected. To report an external Revit document\ninput a File Path and the file will be audited silently (without needing to open the file)"
+      },
+      "Id": "5bbdbc96948b4447b0fd9f6269a3069c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ef91901636c643ea95cc4a09b31b94f7",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "refresh",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "true",
+        "Description": "To refresh, switch a bool input to its opposing state"
+      },
+      "Id": "c29dd21a74cc4783b35bf83ae20a44c1",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "1ab2ad8a295c40b7982a0f208207bd43",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Report",
+      "Id": "62bfcede8fcb4834998ac2a6cff6bb5e",
+      "Inputs": [
+        {
+          "Id": "b6c35654db0c4393b17ecff523c7a9d9",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "RevitLinkInstance",
+      "Id": "da223c79ca8045e3a79d3881a30c993a",
+      "Inputs": [
+        {
+          "Id": "604c73c09930415fa5923b5840c9ef95",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "RevitLinkType",
+      "Id": "e1fd915b78044b5f9e6bc92e485d497e",
+      "Inputs": [
+        {
+          "Id": "4b912acbd59847e3ad576b33a6264938",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "cb8b416887c54dfca9290c8d44855169",
+      "End": "cafb5d3333d641c89c1debbdaa6b9297",
+      "Id": "0d0afd192f3f4345a5bd10687d03014b"
+    },
+    {
+      "Start": "79b113afc8fd4284998943f9d7cc7c80",
+      "End": "b6c35654db0c4393b17ecff523c7a9d9",
+      "Id": "b50f6e93f5604b629fbaff4b2daa6713"
+    },
+    {
+      "Start": "2a2a59dbdc214d4fafac0f90f164dfbb",
+      "End": "604c73c09930415fa5923b5840c9ef95",
+      "Id": "e21b3519e8f541a6828edf4bebae227a"
+    },
+    {
+      "Start": "021d28c81c5e478da30ccb80ad26edec",
+      "End": "4b912acbd59847e3ad576b33a6264938",
+      "Id": "a89c17149eee462cab148617db7e5303"
+    },
+    {
+      "Start": "ef91901636c643ea95cc4a09b31b94f7",
+      "End": "d2e173e364234b0a930f54254879d52d",
+      "Id": "0af7bded07a64a749536df261fa0d0d8"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "229feaefc98244b99f3802e077cb802d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1122.27254763371,
+        "Y": 362.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "54d14d0fabf649bc9faaaa9efb73a87f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1294.80399125231,
+        "Y": 370.183548290008
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "5bbdbc96948b4447b0fd9f6269a3069c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 301.299108413406,
+        "Y": 312.072315836986
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "c29dd21a74cc4783b35bf83ae20a44c1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 487.099589526775,
+        "Y": 467.056533928475
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "62bfcede8fcb4834998ac2a6cff6bb5e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1468.13862690289,
+        "Y": 312.072315836986
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "da223c79ca8045e3a79d3881a30c993a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1472.17538714144,
+        "Y": 385.576245260453
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "e1fd915b78044b5f9e6bc92e485d497e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1469.18324598838,
+        "Y": 458.318987805229
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "88a9fa898cdf47f2867572e9a568f4f6",
+        "Title": "Inspired by Bimorph",
+        "Nodes": [],
+        "Left": 1142.38953007091,
+        "Top": 254.37955321957,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": -180.150929452169,
+    "Y": 84.7236513383147,
+    "Zoom": 0.642869557405948
+  }
+}

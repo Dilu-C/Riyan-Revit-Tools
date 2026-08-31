@@ -1,0 +1,290 @@
+{
+  "Uuid": "bee2d6eb-0fe2-4761-99a8-33ef35b8be26",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Inserts a new legend component by duplicating an existing in the given legend view.\r\nPlease note : At least one legend component must be placed in the legend view.",
+  "Name": "Create Legend Component",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Elements.Views.View3D": {
+        "Key": "Revit.Elements.Views.View3D",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Autodesk.DesignScript.Geometry.Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Revit.Elements.Views.View": {
+        "Key": "Revit.Elements.Views.View",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Elements.LegendView": {
+        "Key": "Prorubim.Common.Revit.Elements.LegendView",
+        "Value": "ProrubimCommonKit.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Legend Component",
+      "Id": "8b13d9f8c09249008ad9def366ff24bc",
+      "Inputs": [
+        {
+          "Id": "4a7a6ad28a714b3cb2f6e3c72327aca7",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Legend view"
+      },
+      "Id": "464e319f292c4e70b3404967125a2f52",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "013c761baba9486da533f01bd12ee960",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "familyType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "675d429c6ef14dd292dde7722c926433",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "eb30d984292d47b6b5eb40ee235362c7",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "location",
+        "TypeName": "Autodesk.DesignScript.Geometry.Point",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Point where the component is to be placed"
+      },
+      "Id": "0d99ca4657644c4a8603dcfe75c432ff",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c4b6b29a1aa54252931c49b4110c2392",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Idea by Oliwer Kulpa : https://thebuildingcoder.typepad.com/blog/2010/05/duplicate-legend-component.html\nimport clr\n# Import RevitAPI Classes\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\n# Import DocumentManager and TransactionManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nview = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nview=view[0]\nfamily_types = UnwrapElement(IN[1]) if isinstance(IN[1],list) else [UnwrapElement(IN[1])]\ntranslations = IN[2] if isinstance(IN[2],list) else [IN[2]]\noutput=[]\n\nexisting_legend_component = FilteredElementCollector(doc, view.Id).OfCategory(BuiltInCategory.OST_LegendComponents).FirstElement()\n# Get the location of the existing_legend_component\nbox = existing_legend_component.BoundingBox[view]\nmid = (box.Min+box.Max)/2\n\n# Start Transaction\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor translation,family_type in zip(translations,family_types):\n\t# Copy the existing legend component at the correct location\n\tnew_legend_component = ElementTransformUtils.CopyElement(doc, existing_legend_component.Id,translation.ToRevitType()-mid)\n\t# Change the family type of the new element\n\tdoc.GetElement(new_legend_component[0]).get_Parameter(BuiltInParameter.LEGEND_COMPONENT).Set(family_type.Id)\n\toutput.append(doc.GetElement(new_legend_component[0]))\ndoc.Regenerate()\n# End Transaction\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT=output",
+      "VariableInputPorts": true,
+      "Id": "37e3c6ec082e430b91226ec2f65b3687",
+      "Inputs": [
+        {
+          "Id": "f9a00936b9794b16bb538a18f215808e",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "25d694adc8de447c926cc4fe93b5b5a9",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a21f536452de4c8c80e71da80a2141fb",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4038409a208c48b686c7444a297f5cf1",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "013c761baba9486da533f01bd12ee960",
+      "End": "f9a00936b9794b16bb538a18f215808e",
+      "Id": "733ae7f5ab02429b98cfd5fd82dbd8d7"
+    },
+    {
+      "Start": "eb30d984292d47b6b5eb40ee235362c7",
+      "End": "25d694adc8de447c926cc4fe93b5b5a9",
+      "Id": "6f196a501319463db9540890c044cbab"
+    },
+    {
+      "Start": "c4b6b29a1aa54252931c49b4110c2392",
+      "End": "a21f536452de4c8c80e71da80a2141fb",
+      "Id": "5c44845e0a8f43f4b1fb72290a8c6683"
+    },
+    {
+      "Start": "4038409a208c48b686c7444a297f5cf1",
+      "End": "4a7a6ad28a714b3cb2f6e3c72327aca7",
+      "Id": "0dc13f5ce82a40c69a43d30ad141e91a"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "8b13d9f8c09249008ad9def366ff24bc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1111.67531942083,
+        "Y": 17.3744447670765
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "464e319f292c4e70b3404967125a2f52",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 327.67531942083,
+        "Y": -46.6255552329235
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "675d429c6ef14dd292dde7722c926433",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 327.67531942083,
+        "Y": 46.3744447670765
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "0d99ca4657644c4a8603dcfe75c432ff",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 245.52896752587,
+        "Y": 123.931593638061
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "37e3c6ec082e430b91226ec2f65b3687",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 886.87531942083,
+        "Y": 17.3744447670765
+      }
+    ],
+    "Annotations": [],
+    "X": -46.2982001923039,
+    "Y": 211.877251916764,
+    "Zoom": 0.496674521251666
+  }
+}

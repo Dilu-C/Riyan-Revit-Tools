@@ -1,0 +1,301 @@
+{
+  "Uuid": "be1557ed-30f7-40a4-9c13-e1c0b9f5e0b0",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Utilities",
+  "Description": "Enumerate the UnitTypes and the UnitGroups and returns their DisplayUnitTypes and UnitSymbols associated.",
+  "Name": "Display Units",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "DSCore.List": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];\nx[2];\nx[3];",
+      "Id": "f5881e48593a4fd3a80ce197a2fab506",
+      "Inputs": [
+        {
+          "Id": "c5349240a1a94f25b644fea84c5f1bab",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2a1ec462ee0d448eab4a2eb2f76ec9fd",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "62220b7b7f744fbf80b03617dc149635",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "9c1434b703464ad4a8ebb1e6f8b63b66",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "f0127d503770434a823d89f5dd0cc3ae",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nunits,groups,dispunits,validUnits,dispsyms=[],[],[],[],[]\n\nif version < 2021:\n\tunits = UnitUtils.GetValidUnitTypes()\n\tfor unit in units :\n\t\tgroup=UnitUtils.GetUnitGroup(unit)\n\t\tgroups.append(group)\n\t\tdispunit = UnitUtils.GetValidDisplayUnits(unit)\n\t\tdispunits.append(dispunit)\n\n\tfor dispuni in dispunits :\n\t\tunitSymbTy,dispsyms=[],[]\n\t\tfor dispun in dispuni:\n\t\t\tunitSymbType=FormatOptions.GetValidUnitSymbols(dispun)\n\t\t\tunitSymbTy.append(unitSymbType)\n\t\tvalidUnits.append(unitSymbTy)\n\t\tfor unitsymbol in validUnits:\n\t\t\tsymbs=[]\n\t\t\tfor unitsymb in unitsymbol :\n\t\t\t\tfor unitsy in unitsymb :\n\t\t\t\t\tif unitsy == UnitSymbolType.UST_NONE:\n\t\t\t\t\t\tdispsym = None\n\t\t\t\t\telse:\n\t\t\t\t\t\tdispsym = LabelUtils.GetLabelFor(unitsy)\n\t\t\t\t\tsymbs.append(dispsym)\n\t\t\tdispsyms.append(filter(None,symbs))\nelse:\n\tif version >= 2023:\n\t\tidentifiers = UnitUtils.GetAllMeasurableSpecs()\n\telse:\n\t\tidentifiers = UnitUtils.GetAllSpecs()\n\tfor id in identifiers:\n\t\tunits.append(UnitUtils.GetTypeCatalogStringForSpec(id))\n\t\tif version >= 2022:\n\t\t\tgroups.append(LabelUtils.GetLabelForDiscipline(UnitUtils.GetDiscipline(id)))\n\t\telse:\n\t\t\tgroups.append(UnitUtils.GetUnitGroup(id))\n\t\tvalidUnits.append(UnitUtils.GetValidUnits(id))\n\tfor vali in validUnits :\n\t\tdispunit,symbs=[],[]\n\t\tfor val in vali:\n\t\t\tdispunit.append(UnitUtils.GetTypeCatalogStringForUnit(val))\n\t\t\tunitSymbType=FormatOptions.GetValidSymbols(val)\n\t\t\tfor unitSymb in unitSymbType:\n\t\t\t\ttry:dispSym = LabelUtils.GetLabelForSymbol(unitSymb)\n\t\t\t\texcept:dispSym = None\n\t\t\t\tsymbs.append(dispSym)\t\n\t\tdispunits.append(dispunit)\n\t\tdispsyms.append(filter(None,symbs))\n\nOUT = units, groups,dispunits,dispsyms",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "8c48d8dc78d746fbb54e30e163efbf37",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6d12fbad0f8c478f9c21f44bcf1f3a1b",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "UnitType",
+      "Id": "ca1bf111a0724ca1941e30aa158fade6",
+      "Inputs": [
+        {
+          "Id": "9d714d22c72841bcae8bde1933d75f5b",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "UnitGroup",
+      "Id": "d8e360a4c26f4033abbefa70cf916c90",
+      "Inputs": [
+        {
+          "Id": "b47d1f983e8a475e97700cf8a00ea64d",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "DisplayUnitType",
+      "Id": "969960f8e6794db59a42f7853bddf318",
+      "Inputs": [
+        {
+          "Id": "c30fc1d6d82c491ba62c3754af9bb15a",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "UnitSymbol",
+      "Id": "f09d7730e604489c9ebfeeb0e6b19a48",
+      "Inputs": [
+        {
+          "Id": "b4b6b033f1cb4ead8ae32a7de71060e9",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "2a1ec462ee0d448eab4a2eb2f76ec9fd",
+      "End": "9d714d22c72841bcae8bde1933d75f5b",
+      "Id": "e85805fd90dc462cb06d4728065a0c41"
+    },
+    {
+      "Start": "62220b7b7f744fbf80b03617dc149635",
+      "End": "b47d1f983e8a475e97700cf8a00ea64d",
+      "Id": "b7ea46be7be64bd28b5e108660675609"
+    },
+    {
+      "Start": "9c1434b703464ad4a8ebb1e6f8b63b66",
+      "End": "c30fc1d6d82c491ba62c3754af9bb15a",
+      "Id": "3e3c27dc15934107847f327db413d3e8"
+    },
+    {
+      "Start": "f0127d503770434a823d89f5dd0cc3ae",
+      "End": "b4b6b033f1cb4ead8ae32a7de71060e9",
+      "Id": "1ff52ede1a084c4781274904cb19f222"
+    },
+    {
+      "Start": "6d12fbad0f8c478f9c21f44bcf1f3a1b",
+      "End": "c5349240a1a94f25b644fea84c5f1bab",
+      "Id": "3c7be42e7f7f42168f7995263b9e2bfd"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.0.5650",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "Id": "f5881e48593a4fd3a80ce197a2fab506",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Code Block",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 727.710705417363,
+        "Y": 1013.40705329417
+      },
+      {
+        "Id": "8c48d8dc78d746fbb54e30e163efbf37",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "display units",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 538.110705417363,
+        "Y": 1009.19371996084
+      },
+      {
+        "Id": "ca1bf111a0724ca1941e30aa158fade6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 955.115052189892,
+        "Y": 934.53733054765
+      },
+      {
+        "Id": "d8e360a4c26f4033abbefa70cf916c90",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 956.351785112162,
+        "Y": 1005.12894583222
+      },
+      {
+        "Id": "969960f8e6794db59a42f7853bddf318",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 950.168120500782,
+        "Y": 1077.95729403907
+      },
+      {
+        "Id": "f09d7730e604489c9ebfeeb0e6b19a48",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Name": "Output",
+        "ShowGeometry": true,
+        "Excluded": false,
+        "X": 956.351785112162,
+        "Y": 1172.12894583222
+      }
+    ],
+    "Annotations": [],
+    "X": -282.510672966889,
+    "Y": -509.541408027483,
+    "Zoom": 0.793979681425322
+  }
+}

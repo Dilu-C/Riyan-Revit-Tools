@@ -1,0 +1,224 @@
+{
+  "Uuid": "acfa4cf3-fa53-4f51-a03b-ad659b7e304e",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Graphics",
+  "Description": "Retrieves the color of the element with several methods (view-specific, view filter and material overrides).",
+  "Name": "Get Element Color Overrides",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": ""
+      },
+      "Id": "806c2c7ce6514d458e6db7ae81afb30d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "a6b1ac23653748bb9b95d0a1780bbee7",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Color",
+      "Id": "1088d41a432846578be41835cea5b7f9",
+      "Inputs": [
+        {
+          "Id": "0c8495e81a2a442fa524cfffcd42c1b5",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "e99fa0eb46764701950d83c5df8f9c99",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "56d7990b43b247bc9da713c2bb262d1a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Based on a Lukas Mikkelsen's script\nimport clr\nclr.AddReference('DSCoreNodes')\nimport DSCore\nfrom DSCore import Color\n\n#Import ToDSType(bool) extension method\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.Elements)\n\n# Import DocumentManager and TransactionManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\n\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nviews = UnwrapElement(IN[0])\nelements = UnwrapElement(IN[1]) if isinstance(IN[1],list) else [UnwrapElement(IN[1])]\noutput = []\n\t\nfor element in elements :\n\t#activeview = doc.ActiveView\n\toverride = views.GetElementOverrides(element.Id)\n\tif version < 2019 :\n\t\tprojectionColor = override.ProjectionFillColor\n\telse:\n\t\tprojectionColor = override.SurfaceForegroundPatternColor\n\tcolor = None\n\tif projectionColor.IsValid:\n\t\tcolor = DSCore.Color.ByARGB(255, projectionColor.Red, projectionColor.Green, projectionColor.Blue)\n\telse:\n\t\tfilters = views.GetFilters() # Get all the filter ids\n\t\tfor f in filters:\n\t\t\tfiltercats = [x for x in doc.GetElement(f).GetCategories()]\n\t\t\t# Check if element category corresponds to filter category\n\t\t\tif element.Category.Id in filtercats:\n\t\t\t \tfilterrules = doc.GetElement(f).GetRules()\n\t\t\t \trulepassed = []\n\t\t\t \t# Check if element passes all filter rules\n\t\t\t \tfor frule in filterrules:\n\t\t\t \t\trulepassed.append(frule.ElementPasses(element))\n\t\t\t \tif all(rulepassed):\n\t\t \t\t\toverride2 = views.GetFilterOverrides(f)\n\t\t\t\t\t# BEWARE: THIS PART ASSUMES THAT MULTIPLE FILTERS DOES NOT COLLIDE IN REGARDS TO COLOR DEFINITION OF THE ELEMENT\n\t\t \t\t\tif version < 2019 :\n\t\t\t\t\t\tprojectionColor2 = override2.ProjectionFillColor\n\t\t\t\t\telse:\n\t\t\t\t\t\tprojectionColor2 = override2.SurfaceForegroundPatternColor\n\t\t \t\t\tif override.ProjectionFillColor.IsValid:\n\t\t\t\t\t\tcolor = DSCore.Color.ByARGB(255, projectionColor2.Red, projectionColor2.Green, projectionColor2.Blue)\n\t\t\t \t\telse:\n\t\t\t \t\t\tpass\n\t\t\t \t# Otherwise element does not satisfy the filter\n\t\t\t \telse:\n\t\t\t \t\tpass\n\t\t\t# Otherwise the element category does not correspond to the filter category\n\t\t\telse:\n\t\t\t\tpass\n\t\t# Check if color has been previously defined.\n\t\t# If the color is retrieved based on material, our element may consist of multiple materials.\n\t\tif not color:\n\t\t\tcolor = []\n\t\t\tmats = [doc.GetElement(x) for x in element.GetMaterialIds(False)]\n\t\t\tfor mat in mats:\n\t\t\t\tcolor.append(DSCore.Color.ByARGB(255, mat.Color.Red, mat.Color.Green, mat.Color.Blue))\n\t\telse:\n\t\t\tpass\n\toutput.append(color)\n#Assign your output to the OUT variable\nif isinstance(IN[0], list): OUT = output\nelse: OUT = output[0]",
+      "VariableInputPorts": true,
+      "Id": "9edae239ff124e47a78650e471a16c57",
+      "Inputs": [
+        {
+          "Id": "40ea88b075834481898956638ec72a6e",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "42f3cf2a154b4570bc10bb216aa237fe",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "9239dc00d48746808ddedce799ca8e55",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "a6b1ac23653748bb9b95d0a1780bbee7",
+      "End": "40ea88b075834481898956638ec72a6e",
+      "Id": "883658a9d33745ba954d846593d9f0c8"
+    },
+    {
+      "Start": "56d7990b43b247bc9da713c2bb262d1a",
+      "End": "42f3cf2a154b4570bc10bb216aa237fe",
+      "Id": "dd3aca70b932465eb2e49463628d99a0"
+    },
+    {
+      "Start": "9239dc00d48746808ddedce799ca8e55",
+      "End": "0c8495e81a2a442fa524cfffcd42c1b5",
+      "Id": "3ffaf1787b684b67a22446dfe78b8ae7"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "806c2c7ce6514d458e6db7ae81afb30d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -122.030122068049,
+        "Y": 332.19294433432
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "1088d41a432846578be41835cea5b7f9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 744.369877931951,
+        "Y": 361.19294433432
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "e99fa0eb46764701950d83c5df8f9c99",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -122.030122068049,
+        "Y": 416.19294433432
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Get color override",
+        "Id": "9edae239ff124e47a78650e471a16c57",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 519.969877931951,
+        "Y": 361.19294433432
+      }
+    ],
+    "Annotations": [],
+    "X": 127.994688012253,
+    "Y": 81.1637864325522,
+    "Zoom": 0.538046297688571
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "Uuid": "b9b43409-2fe0-40de-bbdc-e632ebd588be",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Gets all views by type.\r\nFor the View Template Type, the 3D View Templates will not be retrieved.",
+  "Name": "View ByType",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "viewType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "For use with the View Type or the ViewFamilyTypes nodes\nString or ViewFamilyType"
+      },
+      "Id": "848f8c9bddd3418bb4bb97a8484400d6",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6bbf3126b9e24a80ad43c7e516617cc1",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "docOrRevitLinkInstance",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Use only to query a linked model"
+      },
+      "Id": "252db1a1968744739520a000d61fac8f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "51645fbf752040129cb691aa63c92ab6",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Inspired by archilab\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\n\nimport System\n\nviewType = UnwrapElement(IN[0])\ninputdocs = UnwrapElement(IN[1]) if isinstance(IN[1],list) else [UnwrapElement(IN[1])]\n\nfor inputdoc in inputdocs :\n\tif inputdoc == None:\n\t\tdoc = DocumentManager.Instance.CurrentDBDocument\n\telif isinstance (inputdoc, Document) :\n\t\tdoc = inputdoc\n\telif isinstance (inputdoc, RevitLinkInstance) :\n\t\tdoc = inputdoc.GetLinkDocument()\n\telse: doc = DocumentManager.Instance.CurrentDBDocument\n\nviewList=[]\ncolViews = FilteredElementCollector(doc).OfClass(View).ToElements()\n\nfor v in colViews:\n\tif viewType != \"View Template\" and isinstance(viewType,basestring) :\n\t\tvType  = System.Enum.Parse(Autodesk.Revit.DB.ViewType, IN[0])\n\t\t#fType  = (doc.GetElement(v.GetTypeId())).get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString()\n\t\tif v.ViewType == vType and not v.IsTemplate:\n\t\t\tviewList.Add(v)\n\telif isinstance(viewType,ViewFamilyType) :\n\t\tif v.GetTypeId() == viewType.Id:\n\t\t\tviewList.Add(v)\n\telif viewType == \"View Template\":\n\t\tif v.ViewType != ViewType.ThreeD and v.IsTemplate:\n\t\t\tviewList.Add(v)\n\nOUT=viewList",
+      "VariableInputPorts": true,
+      "Id": "05af91339a3d4b3fbe27ebc75d9fadbe",
+      "Inputs": [
+        {
+          "Id": "b497972f15a943aaa83dc973b761a4e3",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c2bb3208dda04a198bedfcea9c3ede2d",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5d12ef85a3b841dba97e85b1c5cf8bb4",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Views",
+      "Id": "0862ba9a0cde4ea2b24c92125fd78810",
+      "Inputs": [
+        {
+          "Id": "80ded760d71a4b01a62f670d550dc1b8",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "6bbf3126b9e24a80ad43c7e516617cc1",
+      "End": "b497972f15a943aaa83dc973b761a4e3",
+      "Id": "b0c489ac125a404ebe164209f4749aa8"
+    },
+    {
+      "Start": "51645fbf752040129cb691aa63c92ab6",
+      "End": "c2bb3208dda04a198bedfcea9c3ede2d",
+      "Id": "7fb35042119e400b94095dc5fabbff8f"
+    },
+    {
+      "Start": "5d12ef85a3b841dba97e85b1c5cf8bb4",
+      "End": "80ded760d71a4b01a62f670d550dc1b8",
+      "Id": "4b561edf06914e218a4834fad2c2d89e"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "848f8c9bddd3418bb4bb97a8484400d6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 97.1771415884019,
+        "Y": 207.808077138726
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "252db1a1968744739520a000d61fac8f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 224.907794667113,
+        "Y": 321.424945565726
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "05af91339a3d4b3fbe27ebc75d9fadbe",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 662.6,
+        "Y": 241.436717062635
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "0862ba9a0cde4ea2b24c92125fd78810",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 887.0,
+        "Y": 241.436717062635
+      }
+    ],
+    "Annotations": [],
+    "X": -21.0783634344014,
+    "Y": 56.6420528605152,
+    "Zoom": 0.658674852158215
+  }
+}

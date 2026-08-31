@@ -1,0 +1,215 @@
+{
+  "Uuid": "915fb823-a77f-4b3e-8759-acbb61cb8ef4",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Works only in Revit 2018.1 and later.\r\nSet the color property into the rendering color of the AppearanceAsset Element.",
+  "Name": "AppearanceAsset Set Color",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2019\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\ndef toList(obj):\n    if hasattr(obj, '__iter__'): return obj\n    else: return [obj]\n    \nassetElems = toList(UnwrapElement(IN[0]))\ncolors = toList(IN[1])\n\ndef ToRevitColor(dynamoColor):\n\treturn Color(dynamoColor.Red, dynamoColor.Green, dynamoColor.Blue)\n\nfor assetElem, color in zip(assetElems, colors):\n\tTransactionManager.Instance.EnsureInTransaction(doc)\n\twith Visual.AppearanceAssetEditScope(assetElem.Document) as editScope:\n\t\teditableAsset = editScope.Start(assetElem.Id)\n\t\tif (editableAsset.FindByName(\"BaseSchema\")).Value == \"GenericSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"generic_diffuse\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"CeramicSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"ceramic_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"ConcreteSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"concrete_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"GlazingSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"glazing_transmittance_map\")\t\t\t\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"MetallicPaintSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"metallicpaint_base_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"MasonryCMUSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"masonrycmu_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"MirrorSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"mirror_tintcolor\")\t\t\t\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PlasticVinylSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"plasticvinyl_color\")\t\t\t\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PrismLayeredSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"layered_diffuse\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PrismMetalSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"metal_f0\")\t\t\t\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PrismOpaqueSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"opaque_albedo\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"SolidGlassSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"solidglass_transmittance_custom_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"WallPaintSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"wallpaint_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PrismTransparentSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"transparent_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"WaterSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"water_tint_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"HardwoodSchema\":\n\t\t\tgenericDiffuseProperty = editableAsset.FindByName(\"hardwood_tint_color\")\n\t\tgenericDiffuseProperty.SetValueAsColor(ToRevitColor(color))\n\t\teditScope.Commit(True)\n\tTransactionManager.Instance.TransactionTaskDone()\n\nOUT = assetElems",
+      "VariableInputPorts": true,
+      "Id": "041ec4300bd840f39e993f5eadc2b545",
+      "Inputs": [
+        {
+          "Id": "23f8891748714f14bcf813a9055000ea",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a79a10a0fe4e4bfd9efafda57a2570f9",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "8f518f88bbc0404a8e6752a290e3fd35",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "appearanceAsset",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "bff44ee4987e429cbe405a461f19c40f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "549a6edfa5b64ef2bc10c520483a9a98",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "AppearanceAsset",
+      "Id": "12316c9d844943eea09fa3a82e652bea",
+      "Inputs": [
+        {
+          "Id": "7f50b46f9f3847109350a636341c7bc4",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "color",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Dynamo Color"
+      },
+      "Id": "24465c098a1a44998fe4736d95983dd8",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d0b3d90145b94a019a058821336e28f7",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "8f518f88bbc0404a8e6752a290e3fd35",
+      "End": "7f50b46f9f3847109350a636341c7bc4",
+      "Id": "09a5e72b68ce4ac79c70b8684c6ffd3c"
+    },
+    {
+      "Start": "549a6edfa5b64ef2bc10c520483a9a98",
+      "End": "23f8891748714f14bcf813a9055000ea",
+      "Id": "c5fade6e55ee47ab8cdd4013502c8d40"
+    },
+    {
+      "Start": "d0b3d90145b94a019a058821336e28f7",
+      "End": "a79a10a0fe4e4bfd9efafda57a2570f9",
+      "Id": "d8cc352cbf314ca6a5b953e81aa6356c"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Set Appearance Color",
+        "Id": "041ec4300bd840f39e993f5eadc2b545",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 395.153888621939,
+        "Y": 238.721981521795
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "bff44ee4987e429cbe405a461f19c40f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 141.553888621939,
+        "Y": 209.721981521795
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "12316c9d844943eea09fa3a82e652bea",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 639.953888621939,
+        "Y": 238.721981521795
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "24465c098a1a44998fe4736d95983dd8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 141.553888621939,
+        "Y": 293.721981521795
+      }
+    ],
+    "Annotations": [],
+    "X": -55.27,
+    "Y": 41.03,
+    "Zoom": 0.8425
+  }
+}

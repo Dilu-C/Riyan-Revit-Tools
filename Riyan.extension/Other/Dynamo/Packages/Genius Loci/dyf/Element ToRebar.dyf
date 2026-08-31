@@ -1,0 +1,112 @@
+{
+  "Uuid": "ddf4abff-d8e4-452d-88cd-a8b9746dba45",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Rebar",
+  "Description": "Returns all Rebar elements hosted by the referenced element. ",
+  "Name": "Element ToRebar",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2023\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n#https://github.com/albandechasteigner/GeniusLociForDynamo\r\n \r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB.Structure import *\r\n\r\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\r\nrebarsInHost=[]\r\n\r\nfor elem in elements:\r\n    rebarsInHost.append(RebarHostData.GetRebarHostData(elem).GetRebarsInHost())\r\n\r\nOUT = rebarsInHost",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "9adc949607d245b1a6c4c5638e94db82",
+      "Inputs": [
+        {
+          "Id": "2ef1ccea18ba4f068c26364531bf4396",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "68eb0b9669e54f03a05b0d0e495ed307",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "a9f0a104663e42469205bbeb130d8d3d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d669003e50db47098e060c820e384bac",
+          "Name": "",
+          "Description": "Données d'entrée",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Rebar",
+      "Id": "557bdc639fc84ee2aaea62076e7472e7",
+      "Inputs": [
+        {
+          "Id": "c2400c2f1b8949f7bdf6a955e8906b8b",
+          "Name": "",
+          "Description": "Données de sortie",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "68eb0b9669e54f03a05b0d0e495ed307",
+      "End": "c2400c2f1b8949f7bdf6a955e8906b8b",
+      "Id": "06bbaf8b2aa24773bcc3ab59d4d5b592",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "d669003e50db47098e060c820e384bac",
+      "End": "2ef1ccea18ba4f068c26364531bf4396",
+      "Id": "bb565bbe1eb14d529e83185fd34eaca7",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": []
+}

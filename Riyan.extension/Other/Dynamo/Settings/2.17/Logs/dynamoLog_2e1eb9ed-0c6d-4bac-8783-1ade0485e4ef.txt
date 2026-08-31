@@ -1,0 +1,81 @@
+Dynamo log started 2023-10-31 10:50:08Z
+2023-10-31 10:50:08Z : Python template set to default.
+2023-10-31 10:50:08Z : Dynamo -- Build 2.17.0.3472
+2023-10-31 10:50:08Z : System.InvalidOperationException:
+2023-10-31 10:50:08Z : There already exists an AlsoKnownAs mapping for DSCoreNodesUI.Logic.If.
+2023-10-31 10:50:08Z : 
+2023-10-31 10:50:08Z : System.InvalidOperationException:
+2023-10-31 10:50:08Z : There already exists an AlsoKnownAs mapping for If.
+2023-10-31 10:50:08Z : 
+2023-10-31 10:50:08Z : Duplicate migration type registered for SunPathDirection
+2023-10-31 10:50:09Z : launch darkly initalized
+2023-10-31 10:50:09Z : LD startup time: 667 
+2023-10-31 10:50:09Z : <<<<<InitDone>>>>>
+2023-10-31 10:50:09Z : feature flag exe starting
+2023-10-31 10:50:09Z : <<<<<Sod>>>>>
+2023-10-31 10:50:09Z : {"graphics-primitive-instancing":false,"testFlag":false,"EasterEggIcon1":false,"EasterEggMessage1":"NA","CER":false,"NodeAutocompleteMachineLearningIsBeta":true,"CER_v2":true}
+2023-10-31 10:50:09Z : <<<<<Eod>>>>>
+2023-10-31 10:50:09Z : EasterEggIcon1 is false FROM MODEL
+2023-10-31 10:50:09Z : EasterEggMessage1 is disabled FROM MODEL
+2023-10-31 10:50:09Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-10-31 10:50:09Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-10-31 10:50:09Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-10-31 10:50:09Z : A package called DynamoPlayerExtension found at C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension includes dll files but none are defined in node libraries in the package manifest.  Ignoring it.
+2023-10-31 10:50:09Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension\dyf' does not exist
+2023-10-31 10:50:09Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is added
+2023-10-31 10:50:09Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign\dyf' does not exist
+2023-10-31 10:50:09Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Extension\dyf' does not exist
+2023-10-31 10:50:09Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is added
+2023-10-31 10:50:09Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Revit\dyf' does not exist
+2023-10-31 10:50:09Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-10-31 10:50:09Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-10-31 10:50:09Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2024\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2024\en-GB;C:\Program Files\Autodesk\Revit 2024;C:\Program Files\Common Files\Autodesk Shared\RealDWG Shared 2024;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit;C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit
+2023-10-31 10:50:22Z : Clearing workspace...
+2023-10-31 10:50:26Z : Active view is now Structure Only
+2023-10-31 10:50:26Z : Active view is now Structure Only
+2023-10-31 10:51:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 10:52:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 10:53:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 10:54:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 10:55:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 10:56:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 10:57:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 10:58:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 10:59:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:00:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:01:09Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:02:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:03:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:04:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:05:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:06:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:07:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:08:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:09:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:10:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:11:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:12:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:13:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:14:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:15:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:16:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:17:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:18:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:19:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:20:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:21:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:22:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:23:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:24:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:25:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:26:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:27:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:28:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:29:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:30:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:31:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:32:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:33:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:34:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:35:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn
+2023-10-31 11:36:10Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\Apex Haunch.dyn

@@ -1,0 +1,315 @@
+{
+  "Uuid": "b2b52fb9-e84e-4748-9370-11470161bf61",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.CAD Export",
+  "Description": "Exports views to DXF file.",
+  "Name": "Export DXF",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "DirectoryPath",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "3188c3f5d02c440f9c1a520e8b4d7245",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4b41e3f4e4a54ad89cb290cb7a16f21c",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "1c0bd18161b84ebab1079e73b59e9089",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d5c889094981405f9bd05d098e54fb5d",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Filename",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "24d6c766f18d4c638899f840df420901",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8c8d49b3e3de446e91afeacbbc454433",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "RunIt",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": ""
+      },
+      "Id": "05191c80698a47adb2359b3718b7ed26",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ef6caca01a794e328d9e992c06237680",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Succeed",
+      "Id": "cab567147bdc4f2d8fec10d16b4a130a",
+      "Inputs": [
+        {
+          "Id": "94d8cb7825ff4764981146437f13477a",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "##Alban de Chasteigner 2019\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\n# Import Element wrapper extension methods\nimport clr\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\n# Import DocumentManager and TransactionManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nimport System\nfrom System.Collections.Generic import *\n\nimport sys\npyt_path = r'C:\\Program Files (x86)\\IronPython 2.7\\Lib'\nsys.path.append(pyt_path)\n\n#ProcessParallelLists borrowed from Konrad K Sobon\ndef ProcessList(_func, _list):\n    return map( lambda x: ProcessList(_func, x) if type(x)==list else _func(x), _list )\n\ndef ProcessParallelLists(_func, *lists):\n\treturn map( lambda *xs: ProcessParallelLists(_func, *xs) if all(type(x) is list for x in xs) else _func(*xs), *lists )\n\ndef Unwrap(item):\n\treturn UnwrapElement(item)\n\nfolderPath = IN[0]\n\nif isinstance(IN[1], list):\n\tviews = ProcessList(Unwrap, IN[1])\nelse:\n\tviews = [Unwrap(IN[1])]\n\nif isinstance(IN[2], list):\n\tnames = IN[2]\nelse:\n\tnames = [IN[2]]\n\nRunIt = IN[3]\n\ndef ExportDxf(name, view, folder = folderPath):\n\toptions = DXFExportOptions()\n\tviews = List[ElementId]()\n\tviews.Add(view.Id)\n\tresult = doc.Export(folder, name, views, options)\n\treturn result\n\nif RunIt:\n\ttry:\n\t\terrorReport = None\n\t\t# run export\n\t\tProcessParallelLists(ExportDxf, names, views)\n\t\t\n\texcept:\n\t\t# if error accurs anywhere in the process catch it\n\t\timport traceback\n\t\terrorReport = traceback.format_exc()\nelse:\n\terrorReport = \"Please set the RunIt to True!\"\n\n#Assign your output to the OUT variable\nif errorReport == None:\n\tOUT = \"Success\"\nelse:\n\tOUT = errorReport",
+      "VariableInputPorts": true,
+      "Id": "0119b2940a804dbd8f52a22556b34198",
+      "Inputs": [
+        {
+          "Id": "f83e84e262b74ed48360db32536a5490",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "1666f96e6a30416fa19e0089514351ed",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "40e32867438d4361bf6f46138488b0d1",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "1ce37b9ff26048a781a1a0c3f1586e0e",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2b6f4e6daf734198a5d533ed4e9180a1",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "4b41e3f4e4a54ad89cb290cb7a16f21c",
+      "End": "f83e84e262b74ed48360db32536a5490",
+      "Id": "cde469bc9f0a4e5996db010685f14f33"
+    },
+    {
+      "Start": "d5c889094981405f9bd05d098e54fb5d",
+      "End": "1666f96e6a30416fa19e0089514351ed",
+      "Id": "741ef1db170144caba757e350c5999a3"
+    },
+    {
+      "Start": "8c8d49b3e3de446e91afeacbbc454433",
+      "End": "40e32867438d4361bf6f46138488b0d1",
+      "Id": "e2f224b620b2428ca52c5e944b6fe4ab"
+    },
+    {
+      "Start": "ef6caca01a794e328d9e992c06237680",
+      "End": "1ce37b9ff26048a781a1a0c3f1586e0e",
+      "Id": "3cfc88f38aa24fde8bab39d7d6f7ef2f"
+    },
+    {
+      "Start": "2b6f4e6daf734198a5d533ed4e9180a1",
+      "End": "94d8cb7825ff4764981146437f13477a",
+      "Id": "07f97849271143359b8a7eccb7e9d879"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "3188c3f5d02c440f9c1a520e8b4d7245",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 386.744450782195,
+        "Y": 313.765358838194
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "1c0bd18161b84ebab1079e73b59e9089",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 386.744450782195,
+        "Y": 396.765358838194
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "24d6c766f18d4c638899f840df420901",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 386.744450782195,
+        "Y": 480.765358838194
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "05191c80698a47adb2359b3718b7ed26",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 386.744450782195,
+        "Y": 563.765358838194
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "cab567147bdc4f2d8fec10d16b4a130a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 874.744450782195,
+        "Y": 399.765358838194
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Export Dxf",
+        "Id": "0119b2940a804dbd8f52a22556b34198",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 649.944450782195,
+        "Y": 399.765358838194
+      }
+    ],
+    "Annotations": [],
+    "X": -160.030252128437,
+    "Y": -0.357513082198409,
+    "Zoom": 0.765829392851552
+  }
+}

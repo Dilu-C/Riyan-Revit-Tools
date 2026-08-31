@@ -1,0 +1,255 @@
+{
+  "Uuid": "bc5d370c-a0d0-4ff2-b079-e789c69e72e9",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Reference",
+  "Description": "Select the point(s) on the face(s) and get the reference(s).",
+  "Name": "Select Point on Element",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\n\nclr.AddReference('RevitAPIUI')\nfrom Autodesk.Revit.UI.Selection import ObjectType\n\n# Import ToDSType  (bool) extension method\nclr.AddReference(\"RevitNodes\")\nimport Revit\n# Adds ToProtoType, ToRevitType geometry conversion extension methods to objects\nclr.ImportExtensions(Revit.GeometryConversion)\n\npickedRef,coords=[],[]\n\nsel = uiapp.ActiveUIDocument.Selection\npickedRef=sel.PickObjects(ObjectType.PointOnElement, \"Select Points on Face\")\n\nfor ref in pickedRef :\n\tcoords.append(ref.GlobalPoint.ToPoint())\n\nOUT = coords,pickedRef",
+      "VariableInputPorts": true,
+      "Id": "df23dc6e32294e7ea3086db4d20eca51",
+      "Inputs": [
+        {
+          "Id": "81824a4cea6c4a999a31d04020a16df7",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "20f796c4b42547c896b023d262a14003",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];",
+      "Id": "77994dfc3f384fde9d91691d7786343b",
+      "Inputs": [
+        {
+          "Id": "578013461fb34171be25d26748e7d2a1",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "47a55b70af26464abda1f17cd448c453",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "444c90c7d0d74c78bcdeddc8d0e9405c",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Point",
+      "Id": "723259756125439c8b86e01cf2559be9",
+      "Inputs": [
+        {
+          "Id": "a62b15ee37294dfb9cd3107d74036628",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Reference",
+      "Id": "e526db86847e4451a513daa4c8f7af26",
+      "Inputs": [
+        {
+          "Id": "95fe6399712d453b829e1196e7abb962",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Refresh",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "true",
+        "Description": ""
+      },
+      "Id": "b28b16927627487c9f664da875405c37",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d9febc362cc14098b8759934f9471bfb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "20f796c4b42547c896b023d262a14003",
+      "End": "578013461fb34171be25d26748e7d2a1",
+      "Id": "23a11b249e194a079af5acd893bb8fa5"
+    },
+    {
+      "Start": "47a55b70af26464abda1f17cd448c453",
+      "End": "a62b15ee37294dfb9cd3107d74036628",
+      "Id": "dc7682f8e2194007aad2ee6682861d7a"
+    },
+    {
+      "Start": "444c90c7d0d74c78bcdeddc8d0e9405c",
+      "End": "95fe6399712d453b829e1196e7abb962",
+      "Id": "afa6e082923f4fe6b33b5a392fc311e6"
+    },
+    {
+      "Start": "d9febc362cc14098b8759934f9471bfb",
+      "End": "81824a4cea6c4a999a31d04020a16df7",
+      "Id": "d08d43465ca0488b9f71751274ee29ca"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Select Point (s) (PickObject)",
+        "Id": "df23dc6e32294e7ea3086db4d20eca51",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 489.6,
+        "Y": 280.413333333333
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "77994dfc3f384fde9d91691d7786343b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 769.6,
+        "Y": 284.626666666667
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "723259756125439c8b86e01cf2559be9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 960.8,
+        "Y": 247.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "e526db86847e4451a513daa4c8f7af26",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 960.8,
+        "Y": 331.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "b28b16927627487c9f664da875405c37",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 168.8,
+        "Y": 280.413333333333
+      }
+    ],
+    "Annotations": [],
+    "X": -95.1388921468223,
+    "Y": 63.6938759531704,
+    "Zoom": 0.658674852158215
+  }
+}

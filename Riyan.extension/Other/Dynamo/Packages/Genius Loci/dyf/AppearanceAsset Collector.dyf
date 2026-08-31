@@ -1,0 +1,204 @@
+{
+  "Uuid": "69c918c4-51c5-4ab3-9975-688f8ec7c77c",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Retrieves all the AppearanceAsset Elements in the model.",
+  "Name": "AppearanceAsset Collector",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitServices')\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.Elements)\n\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\n\nnames=[]\n\nappearanceAssets = FilteredElementCollector(doc).OfClass(AppearanceAssetElement).ToElements()\n\nfor appearanceAsset in appearanceAssets :\n\tnames.append(appearanceAsset.Name)\n\nOUT = appearanceAssets,names",
+      "VariableInputPorts": true,
+      "Id": "4012c44f946641be968ec06454658698",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d5783d41627148e299e3a317f8e7b2cb",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];",
+      "Id": "03e3b917f9d7422ca674d684eac0e549",
+      "Inputs": [
+        {
+          "Id": "2d23326ed5b34a95a7dc724f88ee8de3",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4de0ed9a2e104a54b6bd2ab90b64b7c3",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "7bac60f0ec424e0487ec3fe5d15e2e07",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "AppearanceAsset",
+      "Id": "a27f2e35a22743b89308328e777b2195",
+      "Inputs": [
+        {
+          "Id": "2f3580e64fda4dc6b75ff4c33e972210",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "AppearanceAsset Names",
+      "Id": "20b108f4d3f145ca9c33addc34fe29f6",
+      "Inputs": [
+        {
+          "Id": "b20a982a20754e63bd11dd07f2c04cea",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "d5783d41627148e299e3a317f8e7b2cb",
+      "End": "2d23326ed5b34a95a7dc724f88ee8de3",
+      "Id": "5650bb1951a042ddaba0260364167c0b"
+    },
+    {
+      "Start": "4de0ed9a2e104a54b6bd2ab90b64b7c3",
+      "End": "2f3580e64fda4dc6b75ff4c33e972210",
+      "Id": "232f1bed4ce5471ebc77344afd51678c"
+    },
+    {
+      "Start": "7bac60f0ec424e0487ec3fe5d15e2e07",
+      "End": "b20a982a20754e63bd11dd07f2c04cea",
+      "Id": "ac602a44ff0a46f5ba7b3a651e1b2abb"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Get AppearanceAssetElement",
+        "Id": "4012c44f946641be968ec06454658698",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 236.799999999999,
+        "Y": 239.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "03e3b917f9d7422ca674d684eac0e549",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 564.257209823332,
+        "Y": 252.498624888344
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "a27f2e35a22743b89308328e777b2195",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 737.052326377625,
+        "Y": 252.003296182457
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "20b108f4d3f145ca9c33addc34fe29f6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 755.081723402873,
+        "Y": 337.857567731259
+      }
+    ],
+    "Annotations": [],
+    "X": -79.5387415083062,
+    "Y": 116.423361858755,
+    "Zoom": 0.658674852158215
+  }
+}

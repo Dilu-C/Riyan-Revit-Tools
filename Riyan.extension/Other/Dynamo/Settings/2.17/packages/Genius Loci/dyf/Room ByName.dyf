@@ -1,0 +1,83 @@
+<Workspace Version="1.3.4.6666" X="127.257589520703" Y="67.0204911471752" zoom="0.534919314766828" ScaleFactor="1" Name="Room ByName" Description="Enter the room/space name or number to get the room." ID="f21bbfb6-2679-4e23-a562-e4dc3c413316" Category="GeniusLoci.Room">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="a5b91244-38d7-4e04-9a36-36695240f7a0" type="PythonNodeModels.PythonNode" nickname="Get rooms by name or number" x="388.247930563858" y="343.611457164648" isVisible="false" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="3">
+      <PortInfo index="0" default="False" />
+      <PortInfo index="1" default="False" />
+      <PortInfo index="2" default="False" />
+      <Script>#Node Inspired by jeremy@learndynamo.com
+#www.Learndynamo.com 
+
+import clr
+clr.AddReference('RevitServices')
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+clr.AddReference('RevitAPI')
+import Autodesk
+from Autodesk.Revit.DB import Document, RevitLinkInstance, FilteredElementCollector, BuiltInCategory, BuiltInParameter
+
+namnums = IN[0] if isinstance(IN[0],list) else [IN[0]]
+toggle = IN[1]
+inputdoc = (UnwrapElement(IN[2]) if isinstance(IN[2],list) else [UnwrapElement(IN[2])])[0]
+
+rooms,roomLevels = [], []
+
+#Inspired by Clockwork
+if inputdoc == None:
+	doc = DocumentManager.Instance.CurrentDBDocument
+elif isinstance (inputdoc, Document):
+	doc = inputdoc
+elif isinstance (inputdoc, RevitLinkInstance):
+	doc = inputdoc.GetLinkDocument()
+else: doc = DocumentManager.Instance.CurrentDBDocument
+
+if toggle == True:
+	collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Rooms)
+else:
+	collector = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MEPSpaces)
+for i in collector:
+	for namnum in namnums:
+		if namnum in i.get_Parameter(BuiltInParameter.ROOM_NAME).AsString() or namnum in i.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString():
+			if i.Location != None:	
+				rooms.append(i)
+				roomLevels.append(i.Level)
+										
+if len(rooms)&gt;1 : OUT = rooms, roomLevels 
+else: OUT = rooms[0], roomLevels[0]</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="4ab92ae6-af72-4400-849e-3342d9fa0f32" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-121.752069436142" y="276.611457164648" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="NameOrNumber : string[]..[]" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="a2ebf38f-0a13-4a1e-8821-e06490dda4c3" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="883.047930563858" y="310.398123831314" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Rooms" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="3e3ad201-f238-4b03-aceb-63c40bea26b7" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="691.847930563858" y="347.824790497981" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="x[0];&#xA;x[1];" ShouldFocus="false">
+      <PortInfo index="0" default="False" />
+    </Dynamo.Graph.Nodes.CodeBlockNodeModel>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="ce409360-094d-4592-abd5-9131b3c46cdf" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="883.047930563858" y="394.398123831314" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Levels" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="6f17efd7-9179-4efb-ad46-2990d6024b36" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-121.752069436142" y="360.611457164648" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Category Room = true&#xD;&#xA;//Category Space = false&#xD;&#xA;RoomOrSpace : bool=true" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="57e45461-babb-4680-8562-fdc123383abd" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-121.752069436142" y="471.611457164647" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Use only if you want to query a linked model&#xD;&#xA;docOrRevitLinkInstance : var[]..[] = null" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="a5b91244-38d7-4e04-9a36-36695240f7a0" start_index="0" end="3e3ad201-f238-4b03-aceb-63c40bea26b7" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4ab92ae6-af72-4400-849e-3342d9fa0f32" start_index="0" end="a5b91244-38d7-4e04-9a36-36695240f7a0" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="3e3ad201-f238-4b03-aceb-63c40bea26b7" start_index="0" end="a2ebf38f-0a13-4a1e-8821-e06490dda4c3" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="3e3ad201-f238-4b03-aceb-63c40bea26b7" start_index="1" end="ce409360-094d-4592-abd5-9131b3c46cdf" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="6f17efd7-9179-4efb-ad46-2990d6024b36" start_index="0" end="a5b91244-38d7-4e04-9a36-36695240f7a0" end_index="1" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="57e45461-babb-4680-8562-fdc123383abd" start_index="0" end="a5b91244-38d7-4e04-9a36-36695240f7a0" end_index="2" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Aperçu en arrière-plan" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

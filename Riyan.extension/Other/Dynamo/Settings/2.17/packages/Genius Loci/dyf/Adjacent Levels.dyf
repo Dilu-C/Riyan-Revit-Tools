@@ -1,0 +1,99 @@
+<Workspace Version="1.3.4.6666" X="-74.3092602923275" Y="55.4823246882132" zoom="0.784369328044827" ScaleFactor="1" Name="Adjacent Levels" Description="Returns the levels above and bottom the input level.&#xD;&#xA;Based on an archilab node" ID="9ae84941-30ee-447d-a9f9-1d813b7a1d98" Category="GeniusLoci.Level">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="bc3ad169-4e62-438a-a22a-c7504bd8f33c" type="PythonNodeModels.PythonNode" nickname="Python Script" x="491.210993483135" y="341.241850692936" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="1">
+      <PortInfo index="0" default="False" />
+      <Script># Copyright(c) 2016, Konrad K Sobon
+# @arch_laboratory, http://archi-lab.net
+
+import clr
+# Import Element wrapper extension methods
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+doc = DocumentManager.Instance.CurrentDBDocument
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+if isinstance(IN[0], list):
+	levels = IN[0]
+else:
+	levels = [IN[0]]
+
+def ProcessList(_func, _list):
+    return map( lambda x: ProcessList(_func, x) if type(x)==list else _func(x), _list )
+
+allLevels = FilteredElementCollector(doc) \
+				.OfCategory(BuiltInCategory.OST_Levels) \
+				.WhereElementIsNotElementType() \
+				.ToElements()
+
+elevations = [i.Elevation for i in allLevels]
+sortedLevels = [x for (y,x) in sorted(zip(elevations,allLevels))]
+sortedLevelNames = [i.Name for i in sortedLevels]
+
+def GetLevelBottom(e):
+	index = sortedLevelNames.index(e.Name)
+	if index - 1 == -1 :
+		return None
+	else:
+		return sortedLevels[index-1]
+
+def GetLevelAbove(e):
+	index = sortedLevelNames.index(e.Name)
+	if index + 1 &gt;= len(sortedLevels):
+		return None
+	else:
+		return sortedLevels[index+1]
+
+try:
+	errorReport = None
+	above = ProcessList(GetLevelAbove, levels)
+	bottom = ProcessList(GetLevelBottom, levels)
+except:
+	# if error accurs anywhere in the process catch it
+	import traceback
+	errorReport = traceback.format_exc()
+
+#Assign your output to the OUT variable
+if errorReport == None:
+	OUT = above, bottom
+else:
+	OUT = errorReport</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="afd3363f-5ee1-40c2-8a01-cf9440b5332b" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="810.86426902548" y="327.982790670888" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="AboveLevel" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="9874610f-a2a2-4718-99fd-88dfaf170bb1" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="370.717342030322" y="341.751814539938" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="level" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="945f6acd-0080-4cd6-b18b-21a72ae49c4e" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="656.956529312178" y="343.9239045238" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="x[0];&#xA;x[1];" ShouldFocus="false">
+      <PortInfo index="0" default="False" />
+    </Dynamo.Graph.Nodes.CodeBlockNodeModel>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="d7cd2d66-bdbd-4f6c-a041-c084b5b784ad" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="815.660451188163" y="396.429356136064" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="BottomLevel" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="bc3ad169-4e62-438a-a22a-c7504bd8f33c" start_index="0" end="945f6acd-0080-4cd6-b18b-21a72ae49c4e" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="9874610f-a2a2-4718-99fd-88dfaf170bb1" start_index="0" end="bc3ad169-4e62-438a-a22a-c7504bd8f33c" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="945f6acd-0080-4cd6-b18b-21a72ae49c4e" start_index="0" end="afd3363f-5ee1-40c2-8a01-cf9440b5332b" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="945f6acd-0080-4cd6-b18b-21a72ae49c4e" start_index="1" end="d7cd2d66-bdbd-4f6c-a041-c084b5b784ad" end_index="0" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Aperçu en arrière-plan" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

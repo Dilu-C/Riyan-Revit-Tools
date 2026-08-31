@@ -1,0 +1,165 @@
+{
+  "Uuid": "20be0c84-fbe0-4f89-8cf5-d8bce4e48af3",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Utilities",
+  "Description": "Useful for removing invalid characters from filenames.\r\nFor use with the FilenameToFilePaths node.",
+  "Name": "Remove Special Characters from String",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import re\nstrings = IN[0] if isinstance(IN[0],list) else [IN[0]]\n\nresult = []\nfor char in strings:\n\t#remove spaces\n\t#result.append(''.join(c for c in char if c.isalnum()))\n\tresult.append(\"\".join(re.findall(r\"[a-zA-Z0-9 _éè-]+\", char) ))\n\t\nif isinstance(IN[0], list): OUT = result \nelse: OUT = result[0]\n",
+      "VariableInputPorts": true,
+      "Id": "8d8350b81ab24f689b19cbb020adde69",
+      "Inputs": [
+        {
+          "Id": "d211f8cc814d4b47bd08542829fbc988",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "6e524ace28654e9a81fd94ff1016177e",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "strings",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "7a56e40b3cb34df280a10901dd5ca24b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ab897cefd3474027abf63546c5b40364",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "String",
+      "Id": "831a23dff8de479d826f229ff97c7ff5",
+      "Inputs": [
+        {
+          "Id": "fec001f26de34576b14ae79ee3b45ad9",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "6e524ace28654e9a81fd94ff1016177e",
+      "End": "fec001f26de34576b14ae79ee3b45ad9",
+      "Id": "c852fc3249f743f7a211d02b2d0a57f5"
+    },
+    {
+      "Start": "ab897cefd3474027abf63546c5b40364",
+      "End": "d211f8cc814d4b47bd08542829fbc988",
+      "Id": "43f08e6dfa5b437dac2ba97828e54799"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Remove forbidden ASCII characters ",
+        "Id": "8d8350b81ab24f689b19cbb020adde69",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 614.563830221889,
+        "Y": 422.162312665766
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "7a56e40b3cb34df280a10901dd5ca24b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 479.2,
+        "Y": 426.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "831a23dff8de479d826f229ff97c7ff5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 882.4,
+        "Y": 419.6
+      }
+    ],
+    "Annotations": [],
+    "X": -141.0131275,
+    "Y": 90.3544375,
+    "Zoom": 0.70823125
+  }
+}

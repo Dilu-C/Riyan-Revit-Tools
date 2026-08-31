@@ -1,0 +1,165 @@
+{
+  "Uuid": "f524c969-ee84-42e5-ad67-6cffe4be9696",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Tag",
+  "Description": "Retrieves the position of the leader end for a tag. ",
+  "Name": "Tag GetLeaderEnd",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#By Cyril Poupin on Dynamo Forum\n#https://forum.dynamobim.com/t/get-endpoint-of-leader-of-independent-tag/86243/5\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\napp = DocumentManager.Instance.CurrentUIApplication.Application\nsdkNumber = int(app.VersionNumber)\n\ntags = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n\ndef setFreeEnd_temp(func):\n\tdef wrapper(*args, **kwargs):\n\t\ttag = args[0]\n\t\tTransactionManager.Instance.ForceCloseTransaction()\n\t\tt = Transaction(doc, func.__name__)\n\t\tt.Start()\n\t\ttag.LeaderEndCondition = LeaderEndCondition.Free\n\t\tdoc.Regenerate()\n\t\tret = func(*args, **kwargs) \n\t\tt.RollBack()\n\t\tt.Dispose()\n\t\treturn ret \n\treturn wrapper \n\n@setFreeEnd_temp\ndef get_endpoint_of_Tag(tag):\n\tif sdkNumber < 2022:\n\t\treturn tag.LeaderEnd.ToPoint()\n\telse:\n\t\tref = next(e for e in tag.GetTaggedReferences())\n\t\treturn tag.GetLeaderEnd(ref).ToPoint()\n\nif isinstance(IN[0], list): OUT = [get_endpoint_of_Tag(tag) for tag in tags]\nelse: OUT = [get_endpoint_of_Tag(tag) for tag in tags][0]",
+      "VariableInputPorts": true,
+      "Id": "aa4fe4315bf34e57a78fb9eaaf9159de",
+      "Inputs": [
+        {
+          "Id": "8e1c315237954070b2dc7cb959613d67",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "58826ffb2ea5458d96b164ad1ee35904",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "tag",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "dc83067e0af740eda9519cdef182b172",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "30fd6945384a45dd9ed6e69d832b0283",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "point",
+      "Id": "9feae226492348f3b9be9746ae0041dc",
+      "Inputs": [
+        {
+          "Id": "0629a762317e42f483c590132b40d469",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "58826ffb2ea5458d96b164ad1ee35904",
+      "End": "0629a762317e42f483c590132b40d469",
+      "Id": "bf4e822405964c37962a5ce87e561d31"
+    },
+    {
+      "Start": "30fd6945384a45dd9ed6e69d832b0283",
+      "End": "8e1c315237954070b2dc7cb959613d67",
+      "Id": "85ff463c46fc470db5119089f599267a"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.2.15705",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "aa4fe4315bf34e57a78fb9eaaf9159de",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 506.08459669853107,
+        "Y": 332.70446626108
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "dc83067e0af740eda9519cdef182b172",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 303.66319797707416,
+        "Y": 334.59999999999997
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "9feae226492348f3b9be9746ae0041dc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 687.66319797707411,
+        "Y": 334.59999999999997
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

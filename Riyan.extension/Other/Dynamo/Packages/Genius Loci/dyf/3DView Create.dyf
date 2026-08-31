@@ -1,0 +1,305 @@
+{
+  "Uuid": "f24a75fe-aed4-4bdd-8142-334ef749df0b",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Creates a new isometric View3D in the given document.",
+  "Name": "3DView Create",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ViewName",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "\"ThreeD\"",
+        "Description": "String"
+      },
+      "Id": "aea2aa0ece614030986a28b5c6c413dc",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "a088b16bb96b4253a57421b4cf33f725",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "View",
+      "Id": "3b26e70b9fbf4d0b8861aba5c5d9f112",
+      "Inputs": [
+        {
+          "Id": "4b353035df0a439f80c406d4a63b1bf5",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];",
+      "Id": "8db8e03610b049dead3a502faaaa14ed",
+      "Inputs": [
+        {
+          "Id": "0c608fd57b8c42cfacb5a4a9afb9a3ce",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b904fb0b1f0d4d958824cbe5d7901a23",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "87d599d09615459c9396e157b180b75f",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Document",
+      "Id": "7c61b91d49d8495b995f908ef1d1372b",
+      "Inputs": [
+        {
+          "Id": "1c39f93d6edb4657a14082fc6623afc8",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "document",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": "null",
+        "Description": " Use only if you want to query a linked model"
+      },
+      "Id": "8f79746da2844790816d5d80e1f758d8",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f15f5d2d8d8f4d37b777387e3c068bbe",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Suggestion by Marck Ackerley\n#Suggestion of improvement by Jonathan Atger\nimport clr\n# Import DocumentManager and TransactionManager\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\n# Import RevitAPI\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\ndef ProcessParallelLists(_func, *lists):\n\treturn map( lambda *xs: ProcessParallelLists(_func, *xs) if all(type(x) is list for x in xs) else _func(*xs), *lists )\n\ndef tolist(obj1):\n    if hasattr(obj1,\"__iter__\"): return obj1\n    else: return [obj1]\n\nviewNames = tolist(IN[0])\ninputdoc = tolist(UnwrapElement(IN[1]))\ninputdoc = inputdoc[0]\n\t\n#Inputdoc : Part of script by Andreas Dieckmann\nif inputdoc == None:\n\tdoc = DocumentManager.Instance.CurrentDBDocument\nelif inputdoc.GetType().ToString() == \"Autodesk.Revit.DB.Document\":\n\tdoc = inputdoc\nelif inputdoc.GetType().ToString() == \"Autodesk.Revit.DB.RevitLinkInstance\":\n\tdoc = inputdoc.GetLinkDocument()\nelse :\n\tdoc = DocumentManager.Instance.CurrentDBDocument\n\n#Get 3D View ViewFamilyType\nviewType = FilteredElementCollector(doc).OfClass(ViewFamilyType).ToElements().Find(lambda x : x.ViewFamily == ViewFamily.ThreeDimensional)\n\ndef CreateView(name):\n\tview = View3D.CreateIsometric(doc, viewType.Id)\n\ttry:view.Name = name\n\texcept:pass\n\treturn view\n\nTransactionManager.Instance.ForceCloseTransaction()\nt = Transaction(doc,'Create3D')\nt.Start()\nviews=ProcessParallelLists(CreateView, viewNames)\nt.Commit()\n#TransactionManager.Instance.ForceCloseTransaction()\n\n#Assign your output to the OUT variable\nOUT = views, doc",
+      "VariableInputPorts": true,
+      "Id": "5581a068bb4b46d9b5d53ddc75b52295",
+      "Inputs": [
+        {
+          "Id": "4bc4a00ee85c48e8a64a89c25f96d46a",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "16027a00b9d04fbc80c858c1c92b0964",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "8465090ec5a244e284e6b9b33c19fec7",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "a088b16bb96b4253a57421b4cf33f725",
+      "End": "4bc4a00ee85c48e8a64a89c25f96d46a",
+      "Id": "55664a48ca4241b6a64bd70296bd2674"
+    },
+    {
+      "Start": "b904fb0b1f0d4d958824cbe5d7901a23",
+      "End": "4b353035df0a439f80c406d4a63b1bf5",
+      "Id": "01ff18215e7e4f3481fde96981a97248"
+    },
+    {
+      "Start": "87d599d09615459c9396e157b180b75f",
+      "End": "1c39f93d6edb4657a14082fc6623afc8",
+      "Id": "d14e99946fc74734beb4f6d72a3a58e4"
+    },
+    {
+      "Start": "f15f5d2d8d8f4d37b777387e3c068bbe",
+      "End": "16027a00b9d04fbc80c858c1c92b0964",
+      "Id": "f5ca33a968b44061a0229f9bc688728b"
+    },
+    {
+      "Start": "8465090ec5a244e284e6b9b33c19fec7",
+      "End": "0c608fd57b8c42cfacb5a4a9afb9a3ce",
+      "Id": "2b8b508f08914b72a53c7334db4881a8"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "aea2aa0ece614030986a28b5c6c413dc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 142.866837207996,
+        "Y": 199.848014952501
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "3b26e70b9fbf4d0b8861aba5c5d9f112",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 818.4,
+        "Y": 239.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "8db8e03610b049dead3a502faaaa14ed",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 655.0,
+        "Y": 241.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "7c61b91d49d8495b995f908ef1d1372b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 811.2,
+        "Y": 314.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "8f79746da2844790816d5d80e1f758d8",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -6.45388619463711,
+        "Y": 296.420060922525
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Create 3DView",
+        "Id": "5581a068bb4b46d9b5d53ddc75b52295",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 476.564456958374,
+        "Y": 227.943413339615
+      }
+    ],
+    "Annotations": [],
+    "X": 70.3816326284614,
+    "Y": -29.2645836592608,
+    "Zoom": 0.937867132118446
+  }
+}

@@ -1,0 +1,267 @@
+{
+  "Uuid": "64b6b15b-d1f9-4884-8653-dfe9d866a5dd",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Workset",
+  "Description": "Works only in Revit 2022.1 and later.\r\nDelete the given workset. \r\nPlease checkout the workset before executing this method.\r\nThe workset must be editable by the current user.",
+  "Name": "DeleteWorkset",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2021\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nids = IN[0] if isinstance(IN[0],list) else [IN[0]]\noption = IN[1]\ndeleteId = IN[2] if isinstance(IN[2],list) else [IN[2]]\nnames = []\n\nif option == \"MoveElementsToWorkset\" :\n\tdeleteWorksetSettings = DeleteWorksetSettings(DeleteWorksetOption.MoveElementsToWorkset,WorksetId(deleteId[0]))\nelse:\n\tdeleteWorksetSettings = DeleteWorksetSettings()\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor worksetId in ids :\n\tif WorksetTable.CanDeleteWorkset(doc,WorksetId(worksetId),deleteWorksetSettings):\n\t\tWorksetTable.DeleteWorkset(doc,WorksetId(worksetId),deleteWorksetSettings)\n\t\tnames.append(doc.GetWorksetTable().GetWorkset(WorksetId(worksetId)).Name)\n\telse:\n\t\tnames.append(\"The workset is not editable by the current user or is owned by other user\")\nTransactionManager.Instance.TransactionTaskDone()\n\nif isinstance(IN[0], list): OUT = names\nelse: OUT = names[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "a4522f78d09c458e8325b843907e75c0",
+      "Inputs": [
+        {
+          "Id": "42c2c6062f22445fbba804c99d1b543a",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "dc3d9272e59d4144b21648795210650f",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a1b92c3ab21d499798a96e024491f7f9",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "bf8cde844ddf42528ed36c14692125e1",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "DeletedWorksetName",
+      "Id": "0fe56e07ba9848718d4be85d76bafdbe",
+      "Inputs": [
+        {
+          "Id": "0ba1fc044ddf47b085ae1c9d75523bee",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "WorksetId",
+        "TypeName": "int",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Workset to delete"
+      },
+      "Id": "9efbc410b6ab4d7a84dc457df3027cad",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "43a1d5ca240141e19fed9b5ed90bbf8d",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "DeleteWorksetOption",
+        "TypeName": "string",
+        "TypeRank": -1,
+        "DefaultValue": "\"MoveElementsToWorkset\"",
+        "Description": "MoveElementsToWorkset = Delete a workset, while moving the elements from the deleted workset to another workset.\nDeleteAllElements = Delete a workset together with all the elements in this workset.  "
+      },
+      "Id": "77819b7c0bf9480fae78a6ed7783d6af",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "a260922bd53341cdb491f2ec13c776f8",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "WorksetId",
+        "TypeName": "int",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Optional input for MoveElementsToWorkset option\nMove the elements from the deleted workset to another workset"
+      },
+      "Id": "c57816f5336f41dd9031b239fc9a978b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d0a3bddc3487427a91b086b881b02335",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "bf8cde844ddf42528ed36c14692125e1",
+      "End": "0ba1fc044ddf47b085ae1c9d75523bee",
+      "Id": "4b1713cd49b74857887ddf03d2717754"
+    },
+    {
+      "Start": "43a1d5ca240141e19fed9b5ed90bbf8d",
+      "End": "42c2c6062f22445fbba804c99d1b543a",
+      "Id": "305463126ff54e1ba8b98589c67253fe"
+    },
+    {
+      "Start": "a260922bd53341cdb491f2ec13c776f8",
+      "End": "dc3d9272e59d4144b21648795210650f",
+      "Id": "71ccc0044d6a4d6b84872f01148722a6"
+    },
+    {
+      "Start": "d0a3bddc3487427a91b086b881b02335",
+      "End": "a1b92c3ab21d499798a96e024491f7f9",
+      "Id": "746edf87ee7543c59224a60e1809a43d"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "a4522f78d09c458e8325b843907e75c0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 199.20000000000005,
+        "Y": 286.80000000000007
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "0fe56e07ba9848718d4be85d76bafdbe",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 414.00000000000006,
+        "Y": 289.60000000000008
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "9efbc410b6ab4d7a84dc457df3027cad",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -92.090768375442224,
+        "Y": 274.58733994016796
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "77819b7c0bf9480fae78a6ed7783d6af",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -571.88934493613272,
+        "Y": 349.01046149070044
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "c57816f5336f41dd9031b239fc9a978b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -461.952659410867,
+        "Y": 459.258621655939
+      }
+    ],
+    "Annotations": [],
+    "X": 461.66797890136297,
+    "Y": -29.076269018963785,
+    "Zoom": 0.77523066098131221
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "Uuid": "23376231-0bdf-4957-ad25-d79cf9c1a320",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Phase",
+  "Description": "Get available Phase Filters",
+  "Name": "Get Phase Filter",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\n# Import DocumentManager and TransactionManager\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n# Import RevitAPI\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nphases = FilteredElementCollector(doc).OfClass(PhaseFilter).ToElements()\n\nOUT = phases",
+      "VariableInputPorts": true,
+      "Id": "bc4ca63a5453481696b261d1fad6cdf5",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "62bb85cb3fa74b27aaf1983b7406a3e7",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "e.Name;",
+      "Id": "dbe152f385954a86a389fc278b6d1831",
+      "Inputs": [
+        {
+          "Id": "a12576e65a284492983955727241536f",
+          "Name": "e",
+          "Description": "e",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "e6337a716eaf4e56a3d0a67a2d6c9814",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Phase Filter",
+      "Id": "1615baf0e4994964b80b9bf6f02925d6",
+      "Inputs": [
+        {
+          "Id": "7bbb30d3a14e402983b25adaa0ec09b8",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Names",
+      "Id": "92a7a10a56b442f4aff031bf0f27b23a",
+      "Inputs": [
+        {
+          "Id": "99634cd7b4104368b1891735c66feea1",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "62bb85cb3fa74b27aaf1983b7406a3e7",
+      "End": "a12576e65a284492983955727241536f",
+      "Id": "592ce16e13234fb4b294d0fd25ab4898"
+    },
+    {
+      "Start": "62bb85cb3fa74b27aaf1983b7406a3e7",
+      "End": "7bbb30d3a14e402983b25adaa0ec09b8",
+      "Id": "8e0464de10ab4df282da730145dadd5b"
+    },
+    {
+      "Start": "e6337a716eaf4e56a3d0a67a2d6c9814",
+      "End": "99634cd7b4104368b1891735c66feea1",
+      "Id": "932468e0fa6d4ff6bb6e7e54da45c279"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Get Phase Filter",
+        "Id": "bc4ca63a5453481696b261d1fad6cdf5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 395.402195995647,
+        "Y": 480.119661621883
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "dbe152f385954a86a389fc278b6d1831",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 560.38733625189,
+        "Y": 563.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "1615baf0e4994964b80b9bf6f02925d6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 711.507932578917,
+        "Y": 470.664913600506
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "92a7a10a56b442f4aff031bf0f27b23a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 712.10573658327,
+        "Y": 563.922338279537
+      }
+    ],
+    "Annotations": [],
+    "X": -27.821055041745,
+    "Y": 25.4302678965071,
+    "Zoom": 0.674831658426865
+  }
+}

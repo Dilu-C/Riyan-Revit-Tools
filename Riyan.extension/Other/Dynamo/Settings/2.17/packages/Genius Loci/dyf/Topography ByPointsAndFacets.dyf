@@ -1,0 +1,219 @@
+{
+  "Uuid": "6debf945-462f-4439-baec-f31da85efbb7",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Works only in Revit 2019.2 and later.\r\nCreates a topography surface from a mesh (facets and a list of points).\r\nNote : Points with same x, y are not allowed.\r\nThe topography can't be edited in UI after creation, with this API method.",
+  "Name": "Topography ByPointsAndFacets",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Autodesk.DesignScript.Geometry.Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "##Main part of the code by Maciej Wypych\n#https://www.linkedin.com/pulse/toposurface-from-mesh-revit-maciej-wypych\nimport clr\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import PolymeshFacet\nfrom Autodesk.Revit.DB.Architecture import TopographySurface\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=float(app.SubVersionNumber)\n\n#Get points and convert them to Revit XYZ points\npnts = [i.ToXyz() for i in IN[0]]\n#Get indices and create polymesh facets\nfacets = [PolymeshFacet(i[0],i[1],i[2]) for i in IN[1]]\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nif version < 2019.2 :\n\tnewtopo = \"This method is only available for Revit 2019.2 and later\"\nelse:\n\t#Create topography\n\tnewtopo=Autodesk.Revit.DB.Architecture.TopographySurface.Create(doc,pnts,facets)\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = newtopo",
+      "VariableInputPorts": true,
+      "Id": "e06390d4df2e444394e01f5a8f2a6816",
+      "Inputs": [
+        {
+          "Id": "ee78f5d3b80948cd93b2ad08685d0f8e",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "2241916a359045e999678e756eda2dd3",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5266113322c44f55b400df4ba9f70972",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded IronPython script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Topography",
+      "Id": "138b400727cd4359abad8a365a13d8e8",
+      "Inputs": [
+        {
+          "Id": "b21ffd62d42244c4879e6c52e42e0aa6",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "A function output, use with custom nodes"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "points",
+        "TypeName": "Autodesk.DesignScript.Geometry.Point",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "bd79b941242e4c56898c9a5faf667641",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "65bd5dfad4084b9fb2302477623144a3",
+          "Name": "",
+          "Description": "Symbol",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "A function parameter, use with custom nodes.\r\n\r\nYou can specify the type and default value for parameter. E.g.,\r\n\r\ninput : var[]..[]\r\nvalue : bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "PolymeshFacet",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "3 integers representing vertex indices"
+      },
+      "Id": "c6fec292ef214d138547f63f52b13bb6",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d18954c1cb6045258f5c552a4ed3caf4",
+          "Name": "",
+          "Description": "Symbol",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "A function parameter, use with custom nodes.\r\n\r\nYou can specify the type and default value for parameter. E.g.,\r\n\r\ninput : var[]..[]\r\nvalue : bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "5266113322c44f55b400df4ba9f70972",
+      "End": "b21ffd62d42244c4879e6c52e42e0aa6",
+      "Id": "581d05b162584bd1bc9341e8b4c65332"
+    },
+    {
+      "Start": "65bd5dfad4084b9fb2302477623144a3",
+      "End": "ee78f5d3b80948cd93b2ad08685d0f8e",
+      "Id": "5fe8538549cd4c14a73674961bd44b92"
+    },
+    {
+      "Start": "d18954c1cb6045258f5c552a4ed3caf4",
+      "End": "2241916a359045e999678e756eda2dd3",
+      "Id": "6fe9c01e31cf41c6a84980e560e683b0"
+    }
+  ],
+  "Dependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.0.4.12684",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Excluded": false,
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Id": "e06390d4df2e444394e01f5a8f2a6816",
+        "X": 332.0,
+        "Y": 294.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Excluded": false,
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Id": "138b400727cd4359abad8a365a13d8e8",
+        "X": 501.700298444418,
+        "Y": 293.656152849517
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Excluded": false,
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Id": "bd79b941242e4c56898c9a5faf667641",
+        "X": -127.0464466270804,
+        "Y": 285.96045323209495
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Excluded": false,
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Id": "c6fec292ef214d138547f63f52b13bb6",
+        "X": -74.3049909019305,
+        "Y": 363.49899592815
+      }
+    ],
+    "Annotations": [],
+    "X": 111.115019900849,
+    "Y": 112.743028456655,
+    "Zoom": 0.695616441301115
+  }
+}

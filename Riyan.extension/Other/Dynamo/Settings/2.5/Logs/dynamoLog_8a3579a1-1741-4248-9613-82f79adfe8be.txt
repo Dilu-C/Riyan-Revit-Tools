@@ -1,0 +1,249 @@
+Dynamo log started 2023-09-24 13:35:51Z
+2023-09-24 13:35:51Z : Python template set to default.
+2023-09-24 13:35:51Z : Dynamo -- Build 2.5.0.7460
+2023-09-24 13:35:51Z : Duplicate migration type registered for SunPathDirection
+2023-09-24 13:35:52Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-09-24 13:35:52Z : Exception encountered scanning the package directory at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+2023-09-24 13:35:52Z : notification:Dynamo.Exceptions.LibraryLoadFailedException: Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+   at Dynamo.PackageManager.PackageLoader.CheckPackageNodeLibraryCertificates(String packageDirectoryPath, Package discoveredPkg)
+   at Dynamo.PackageManager.PackageLoader.ScanPackageDirectory(String directory, Boolean checkCertificates):
+ Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit: 
+ "A package called GenerativeDesign found at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit could not be verified to have signed dll files.  A dll file found at C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit\bin\GenerativeDesignNodes.dll did not have a signed certificate.  Ignoring it."
+2023-09-24 13:35:52Z : Dynamo.Exceptions.LibraryLoadFailedException:
+2023-09-24 13:35:52Z : Failed to load library: C:\ProgramData\Autodesk\RVT 2021\Dynamo\2.5\packages\GenerativeDesignRevit
+2023-09-24 13:35:52Z :    at Dynamo.PackageManager.PackageLoader.CheckPackageNodeLibraryCertificates(String packageDirectoryPath, Package discoveredPkg)
+   at Dynamo.PackageManager.PackageLoader.ScanPackageDirectory(String directory, Boolean checkCertificates)
+2023-09-24 13:35:52Z : System.InvalidOperationException:
+2023-09-24 13:35:52Z : There already exists an AlsoKnownAs mapping for Select Rule Type.
+2023-09-24 13:35:52Z : 
+2023-09-24 13:35:52Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-09-24 13:35:52Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-09-24 13:35:52Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2021\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2021\en-US;C:\Program Files\Autodesk\Revit 2021;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit;C:\Program Files\Autodesk\Revit 2021\AddIns\DynamoForRevit
+2023-09-24 13:35:52Z : notification:System.IO.FileLoadException:
+ Dynamo has detected a conflict with a dependency and may be unstable. If any issues are detected, please uninstall addins or packages and contact the provider.: 
+ While loading assembly archilab2022, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null, Dynamo detected that the dependency RevitAPI, Version=22.0.0.0, Culture=neutral, PublicKeyToken=null was already loaded with an incompatiable version. It is likely that another Revit Addin has loaded this assembly, please try uninstalling other Addins, and starting Dynamo again. Dynamo may be unstable in this state.
+It is likely one of the following assemblies loaded the incompatible version:
+UIFrameworkInterop, UIFramework, UIFrameworkServices, AddInManagerUI, APIInterop, RevitAPIIFC, IntfIFCAPI, RevitDBAPI, RevitAPI, AddInManager, GraphicsAPI, UtilityAPI, GeomUtilAPI, FamilyDBAPI, EssentialsDBAPI, RoomAreaPlanDBAPI, ArrayElemsDBAPI, StructuralDBAPI, HostObjDBAPI, SculptingDBAPI, ElementGroupDBAPI, CurtainGridFamilyDBAPI, SiteDBAPI, DetailDBAPI, BuildingSystemsDBAPI, EnergyAnalysisDBAPI, InterfaceAPI, IntfATFAPI, MaterialDBAPI, AnalysisAppsDBAPI, StructuralAnalysisDBAPI, RebarDBAPI, AssemblyDBAPI, StairRampDBAPI, APIDBAPI, DPartDBAPI, PersistenceDBAPI, InterfaceUtilAPI, PointCloudAccessAPI, NumberingDBAPI, MassingDBAPI, Autodesk.CivilAlignments.DBApplication, Autodesk.CoordinationModelDB, Autodesk.LinkTopography.Parser, Autodesk.ResultsBuilder.DBApplication, Autodesk.RouteAnalysis.DBApplication, Autodesk.SteelConnectionsDB, Autodesk.StructuralRibbon.Application, ConnectedDesktopDB, KeynoteDBServer, StraightSegmentCalculationServers, FittingAndAccessoryCalculationServers, CollaborateDB, RevitAPISteel, RSCloudClient, AddInJournaling, AddInJournalClient, FabricationPartBrowser, RevitAPIUI, UserInterfaceUtility, SSONET, Autodesk.RevitApplicationHome.Application, CEFRevitUtils, Autodesk.RevitApplicationHome.Utilities, APIUIAPI, DesktopMFCAPI, RevitMFCAPI, RevitUIAPI, BuildingSystemsUIAPI, EssentialsUIAPI, EnergyAnalysisUtilitiesAPI, DetailUIAPI, Autodesk.ATFTranslationServer.DBApplication, Autodesk.CivilAlignments.Application, Autodesk.CoordinationModelUI, Autodesk.FreeFormRebar.DB, Autodesk.IFC.Export.UI, Autodesk.LinkTopography.Commands.Application, Autodesk.MemberForces.Application, Autodesk.PnIDModeler.Application, Autodesk.PnIDModeler.Client, Autodesk.Precast.Application, Autodesk.Precast.UI, Autodesk.Precast.RevitBase, Autodesk.Precast.API, Autodesk.Precast.CNC, Autodesk.Precast.CNCExport, Autodesk.Precast.Commands, Autodesk.Precast.Geometry, Autodesk.Precast.RevitGeometry, Autodesk.Precast.RevitUI, Autodesk.Precast.ShopDrawings, Autodesk.Precast.Slab, Autodesk.Precast.Wall, Autodesk.ReinforcementNumbering.Application, Autodesk.ResultsExplorer.Application, Autodesk.Revit.CloudRendering.Application, Autodesk.RouteAnalysis.Application, Autodesk.SectionProperties.Application, Autodesk.SpaceNaming.Application, Autodesk.SteelConnectionsUI, AutoLoader, ConnectedDesktopUI, ContentDelivery, DynamoRevitVersionSelector, DynamoRevitDS, RevitServices, Autodesk.DynamoPlayer.Application, EnergyAnalysis, FittingAndAccessoryCalculationUIServers, KeynoteUIServer, PointCloudSnappingServer, PressureLossReport, AlignTag, Autodesk.BatchPrint.Application, Collaborate, CollaborateBrowser, SkyscraperClientHost, C4RNET, eTransmitForRevit, Autodesk.Revit.GenerativeDesign.Application, Autodesk.WorksharingMonitor.Application, Autodesk.WorksharingMonitor.Utilities, ColorSplasher, BIMOnePanelInformation, D5_Shell, D5Converter, DatasmithRevit2021, DiRoots.One, DiRoots.One.Commons, ExportViewSelectorAddin, FormItConverterRibbon, AXMImporter, MaterialWrapper, nwexportrevit_18, Snippets.scripting, pyRevit_2021_0f7c6f01e723b098_PyRevitLabs.PyRevit.Runtime.dll, pyRevit_2021_8c21cea5e97c07a5_pyRevitCore, pyRevit_2021_adcf75d839812f1c_pyRevitTools, pyRevit_2021_7d17640ab546f011_DG5I, Cads.RevitEsaPT.Exchange, RhinoInside.Revit.AddIn, RhinoInside.Revit.External, RhinoInside.Revit, RevitAPIUIMacrosInterop, RevitAPIMacrosInterop, Microsoft.GeneratedCode, RSEnterpriseClientInterop, RSEnterpriseClient, SSONETUI, RevitAPIBrowserUtils, RebarUIStartUpAPI, Autodesk.ResultsManager.Application, Autodesk.SteelConnections.ASRvtFamilyMapping, AXMImportorAddon, RFAToAXMAddon, RevitNodes, DSRevitNodesUI, DynamoSteelRevit, StructuralAnalysisResults
+2023-09-24 13:35:52Z : notification:System.IO.FileLoadException:
+ Dynamo has detected a conflict with a dependency and may be unstable. If any issues are detected, please uninstall addins or packages and contact the provider.: 
+ While loading assembly archilab2022, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null, Dynamo detected that the dependency RevitAPIUI, Version=22.0.0.0, Culture=neutral, PublicKeyToken=null was already loaded with an incompatiable version. It is likely that another Revit Addin has loaded this assembly, please try uninstalling other Addins, and starting Dynamo again. Dynamo may be unstable in this state.
+It is likely one of the following assemblies loaded the incompatible version:
+UIFrameworkInterop, UIFramework, UIFrameworkServices, AddInManagerUI, APIInterop, RevitAPIIFC, IntfIFCAPI, RevitDBAPI, RevitAPI, AddInManager, GraphicsAPI, UtilityAPI, GeomUtilAPI, FamilyDBAPI, EssentialsDBAPI, RoomAreaPlanDBAPI, ArrayElemsDBAPI, StructuralDBAPI, HostObjDBAPI, SculptingDBAPI, ElementGroupDBAPI, CurtainGridFamilyDBAPI, SiteDBAPI, DetailDBAPI, BuildingSystemsDBAPI, EnergyAnalysisDBAPI, InterfaceAPI, IntfATFAPI, MaterialDBAPI, AnalysisAppsDBAPI, StructuralAnalysisDBAPI, RebarDBAPI, AssemblyDBAPI, StairRampDBAPI, APIDBAPI, DPartDBAPI, PersistenceDBAPI, InterfaceUtilAPI, PointCloudAccessAPI, NumberingDBAPI, MassingDBAPI, Autodesk.CivilAlignments.DBApplication, Autodesk.CoordinationModelDB, Autodesk.LinkTopography.Parser, Autodesk.ResultsBuilder.DBApplication, Autodesk.RouteAnalysis.DBApplication, Autodesk.SteelConnectionsDB, Autodesk.StructuralRibbon.Application, ConnectedDesktopDB, KeynoteDBServer, StraightSegmentCalculationServers, FittingAndAccessoryCalculationServers, CollaborateDB, RevitAPISteel, RSCloudClient, AddInJournaling, AddInJournalClient, FabricationPartBrowser, RevitAPIUI, UserInterfaceUtility, SSONET, Autodesk.RevitApplicationHome.Application, CEFRevitUtils, Autodesk.RevitApplicationHome.Utilities, APIUIAPI, DesktopMFCAPI, RevitMFCAPI, RevitUIAPI, BuildingSystemsUIAPI, EssentialsUIAPI, EnergyAnalysisUtilitiesAPI, DetailUIAPI, Autodesk.ATFTranslationServer.DBApplication, Autodesk.CivilAlignments.Application, Autodesk.CoordinationModelUI, Autodesk.FreeFormRebar.DB, Autodesk.IFC.Export.UI, Autodesk.LinkTopography.Commands.Application, Autodesk.MemberForces.Application, Autodesk.PnIDModeler.Application, Autodesk.PnIDModeler.Client, Autodesk.Precast.Application, Autodesk.Precast.UI, Autodesk.Precast.RevitBase, Autodesk.Precast.API, Autodesk.Precast.CNC, Autodesk.Precast.CNCExport, Autodesk.Precast.Commands, Autodesk.Precast.Geometry, Autodesk.Precast.RevitGeometry, Autodesk.Precast.RevitUI, Autodesk.Precast.ShopDrawings, Autodesk.Precast.Slab, Autodesk.Precast.Wall, Autodesk.ReinforcementNumbering.Application, Autodesk.ResultsExplorer.Application, Autodesk.Revit.CloudRendering.Application, Autodesk.RouteAnalysis.Application, Autodesk.SectionProperties.Application, Autodesk.SpaceNaming.Application, Autodesk.SteelConnectionsUI, AutoLoader, ConnectedDesktopUI, ContentDelivery, DynamoRevitVersionSelector, DynamoRevitDS, RevitServices, Autodesk.DynamoPlayer.Application, EnergyAnalysis, FittingAndAccessoryCalculationUIServers, KeynoteUIServer, PointCloudSnappingServer, PressureLossReport, AlignTag, Autodesk.BatchPrint.Application, Collaborate, CollaborateBrowser, SkyscraperClientHost, C4RNET, eTransmitForRevit, Autodesk.Revit.GenerativeDesign.Application, Autodesk.WorksharingMonitor.Application, Autodesk.WorksharingMonitor.Utilities, ColorSplasher, BIMOnePanelInformation, D5_Shell, D5Converter, DatasmithRevit2021, DiRoots.One, DiRoots.One.Commons, ExportViewSelectorAddin, FormItConverterRibbon, AXMImporter, MaterialWrapper, nwexportrevit_18, Snippets.scripting, pyRevit_2021_0f7c6f01e723b098_PyRevitLabs.PyRevit.Runtime.dll, pyRevit_2021_8c21cea5e97c07a5_pyRevitCore, pyRevit_2021_adcf75d839812f1c_pyRevitTools, pyRevit_2021_7d17640ab546f011_DG5I, Cads.RevitEsaPT.Exchange, RhinoInside.Revit.AddIn, RhinoInside.Revit.External, RhinoInside.Revit, RevitAPIUIMacrosInterop, RevitAPIMacrosInterop, Microsoft.GeneratedCode, RSEnterpriseClientInterop, RSEnterpriseClient, SSONETUI, RevitAPIBrowserUtils, RebarUIStartUpAPI, Autodesk.ResultsManager.Application, Autodesk.SteelConnections.ASRvtFamilyMapping, AXMImportorAddon, RFAToAXMAddon, RevitNodes, DSRevitNodesUI, DynamoSteelRevit, StructuralAnalysisResults
+2023-09-24 13:35:52Z : notification:System.IO.FileLoadException:
+ Dynamo has detected a conflict with a dependency and may be unstable. If any issues are detected, please uninstall addins or packages and contact the provider.: 
+ While loading assembly archilabUI2022, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null, Dynamo detected that the dependency RevitAPI, Version=22.0.0.0, Culture=neutral, PublicKeyToken=null was already loaded with an incompatiable version. It is likely that another Revit Addin has loaded this assembly, please try uninstalling other Addins, and starting Dynamo again. Dynamo may be unstable in this state.
+It is likely one of the following assemblies loaded the incompatible version:
+UIFrameworkInterop, UIFramework, UIFrameworkServices, AddInManagerUI, APIInterop, RevitAPIIFC, IntfIFCAPI, RevitDBAPI, RevitAPI, AddInManager, GraphicsAPI, UtilityAPI, GeomUtilAPI, FamilyDBAPI, EssentialsDBAPI, RoomAreaPlanDBAPI, ArrayElemsDBAPI, StructuralDBAPI, HostObjDBAPI, SculptingDBAPI, ElementGroupDBAPI, CurtainGridFamilyDBAPI, SiteDBAPI, DetailDBAPI, BuildingSystemsDBAPI, EnergyAnalysisDBAPI, InterfaceAPI, IntfATFAPI, MaterialDBAPI, AnalysisAppsDBAPI, StructuralAnalysisDBAPI, RebarDBAPI, AssemblyDBAPI, StairRampDBAPI, APIDBAPI, DPartDBAPI, PersistenceDBAPI, InterfaceUtilAPI, PointCloudAccessAPI, NumberingDBAPI, MassingDBAPI, Autodesk.CivilAlignments.DBApplication, Autodesk.CoordinationModelDB, Autodesk.LinkTopography.Parser, Autodesk.ResultsBuilder.DBApplication, Autodesk.RouteAnalysis.DBApplication, Autodesk.SteelConnectionsDB, Autodesk.StructuralRibbon.Application, ConnectedDesktopDB, KeynoteDBServer, StraightSegmentCalculationServers, FittingAndAccessoryCalculationServers, CollaborateDB, RevitAPISteel, RSCloudClient, AddInJournaling, AddInJournalClient, FabricationPartBrowser, RevitAPIUI, UserInterfaceUtility, SSONET, Autodesk.RevitApplicationHome.Application, CEFRevitUtils, Autodesk.RevitApplicationHome.Utilities, APIUIAPI, DesktopMFCAPI, RevitMFCAPI, RevitUIAPI, BuildingSystemsUIAPI, EssentialsUIAPI, EnergyAnalysisUtilitiesAPI, DetailUIAPI, Autodesk.ATFTranslationServer.DBApplication, Autodesk.CivilAlignments.Application, Autodesk.CoordinationModelUI, Autodesk.FreeFormRebar.DB, Autodesk.IFC.Export.UI, Autodesk.LinkTopography.Commands.Application, Autodesk.MemberForces.Application, Autodesk.PnIDModeler.Application, Autodesk.PnIDModeler.Client, Autodesk.Precast.Application, Autodesk.Precast.UI, Autodesk.Precast.RevitBase, Autodesk.Precast.API, Autodesk.Precast.CNC, Autodesk.Precast.CNCExport, Autodesk.Precast.Commands, Autodesk.Precast.Geometry, Autodesk.Precast.RevitGeometry, Autodesk.Precast.RevitUI, Autodesk.Precast.ShopDrawings, Autodesk.Precast.Slab, Autodesk.Precast.Wall, Autodesk.ReinforcementNumbering.Application, Autodesk.ResultsExplorer.Application, Autodesk.Revit.CloudRendering.Application, Autodesk.RouteAnalysis.Application, Autodesk.SectionProperties.Application, Autodesk.SpaceNaming.Application, Autodesk.SteelConnectionsUI, AutoLoader, ConnectedDesktopUI, ContentDelivery, DynamoRevitVersionSelector, DynamoRevitDS, RevitServices, Autodesk.DynamoPlayer.Application, EnergyAnalysis, FittingAndAccessoryCalculationUIServers, KeynoteUIServer, PointCloudSnappingServer, PressureLossReport, AlignTag, Autodesk.BatchPrint.Application, Collaborate, CollaborateBrowser, SkyscraperClientHost, C4RNET, eTransmitForRevit, Autodesk.Revit.GenerativeDesign.Application, Autodesk.WorksharingMonitor.Application, Autodesk.WorksharingMonitor.Utilities, ColorSplasher, BIMOnePanelInformation, D5_Shell, D5Converter, DatasmithRevit2021, DiRoots.One, DiRoots.One.Commons, ExportViewSelectorAddin, FormItConverterRibbon, AXMImporter, MaterialWrapper, nwexportrevit_18, Snippets.scripting, pyRevit_2021_0f7c6f01e723b098_PyRevitLabs.PyRevit.Runtime.dll, pyRevit_2021_8c21cea5e97c07a5_pyRevitCore, pyRevit_2021_adcf75d839812f1c_pyRevitTools, pyRevit_2021_7d17640ab546f011_DG5I, Cads.RevitEsaPT.Exchange, RhinoInside.Revit.AddIn, RhinoInside.Revit.External, RhinoInside.Revit, RevitAPIUIMacrosInterop, RevitAPIMacrosInterop, Microsoft.GeneratedCode, RSEnterpriseClientInterop, RSEnterpriseClient, SSONETUI, RevitAPIBrowserUtils, RebarUIStartUpAPI, Autodesk.ResultsManager.Application, Autodesk.SteelConnections.ASRvtFamilyMapping, AXMImportorAddon, RFAToAXMAddon, RevitNodes, DSRevitNodesUI, DynamoSteelRevit, StructuralAnalysisResults
+2023-09-24 13:35:52Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:36:13Z : Active view is now 3D - Complete
+2023-09-24 13:36:23Z : Active view is now ROOF BEAM LEVEL
+2023-09-24 13:36:25Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:36:29Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:36:32Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:36:43Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:36:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:37:03Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:37:07Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:37:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:38:06Z : Active view is now BEAM LEVEL
+2023-09-24 13:38:08Z : Active view is now ROOF BEAM LEVEL
+2023-09-24 13:38:10Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:38:14Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:38:22Z : Active view is now 3D - Complete
+2023-09-24 13:38:24Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:38:25Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:38:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:39:03Z : Active view is now BEAM LEVEL
+2023-09-24 13:39:04Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:39:34Z : Active view is now 3D - Complete
+2023-09-24 13:39:46Z : Active view is now ROOF BEAM LEVEL
+2023-09-24 13:39:48Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:39:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:40:20Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:40:22Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:40:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:41:29Z : Active view is now ROOF BEAM LEVEL
+2023-09-24 13:41:30Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:41:46Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:41:49Z : Active view is now ROOF BEAM LEVEL
+2023-09-24 13:41:51Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:41:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:42:06Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 13:42:08Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:42:19Z : Active view is now 3D - Complete
+2023-09-24 13:42:23Z : Active view is now 3D - Complete
+2023-09-24 13:42:27Z : Active view is now 3D - Structural_Color coded
+2023-09-24 13:42:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:43:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:44:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:45:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:46:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:47:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:48:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:49:52Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:50:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:51:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:52:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:53:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:54:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:55:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:56:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:57:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:58:26Z : Active view is now ROOF BEAM LEVEL
+2023-09-24 13:58:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 13:59:24Z : Active view is now ROOF BEAM LEVEL(RAFTER) Copy 1
+2023-09-24 13:59:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:00:06Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-24 14:00:08Z : Active view is now PLO_ROOF PLAN
+2023-09-24 14:00:32Z : Active view is now 3D - Complete
+2023-09-24 14:00:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:00:54Z : Active view is now PLO_ROOF BEAM LEVEL
+2023-09-24 14:00:58Z : Active view is now ROOF BEAM LEVEL(RAFTER)
+2023-09-24 14:01:01Z : Active view is now ROOF BEAM LEVEL(BATT)
+2023-09-24 14:01:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:02:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:03:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:04:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:05:36Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-24 14:05:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:05:58Z : Active view is now ROOF BEAM LEVEL(BATT)
+2023-09-24 14:06:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:07:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:08:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:09:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:10:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:11:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:12:09Z : Active view is now ROOF BEAM LEVEL(BATT)
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:15Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:20Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-24 14:12:24Z : Active view is now PLO_ROOF BEAM LEVEL
+2023-09-24 14:12:26Z : Active view is now PLO_ROOF PLAN
+2023-09-24 14:12:36Z : Active view is now 3D - Complete
+2023-09-24 14:12:47Z : Active view is now 3D - Complete
+2023-09-24 14:12:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: Beam or Brace is slightly off axis and may cause inaccuracies.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:54Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:12:57Z : !! Warning: There are identical instances in the same place. This will result in double counting in schedules.
+2023-09-24 14:13:31Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 14:13:32Z : Active view is now ROOF BEAM LEVEL(RAFTER)
+2023-09-24 14:13:39Z : Active view is now PLO_ROOF PLAN
+2023-09-24 14:13:45Z : Active view is now ROOF BEAM LEVEL(BATT)
+2023-09-24 14:13:52Z : Active view is now 3D - Complete
+2023-09-24 14:13:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:14:02Z : Active view is now 3D - Complete
+2023-09-24 14:14:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:15:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:16:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:17:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:18:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:19:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:20:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:21:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:22:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:23:14Z : Active view is now ROOF BEAM LEVEL(RAFTER)
+2023-09-24 14:23:25Z : Clearing workspace...
+2023-09-24 14:23:35Z : Active view is now ROOF BEAM LEVEL(RAFTER)
+2023-09-24 14:23:40Z : Active view is now 3D - Complete
+2023-09-24 14:23:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:23:56Z : Active view is now ROOF BEAM LEVEL(RAFTER)
+2023-09-24 14:23:57Z : Active view is now PLO_ROOF PLAN
+2023-09-24 14:24:00Z : Active view is now PLO_BEAM LEVEL
+2023-09-24 14:24:05Z : Active view is now ROOF BEAM LEVEL(RAFTER)
+2023-09-24 14:24:06Z : Active view is now ROOF BEAM LEVEL(BATT)
+2023-09-24 14:24:21Z : Active view is now ROOF BEAM LEVEL(BATT)
+2023-09-24 14:24:33Z : Active view is now 3D - Structural_Color coded ASANKA
+2023-09-24 14:24:37Z : Active view is now PLO_ROOF BEAM LEVEL
+2023-09-24 14:24:40Z : Active view is now 3D - Complete
+2023-09-24 14:24:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:25:53Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\beam by roof.dyn
+2023-09-24 14:26:50Z : Clearing workspace...
+2023-09-24 14:27:56Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is removed
+2023-09-24 14:27:56Z : Goodbye

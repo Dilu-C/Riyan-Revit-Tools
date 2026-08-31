@@ -1,0 +1,305 @@
+{
+  "Uuid": "cfb23751-b258-4f7b-bc1a-0139bdeadb52",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Geometry",
+  "Description": "Get the location point in the 3 coordinate systems : Shared Coordinates, Project Coordinates, Relative Origin Coordinates.",
+  "Name": "Convert from InternalOrigin CoordinateSystem",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Autodesk.DesignScript.Geometry.Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "point",
+        "TypeName": "Autodesk.DesignScript.Geometry.Point",
+        "TypeRank": 1,
+        "DefaultValue": null,
+        "Description": "Point in Internal Origin System"
+      },
+      "Id": "00928172fd7e4289839a6e763a57f625",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d0334eea206b42429bd0588ca02a76fb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Point (Survey System)",
+      "Id": "db095d75199541d69ed8eb161c2a10cf",
+      "Inputs": [
+        {
+          "Id": "1f86d62be5d245ae9916ad32c3e1d372",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];\nx[2];",
+      "Id": "e3aa7705675047368fb4fafa19f13efa",
+      "Inputs": [
+        {
+          "Id": "94ce86eaf1aa4ebf8a569f04dae3b1c7",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4cca68a9e7e34355b27c321b069380b4",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "23efb98627414d65903e4f104f0d22fa",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "f0222d746b4c4ee884775911dcebb8ba",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Point (Project Base Pt System)",
+      "Id": "df660c64370d4258973fbeddfd1cd287",
+      "Inputs": [
+        {
+          "Id": "779bdc3f42fc4189b0128eaa2c17f678",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Point (Internal Origin System)",
+      "Id": "3e6fff7a277e419f8f23a6d2e18b6769",
+      "Inputs": [
+        {
+          "Id": "1160f2f980974498871b20d87d72a30f",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitServices')\nimport RevitServices \nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory\n\n# Create a list object from singleton...\ndef tolist(obj1):\n\tif hasattr(obj1,\"__iter__\"): return obj1\n\telse: return [obj1]\n\t\n# Convert Point from  Internal to Shared Coordinates...\ndef ToSharedCoordinates(pt):\n\tpt = doc.ActiveProjectLocation.GetTotalTransform().Inverse.OfPoint(pt).ToPoint()\n\treturn pt\n\n# Convert Point from Relative to Project Coordinates...\ndef ToProjectCoordinates(pt,pbp):\n\tpt = pt.Subtract(pbp).ToPoint()\n\treturn pt\n\n# Input Variables...\npts = tolist(IN[0])\n# Output Variables...\nshared, project, relative = [], [], []\n\n# Collect Project Basepoint...\nbasePt = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_ProjectBasePoint).FirstElement()\npbp = basePt.get_BoundingBox(None).Min\n\nfor pt in pts:\n\t# Convert point to Shared Coordinates...\n\tshared.append(ToSharedCoordinates(pt.ToXyz()))\n\t# Convert point to Project Coordinates...\n\tproject.append(ToProjectCoordinates(pt.ToXyz(),pbp))\n\t# Point is already Relative to the Internal Origin...\n\trelative.append(pt)\n     \nOUT = shared, project, relative",
+      "VariableInputPorts": true,
+      "Id": "98bb4a4fde3b4d8489a30b2f21d7ba04",
+      "Inputs": [
+        {
+          "Id": "dc44e1ff8788440dad3db99e0bdd261b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4e9adb251eb34417908880479bc82c61",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "d0334eea206b42429bd0588ca02a76fb",
+      "End": "dc44e1ff8788440dad3db99e0bdd261b",
+      "Id": "d6f524526e7d43b38691e08011d31b6e"
+    },
+    {
+      "Start": "4cca68a9e7e34355b27c321b069380b4",
+      "End": "1f86d62be5d245ae9916ad32c3e1d372",
+      "Id": "215fd05f50df4554835de12a7d8173c0"
+    },
+    {
+      "Start": "23efb98627414d65903e4f104f0d22fa",
+      "End": "779bdc3f42fc4189b0128eaa2c17f678",
+      "Id": "cd33bda7b45e434299cd32c2a4469b32"
+    },
+    {
+      "Start": "f0222d746b4c4ee884775911dcebb8ba",
+      "End": "1160f2f980974498871b20d87d72a30f",
+      "Id": "abd09a0940f14ce5955abb3865ae5f1e"
+    },
+    {
+      "Start": "4e9adb251eb34417908880479bc82c61",
+      "End": "94ce86eaf1aa4ebf8a569f04dae3b1c7",
+      "Id": "eee725d889024c0bb7cc844b46ea8db2"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "00928172fd7e4289839a6e763a57f625",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -95.1762872558693,
+        "Y": 261.36581510421
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "db095d75199541d69ed8eb161c2a10cf",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 721.210865666245,
+        "Y": 235.710592237065
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "e3aa7705675047368fb4fafa19f13efa",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 552.013787327422,
+        "Y": 261.731007527967
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "df660c64370d4258973fbeddfd1cd287",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 739.973741643578,
+        "Y": 307.400237782767
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "3e6fff7a277e419f8f23a6d2e18b6769",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 745.675083454366,
+        "Y": 391.475559276733
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "98bb4a4fde3b4d8489a30b2f21d7ba04",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 385.977201727344,
+        "Y": 260.216611786732
+      }
+    ],
+    "Annotations": [],
+    "X": 68.1856975131012,
+    "Y": 152.526930124868,
+    "Zoom": 0.594053315602365
+  }
+}

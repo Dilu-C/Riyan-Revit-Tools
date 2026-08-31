@@ -1,0 +1,165 @@
+{
+  "Uuid": "3d23a9eb-a9dd-4d2c-bcc6-4e1f76abfbb0",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Reference",
+  "Description": "Collects references from the horizontal grid lines of the curtain wall. Also works with a linked curtain wall.",
+  "Name": "CurtainWall Horizontal References",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "CurtainWall",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "19d4ab9e5c7a46629066e7ecc04f2384",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9208117c8fea49f2baf30e15b309b9bc",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "References",
+      "Id": "46c5c4b1401a48b69c445e0e0362b762",
+      "Inputs": [
+        {
+          "Id": "ce163fd57d954e48b38a76dc671f7315",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Based on a script by maciek.glowka : http://lubim.co\n#By Mark Ackerley https://forum.dynamobim.com/t/dimension-horizontal-curtain-grid/35338\nimport clr\nclr.AddReference(\"RevitAPI\")\nfrom Autodesk.Revit.DB import *\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\n\nwalls = UnwrapElement(IN[0])\nif not hasattr(walls, '__iter__'):\n    walls = [walls]\n\t\nfor wall in walls:\n\tline = wall.Location.Curve\n\tlineDir = line.GetEndPoint(1) - line.GetEndPoint(0)\n\tdoc=wall.Document\n\t\nrefArray = ReferenceArray()\noptions = Options()\noptions.ComputeReferences = True\noptions.IncludeNonVisibleObjects = True\ngeoElement = wall.get_Geometry(options)\n#get side references\nfor obj in geoElement:\n\tif isinstance(obj,Solid):\n\t\tfor f in obj.Faces:\n\t\t\tfaceNormal = f.FaceNormal.Normalize()\n\t\t\tif faceNormal.IsAlmostEqualTo(XYZ(0,0,1)) or faceNormal.IsAlmostEqualTo(XYZ(0,0,-1)):\n\t\t\t\trefArray.Append(f.Reference)\n    \n#get grid references\nfor id in wall.CurtainGrid.GetUGridLineIds():\n\tgridLine = doc.GetElement(id)\n\tgridGeo = gridLine.get_Geometry(options)\n\tfor obj in gridGeo:\n\t\tif isinstance(obj,Line):\n\t\t\trefArray.Append(obj.Reference)\n\nOUT = refArray",
+      "VariableInputPorts": true,
+      "Id": "54b392b6329441268d19e8c0dea32ef1",
+      "Inputs": [
+        {
+          "Id": "86d393b9c4b245199cf9f52e3c42c79a",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "30c2f6a6a9514b69b4a99e099b6c2074",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "9208117c8fea49f2baf30e15b309b9bc",
+      "End": "86d393b9c4b245199cf9f52e3c42c79a",
+      "Id": "f5055c7dd2504be8afb40b057174a6db"
+    },
+    {
+      "Start": "30c2f6a6a9514b69b4a99e099b6c2074",
+      "End": "ce163fd57d954e48b38a76dc671f7315",
+      "Id": "76b00488400844549bd1de83dc55a5a3"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "19d4ab9e5c7a46629066e7ecc04f2384",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 606.0,
+        "Y": 319.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "46c5c4b1401a48b69c445e0e0362b762",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1012.4,
+        "Y": 316.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "54b392b6329441268d19e8c0dea32ef1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 850.4,
+        "Y": 318.4
+      }
+    ],
+    "Annotations": [],
+    "X": -111.419469646175,
+    "Y": 11.090607006948,
+    "Zoom": 0.954042924882813
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "Uuid": "44b8e723-1dd6-481f-9401-b9aa3241c03e",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.FillPattern",
+  "Description": "Exports as string a Fill Pattern Element in a .pat (pattern) file .",
+  "Name": "Export PAT File",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "fillPatternElement",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "682adf40eeea4e58ab258437ba400e24",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "2a84bbaff22448aab4781d7ade4d7282",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "units",
+        "TypeName": "string",
+        "TypeRank": 0,
+        "DefaultValue": "\"MM\"",
+        "Description": "Desired units : \"MM\" or \"INCH\""
+      },
+      "Id": "6a6f2b32c2e7414eb0016c205b63b087",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "39870d26481d4089a85e1463f2399eb7",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "filePath",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Desired name + .pat"
+      },
+      "Id": "a8205859dd564e18ab285d51b7fc7710",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "0afffabc0b934ba785276d1b16ea050e",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nimport sys\nsys.path.append(r'C:\\Program Files (x86)\\IronPython 2.7\\Lib')\nimport codecs\n\nfillPatterns = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nunits=IN[1]\nfilePath = IN[2]\nresult,segments = [],[]\n\nfor fillPattern in fillPatterns:\n\tif version < 2021:\n\t\tut_degrees = DisplayUnitType.DUT_DECIMAL_DEGREES\n\t\tif units == \"MM\":\n\t\t\tut_units = DisplayUnitType.DUT_MILLIMETERS\n\t\telse:\n\t\t\tut_units = DisplayUnitType.DUT_FEET_FRACTIONAL_INCHES\n\telse:\n\t\tut_degrees = UnitTypeId.Degrees\n\t\tif units == \"MM\":\n\t\t\tut_units = UnitTypeId.Millimeters\n\t\telse:\n\t\t\tut_units = UnitTypeId.FeetFractionalInches\n\tpattern=fillPattern.GetFillPattern()\n\ttarget=pattern.Target\n\tfillgrids=pattern.GetFillGrids()\n\tname=fillPattern.Name\n\tfor fillG in fillgrids:\n\t\tresult.append([UnitUtils.ConvertFromInternalUnits(fillG.Angle,ut_degrees),round(UnitUtils.ConvertFromInternalUnits(fillG.Origin.U,ut_units),4),round(UnitUtils.ConvertFromInternalUnits(fillG.Origin.V,ut_units),4),round(UnitUtils.ConvertFromInternalUnits(fillG.Shift,ut_units),4), round(UnitUtils.ConvertFromInternalUnits(fillG.Offset,ut_units),4)])\n\t\tsegments.append([round(UnitUtils.ConvertFromInternalUnits(fill,ut_units),4) if fillG.GetSegments() else [None,None] for fill in fillG.GetSegments()])\n\t\tsegments2=[[p*-1 if i%2 else p for i,p in enumerate(seg)] for seg in segments]\n\t\toutput=list(map(lambda x, y:x + y, result, segments2))\n\t\toutput2=\"\\n\".join(map(str, output))\n\t\toutput3=output2.translate({ord(i): None for i in '[]'})\n\t\tfinal=\"\\n\"+\";%UNITS=\"+units+\"\\n\"+\";%VERSION=3.0\"+\"\\n\"+\"\\n\"+\"*\"+name+\",exported by Dynamo\"+\"\\n\"+\";%TYPE=\"+str(target).upper()+\"\\n\"+output3\n\nwith codecs.open(filePath, 'w', encoding = 'UTF-8') as file:\n\tfile.write(final)\n\nOUT = final",
+      "VariableInputPorts": true,
+      "Id": "8c38266673954cfeb6a731bad4e9f984",
+      "Inputs": [
+        {
+          "Id": "54c626c2b3f24d5bba0f0ee31a711440",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "7eb0f4d8b0f0460caaaf028740f23be7",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "51126f96b7454ff680e62bf03f027fb4",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a5ccf97268bc4e45b236dae4691bbe81",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Exported string",
+      "Id": "fd704466c64948b69dfe56aedd0499b2",
+      "Inputs": [
+        {
+          "Id": "fe35d4d8a9f0460d83387a890eb9cbd5",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "2a84bbaff22448aab4781d7ade4d7282",
+      "End": "54c626c2b3f24d5bba0f0ee31a711440",
+      "Id": "336065a017714486a7ca1b4c37be36ec"
+    },
+    {
+      "Start": "39870d26481d4089a85e1463f2399eb7",
+      "End": "7eb0f4d8b0f0460caaaf028740f23be7",
+      "Id": "c8112401c9d042de86106b6fd1a6f53f"
+    },
+    {
+      "Start": "0afffabc0b934ba785276d1b16ea050e",
+      "End": "51126f96b7454ff680e62bf03f027fb4",
+      "Id": "4e5b6ee1e9084783a2dd2068242c67f3"
+    },
+    {
+      "Start": "a5ccf97268bc4e45b236dae4691bbe81",
+      "End": "fe35d4d8a9f0460d83387a890eb9cbd5",
+      "Id": "367ce3ae3d4b46279f81419aee235fed"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "682adf40eeea4e58ab258437ba400e24",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 225.200871671092,
+        "Y": 244.7
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "6a6f2b32c2e7414eb0016c205b63b087",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 225.200871671092,
+        "Y": 328.7
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "a8205859dd564e18ab285d51b7fc7710",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 225.200871671092,
+        "Y": 421.7
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "8c38266673954cfeb6a731bad4e9f984",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 619.600871671091,
+        "Y": 305.7
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "fd704466c64948b69dfe56aedd0499b2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 844.000871671092,
+        "Y": 305.7
+      }
+    ],
+    "Annotations": [],
+    "X": -126.334194555524,
+    "Y": -3.15712583131199,
+    "Zoom": 0.765829392851552
+  }
+}

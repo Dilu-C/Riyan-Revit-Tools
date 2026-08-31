@@ -1,0 +1,165 @@
+{
+  "Uuid": "0490c879-ad31-4845-aaa0-3efd67e04022",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Level",
+  "Description": "Gets an element's level.\r\nBased on a Clockwork's node",
+  "Name": "Element Level",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "0e342b4e3a7b4ea4ad7efeaaa676fcc6",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "37eae418a2894729b378383e1afeff9b",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\n\r\n#Definition by Daniel Woodcock\r\ndef get_sketch_ids(item):\r\n\teIds = []\r\n\tt = Transaction(item.Document, \"Temp\")\r\n\tt.Start()   \r\n\teIds = item.Document.Delete(item.Id) \r\n\tt.RollBack()  \r\n\treturn eIds\r\n\t\r\n#Inspired by Clockwork\r\ndef GetLevel(item):\r\n\tval = None\r\n\tdoc = item.Document\r\n\tif hasattr(item, \"LevelId\"): \r\n\t\tval = doc.GetElement(item.LevelId)\r\n\t\tif val: return val\r\n\tif hasattr(item, \"Level\"):\r\n\t\tval = item.Level\r\n\t\tif val: return val\r\n\tif hasattr(item, \"GenLevel\"):\r\n\t\tval = item.GenLevel\r\n\t\tif val: return val\r\n\tif (item.GetType().ToString() in (\"Autodesk.Revit.DB.Architecture.StairsRun\", \"Autodesk.Revit.DB.Architecture.StairsLanding\")):\r\n\t\titem = item.GetStairs()\r\n\tif (item.GetType().ToString() == \"Autodesk.Revit.DB.Architecture.Stairs\") or item.Category.Id == ElementId(BuiltInCategory.OST_Ramps):\r\n\t\ttry: return doc.GetElement(item.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM).AsElementId())\r\n\t\texcept: pass\r\n\tif (item.GetType().ToString() == \"Autodesk.Revit.DB.ExtrusionRoof\"):\r\n\t\ttry: return doc.GetElement(item.get_Parameter(BuiltInParameter.ROOF_CONSTRAINT_LEVEL_PARAM).AsElementId())\r\n\t\texcept: pass\r\n\tif (item.GetType().ToString() == \"Autodesk.Revit.DB.Mechanical.Duct\" or \"Autodesk.Revit.DB.Electrical.Conduit\"):\r\n\t\ttry: return doc.GetElement(item.get_Parameter(BuiltInParameter.RBS_START_LEVEL_PARAM).AsElementId())\r\n\t\texcept: pass\r\n\tif hasattr(item, \"OwnerViewId\"):\r\n\t\tview = doc.GetElement(item.OwnerViewId)\r\n\t\tif hasattr(view, \"GenLevel\"):\r\n\t\t\tval = view.GenLevel\r\n\t\t\tif val: return val\r\n\tif not val:\r\n\t\tcollector = FilteredElementCollector(doc).OfClass(Level).ToElements()\r\n\t\tif isinstance(item,FamilyInstance) and item.Symbol.Family.IsInPlace:\r\n\t\t\tids = get_sketch_ids(item)\r\n\t\t\telems = [doc.GetElement(id) for id in ids]\r\n\t\t\tlName = next((ex.get_Parameter(BuiltInParameter.SKETCH_PLANE_PARAM).AsString() for ex in elems if ex.GetType() == Extrusion), None)\r\n\t\t\ttry: return [level for level in FilteredElementCollector(doc).OfClass(Level).ToElements() if lName.split(\": \")[-1] == level.Name][0]\r\n\t\t\texcept: return None\r\n\t\telse:\r\n\t\t\ttry: return doc.GetElement(item.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM).AsElementId())\r\n\t\t\texcept: \r\n\t\t\t\ttry: return doc.GetElement(item.get_Parameter(BuiltInParameter.INSTANCE_SCHEDULE_ONLY_LEVEL_PARAM).AsElementId())\r\n\t\t\t\texcept: \r\n\t\t\t\t\ttry: return doc.GetElement(item.get_Parameter(BuiltInParameter.SCHEDULE_LEVEL_PARAM).AsElementId())\r\n\t\t\t\t\texcept:\r\n\t\t\t\t\t\t#if item is work plane based\r\n\t\t\t\t\t\ttry: return [level for level in collector if item.get_Parameter(BuiltInParameter.SKETCH_PLANE_PARAM).AsString().split(\": \")[-1] == level.Name][0]\r\n\t\t\t\t\t\texcept: return None\r\n\r\nProcessLists = lambda function, lists: [ProcessLists(function, item) if isinstance(item, list) else function(item) for item in lists]\r\nApplyFunction = lambda func, objs: ProcessLists(func, objs) if isinstance(objs, list) else [func(objs)]\r\n\r\ndef Unwrap(item):\r\n    return UnwrapElement(item)\r\n    \r\nif isinstance(IN[0], list):\r\n\titems = ProcessLists(Unwrap, IN[0])\r\nelse:\r\n\titems = Unwrap(IN[0])\r\n\r\nOUT=ApplyFunction(GetLevel,items)",
+      "VariableInputPorts": true,
+      "Id": "d0c477c32c0547af8a46ceb7934e406d",
+      "Inputs": [
+        {
+          "Id": "d32a522f929a45d9893245b629e6fe9e",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "9d2701bd9ea648aab0a234c290324dd0",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "level",
+      "Id": "1d3a5181d0f34eeb96472ee00c94e33d",
+      "Inputs": [
+        {
+          "Id": "ca469faa4dd44404b48b43e32afefba3",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "37eae418a2894729b378383e1afeff9b",
+      "End": "d32a522f929a45d9893245b629e6fe9e",
+      "Id": "8bde9cf2efca405cacf799033c6a7d84"
+    },
+    {
+      "Start": "9d2701bd9ea648aab0a234c290324dd0",
+      "End": "ca469faa4dd44404b48b43e32afefba3",
+      "Id": "8a377fbe7f984a38b139e67b1e6f47c1"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "0e342b4e3a7b4ea4ad7efeaaa676fcc6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 250.4,
+        "Y": 258.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "d0c477c32c0547af8a46ceb7934e406d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 438.4,
+        "Y": 258.400000000001
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "1d3a5181d0f34eeb96472ee00c94e33d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 662.4,
+        "Y": 258.4
+      }
+    ],
+    "Annotations": [],
+    "X": -160.894340706755,
+    "Y": 21.6746374278086,
+    "Zoom": 1.05429821501133
+  }
+}

@@ -1,0 +1,267 @@
+{
+  "Uuid": "a3eb95c1-3a0d-4f16-8f16-67523827d3a4",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.ConnectorElement",
+  "Description": "In a familyDocument, creates a new electrical ConnectorElement.",
+  "Name": "Create ElectricalConnector",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2022\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n#https://github.com/albandechasteigner/GeniusLociForDynamo\r\n\r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference('RevitServices')\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\nimport System\r\n\r\ninputdoc = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\r\nmepSystemTypes = IN[1] if isinstance(IN[1],list) else [IN[1]]\r\nreferences = IN[2] if isinstance(IN[2],list) else [IN[2]]\r\nconnector=[]\r\nif inputdoc[0] == None and (DocumentManager.Instance.CurrentDBDocument).IsFamilyDocument :\r\n\tdoc = DocumentManager.Instance.CurrentDBDocument\r\nelse : doc = inputdoc[0]\r\n\r\nTransactionManager.Instance.ForceCloseTransaction()\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\nfor mepSystemType, ref in zip(mepSystemTypes, references):\r\n\tif isinstance(mepSystemType, Autodesk.Revit.DB.Electrical.ElectricalSystemType):\r\n\t\tmepSys=mepSystemType\r\n\telse:\r\n\t\tmepSys=System.Enum.Parse(Autodesk.Revit.DB.Electrical.ElectricalSystemType, mepSystemType)\r\n\tconnector.append(ConnectorElement.CreateElectricalConnector(doc, mepSys, ref))\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = connector if isinstance(IN[2], list) else connector[0]",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "daaa8b0b47c346e3b6439bb80dce0b8c",
+      "Inputs": [
+        {
+          "Id": "d373c3c4016c41b7bcfa8620009ad599",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "52b84d4ed1c54b73bfec290b7d9ece0b",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "2b46f9f72e3e4528b27fcd3ddf30a237",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "ba81e6a9654c4f0ea352212905938682",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ConnectorElement",
+      "Id": "5b1c152ecc724e2f91f3c41192a6919f",
+      "Inputs": [
+        {
+          "Id": "8d0c911b2204428e92afb5e3a9c0714d",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "familyDocument",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Autodesk.Revit.DB.Document\nOptional input"
+      },
+      "Id": "dc595f1d904d4128be99b0022ff1da0b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3cd834861c474ad49a741d02853a2afa",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "electricalSystemType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Autodesk.Revit.DB.ElectricalSystemType or string"
+      },
+      "Id": "02b696b6ae404c2dbc1b7f62d44042a7",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "70cb13670efa43259f157716d3e481c5",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "reference",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Autodesk.Revit.DB.Reference"
+      },
+      "Id": "ba697486d42049328c71e1d12ccfefe0",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f31246a7a904490dabb7d539ebfe63c1",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "ba81e6a9654c4f0ea352212905938682",
+      "End": "8d0c911b2204428e92afb5e3a9c0714d",
+      "Id": "dd74ad0b9f6c493db9801d98cc9012aa"
+    },
+    {
+      "Start": "3cd834861c474ad49a741d02853a2afa",
+      "End": "d373c3c4016c41b7bcfa8620009ad599",
+      "Id": "745eb8a05c364161a1d6d89fe12db76c"
+    },
+    {
+      "Start": "70cb13670efa43259f157716d3e481c5",
+      "End": "52b84d4ed1c54b73bfec290b7d9ece0b",
+      "Id": "f82c2cbe71b9431993f9dfff134e47ee"
+    },
+    {
+      "Start": "f31246a7a904490dabb7d539ebfe63c1",
+      "End": "2b46f9f72e3e4528b27fcd3ddf30a237",
+      "Id": "8fa20b7a22be4633829ac1b15d3e0d2e"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.0.5650",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -3363.5159617013037,
+      "EyeY": 1716.5325524518296,
+      "EyeZ": 7786.7754597697494,
+      "LookX": 1586.8518992013037,
+      "LookY": -1719.0325524518296,
+      "LookZ": -7669.5025715861557,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Create ElectricalConnector",
+        "Id": "daaa8b0b47c346e3b6439bb80dce0b8c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 465.59999999999991,
+        "Y": 134.40000000000003
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "5b1c152ecc724e2f91f3c41192a6919f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 769.60000000000025,
+        "Y": 130.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "dc595f1d904d4128be99b0022ff1da0b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 52.7999999999999,
+        "Y": 111.20000000000002
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "02b696b6ae404c2dbc1b7f62d44042a7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -118.39999999999998,
+        "Y": 208.00000000000003
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "ba697486d42049328c71e1d12ccfefe0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 41.848379234696495,
+        "Y": 311.12412299943253
+      }
+    ],
+    "Annotations": [],
+    "X": 276.3593462929515,
+    "Y": 71.164083697993362,
+    "Zoom": 0.822695359375
+  }
+}

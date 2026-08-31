@@ -1,0 +1,215 @@
+{
+  "Uuid": "4bd02371-a62f-4863-b968-3e8d758d9240",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Works only in Revit 2018.1 and later.\r\nThe material must already have an assigned texture.\r\nWorks only with the \"main\" image.(In the Generic/Wood/Masonry/... Properties tab)",
+  "Name": "Material Change Texture Path",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "material",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "80bf08a7e78e4ae99d63b00115a4549f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ab2eb19fbe344853a91645b8244c60b4",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Material",
+      "Id": "0f53346b583f40bc8cf41e049efb2d0c",
+      "Inputs": [
+        {
+          "Id": "f34e76d8e00b4db88440815ea173b3df",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "FilePath",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "a050e1e00adb4eedbbf9fff99e47bf15",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "fa847515adb441489105d84c85797c49",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\ndef toList(obj):\n    if hasattr(obj, '__iter__'): return obj\n    else: return [obj]\n    \nmats = toList(UnwrapElement(IN[0]))\npaths = toList(IN[1])\n\nfor mat, path in zip(mats, paths):\n\tappearanceAssetId = mat.AppearanceAssetId\n\tassetElem = doc.GetElement(appearanceAssetId)\n\tTransactionManager.Instance.EnsureInTransaction(doc)\n\twith Visual.AppearanceAssetEditScope(doc) as editScope:\n\t\teditableAsset = editScope.Start(assetElem.Id)\n\t\tif (editableAsset.FindByName(\"BaseSchema\")).Value == \"GenericSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"generic_diffuse\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"CeramicSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"ceramic_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"ConcreteSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"concrete_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"MetallicPaintSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"metallicpaint_base_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"MasonryCMUSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"masonrycmu_color\")\t\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PlasticVinylSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"plasticvinyl_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"HardwoodSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"hardwood_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"StoneSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"stone_color\")\t\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"SolidGlassSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"solidglass_transmittance_custom_color\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PrismLayeredSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"layered_diffuse\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PrismMetalSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"surface_roughness\")\t\t\t\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PrismOpaqueSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"opaque_albedo\")\n\t\telif (editableAsset.FindByName(\"BaseSchema\")).Value == \"PrismTransparentSchema\":\n\t\t\tproperty = editableAsset.FindByName(\"surface_roughness\")\n\t\tconnectedAsset = property.GetSingleConnectedAsset()\n\t\ttexturePath = connectedAsset.FindByName(\"unifiedbitmap_Bitmap\")\n\t\tif texturePath.IsValidValue(path):\n\t\t\ttexturePath.Value = path\n\t\teditScope.Commit(True)\n\tTransactionManager.Instance.TransactionTaskDone()\n\nif isinstance(IN[0], list): OUT = mats\nelse: OUT = mats[0]",
+      "VariableInputPorts": true,
+      "Id": "b40a5a5039c248bea74941549bd8bfa9",
+      "Inputs": [
+        {
+          "Id": "7da34aabc191433db8f7ce698f1ef66d",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "46f92f10026d4a7fa6a0ef037b3f704a",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "abc942403a1e4c9084f78008e3bbdb9e",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "ab2eb19fbe344853a91645b8244c60b4",
+      "End": "7da34aabc191433db8f7ce698f1ef66d",
+      "Id": "27e4606041c54ed8a14e7b31b501e961"
+    },
+    {
+      "Start": "fa847515adb441489105d84c85797c49",
+      "End": "46f92f10026d4a7fa6a0ef037b3f704a",
+      "Id": "59a4028b4dfc4b10b5e15ed1e5be6e42"
+    },
+    {
+      "Start": "abc942403a1e4c9084f78008e3bbdb9e",
+      "End": "f34e76d8e00b4db88440815ea173b3df",
+      "Id": "744d3818995f4587ab0170898b3e8bdd"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "80bf08a7e78e4ae99d63b00115a4549f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 151.315865627462,
+        "Y": 209.749554896142
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "0f53346b583f40bc8cf41e049efb2d0c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 572.115865627462,
+        "Y": 238.749554896143
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "a050e1e00adb4eedbbf9fff99e47bf15",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 151.315865627462,
+        "Y": 293.749554896143
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "b40a5a5039c248bea74941549bd8bfa9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 347.715865627462,
+        "Y": 238.749554896143
+      }
+    ],
+    "Annotations": [],
+    "X": 84.735,
+    "Y": 72.891,
+    "Zoom": 0.8425
+  }
+}

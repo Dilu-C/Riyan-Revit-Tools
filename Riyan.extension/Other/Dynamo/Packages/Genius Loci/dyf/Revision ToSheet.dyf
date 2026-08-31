@@ -1,0 +1,165 @@
+{
+  "Uuid": "20211dfb-5ab9-4e01-807b-18a22f28d525",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Sheet",
+  "Description": "Returns the ViewSheets where this Revision participates in the sheet's revision schedule. ",
+  "Name": "Revision ToSheet",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n \nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import FilteredElementCollector,ViewSheet\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nrevision = UnwrapElement(IN[0])\n\nsheets = FilteredElementCollector(doc).OfClass(ViewSheet).ToElements().FindAll(lambda x :  x.GetAllRevisionIds().Contains(revision.Id))\n\nOUT = sheets",
+      "VariableInputPorts": true,
+      "Id": "73e77f8560c844adba0674fc07c2d256",
+      "Inputs": [
+        {
+          "Id": "f5e084a0e1ec44bbb2a5bcfe1eb48526",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "199611d52ad1496fbf0c890df9ccd36a",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "revision",
+        "TypeName": "var",
+        "TypeRank": 0,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "5d3ca297be304330ae0e177b3238c0bf",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f16aaa238689439e80ef455a284e78e9",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Sheets",
+      "Id": "c3dbd023dc8748d1a0f7dc2c8be0bdc2",
+      "Inputs": [
+        {
+          "Id": "0023ccdb989947bab6acca531b6a1787",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "199611d52ad1496fbf0c890df9ccd36a",
+      "End": "0023ccdb989947bab6acca531b6a1787",
+      "Id": "e9a4c44e2fc04685ab38ceca11017881"
+    },
+    {
+      "Start": "f16aaa238689439e80ef455a284e78e9",
+      "End": "f5e084a0e1ec44bbb2a5bcfe1eb48526",
+      "Id": "7bdc9cd1c55f4d7e9da9e415d2c6b0a7"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "73e77f8560c844adba0674fc07c2d256",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 389.2,
+        "Y": 353.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "5d3ca297be304330ae0e177b3238c0bf",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 216.8,
+        "Y": 354.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "c3dbd023dc8748d1a0f7dc2c8be0bdc2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 545.2,
+        "Y": 353.6
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

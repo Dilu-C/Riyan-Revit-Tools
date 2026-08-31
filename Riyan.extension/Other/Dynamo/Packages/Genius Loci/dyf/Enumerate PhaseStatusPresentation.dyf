@@ -1,0 +1,114 @@
+{
+  "Uuid": "8898eeda-ce31-49cc-8dd9-2d0672a8a53c",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Phase",
+  "Description": "An enumerated type listing the options for element display in a phase filter.",
+  "Name": "Enumerate PhaseStatusPresentation",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\nimport System\n\n#Assign your output to the OUT variable\nOUT = System.Enum.GetValues(Autodesk.Revit.DB.PhaseStatusPresentation)\n",
+      "VariableInputPorts": true,
+      "Id": "bf253251c9634227890f71236f51b45c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "70250ae68bab4b038d8e435ba6b37314",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Phase Status Presentation",
+      "Id": "02006a7719a34bc9a6da5038cdba3523",
+      "Inputs": [
+        {
+          "Id": "22d7d937ae5a41c0bd6662e114a03387",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "70250ae68bab4b038d8e435ba6b37314",
+      "End": "22d7d937ae5a41c0bd6662e114a03387",
+      "Id": "b26b3d5279d844e3a46170dd59db2fff"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "bf253251c9634227890f71236f51b45c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 272.8,
+        "Y": 181.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "02006a7719a34bc9a6da5038cdba3523",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 422.4,
+        "Y": 180.0
+      }
+    ],
+    "Annotations": [],
+    "X": -148.8,
+    "Y": 36.0,
+    "Zoom": 1.0
+  }
+}

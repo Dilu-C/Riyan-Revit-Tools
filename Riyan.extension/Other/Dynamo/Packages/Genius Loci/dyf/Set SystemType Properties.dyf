@@ -1,0 +1,365 @@
+{
+  "Uuid": "07c3e86a-4862-43f0-b6a8-951198ea4102",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.MEP",
+  "Description": "Assigns Calculations, Fluid Type, Fluid Temperature and Flow Conversion Method to the given System Type.\r\n(All inputs are optional)",
+  "Name": "Set SystemType Properties",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n#import System\n\nif version < 2021:\n\tUIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Piping_Temperature).DisplayUnits\nelse:\n\tUIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.PipingTemperature).GetUnitTypeId()\n\t\nelements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\ncalculations = IN[1]\nif isinstance(calculations, basestring):\n\t#_calculs = System.Enum.Parse(Autodesk.Revit.DB.Mechanical.SystemCalculationLevel, IN[1])\n\texec(\"_calculs = Mechanical.SystemCalculationLevel.%s\" % calculations)\nelse:\n\t_calculs = calculations\nfluid = UnwrapElement(IN[2])\ntemperature = IN[3]\nflowConversion = IN[4]\nif isinstance(flowConversion, basestring):\n\texec(\"method = Plumbing.FlowConversionMode.%s\" % flowConversion)\nelse:\n\tmethod = flowConversion\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor elem in elements:\n\tif calculations == None: pass\n\telse: elem.CalculationLevel = _calculs\n\tif fluid == None: pass\n\telse: elem.FluidType = fluid.Id\n\tif temperature == None: pass\n\telse: elem.FluidTemperature = UnitUtils.ConvertToInternalUnits(temperature,UIunit)\n\tif method == None: pass\n\telse: elem.FlowConversionMethod = method\nTransactionManager.Instance.TransactionTaskDone()\n\nif isinstance(IN[0], list): OUT = elements\nelse: OUT = elements[0]",
+      "VariableInputPorts": true,
+      "Id": "3bd168b26bae458b93da42e2f65e90bd",
+      "Inputs": [
+        {
+          "Id": "c205813b046b4c75ba2551fc60c34463",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "364e7a47d9a84df28f3ff49f09c17f0a",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "442759f1764f4214a9e9c9ae4afd817c",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "53e9755f9409409da35a75d0b8387ced",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "8e987551e17944dba97adc53f5cd747b",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "f21b89470742469aad6384f3d0db5273",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "SystemType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "e45f9c36bba745c3b805f9448a9049b6",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "48dedd4317fe449191c7607d45f30fe9",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "SystemType",
+      "Id": "af9c53a756c3477891028b89de9c2768",
+      "Inputs": [
+        {
+          "Id": "350c501364ae47bcb8cb520cada00076",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "Calculations",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "String or Revit.DB.Mechanical.SystemCalculationLevel"
+      },
+      "Id": "5cad68db1ccb4d1587a5e2a87a3368d3",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "cb46c0a828544ef58491526b0011227a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "FluidType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Element Type"
+      },
+      "Id": "82a9ce3f12ff421797a2b3c1b14fed3c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8ceaf95bc72e4db6b17c40e109d79437",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "FluidTemperature",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "Integer"
+      },
+      "Id": "af19095fa4644d5db920d7a27dd4e04b",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "246b8136c37b4553a4c68d00dbace125",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "FlowConversionMethod",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "null",
+        "Description": "String or Revit.DB.Plumbing.FlowConversionMode"
+      },
+      "Id": "91181f617e074234a30d7286ab8e8984",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "a7a58d923fef47049eed72ecc9069f18",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "f21b89470742469aad6384f3d0db5273",
+      "End": "350c501364ae47bcb8cb520cada00076",
+      "Id": "d6a4dd9981ce438dbf89829d2e4a9490"
+    },
+    {
+      "Start": "48dedd4317fe449191c7607d45f30fe9",
+      "End": "c205813b046b4c75ba2551fc60c34463",
+      "Id": "40a4c879a4c145e8805d6ccdb0287395"
+    },
+    {
+      "Start": "cb46c0a828544ef58491526b0011227a",
+      "End": "364e7a47d9a84df28f3ff49f09c17f0a",
+      "Id": "2d9be4051d294923886db24a25f1281d"
+    },
+    {
+      "Start": "8ceaf95bc72e4db6b17c40e109d79437",
+      "End": "442759f1764f4214a9e9c9ae4afd817c",
+      "Id": "330d34fc5aa649cda875eade4fc0b5eb"
+    },
+    {
+      "Start": "246b8136c37b4553a4c68d00dbace125",
+      "End": "53e9755f9409409da35a75d0b8387ced",
+      "Id": "4e61b26057174d4da5343aec92f93b64"
+    },
+    {
+      "Start": "a7a58d923fef47049eed72ecc9069f18",
+      "End": "8e987551e17944dba97adc53f5cd747b",
+      "Id": "b04bd58d3f7146caa1f65ac717455038"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Set SystemType Properties",
+        "Id": "3bd168b26bae458b93da42e2f65e90bd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 429.0,
+        "Y": 324.661370766199
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "e45f9c36bba745c3b805f9448a9049b6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -147.0,
+        "Y": 198.661370766199
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "af9c53a756c3477891028b89de9c2768",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 706.2,
+        "Y": 324.661370766199
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "5cad68db1ccb4d1587a5e2a87a3368d3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -147.0,
+        "Y": 281.661370766199
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "82a9ce3f12ff421797a2b3c1b14fed3c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -147.0,
+        "Y": 374.661370766199
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "af19095fa4644d5db920d7a27dd4e04b",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -147.0,
+        "Y": 467.661370766199
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "91181f617e074234a30d7286ab8e8984",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -147.0,
+        "Y": 560.661370766199
+      }
+    ],
+    "Annotations": [],
+    "X": 21.8438115175619,
+    "Y": 5.17931227247057,
+    "Zoom": 0.803321593462598
+  }
+}

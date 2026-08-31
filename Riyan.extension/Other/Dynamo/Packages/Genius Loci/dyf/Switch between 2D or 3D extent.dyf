@@ -1,0 +1,265 @@
+{
+  "Uuid": "62b1cd54-26c4-4d97-9820-3fe6596282b7",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Level",
+  "Description": "Switch the extents of grid and level from 2d to 3d or vice versa.\r\nFor use with \"Enumerate Datum Extent Type\" node.",
+  "Name": "Switch between 2D or 3D extent",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\nimport Autodesk\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\n\n#Custom tolist definition provided by Dimitar Venkov\ndef tolist(x):\n\tif hasattr(x,'__iter__'): return x\n\telse : return [x]\n\nelements = tolist(UnwrapElement(IN[0]))\nviews = tolist(UnwrapElement(IN[1]))\nextenttype = IN[2]\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor view in views :\n\tfor element in elements:\n\t\telement.SetDatumExtentType(DatumEnds.End0,view, extenttype)\n\t\telement.SetDatumExtentType(DatumEnds.End1,view, extenttype)\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = views",
+      "VariableInputPorts": true,
+      "Id": "a488c08c14df45399e9eeea5eca103f9",
+      "Inputs": [
+        {
+          "Id": "27a8cc3d770c4d109a836e55ee295e44",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "dbee875fa5d64766988ca540b8061116",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d437bf9fd67d4d578480478053311a10",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "10f3dc14ccb7497295645bcce2d3688b",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "View",
+      "Id": "1b6ce5fb11994e979f29fea182e917a1",
+      "Inputs": [
+        {
+          "Id": "a8a627043c8a4a428a4d35afb9efe8c2",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "1dcd6ec2b4724df69b4943ada4432e47",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "49f4eef6f3af4f0cb33bd524166b7afb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "view",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "8446c16fb6bd4519b1258d30fbb8f726",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "922044bb32ad4a4189291fcf8d6c8f4d",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "DatumExtentType",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Model or ViewSpecific"
+      },
+      "Id": "005126a243e847cb9e1d281bb414ffea",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d47fe15ddfb54fde871b19a9ddcca5a4",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "10f3dc14ccb7497295645bcce2d3688b",
+      "End": "a8a627043c8a4a428a4d35afb9efe8c2",
+      "Id": "2e16be24ccac459c89bdcd331beca8e2"
+    },
+    {
+      "Start": "49f4eef6f3af4f0cb33bd524166b7afb",
+      "End": "27a8cc3d770c4d109a836e55ee295e44",
+      "Id": "724e8e2f37c54276a1b9662561f7d2d4"
+    },
+    {
+      "Start": "922044bb32ad4a4189291fcf8d6c8f4d",
+      "End": "dbee875fa5d64766988ca540b8061116",
+      "Id": "13c1f371d2c84dfb93e74517b4066c97"
+    },
+    {
+      "Start": "d47fe15ddfb54fde871b19a9ddcca5a4",
+      "End": "d437bf9fd67d4d578480478053311a10",
+      "Id": "5bb35036b4074eae9ce29b957d26282f"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "a488c08c14df45399e9eeea5eca103f9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 638.6,
+        "Y": 457.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "1b6ce5fb11994e979f29fea182e917a1",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 863.4,
+        "Y": 457.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "1dcd6ec2b4724df69b4943ada4432e47",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 385.0,
+        "Y": 400.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "8446c16fb6bd4519b1258d30fbb8f726",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 385.0,
+        "Y": 483.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "005126a243e847cb9e1d281bb414ffea",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 343.182964545848,
+        "Y": 564.980072305996
+      }
+    ],
+    "Annotations": [],
+    "X": -189.631735130103,
+    "Y": -39.7900238727951,
+    "Zoom": 0.784369328044827
+  }
+}

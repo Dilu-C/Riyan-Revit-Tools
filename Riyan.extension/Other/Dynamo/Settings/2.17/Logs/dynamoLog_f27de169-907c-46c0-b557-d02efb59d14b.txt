@@ -1,0 +1,78 @@
+Dynamo log started 2023-11-14 09:40:55Z
+2023-11-14 09:40:55Z : Python template set to default.
+2023-11-14 09:40:56Z : Dynamo -- Build 2.17.0.3472
+2023-11-14 09:40:57Z : System.InvalidOperationException:
+2023-11-14 09:40:57Z : There already exists an AlsoKnownAs mapping for DSCoreNodesUI.Logic.If.
+2023-11-14 09:40:57Z : 
+2023-11-14 09:40:57Z : System.InvalidOperationException:
+2023-11-14 09:40:57Z : There already exists an AlsoKnownAs mapping for If.
+2023-11-14 09:40:57Z : 
+2023-11-14 09:40:57Z : Duplicate migration type registered for SunPathDirection
+2023-11-14 09:40:57Z : launch darkly initalized
+2023-11-14 09:40:57Z : LD startup time: 2003 
+2023-11-14 09:40:57Z : <<<<<InitDone>>>>>
+2023-11-14 09:40:57Z : feature flag exe starting
+2023-11-14 09:40:57Z : <<<<<Sod>>>>>
+2023-11-14 09:40:57Z : {"graphics-primitive-instancing":false,"testFlag":false,"EasterEggIcon1":false,"EasterEggMessage1":"NA","CER":false,"NodeAutocompleteMachineLearningIsBeta":true,"CER_v2":true}
+2023-11-14 09:40:57Z : <<<<<Eod>>>>>
+2023-11-14 09:40:57Z : EasterEggIcon1 is false FROM MODEL
+2023-11-14 09:40:57Z : EasterEggMessage1 is disabled FROM MODEL
+2023-11-14 09:40:57Z : AnalyticalAutomation.dll,M:AnalyticalAutomation.AnalyticalElements.AnalyticalPanel.BySurface(Autodesk.DesignScript.Geometry.Surface,System.Boolean) {0} is missing some XML documentation tags.
+2023-11-14 09:40:58Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-11-14 09:40:58Z : Dynamo will use the package manager server at : https://www.dynamopackages.com
+2023-11-14 09:40:58Z : Successfully uninstalled package from "C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17\packages\Clockwork for Dynamo 2.x"
+2023-11-14 09:40:58Z : Successfully uninstalled package from "C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\2.17\packages\DynamoIronPython2.7"
+2023-11-14 09:40:58Z : The folder 'C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit\Built-In Packages\Packages' does not exist
+2023-11-14 09:40:58Z : A package called DynamoPlayerExtension found at C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension includes dll files but none are defined in node libraries in the package manifest.  Ignoring it.
+2023-11-14 09:41:00Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\DynamoPlayerExtension\dyf' does not exist
+2023-11-14 09:41:00Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is added
+2023-11-14 09:41:01Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign\dyf' does not exist
+2023-11-14 09:41:01Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Extension\dyf' does not exist
+2023-11-14 09:41:01Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is added
+2023-11-14 09:41:01Z : The folder 'C:\ProgramData\Autodesk\RVT 2024\Dynamo\2.17\packages\GenerativeDesign.Revit\dyf' does not exist
+2023-11-14 09:41:01Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is added
+2023-11-14 09:41:01Z : Backup files timer is started with an interval of 60000 milliseconds
+2023-11-14 09:41:01Z : SYSTEM:Environment Path:C:\Program Files\Autodesk\Revit 2024\AddIns\SteelConnections;C:\Program Files\Autodesk\Revit 2024\en-GB;C:\Program Files\Autodesk\Revit 2024;C:\Program Files\Common Files\Autodesk Shared\RealDWG Shared 2024;C:\Python27\;C:\Python27\Scripts;C:\Program Files\Oculus\Support\oculus-runtime;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Program Files\Git\cmd;C:\Users\asanka.d.LOCAL\AppData\Local\Microsoft\WindowsApps;C:\Users\asanka.d.LOCAL\AppData\Roaming\pyRevit-Master\bin;C:\Users\asanka.d.LOCAL\AppData\Local\GitHubDesktop\bin;C:\Program Files\JetBrains\PyCharm Community Edition 2023.2.4\bin;;C:\Program Files\Autodesk\Revit 2024\AddIns\DynamoForRevit
+2023-11-14 09:41:01Z : RENDER : Rendering Tier: 2
+2023-11-14 09:41:01Z : RENDER : Pixel Shader 3 Supported: True
+2023-11-14 09:41:01Z : RENDER : Pixel Shader 4 Supported: False
+2023-11-14 09:41:01Z : RENDER : Software Effect Rendering Supported: True
+2023-11-14 09:41:01Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-11-14 09:41:01Z : RENDER : Rendering Tier: 2
+2023-11-14 09:41:01Z : RENDER : Pixel Shader 3 Supported: True
+2023-11-14 09:41:01Z : RENDER : Pixel Shader 4 Supported: False
+2023-11-14 09:41:01Z : RENDER : Software Effect Rendering Supported: True
+2023-11-14 09:41:01Z : RENDER : Maximum hardware texture size: 16384,16384
+2023-11-14 09:41:02Z : Documentation Browser (id: 68B45FC0-0BD1-435C-BF28-B97CB03C71C8) view extension is added
+2023-11-14 09:41:02Z : DynamoManipulationExtension (id: 58B0496A-E3F8-43D9-86D2-94823D1D0F98) view extension is added
+2023-11-14 09:41:02Z : Properties (id: 28992e1d-abb9-417f-8b1b-05e053bee670) view extension is added
+2023-11-14 09:41:02Z : LibraryUI - WebView2 (id: 8b093acd-5656-4914-b6b0-c54b26ca6d0e) view extension is added
+2023-11-14 09:41:02Z : Graph Status (id: 3467481b-d20d-4918-a454-bf19fc5c25d7) view extension is added
+2023-11-14 09:41:02Z : Notifications (id: ef6cd025-514f-44cd-b6b1-69d9f5cce004) view extension is added
+2023-11-14 09:41:02Z : Package Details (id: C71CA1B9-BF9F-425A-A12C-53DF56770406) view extension is added
+2023-11-14 09:41:02Z : Generative Design Tools (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) view extension is added
+2023-11-14 09:41:02Z : PackageManagerViewExtension (id: 100f5ec3-fde7-4205-80a7-c968b3a5a27b) view extension is added
+2023-11-14 09:41:02Z : Python Migration (id: 1f8146d0-58b1-4b3c-82b7-34a3fab5ac5d) view extension is added
+2023-11-14 09:41:02Z : Workspace References (id: A6706BF5-11C2-458F-B7C8-B745A77EF7FD) view extension is added
+2023-11-14 09:41:02Z : 
+Welcome to Dynamo!
+2023-11-14 09:41:02Z : 00:00:00.6966384 elapsed for loading Dynamo main window.
+2023-11-14 09:41:14Z : notification:Package Host Error:
+ Package targets a different host than current host application.: Genius Loci: 
+ The package or one of its dependencies targets a different environment, such as Revit, Civil 3D, Advance Steel, Alias or FormIt. This can cause instability and unexpected problems.: Genius Loci
+2023-11-14 09:44:42Z : Saving C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN ...
+2023-11-14 09:44:42Z : Backup file is saved: C:\Users\asanka.d.LOCAL\AppData\Roaming\Dynamo\Dynamo Revit\backup\backup.DYN
+2023-11-14 09:44:42Z : Browser Loaded
+2023-11-14 09:44:43Z : EasterEggIcon1 is false from view
+2023-11-14 09:44:43Z : EasterEggMessage1 is disabled from view
+2023-11-14 09:44:44Z : WPF Render Mode: SoftwareOnly
+2023-11-14 09:44:44Z : notification:System.IO.FileLoadException:
+ Dynamo has detected a conflict with a dependency and may be unstable. If any issues are detected, please uninstall addins or packages and contact the provider.: 
+ While loading assembly DesignScriptBuiltin, Version=2.17.0.3472, Culture=neutral, PublicKeyToken=null, Dynamo detected that the dependency System.Collections.Immutable, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a was already loaded with an incompatible version. It is likely that another Revit Addin has loaded this assembly, please try uninstalling other Addins, and starting Dynamo again. Dynamo may be unstable in this state.
+It is likely one of the following assemblies loaded the incompatible version:
+
+2023-11-15 05:03:18Z : Clearing workspace...
+2023-11-15 05:28:56Z : Dynamo Player Extension (id: 3CD8E967-22D5-46C7-8E08-316BC53AEA1D) extension is removed
+2023-11-15 05:28:56Z : Generative Design (id: DFBD9CC0-DB40-457A-939E-8C8555555A9D) extension is removed
+2023-11-15 05:28:56Z : DynamoPackageManager (id: FCABC211-D56B-4109-AF18-F434DFE48139) extension is removed
+2023-11-15 05:28:56Z : Goodbye

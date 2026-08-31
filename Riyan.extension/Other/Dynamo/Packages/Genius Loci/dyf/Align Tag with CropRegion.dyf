@@ -1,0 +1,153 @@
+{
+  "Uuid": "89c45513-1d74-48af-9e27-836eb30bda18",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Tag",
+  "Description": "Aligns the tags with the Crop Region's boundaries of the active view.\r\nBy Cyril Poupin on Dynamo Forum",
+  "Name": "Align Tag with CropRegion",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "category",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Tag Category"
+      },
+      "Id": "59676f7a520d4c569874597666d09c59",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "7eec4388ddd44e8ab078fa2887257deb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Initially by Cyril Poupin on Dynamo Forum\n#https://forum.dynamobim.com/t/room-tags-should-be-outside-the-crop-region/57507/5\n#Changes by Alban de Chasteigner\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\nuiapp = DocumentManager.Instance.CurrentUIApplication\napp = uiapp.Application\nversion=int(app.VersionNumber)\n\nif version < 2021:\n\tUIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Length).DisplayUnits\nelse:\n\tUIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()\n\ndef moveTgtoCrop(boundLines, rtag):\n\tif isinstance(rtag,SpatialElementTag):\n\t\tptTag = rtag.Location.Point\n\telif isinstance(rtag,IndependentTag):\n\t\trtag.LeaderEndCondition = LeaderEndCondition.Free\n\t\tif version < 2023 :\n\t\t\tptTag = rtag.LeaderEnd\n\t\telse : ptTag = rtag.GetLeaderEnd(rtag.GetTaggedReferences()[0])\n\tlstInter = []\n\tfor lineBound in boundLines:\n\t\tinterResult = lineBound.Project(ptTag)\n\t\tlstInter.append(interResult)\n\tlstInter.sort(key = lambda x : ptTag.DistanceTo(x.XYZPoint))\n\tfirsttInterResult = lstInter[0]\n\trtag.TagHeadPosition = firsttInterResult.XYZPoint\n\t#move location to update TagHeadPosition\n\t#rtag.Location.Move(XYZ(0.0001,0.0001,0))\n\ndef getBoundLines(view, offsetCrop = 1):\n\tshape = view.GetCropRegionShapeManager().GetCropShape()\n\tif len(shape) > 0 :\n\t\toffsetShape = CurveLoop.CreateViaOffset(shape[0], offsetCrop, -view.ViewDirection)\n\treturn offsetShape\t\n\ncategory = UnwrapElement(IN[0])\noffsetCrop = UnitUtils.ConvertToInternalUnits(IN[1],UIunit)\n\nactiveView = doc.ActiveView\n\nfecTag = FilteredElementCollector(doc, activeView.Id).OfCategoryId(category.Id).ToElements()\nboundLines = getBoundLines(activeView, offsetCrop)\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor rtag in fecTag :\n\trtag.HasLeader = True\n\tmoveTgtoCrop(boundLines, rtag)\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = fecTag",
+      "Engine": "IronPython2",
+      "EngineName": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "5e918793bf2c4af29aa018c7164887fb",
+      "Inputs": [
+        {
+          "Id": "acb05a8accbd45d6820951996aa59940",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c7c7892577464ed6806bde207d85396c",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "6e29d3fc460b4d8ab4bf2da9a402dbc3",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "offset",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Distance offset from Crop Region"
+      },
+      "Id": "40dbd749693646ab9f96176d9944de86",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "05d59ca8cebc48d29eff12deb5853aa9",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Tag",
+      "Id": "45f523565ef74ee1bcc3c508dbf6c415",
+      "Inputs": [
+        {
+          "Id": "ae39d101346e485d9e11575dc85fb543",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "7eec4388ddd44e8ab078fa2887257deb",
+      "End": "acb05a8accbd45d6820951996aa59940",
+      "Id": "de767399fc3a4078932075575f4a5d46",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "6e29d3fc460b4d8ab4bf2da9a402dbc3",
+      "End": "ae39d101346e485d9e11575dc85fb543",
+      "Id": "84f65bbac0954df5817fc77577a33a3b",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "05d59ca8cebc48d29eff12deb5853aa9",
+      "End": "c7c7892577464ed6806bde207d85396c",
+      "Id": "7b25abd86eb642b19b85d396e699f502",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": []
+}

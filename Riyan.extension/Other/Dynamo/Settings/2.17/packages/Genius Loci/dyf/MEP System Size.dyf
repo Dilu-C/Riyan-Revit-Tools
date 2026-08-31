@@ -1,0 +1,114 @@
+<Workspace Version="1.3.4.6666" X="-38.6228624412137" Y="-19.8469543395152" zoom="0.729950825270786" ScaleFactor="1" Name="MEP System Size" Description="Retrieves the width, height or diameter of the MEP system elements (pipe, duct, cable tray, accessory...)." ID="9890a08c-425b-43d4-81a6-22cee99c7d1e" Category="GeniusLoci.MEP">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="d8cadd2c-c8df-4cfa-95df-edbd5fc8fdf3" type="PythonNodeModels.PythonNode" nickname="Python Script" x="377.576921114086" y="401.24" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="1">
+      <PortInfo index="0" default="False" />
+      <Script>#Alban de Chasteigner 2021
+#twitter : @geniusloci_bim
+#geniusloci.bim@gmail.com
+#https://github.com/albandechasteigner/GeniusLociForDynamo
+
+import clr
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+version=int(app.VersionNumber)
+
+elements = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]
+	
+abbreviation, width, height, diameter = [], [], [], []
+
+for elem in elements:
+	doc = elem.Document
+	if version &lt; 2021:
+		UIunit = doc.GetUnits().GetFormatOptions(UnitType.UT_Length).DisplayUnits
+		#UIunit = DisplayUnitType.DUT_MILLIMETERS
+	else:
+		UIunit = doc.GetUnits().GetFormatOptions(SpecTypeId.Length).GetUnitTypeId()
+		#UIunit = UnitTypeId.Millimeters
+	if isinstance(elem, MEPCurve):
+		try:
+			height.append(UnitUtils.ConvertFromInternalUnits(elem.Height,UIunit))
+		except:
+			height.append(None)
+		try:
+			width.append(UnitUtils.ConvertFromInternalUnits(elem.Width,UIunit))
+		except:
+			width.append(None)
+		try:		
+			diameter.append(UnitUtils.ConvertFromInternalUnits(elem.Diameter,UIunit))
+		except:
+			diameter.append(None)
+		try:	
+			abbreviation.append(doc.GetElement(elem.MEPSystem.GetTypeId()).Abbreviation)
+		except:
+			if isinstance(elem, Electrical.CableTrayConduitBase):
+				abbreviation.append(elem.get_Parameter(BuiltInParameter.RBS_CTC_SERVICE_TYPE).AsString())
+			else:
+				abbreviation.append(None)
+	elif isinstance(elem, FamilyInstance):
+		try:
+			connectors = elem.MEPModel.ConnectorManager.Connectors
+		except:
+			try:
+				connectors = elem.ConnectorManager.Connectors
+			except:			
+				continue
+		try : height.append(UnitUtils.ConvertFromInternalUnits(max(connector.Height for connector in connectors if connector.Shape == ConnectorProfileType.Rectangular),UIunit))
+		except : height.append(None)
+		try : width.append(UnitUtils.ConvertFromInternalUnits(max(connector.Width for connector in connectors if connector.Shape == ConnectorProfileType.Rectangular),UIunit))
+		except : width.append(None)
+		try : diameter.append(UnitUtils.ConvertFromInternalUnits(2 * max(connector.Radius for connector in connectors if connector.Shape == ConnectorProfileType.Round),UIunit))
+		except : diameter.append(None)
+		try:
+			abbrev=list((doc.GetElement(connector.MEPSystem.GetTypeId()).Abbreviation for connector in connectors if connector.Shape != ConnectorProfileType.Invalid))[0]
+			abbreviation.append(abbrev)			
+		except : abbreviation.append(None)
+
+if isinstance(IN[0], list): OUT = abbreviation, width, height, diameter 
+else: OUT = abbreviation[0], width[0], height[0], diameter[0]</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="4156b232-6ac2-4f72-b693-f5d11e40f2f8" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="602.376921114086" y="405.453333333333" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="x[0];&#xA;x[1];&#xA;x[2];&#xA;x[3];" ShouldFocus="false">
+      <PortInfo index="0" default="False" />
+    </Dynamo.Graph.Nodes.CodeBlockNodeModel>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="76068665-b452-460c-bb66-6c42c5d09cda" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="793.576921114086" y="302.6" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="System Abbreviation " />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="1338bb6b-fb54-46bb-a64c-4a50719be235" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="793.576921114086" y="385.6" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Width" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="19fe974d-d249-4949-8caf-e2251182bf2a" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="793.576921114086" y="469.6" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Height" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="3cfe0906-a307-45ce-aac6-a18b7ba8f804" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="793.576921114086" y="552.6" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="Diameter " />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="c6fc64db-986a-4236-9cdd-fcf050bdd3bd" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="139.976921114086" y="401.24" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//MEP element&#xD;&#xA;element" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="d8cadd2c-c8df-4cfa-95df-edbd5fc8fdf3" start_index="0" end="4156b232-6ac2-4f72-b693-f5d11e40f2f8" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4156b232-6ac2-4f72-b693-f5d11e40f2f8" start_index="0" end="76068665-b452-460c-bb66-6c42c5d09cda" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4156b232-6ac2-4f72-b693-f5d11e40f2f8" start_index="1" end="1338bb6b-fb54-46bb-a64c-4a50719be235" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4156b232-6ac2-4f72-b693-f5d11e40f2f8" start_index="2" end="19fe974d-d249-4949-8caf-e2251182bf2a" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4156b232-6ac2-4f72-b693-f5d11e40f2f8" start_index="3" end="3cfe0906-a307-45ce-aac6-a18b7ba8f804" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="c6fc64db-986a-4236-9cdd-fcf050bdd3bd" start_index="0" end="d8cadd2c-c8df-4cfa-95df-edbd5fc8fdf3" end_index="0" portType="0" />
+  </Connectors>
+  <Notes />
+  <Annotations />
+  <Presets />
+  <Cameras>
+    <Camera Name="Aperçu en arrière-plan" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

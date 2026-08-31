@@ -1,0 +1,165 @@
+{
+  "Uuid": "93a1c4ed-8113-48aa-8e94-dcc0ed15cd6f",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.DWF",
+  "Description": "Collects all DWF Markup in the document or in the active sheet view.",
+  "Name": "Collector of DWFMarkup",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\n# Import RevitAPI Classes\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\n# Import DocumentManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\n\n#Import Collections\nfrom System.Collections.Generic import List\nimport System\n\ndoc = DocumentManager.Instance.CurrentDBDocument\nactiveView = doc.ActiveView\n\nfilters = List[ElementFilter]()\npvp = ParameterValueProvider(ElementId(BuiltInParameter.IMPORT_SYMBOL_NAME))\nfilters.Add(ElementParameterFilter(FilterStringRule(pvp, FilterStringBeginsWith(),\"Markup\",False)))\nfilters.Add(ElementParameterFilter(FilterStringRule(pvp, FilterStringBeginsWith(),\"Objet d'annotation\",False)))\nfilter = LogicalOrFilter(filters)\n\nboolean =IN[0]\n\nif boolean == True:\n\tdwfMarkups = FilteredElementCollector(doc, activeView.Id).OfClass( ImportInstance ).WhereElementIsNotElementType().WherePasses(filter).ToElements()\nelse:\n\tdwfMarkups = FilteredElementCollector(doc).OfClass( ImportInstance ).WhereElementIsNotElementType().WherePasses(filter).ToElements()\n\t\t\nOUT=dwfMarkups",
+      "VariableInputPorts": true,
+      "Id": "83119a94d85e48a2954bbf7915bee992",
+      "Inputs": [
+        {
+          "Id": "2fbe17a9b5f34000874c1f4c47ccf92b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5f15aec477234308aef0c71a1eca6424",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "SheetOrDocument",
+        "TypeName": "bool",
+        "TypeRank": 0,
+        "DefaultValue": "false",
+        "Description": "True = Active sheet view\nFalse = Current document"
+      },
+      "Id": "bb8751bc29e047708d7044226a315c26",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "a6827f6ad20646f29b29b06d1915eab1",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "DWFMarkup",
+      "Id": "4148d9b5e85c49ab9232d1306a1981ef",
+      "Inputs": [
+        {
+          "Id": "72994d8c83564fb4b530b355d4d19465",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "5f15aec477234308aef0c71a1eca6424",
+      "End": "72994d8c83564fb4b530b355d4d19465",
+      "Id": "ada938d68d394ce798a7035903d51784"
+    },
+    {
+      "Start": "a6827f6ad20646f29b29b06d1915eab1",
+      "End": "2fbe17a9b5f34000874c1f4c47ccf92b",
+      "Id": "b7168ffff8974e31bc00275cc0760c42"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "83119a94d85e48a2954bbf7915bee992",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 297.6,
+        "Y": 300.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "bb8751bc29e047708d7044226a315c26",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -3.2000000000001,
+        "Y": 299.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "4148d9b5e85c49ab9232d1306a1981ef",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 494.4,
+        "Y": 294.4
+      }
+    ],
+    "Annotations": [],
+    "X": 65.3980000000001,
+    "Y": 58.3640000000001,
+    "Zoom": 0.8425
+  }
+}

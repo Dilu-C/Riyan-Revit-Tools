@@ -1,0 +1,165 @@
+{
+  "Uuid": "664d8bd8-fdef-4716-95cd-8105c2fd897b",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Element",
+  "Description": "Get the two elements joining to the ends.",
+  "Name": "Get Elements at Ends",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2019\r\n#twitter : @geniusloci_bim\r\n#geniusloci.bim@gmail.com\r\n\r\nimport clr\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB import *\r\n\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\nclr.ImportExtensions(Revit.Elements)\r\nfrom Revit.Elements import *\r\n\r\nfrom itertools import chain\r\n\r\nitems = UnwrapElement(IN[0])\r\nif not hasattr(items, '__iter__'):\r\n\titems = [items]\r\n\t\r\njoin,result = [],[]\r\n\r\nfor item in items:\r\n\tloc = item.Location\r\n\tfor ip in range(0, 2):\r\n\t\tjoin.append(loc.ElementsAtJoin[ip])\r\n\t\tflatlist = list(chain.from_iterable(join))\r\n\tfor wall in flatlist :\r\n\t\tif wall.Id != item.Id :\r\n\t\t\tresult.append(wall)\r\n\r\nOUT = result",
+      "VariableInputPorts": true,
+      "Id": "ff682464b97a492a9253218a69c6ebd7",
+      "Inputs": [
+        {
+          "Id": "657358f045794850a5b474c699e1980e",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "20fee30a2d8f4291937d659008f61f00",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "element",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Curve based element\nLongest lacing for several elements"
+      },
+      "Id": "4ddcdcbe356744f2a27605a48af61676",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "5edce7b93bbb4e41acc19fcdafad20dc",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Elements",
+      "Id": "64d43d8ec93941679b5175db23c61aca",
+      "Inputs": [
+        {
+          "Id": "5398004655264fca9793878d4e83feb2",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "20fee30a2d8f4291937d659008f61f00",
+      "End": "5398004655264fca9793878d4e83feb2",
+      "Id": "04e2310da5364e3383b3cb5067993143"
+    },
+    {
+      "Start": "5edce7b93bbb4e41acc19fcdafad20dc",
+      "End": "657358f045794850a5b474c699e1980e",
+      "Id": "d3da3af7c83f4f4e9320673e5d485aa1"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "ff682464b97a492a9253218a69c6ebd7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 384.011089434403,
+        "Y": 456.169997261763
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "4ddcdcbe356744f2a27605a48af61676",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 10.7999999999999,
+        "Y": 450.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "64d43d8ec93941679b5175db23c61aca",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 547.6,
+        "Y": 450.0
+      }
+    ],
+    "Annotations": [],
+    "X": 102.926,
+    "Y": 13.8220000000001,
+    "Zoom": 0.8425
+  }
+}

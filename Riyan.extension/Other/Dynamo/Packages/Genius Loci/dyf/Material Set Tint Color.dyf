@@ -1,0 +1,220 @@
+{
+  "Uuid": "6bd8e8dc-1f82-4430-bd97-538b8cb627de",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Works only in Revit 2018.1 and later.\r\nEnable the Tint Color Property and set the Tint Color in the Appearance Asset Element of the given material.",
+  "Name": "Material Set Tint Color",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "DSCore.Color": {
+        "Key": "DSCore.Color",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Inspired by Boris Shafiro from Autodesk\n#Alban de Chasteigner 2018\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\ndef toList(obj):\n    if hasattr(obj, '__iter__'): return obj\n    else: return [obj]\n    \nmats = toList(UnwrapElement(IN[0]))\ncolors = toList(IN[1])\n\ndef ToRevitColor(dynamoColor):\n\treturn Color(dynamoColor.Red, dynamoColor.Green, dynamoColor.Blue)\n\nfor mat, color in zip(mats, colors):\n\tappearanceAssetId = mat.AppearanceAssetId\n\tassetElem = doc.GetElement(appearanceAssetId)\n\tTransactionManager.Instance.EnsureInTransaction(doc)\n\twith Visual.AppearanceAssetEditScope(assetElem.Document) as editScope:\n\t\teditableAsset = editScope.Start(assetElem.Id)\n\t\ttintToggleProp = editableAsset[\"common_Tint_toggle\"]\n\t\ttintColorProp = editableAsset[\"common_Tint_color\"]\n\t\ttintToggleProp.Value = True\n\t\ttintColorProp.SetValueAsColor(ToRevitColor(color))\n\t\teditScope.Commit(True)\n\tTransactionManager.Instance.TransactionTaskDone()\n\t\nOUT = mats",
+      "VariableInputPorts": true,
+      "Id": "ad18be3b21df48769569120b0a6663c6",
+      "Inputs": [
+        {
+          "Id": "793dac59dffd48e08c6388e810e1cd98",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "582353e019af43ffbc7c66d30bf38f47",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "83aecc23afbc4d8aad21fe322c4033df",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "material",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "9621fe03c9584e34babd05e4f4283d67",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "1dba97189c494f0287b8a70a078b4bdb",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Material",
+      "Id": "c26c797723884945925936d2882a8ecc",
+      "Inputs": [
+        {
+          "Id": "5fdeca7dfcc54caa953ad8c98dc0851d",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "color",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": "DSCore.Color.ByARGB(0, 0, 0, 0)",
+        "Description": "Dynamo Color"
+      },
+      "Id": "f80cec7d9e1b4d008714b293c1a8f8fb",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "be86660f085948f9bd4ea02c2c32e607",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "83aecc23afbc4d8aad21fe322c4033df",
+      "End": "5fdeca7dfcc54caa953ad8c98dc0851d",
+      "Id": "f897e151101747f19c7911d65c324524"
+    },
+    {
+      "Start": "1dba97189c494f0287b8a70a078b4bdb",
+      "End": "793dac59dffd48e08c6388e810e1cd98",
+      "Id": "f52d96ecbe284cb29d05a74771973440"
+    },
+    {
+      "Start": "be86660f085948f9bd4ea02c2c32e607",
+      "End": "582353e019af43ffbc7c66d30bf38f47",
+      "Id": "92eb9c1aefda4ca4a81f0dc92173f69c"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Enable Tint Color and add colors",
+        "Id": "ad18be3b21df48769569120b0a6663c6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 503.200000000001,
+        "Y": 275.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "9621fe03c9584e34babd05e4f4283d67",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 357.2,
+        "Y": 269.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "c26c797723884945925936d2882a8ecc",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 766.819268346913,
+        "Y": 270.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "f80cec7d9e1b4d008714b293c1a8f8fb",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 24.8704254436669,
+        "Y": 352.199793499652
+      }
+    ],
+    "Annotations": [],
+    "X": 116.298,
+    "Y": 82.341,
+    "Zoom": 0.8425
+  }
+}

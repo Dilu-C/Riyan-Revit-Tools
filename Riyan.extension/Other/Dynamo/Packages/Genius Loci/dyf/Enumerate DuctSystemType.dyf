@@ -1,0 +1,116 @@
+{
+  "Uuid": "9362a366-9523-4360-935c-85c57eca1730",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.ConnectorElement",
+  "Description": "Enumerates all the possible duct system types for a ConnectorElement.\r\nFor use with the Create DuctConnector node.",
+  "Name": "Enumerate DuctSystemType",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2022\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import Mechanical\nimport System\n\nOUT = System.Enum.GetValues(Autodesk.Revit.DB.Mechanical.DuctSystemType)",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "92d80cea41184271a1c0a47090e5016d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "995134c709664f09a6b07dfc0c7b57a2",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "DuctSystemType",
+      "Id": "c1b2199a2d74418cafa1f981c777c867",
+      "Inputs": [
+        {
+          "Id": "2bcbd204a27442b894be7ace338a715a",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "995134c709664f09a6b07dfc0c7b57a2",
+      "End": "2bcbd204a27442b894be7ace338a715a",
+      "Id": "8bc43fdedd6a4d66a4008f9917a620b7"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Author": "None provided",
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.0.5650",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -3363.5159617013037,
+      "EyeY": 1716.5325524518296,
+      "EyeZ": 7786.7754597697494,
+      "LookX": 1586.8518992013037,
+      "LookY": -1719.0325524518296,
+      "LookZ": -7669.5025715861557,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Enumerate DuctSystemType",
+        "Id": "92d80cea41184271a1c0a47090e5016d",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 443.20000000000005,
+        "Y": 267.20000000000005
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "c1b2199a2d74418cafa1f981c777c867",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 744.79999999999984,
+        "Y": 270.4
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

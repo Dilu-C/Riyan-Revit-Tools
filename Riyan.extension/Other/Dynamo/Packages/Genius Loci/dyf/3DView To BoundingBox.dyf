@@ -1,0 +1,268 @@
+{
+  "Uuid": "9fc142dc-b99f-492e-a3ab-df1e5a0ffe2c",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Extract section boxes from desired 3D views, and convert them into bounding box element.\r\nBased on Amy Williams's script.",
+  "Name": "3DView To BoundingBox",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Revit.Elements.Views.View3D": {
+        "Key": "Revit.Elements.Views.View3D",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ThreeDView",
+        "TypeName": "Revit.Elements.Views.View3D",
+        "TypeRank": 0,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": ""
+      },
+      "Id": "961f9468848e4808aede925643309608",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "2d1234905f6a40f2b8963ce715917fac",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "seq[0];\nseq[1];",
+      "Id": "0ca6d1eb62774e898820eaa4164cf9f9",
+      "Inputs": [
+        {
+          "Id": "35dc2eec089f428ca0e28a34c903f4f7",
+          "Name": "seq",
+          "Description": "seq",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "468663ac241445d5b5253ad133c9d615",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "44322dc684594e56b256b6a9b22500c4",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Views",
+      "Id": "19cd761900b2493a8ca3148f2267fda7",
+      "Inputs": [
+        {
+          "Id": "a2b30bf7fb8642c480f3c45daae8a2db",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "BoundingBox",
+      "Id": "def53385cc874689a526a28a120d8aaa",
+      "Inputs": [
+        {
+          "Id": "e15b56ab6a2844b08de03ce354beced8",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#From Amy Williams\n#https://forum.dynamobim.com/t/bounding-box-of-section-box-min-max-pts-z-values-dont-correspond-with-model-elevation/15776\n\nimport clr\n# Import ToDSType(bool) extension method\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.GeometryConversion)\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\ndef ProcessList(_func, _list):\n    return map( lambda x: ProcessList(_func, x) if type(x)==list else _func(x), _list )\n\ndef Unwrap(item):\n    return UnwrapElement(item)\n\nif isinstance(IN[0], list):\n    views = ProcessList(Unwrap, IN[0])\nelse:\n    views = [Unwrap(IN[0])]\n\nviewlist = []\nsectionboxes = []\n\nfor view in views:\n    viewlist.append(view)\n    sectionbox = view.GetSectionBox()\n    transform = sectionbox.Transform\n    sboxoriginx = transform.Origin.X\n    sboxoriginy = transform.Origin.Y\n    sboxoriginz = transform.Origin.Z\n    minx = sectionbox.Min.X + sboxoriginx\n    maxx = sectionbox.Max.X + sboxoriginx\n    miny = sectionbox.Min.Y + sboxoriginy\n    maxy = sectionbox.Max.Y + sboxoriginy\n    minz = sectionbox.Min.Z + sboxoriginz\n    maxz = sectionbox.Max.Z + sboxoriginz\n    bbox = BoundingBoxXYZ()\n    bbox.Min = XYZ((minx), (miny), (minz))\n    bbox.Max = XYZ((maxx), (maxy), (maxz))\n    tsectionbox = bbox.ToProtoType()\n    sectionboxes.append(tsectionbox)\n\n#Assign your output to the OUT variable\nif isinstance(IN[0], list): OUT = views, sectionboxes\nelse: OUT = views[0], sectionboxes[0]",
+      "VariableInputPorts": true,
+      "Id": "da123db38933444c91572f97a7bc28ef",
+      "Inputs": [
+        {
+          "Id": "b743d70ebdcf49bd812dfb497d31e738",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "d994c880ead140b8b5a5e2a5e17128ba",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "2d1234905f6a40f2b8963ce715917fac",
+      "End": "b743d70ebdcf49bd812dfb497d31e738",
+      "Id": "2f4035d40e83440cb6f58937a4284abe"
+    },
+    {
+      "Start": "468663ac241445d5b5253ad133c9d615",
+      "End": "a2b30bf7fb8642c480f3c45daae8a2db",
+      "Id": "e0371805ae5a4b2ab034b8e8d46288bd"
+    },
+    {
+      "Start": "44322dc684594e56b256b6a9b22500c4",
+      "End": "e15b56ab6a2844b08de03ce354beced8",
+      "Id": "ac7a430a320f48d4b8e3065fa9f11164"
+    },
+    {
+      "Start": "d994c880ead140b8b5a5e2a5e17128ba",
+      "End": "35dc2eec089f428ca0e28a34c903f4f7",
+      "Id": "86fba4d3ef574c9b81331649b16dc10d"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "961f9468848e4808aede925643309608",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -492.503878762159,
+        "Y": 63.4058533642954
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "0ca6d1eb62774e898820eaa4164cf9f9",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 490.844772208672,
+        "Y": 53.9211088660495
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "19cd761900b2493a8ca3148f2267fda7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 675.644772208672,
+        "Y": 32.3211088660495
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "def53385cc874689a526a28a120d8aaa",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 674.844772208671,
+        "Y": 115.521108866049
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Get section box from this View",
+        "Id": "da123db38933444c91572f97a7bc28ef",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 229.1101193526,
+        "Y": 64.4308973933235
+      }
+    ],
+    "Annotations": [],
+    "X": -9.97135005244917,
+    "Y": 203.125668717185,
+    "Zoom": 0.80821986639303
+  }
+}

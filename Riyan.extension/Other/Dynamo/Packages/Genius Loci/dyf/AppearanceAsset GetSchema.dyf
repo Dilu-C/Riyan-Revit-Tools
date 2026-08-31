@@ -1,0 +1,165 @@
+{
+  "Uuid": "e714fca9-08a2-42e0-8e38-0e284e559baf",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Material",
+  "Description": "Works only in Revit 2018.1 and later.\r\nRetrieves the Base Schema of the given AppearanceAsset Element.",
+  "Name": "AppearanceAsset GetSchema",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2019\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\n\nassetElems = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nnames=[]\n\nfor assetElem in assetElems:\n\tif hasattr(assetElem, 'GetRenderingAsset'):\n\t\tasset = assetElem.GetRenderingAsset()\n\telse:\n\t\tasset = None\n\tif hasattr(asset, 'AssetType'):\n\t\tnames.append(asset.FindByName(\"BaseSchema\").Value)\n\telse:names.append(None)\n\t\nif isinstance(IN[0], list): OUT = names \nelse: OUT = names[0]",
+      "VariableInputPorts": true,
+      "Id": "5cef870bd7d144ccb7a3e8a5ed047cd6",
+      "Inputs": [
+        {
+          "Id": "45f622af0e4e4f05850a90d9dbcd313b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "bdd4b9b613cb418daa88623849065aa3",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "appearanceAsset",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "98114ebab9f9415b89dc4d2cae633b39",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "73c8603e28214fdc9c35b47e60835de3",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Schema",
+      "Id": "ef225d2b0fab4358ac49c8783bda2a1a",
+      "Inputs": [
+        {
+          "Id": "eb7134475e6848749c46d07271bd33ef",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "bdd4b9b613cb418daa88623849065aa3",
+      "End": "eb7134475e6848749c46d07271bd33ef",
+      "Id": "a93a1d5d08be4644b3a149412f05f196"
+    },
+    {
+      "Start": "73c8603e28214fdc9c35b47e60835de3",
+      "End": "45f622af0e4e4f05850a90d9dbcd313b",
+      "Id": "f185da9c228b4073a62fca40ac190f09"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "5cef870bd7d144ccb7a3e8a5ed047cd6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 281.2,
+        "Y": 320.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "98114ebab9f9415b89dc4d2cae633b39",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 88.8000000000001,
+        "Y": 323.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "ef225d2b0fab4358ac49c8783bda2a1a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 449.2,
+        "Y": 320.0
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

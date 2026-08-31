@@ -1,0 +1,165 @@
+{
+  "Uuid": "5e318e66-ada0-4552-992d-7bf65cb744c5",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Phase",
+  "Description": "Collect all elements at a given phase.",
+  "Name": "All Elements at Phase",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2020\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\n\r\nfrom System.Collections.Generic import *\r\nimport System\r\n\nphases = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\nphaseList = []\n\r\n#Remove center line\r\ncat_list = [BuiltInCategory.OST_ConduitCenterLine, BuiltInCategory.OST_PipeCurvesCenterLine, BuiltInCategory.OST_DuctCurvesCenterLine, BuiltInCategory.OST_FlexPipeCurvesCenterLine, BuiltInCategory.OST_FlexDuctCurvesCenterLine, BuiltInCategory.OST_ConduitFittingCenterLine, BuiltInCategory.OST_PipeFittingCenterLine, BuiltInCategory.OST_DuctFittingCenterLine, BuiltInCategory.OST_FloorAnalytical, BuiltInCategory.OST_ColumnAnalytical, BuiltInCategory.OST_BeamAnalytical, BuiltInCategory.OST_WallAnalytical]\r\ncatFilter = ElementMulticategoryFilter(List[BuiltInCategory](cat_list),True)\r\n\nfor phase in phases :\n\tdoc=phase.Document\n\tfilter=ElementParameterFilter(ParameterFilterRuleFactory.CreateEqualsRule(ElementId(BuiltInParameter.PHASE_CREATED), phase.Id))\r\n\tandFilter = LogicalAndFilter(filter,catFilter)\r\n\tphaseList.append(FilteredElementCollector(doc).WherePasses(andFilter).WhereElementIsNotElementType().ToElements())\n\t\nif isinstance(IN[0], list): OUT = phaseList\nelse: OUT = phaseList[0]",
+      "VariableInputPorts": true,
+      "Id": "51082b7baa3240e5b9b51fdc36d77013",
+      "Inputs": [
+        {
+          "Id": "fab730ff60e346df9617c8a58b489678",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2a606d6301234648aa8710be0bb93c41",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "phase",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": ""
+      },
+      "Id": "388b1324ff3c46dcb1cec244f21772ca",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "ed613d6b9f0a402a896122b41be0f3b9",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Element",
+      "Id": "2f9797b167864c51b3336d774108201c",
+      "Inputs": [
+        {
+          "Id": "429e6e32021349d69f1af855ea402ebc",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "2a606d6301234648aa8710be0bb93c41",
+      "End": "429e6e32021349d69f1af855ea402ebc",
+      "Id": "bc548787db16479988409812879e6c67"
+    },
+    {
+      "Start": "ed613d6b9f0a402a896122b41be0f3b9",
+      "End": "fab730ff60e346df9617c8a58b489678",
+      "Id": "62bed731e3e849008fa381adb69da992"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "51082b7baa3240e5b9b51fdc36d77013",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 376.8,
+        "Y": 341.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "388b1324ff3c46dcb1cec244f21772ca",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 257.2,
+        "Y": 342.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "2f9797b167864c51b3336d774108201c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 548.4,
+        "Y": 342.0
+      }
+    ],
+    "Annotations": [],
+    "X": -98.7836138575146,
+    "Y": 41.3851347157305,
+    "Zoom": 0.803321593462598
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "Uuid": "521f3ca6-cce3-4f6a-aa4e-930825c9b0bc",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.View",
+  "Description": "Sets the orientation of a given 3D view based on a given eye position, an Up and a forward directions.\r\nBased on a script by Mark Ackerley",
+  "Name": "3DView ByEyeUpForwardDirections",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Autodesk.DesignScript.Geometry.Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Revit.Elements.Views.PerspectiveView": {
+        "Key": "Revit.Elements.Views.PerspectiveView",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Elements.Views.View3D": {
+        "Key": "Revit.Elements.Views.View3D",
+        "Value": "RevitNodes.dll"
+      },
+      "Autodesk.DesignScript.Geometry.Vector": {
+        "Key": "Autodesk.DesignScript.Geometry.Vector",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Revit.Application.Document.Current": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      },
+      "Revit.Application.Document": {
+        "Key": "Revit.Application.Document",
+        "Value": "RevitNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Based on a script by Mark Ackerley\n#https://forum.dynamobim.com/t/rotate-3d-isometric-view/44388/2\nimport clr\nclr.AddReference('RevitAPI')\nfrom Autodesk.Revit.DB import *\n\nclr.AddReference(\"RevitNodes\")\nimport Revit\nclr.ImportExtensions(Revit.Elements)\nclr.ImportExtensions(Revit.GeometryConversion)\n\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n\ndoc = DocumentManager.Instance.CurrentDBDocument\n\n#we need to unwrap Dynamo 'elements'\nviews = UnwrapElement(IN[0]) if isinstance(IN[0],list) else [UnwrapElement(IN[0])]\n#we need to convert Dynamo Vectors & Points to Revit XYZs\neye = IN[1].ToRevitType()\nforward = IN[2].ToRevitType()\nup = IN[3].ToRevitType()\n#start transaction\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor view in views:\n#unlock view\n\tview.Unlock()\n#create a new orientation object based on our modified info\n\tviewOrientation = ViewOrientation3D(eye, up, forward)\n\tview.SetOrientation(viewOrientation)\n#finish transaction\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = views",
+      "VariableInputPorts": true,
+      "Id": "4c1663cbe20849a6905356acc03b79d6",
+      "Inputs": [
+        {
+          "Id": "62e1c18592d04fa39107b2df37e0d775",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a2badce81fa04607a6ea870c7752b425",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "3386cc073db34b45a16874101bab6969",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "2e275b0ac08f450d8d636dd0c4e4e829",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0c8316d416a344408e5d41e37459208d",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "ThreeDView",
+        "TypeName": "Revit.Elements.Views.View3D",
+        "TypeRank": 0,
+        "DefaultValue": "Revit.Application.Document.Current.ActiveView",
+        "Description": ""
+      },
+      "Id": "8bb844c563c04c63a6fc8141df561a5d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "c0cdf8d072ee49f0914778daf5c7cbe5",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "eyePosition",
+        "TypeName": "Autodesk.DesignScript.Geometry.Point",
+        "TypeRank": 0,
+        "DefaultValue": null,
+        "Description": "The coordinates of the eye position"
+      },
+      "Id": "65bbf5cbd1c44996ad4e1453965417e3",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "fc7357bad40f476780141c3e85e0cd56",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "forwardDirection",
+        "TypeName": "Autodesk.DesignScript.Geometry.Vector",
+        "TypeRank": 0,
+        "DefaultValue": null,
+        "Description": "A vector pointing from the camera towards the screen"
+      },
+      "Id": "3f6352e054d64355984fb864da4f8168",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "cb49b12dccfb4cc18cf13bc16efdad5a",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "upDirection",
+        "TypeName": "Autodesk.DesignScript.Geometry.Vector",
+        "TypeRank": 0,
+        "DefaultValue": null,
+        "Description": "A vector pointing to the Up direction of the view"
+      },
+      "Id": "69379afa155f4e7fb7c3368d44939b3f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "892250e485c34e2494b752c6310f106b",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ThreeDView",
+      "Id": "418b907142104950ab0257923208f86e",
+      "Inputs": [
+        {
+          "Id": "6ed5c7c6c12e422f8a106f02e32c627d",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "c0cdf8d072ee49f0914778daf5c7cbe5",
+      "End": "62e1c18592d04fa39107b2df37e0d775",
+      "Id": "6964021169734601b4fafabc536f2bbb"
+    },
+    {
+      "Start": "c0cdf8d072ee49f0914778daf5c7cbe5",
+      "End": "6ed5c7c6c12e422f8a106f02e32c627d",
+      "Id": "638747a6dd284c0486fe3cdb5d9ccbe8"
+    },
+    {
+      "Start": "fc7357bad40f476780141c3e85e0cd56",
+      "End": "a2badce81fa04607a6ea870c7752b425",
+      "Id": "1be68f43369a401d9e210bfa2ae6e25c"
+    },
+    {
+      "Start": "cb49b12dccfb4cc18cf13bc16efdad5a",
+      "End": "3386cc073db34b45a16874101bab6969",
+      "Id": "b4e2478d617e4abe899cd6dd0d963131"
+    },
+    {
+      "Start": "892250e485c34e2494b752c6310f106b",
+      "End": "2e275b0ac08f450d8d636dd0c4e4e829",
+      "Id": "78e45152829c45e0bf3e633fbc095ad0"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "4c1663cbe20849a6905356acc03b79d6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 441.6,
+        "Y": 325.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "8bb844c563c04c63a6fc8141df561a5d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -382.735650103537,
+        "Y": 270.959509266679
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "65bbf5cbd1c44996ad4e1453965417e3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -145.517564120975,
+        "Y": 366.207316530866
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "3f6352e054d64355984fb864da4f8168",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -192.997232053288,
+        "Y": 446.584045476731
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "69379afa155f4e7fb7c3368d44939b3f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -211.40786062693,
+        "Y": 536.23122016296
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "418b907142104950ab0257923208f86e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 677.2,
+        "Y": 264.8
+      }
+    ],
+    "Annotations": [],
+    "X": 117.832360464717,
+    "Y": -2.29932535845643,
+    "Zoom": 0.590352561493108
+  }
+}

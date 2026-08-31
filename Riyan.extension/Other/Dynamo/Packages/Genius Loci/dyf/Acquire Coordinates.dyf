@@ -1,0 +1,165 @@
+{
+  "Uuid": "493fae99-c6d3-487e-8d81-7ca5fb4c4f90",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Document",
+  "Description": "Works only in Revit 2018 and later.\r\nAcquires coordinates from the specified link instance (RevitLinkInstance or DWG ImportInstance).\r\nThe geolocation information will be pulled from the linked model to the host model.",
+  "Name": "Acquire Coordinates",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\nclr.AddReference('RevitAPI')\nimport Autodesk\nfrom Autodesk.Revit.DB import *\nimport System\n\nclr.AddReference('RevitNodes')\nimport Revit\nclr.ImportExtensions(Revit.Elements)\n\nclr.AddReference('RevitServices')\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n\nlinkInstance = UnwrapElement(IN[0])\n\nif not hasattr(linkInstance, '__iter__'):\n\tlinkInstance = [linkInstance]\n\nTransactionManager.Instance.EnsureInTransaction(doc)\nfor inst in linkInstance:\n\tdoc.AcquireCoordinates(inst.Id)\nTransactionManager.Instance.TransactionTaskDone()\n\nOUT = linkInstance",
+      "VariableInputPorts": true,
+      "Id": "2b4f012d056e4de3b93457678610b5df",
+      "Inputs": [
+        {
+          "Id": "5f5ef2de700941e5925d7421bdbeb472",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "a9683f310ffa41cc92cd13b8831148b1",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "LinkInstance",
+        "TypeName": "var",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "RevitLinkInstance or DWG ImportInstance"
+      },
+      "Id": "e1df9ed255404fd6a663f41cff644161",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f608a294215a4a0b8000028a2aedeb79",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "LinkInstance",
+      "Id": "28425a2c4d9b4e829fa1528fa406c356",
+      "Inputs": [
+        {
+          "Id": "f8897e93e1704a3e8081680eecb08927",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "a9683f310ffa41cc92cd13b8831148b1",
+      "End": "f8897e93e1704a3e8081680eecb08927",
+      "Id": "8a37f95434af44b59c1016bd9ef7c19e"
+    },
+    {
+      "Start": "f608a294215a4a0b8000028a2aedeb79",
+      "End": "5f5ef2de700941e5925d7421bdbeb472",
+      "Id": "49cb97ae69a2474eb12da6f8efb9ba76"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Acquire coordinates",
+        "Id": "2b4f012d056e4de3b93457678610b5df",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 453.6,
+        "Y": 223.2
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "e1df9ed255404fd6a663f41cff644161",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 30.8000000000002,
+        "Y": 225.6
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "28425a2c4d9b4e829fa1528fa406c356",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 645.2,
+        "Y": 226.4
+      }
+    ],
+    "Annotations": [],
+    "X": 99.6659999999999,
+    "Y": 62.622,
+    "Zoom": 0.8425
+  }
+}

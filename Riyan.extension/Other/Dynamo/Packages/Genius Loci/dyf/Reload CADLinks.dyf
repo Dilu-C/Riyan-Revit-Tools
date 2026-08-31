@@ -1,0 +1,249 @@
+{
+  "Uuid": "e98eae5d-7238-4169-befe-f30d5e884566",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.CAD Import",
+  "Description": "Reload imported CAD from its current location.\r\nWorks only in Revit 2018 and later.",
+  "Name": "Reload CADLinks",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];\nx[2];",
+      "Id": "10f245d3e6d247179f46b5d382c1b652",
+      "Inputs": [
+        {
+          "Id": "4caaf76aeed04a83a355136495182866",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5ed25ebd788a4bc0b168e149a5bb1c60",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "fbf2f9a3db98474d980df6ac80316e32",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "6c4f59ee592645dcafaab89965d21e58",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Name",
+      "Id": "ebb5f759ff1444b19c9261cd01fdb8c4",
+      "Inputs": [
+        {
+          "Id": "80e8b71983a54309a320ee91ac347b23",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "CADLinkType",
+      "Id": "4e0932f95ffa49969969dbbf3b6ed23d",
+      "Inputs": [
+        {
+          "Id": "cec5ce9b92b744418a677b9977405326",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "ImportInstance",
+      "Id": "806f78e7e28c4d13979dcac52e95b6ae",
+      "Inputs": [
+        {
+          "Id": "e6e75946f108481d942e7a1ed151aea1",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner, 2018\n#geniusloci.bim@gmail.com\n\nimport clr\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\nfrom RevitServices.Transactions import TransactionManager\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import *\ndoc = DocumentManager.Instance.CurrentDBDocument\n\noutName, CADlinktype, importinst = [], [], []\n\nimportInstances = FilteredElementCollector(doc).OfClass(Autodesk.Revit.DB.ImportInstance).ToElements()\n\n#Start the transaction\nTransactionManager.Instance.EnsureInTransaction(doc)\n\nfor importins in importInstances :\n\tif importins.IsLinked:\n\t\tCADLink = doc.GetElement(importins.GetTypeId())\n\t\tCADLink.Reload()\n\t\timportinst.append(importins)\n\t\tCADlinktype.append(CADLink)\n\t\tname = Element.Name.GetValue(CADLink)\n\t\toutName.append(name)\n\nTransactionManager.Instance.TransactionTaskDone()\n#Assign your output to the OUT variable.\nOUT = outName,CADlinktype,importinst",
+      "VariableInputPorts": true,
+      "Id": "1ca439b0f99f4e4b8150d111a036a788",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "19cba46ab9074cf1bf48a2fa9aa256f9",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "5ed25ebd788a4bc0b168e149a5bb1c60",
+      "End": "80e8b71983a54309a320ee91ac347b23",
+      "Id": "1fdd102d82a24fb0b7c4094cdd142239"
+    },
+    {
+      "Start": "fbf2f9a3db98474d980df6ac80316e32",
+      "End": "cec5ce9b92b744418a677b9977405326",
+      "Id": "80a4b00a19134ffd868647269e61ff9f"
+    },
+    {
+      "Start": "6c4f59ee592645dcafaab89965d21e58",
+      "End": "e6e75946f108481d942e7a1ed151aea1",
+      "Id": "b6bfa2086b8044a0a5d515e257e4238f"
+    },
+    {
+      "Start": "19cba46ab9074cf1bf48a2fa9aa256f9",
+      "End": "4caaf76aeed04a83a355136495182866",
+      "Id": "20aa39188b2a46c1bda6598fccdd89e3"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "10f245d3e6d247179f46b5d382c1b652",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 612.718763535401,
+        "Y": 294.14
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "ebb5f759ff1444b19c9261cd01fdb8c4",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 803.918763535401,
+        "Y": 224.5
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "4e0932f95ffa49969969dbbf3b6ed23d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 803.918763535401,
+        "Y": 307.5
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "806f78e7e28c4d13979dcac52e95b6ae",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 803.918763535401,
+        "Y": 390.5
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Reload CADLinks",
+        "Id": "1ca439b0f99f4e4b8150d111a036a788",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 397.518763535401,
+        "Y": 289.926666666667
+      }
+    ],
+    "Annotations": [],
+    "X": -319.49162340011,
+    "Y": -12.6969752262943,
+    "Zoom": 0.959788699581266
+  }
+}

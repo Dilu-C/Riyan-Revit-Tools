@@ -1,0 +1,255 @@
+{
+  "Uuid": "1c20ab1c-b720-46ea-b5c1-9962887e14c2",
+  "IsCustomNode": true,
+  "Category": "GeniusLoci.Workset",
+  "Description": "Retrieves the workset by Id.",
+  "Name": "Workset ById",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "#Alban de Chasteigner 2021\n#twitter : @geniusloci_bim\n#geniusloci.bim@gmail.com\n#https://github.com/albandechasteigner/GeniusLociForDynamo\n\nimport clr\n# Import DocumentManager and TransactionManager\nclr.AddReference(\"RevitServices\")\nimport RevitServices\nfrom RevitServices.Persistence import DocumentManager\ndoc = DocumentManager.Instance.CurrentDBDocument\n# Import RevitAPI\nclr.AddReference(\"RevitAPI\")\nimport Autodesk\nfrom Autodesk.Revit.DB import WorksetId\n\nids = IN[0] if isinstance(IN[0],list) else [IN[0]]\nwks, names = [],[]\n\nfor worksetId in ids :\n\ttry:\n\t\tworkset=doc.GetWorksetTable().GetWorkset(WorksetId(worksetId))\n\t\twks.append(workset)\n\t\tnames.append(workset.Name)\n\texcept:\n\t\twks.append(None)\n\t\tnames.append(None)\n\t\t\nif isinstance(IN[0], list): OUT = wks, names\nelse: OUT = wks[0], names[0]",
+      "VariableInputPorts": true,
+      "Id": "d86a5b50888e4184ab1875793da330a7",
+      "Inputs": [
+        {
+          "Id": "f60fc6a4789d453f8658fde38f992665",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "df07a83490d04248954211d54337ae47",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script IronPython intégré."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "x[0];\nx[1];",
+      "Id": "6398a84266c64eaeb7548ccb90bcc05d",
+      "Inputs": [
+        {
+          "Id": "0a6d27c0bed7413d93d26692046cdc6d",
+          "Name": "x",
+          "Description": "x",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "9ad1cea46efb4fc2ba9c0af6e5490c66",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "aea814465d994f08a0b29f4dd2161ae4",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "Workset",
+      "Id": "8cb86ed538834c8f93b76d924722b465",
+      "Inputs": [
+        {
+          "Id": "a41860de717d4ff8a1ae6ae856c3d737",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Output, DynamoCore",
+      "NodeType": "OutputNode",
+      "ElementResolver": null,
+      "Symbol": "WorksetName",
+      "Id": "327518bbe0344ce48c1490f8c086b4be",
+      "Inputs": [
+        {
+          "Id": "6b8ef20123c24a7b974777ebfe21c254",
+          "Name": "",
+          "Description": "",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Sortie de fonction, utiliser avec les noeuds personnalisés"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CustomNodes.Symbol, DynamoCore",
+      "NodeType": "InputNode",
+      "Parameter": {
+        "Name": "WorksetId",
+        "TypeName": "int",
+        "TypeRank": -1,
+        "DefaultValue": null,
+        "Description": "Integer"
+      },
+      "Id": "9beb6f109f034bc891caea83d5bb710a",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "facf7e0352984ac2abf222a43013b9dc",
+          "Name": "",
+          "Description": "Symbole",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Un paramètre de fonction, utiliser avec des noeuds personnalisés.\r\n\r\nVous pouvez spécifier le type et la valeur par défaut du paramètre. Par exemple,\r\n\r\nentrée: var[]..[]\r\nvaleur: bool = false"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "df07a83490d04248954211d54337ae47",
+      "End": "0a6d27c0bed7413d93d26692046cdc6d",
+      "Id": "ebfacda538064f77b462f65ca93cfebd"
+    },
+    {
+      "Start": "9ad1cea46efb4fc2ba9c0af6e5490c66",
+      "End": "a41860de717d4ff8a1ae6ae856c3d737",
+      "Id": "c8f72381ae1b4d8e8e4731bbd186b101"
+    },
+    {
+      "Start": "aea814465d994f08a0b29f4dd2161ae4",
+      "End": "6b8ef20123c24a7b974777ebfe21c254",
+      "Id": "f37c84b288ef40ccb1622dc08c650298"
+    },
+    {
+      "Start": "facf7e0352984ac2abf222a43013b9dc",
+      "End": "f60fc6a4789d453f8658fde38f992665",
+      "Id": "f6db51c7acd744618c9ae41ca50f469c"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "d86a5b50888e4184ab1875793da330a7",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 306.8,
+        "Y": 266.8
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "6398a84266c64eaeb7548ccb90bcc05d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 476.0,
+        "Y": 270.4
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "8cb86ed538834c8f93b76d924722b465",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 616.172388370788,
+        "Y": 258.675512288501
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Output",
+        "Id": "327518bbe0344ce48c1490f8c086b4be",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 619.648270164411,
+        "Y": 328.526704742234
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Input",
+        "Id": "9beb6f109f034bc891caea83d5bb710a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 80.8909977519861,
+        "Y": 265.303862927957
+      }
+    ],
+    "Annotations": [],
+    "X": 26.0556458275593,
+    "Y": 183.148537929291,
+    "Zoom": 0.712594832628488
+  }
+}
