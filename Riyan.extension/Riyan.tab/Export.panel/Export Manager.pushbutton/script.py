@@ -2475,18 +2475,12 @@ class ExportManagerForm(forms.WPFWindow):
         locked = False
         try:
             if os.path.exists(full_path):
-                # Try opening with read/write access
+                # Try opening with read/write access. This will fail if the file is open/locked.
+                # Safe for network drives (unlike rename).
                 with open(full_path, 'r+'):
                     pass
         except (IOError, OSError):
             locked = True
-            
-        if not locked and os.path.exists(full_path):
-            try:
-                # Try to rename to check if other apps hold locks (like Acrobat or browsers)
-                os.rename(full_path, full_path)
-            except (IOError, OSError):
-                locked = True
             
         # Check 'apply to all' flags first (only for unlocked files)
         if not locked:
