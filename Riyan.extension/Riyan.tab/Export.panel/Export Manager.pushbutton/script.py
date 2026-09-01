@@ -2539,8 +2539,6 @@ class ExportManagerForm(forms.WPFWindow):
 
     # Export Process
     def run_export(self):
-        self.replace_all = False
-        self.skip_all = False
         folder = self.TxtExportPath.Text.strip()
         import System
         if not folder or not System.IO.Directory.Exists(folder):
@@ -2550,6 +2548,18 @@ class ExportManagerForm(forms.WPFWindow):
         if not self.queue_items:
             show_alert("Export queue is empty. Please select sheets and formats.", is_warning=True)
             return
+
+        # Reset queue item status and target names for fresh export run
+        self.replace_all = False
+        self.skip_all = False
+        for item in self.queue_items:
+            item.Status = "Pending"
+            item.TargetFileName = generate_filename(item.SheetVM.Sheet, self.active_scheme_parts, doc)
+        
+        self.GridQueue.Items.Refresh()
+        self.ExportProgressBar.Value = 0
+        self.TxtPercent.Text = "Completed 0%"
+        self.do_events()
 
         pdf_idx = self.CmbPdfSetup.SelectedIndex
         selected_pdf_setting = self.print_settings[pdf_idx - 1] if pdf_idx > 0 else None
@@ -2711,11 +2721,14 @@ class ExportManagerForm(forms.WPFWindow):
                         
                     sheets = [item.SheetVM.Sheet for item in pdf_items]
                     if revit_version >= 2022:
-                        self.TxtPercent.Text = "Generating Combined PDF... Please wait."
-                        self.do_events()
                         ok = export_combined_pdf_2022(combine_folder, sheets, resolved_combined, pdf_zoom_type, pdf_zoom_pct)
+                        if not ok:
+                            for item in pdf_items:
+                                item.Status = "Error"
                     else:
                         show_alert("Combined PDF requires Revit 2022+", is_error=True)
+                        for item in pdf_items:
+                            item.Status = "Error"
 
             # --- EXCEL TRANSMITTAL EXPORT ---
             if getattr(self, 'CbExcelTransmittal', None) and self.CbExcelTransmittal.IsChecked == True and not self._cancel_export:
