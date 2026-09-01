@@ -2663,8 +2663,10 @@ class ExportManagerForm(forms.WPFWindow):
             self.GridQueue.Items.Refresh()
             self.do_events()
 
-            # --- NORMAL EXPORT LOOP ---
-            for idx, item in enumerate(self.queue_items):
+            # --- NORMAL EXPORT LOOP (for DWG or Non-Combined PDF) ---
+            non_combined_items = [item for item in self.queue_items if not (item.Format == "PDF" and combine_pdf)]
+            
+            for idx, item in enumerate(non_combined_items):
                 if self._cancel_export:
                     show_alert("Export cancelled by user.", is_warning=True)
                     break
@@ -2685,9 +2687,7 @@ class ExportManagerForm(forms.WPFWindow):
 
                 try:
                     if item.Format == "PDF":
-                        if combine_pdf:
-                            success = True
-                        elif revit_version >= 2022:
+                        if revit_version >= 2022:
                             success = export_pdf_2022(target_folder, item.SheetVM.Sheet, item.TargetFileName, pdf_zoom_type, pdf_zoom_pct)
                         else:
                             success = False
@@ -2713,22 +2713,42 @@ class ExportManagerForm(forms.WPFWindow):
 
             # --- COMBINED PDF EXPORT ---
             if combine_pdf and not self._cancel_export and resolved_combined:
-                pdf_items = [item for item in self.queue_items if item.Format == "PDF" and item.Status == "Done"]
+                pdf_items = [item for item in self.queue_items if item.Format == "PDF" and item.Status != "Skipped"]
                 if pdf_items:
                     combine_folder = folder
                     if self.RbSplitByFormat.IsChecked:
                         combine_folder = os.path.join(folder, "PDF")
                         
                     sheets = [item.SheetVM.Sheet for item in pdf_items]
+                    
+                    for item in pdf_items:
+                        item.Status = "Exporting..."
+                    self.GridQueue.Items.Refresh()
+                    
+                    self.TxtPercent.Text = "Generating Combined PDF ({} sheets)... Please wait.".format(len(pdf_items))
+                    self.ExportProgressBar.IsIndeterminate = True
+                    self.do_events()
+                    
                     if revit_version >= 2022:
                         ok = export_combined_pdf_2022(combine_folder, sheets, resolved_combined, pdf_zoom_type, pdf_zoom_pct)
-                        if not ok:
+                        self.ExportProgressBar.IsIndeterminate = False
+                        if ok:
+                            for item in pdf_items:
+                                item.Status = "Done"
+                            self.ExportProgressBar.Value = 100
+                            self.TxtPercent.Text = "Completed 100%"
+                        else:
                             for item in pdf_items:
                                 item.Status = "Error"
+                            self.TxtPercent.Text = "Combined PDF Export Failed."
                     else:
+                        self.ExportProgressBar.IsIndeterminate = False
                         show_alert("Combined PDF requires Revit 2022+", is_error=True)
                         for item in pdf_items:
                             item.Status = "Error"
+                    
+                    self.GridQueue.Items.Refresh()
+                    self.do_events()
 
             # --- EXCEL TRANSMITTAL EXPORT ---
             if getattr(self, 'CbExcelTransmittal', None) and self.CbExcelTransmittal.IsChecked == True and not self._cancel_export:
