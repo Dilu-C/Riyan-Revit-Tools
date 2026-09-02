@@ -2719,30 +2719,20 @@ class ExportManagerForm(forms.WPFWindow):
                     if self.RbSplitByFormat.IsChecked:
                         combine_folder = os.path.join(folder, "PDF")
                         
-                    sheets = [item.SheetVM.Sheet for item in pdf_items]
-                    
-                    for item in pdf_items:
-                        item.Status = "Exporting..."
+                    if pdf_items:
+                        pdf_items[0].Status = "Exporting..."
                     self.GridQueue.Items.Refresh()
                     
-                    self.TxtPercent.Text = "Generating Combined PDF ({} sheets)... Please wait.".format(len(pdf_items))
-                    self.ExportProgressBar.IsIndeterminate = True
+                    self.TxtPercent.Text = "Generating Combined PDF ({} sheets)...".format(len(pdf_items))
                     self.do_events()
                     
                     if revit_version >= 2022:
-                        ok = export_combined_pdf_2022(combine_folder, sheets, resolved_combined, pdf_zoom_type, pdf_zoom_pct)
-                        self.ExportProgressBar.IsIndeterminate = False
-                        if ok:
-                            for item in pdf_items:
-                                item.Status = "Done"
-                            self.ExportProgressBar.Value = 100
-                            self.TxtPercent.Text = "Completed 100%"
-                        else:
+                        ok = export_combined_pdf_2022(combine_folder, pdf_items, resolved_combined, pdf_zoom_type, pdf_zoom_pct, window_instance=self)
+                        if not ok:
                             for item in pdf_items:
                                 item.Status = "Error"
                             self.TxtPercent.Text = "Combined PDF Export Failed."
                     else:
-                        self.ExportProgressBar.IsIndeterminate = False
                         show_alert("Combined PDF requires Revit 2022+", is_error=True)
                         for item in pdf_items:
                             item.Status = "Error"
@@ -2844,8 +2834,55 @@ def export_pdf_2022(folder, sheet, filename, zoom_type, zoom_pct):
         show_alert("Failed to export PDF for sheet {}:\n{}".format(sheet.SheetNumber, traceback.format_exc()), is_error=True)
         return False
 
-def export_combined_pdf_2022(folder, sheets, filename, zoom_type, zoom_pct):
+def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, window_instance=None):
+    app = __revit__.Application
+    current_idx = [-1]
+    
+    def on_progress_changed(sender, args):
+        try:
+            caption = args.Caption or ""
+            if not caption:
+                return
+                
+            matched_idx = -1
+            for idx, item in enumerate(pdf_items):
+                if (item.SheetNumber and item.SheetNumber in caption) or \
+                   (item.SheetName and item.SheetName in caption) or \
+                   (item.TargetFileName and item.TargetFileName in caption):
+                    matched_idx = idx
+                    break
+            
+            if matched_idx != -1 and matched_idx != current_idx[0]:
+                for prev_i in range(matched_idx):
+                    if pdf_items[prev_i].Status != "Done":
+                        pdf_items[prev_i].Status = "Done"
+                
+                pdf_items[matched_idx].Status = "Exporting..."
+                current_idx[0] = matched_idx
+                
+                if window_instance:
+                    window_instance.TxtPercent.Text = caption
+                    if args.UpperRange > 0:
+                        pct = int((float(args.Position) / args.UpperRange) * 100)
+                        window_instance.ExportProgressBar.Value = pct
+                    window_instance.GridQueue.Items.Refresh()
+                    window_instance.do_events()
+            elif window_instance:
+                if args.UpperRange > 0:
+                    pct = int((float(args.Position) / args.UpperRange) * 100)
+                    if pct > window_instance.ExportProgressBar.Value:
+                        window_instance.ExportProgressBar.Value = pct
+                        window_instance.TxtPercent.Text = caption
+                        window_instance.do_events()
+        except Exception:
+            pass
+
     try:
+        try:
+            app.ProgressChanged += on_progress_changed
+        except Exception:
+            pass
+
         opt = DB.PDFExportOptions()
         opt.FileName = filename
         opt.Combine = True
@@ -2857,15 +2894,29 @@ def export_combined_pdf_2022(folder, sheets, filename, zoom_type, zoom_pct):
 
         from System.Collections.Generic import List
         views = List[DB.ElementId]()
-        for sheet in sheets:
-            views.Add(sheet.Id)
+        for item in pdf_items:
+            views.Add(item.SheetVM.Sheet.Id)
 
         doc.Export(folder, views, opt)
+        
+        for item in pdf_items:
+            item.Status = "Done"
+        if window_instance:
+            window_instance.ExportProgressBar.Value = 100
+            window_instance.TxtPercent.Text = "Completed 100%"
+            window_instance.GridQueue.Items.Refresh()
+            window_instance.do_events()
+
         return True
     except Exception as e:
         import traceback
         show_alert("Failed to export combined PDF:\n{}".format(traceback.format_exc()), is_error=True)
         return False
+    finally:
+        try:
+            app.ProgressChanged -= on_progress_changed
+        except Exception:
+            pass
 
 # ------------------------------------------------------------------------------
 # Main Execution
