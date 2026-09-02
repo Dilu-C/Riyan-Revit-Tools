@@ -137,7 +137,7 @@
             }
         ]
     }, 
-    "split_by_format": false, 
+    "split_by_format": true, 
     "active_combined_scheme": "RYN_Hurasveli_Combined", 
     "profile_settings": {
         "RYN_Hurasveli_Combined": {
@@ -176,7 +176,7 @@
         "reveal_constraints_off": true, 
         "temp_hide_off": true
     }, 
-    "active_scheme": "RYN_Ehdhuffaru_Combined", 
+    "active_scheme": "RYN_Ehdhuffaru_Sheetwise", 
     "view_sets": {
         "111": [
             "00-000-000-00L", 
