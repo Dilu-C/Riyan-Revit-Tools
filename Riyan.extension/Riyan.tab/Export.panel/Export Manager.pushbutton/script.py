@@ -2719,8 +2719,8 @@ class ExportManagerForm(forms.WPFWindow):
                     if self.RbSplitByFormat.IsChecked:
                         combine_folder = os.path.join(folder, "PDF")
                         
-                    if pdf_items:
-                        pdf_items[0].Status = "Exporting..."
+                    for item in pdf_items:
+                        item.Status = "Pending"
                     self.GridQueue.Items.Refresh()
                     
                     self.TxtPercent.Text = "Generating Combined PDF ({} sheets)...".format(len(pdf_items))
@@ -2844,19 +2844,30 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
             if not caption:
                 return
                 
+            c_upper = caption.upper()
             matched_idx = -1
+            
+            # 1. Match by exact Sheet Number (e.g. 'GF-103', 'ZZ-108')
             for idx, item in enumerate(pdf_items):
-                if (item.SheetNumber and item.SheetNumber in caption) or \
-                   (item.SheetName and item.SheetName in caption) or \
-                   (item.TargetFileName and item.TargetFileName in caption):
+                s_num = (item.SheetNumber or "").strip().upper()
+                if s_num and len(s_num) >= 2 and s_num in c_upper:
                     matched_idx = idx
                     break
             
+            # 2. Match by full Sheet Name (only if specific and >= 6 characters)
+            if matched_idx == -1:
+                for idx, item in enumerate(pdf_items):
+                    s_name = (item.SheetName or "").strip().upper()
+                    if s_name and len(s_name) >= 6 and s_name in c_upper:
+                        matched_idx = idx
+                        break
+            
             if matched_idx != -1 and matched_idx != current_idx[0]:
-                for prev_i in range(matched_idx):
-                    if pdf_items[prev_i].Status != "Done":
-                        pdf_items[prev_i].Status = "Done"
+                # Mark ONLY the previously active sheet as Done
+                if current_idx[0] != -1 and current_idx[0] < len(pdf_items):
+                    pdf_items[current_idx[0]].Status = "Done"
                 
+                # Mark the newly active sheet as Exporting
                 pdf_items[matched_idx].Status = "Exporting..."
                 current_idx[0] = matched_idx
                 
