@@ -1,55 +1,39 @@
 import os
+import urllib2
+import json
 import threading
 import time
-from pyrevit.coreutils import git
+import traceback
+from pyrevit import revit, forms, script
 
-def check_updates():
-    # Allow Revit 15 seconds to fully start up and load the UI
-    time.sleep(15)
-    
+def check_for_updates():
     try:
-        # Determine the git repository root path
-        current_dir = os.path.dirname(__file__)
-        repo_dir = os.path.dirname(current_dir)
+        # Give Revit time to fully load UI
+        time.sleep(15)
         
-        # Check if the folder is indeed a git repository
-        if not os.path.exists(os.path.join(repo_dir, ".git")):
-            return
+        # Determine paths
+        extension_dir = os.path.dirname(os.path.dirname(__file__))
+        git_dir = os.path.join(extension_dir, '.git')
+        
+        # Only use pyrevit.coreutils.git if it's an actual Git repo
+        if os.path.exists(git_dir):
+            try:
+                from pyrevit.coreutils import git
+                repo = git.get_repo(extension_dir)
+                if repo:
+                    if git.check_for_updates(repo):
+                        forms.alert("A new update is available for Riyan Revit Tools!\n\nPlease double-click the 'Install_Riyan_Tools.bat' file on your Desktop to update.", title="Riyan Tools Update")
+            except Exception as e:
+                pass
+        else:
+            # Not a git repo (probably installed via ZIP 1-Click installer)
+            # You could implement a pure Python GitHub API check here if needed,
+            # but for now, we just gracefully do nothing so it doesn't crash.
+            pass
             
-        repo = git.get_repo(repo_dir)
-        
-        # Run a fetch to check for remote updates
-        git.git_fetch(repo)
-        
-        # Compare local and remote heads
-        div = git.compare_branch_heads(repo)
-        
-        # If local is behind remote, trigger the update prompt
-        if div and div.BehindBy > 0:
-            from System.Windows import MessageBox, MessageBoxButton, MessageBoxImage, MessageBoxResult
-            
-            res = MessageBox.Show(
-                u"An update is available for Riyan Revit Tools.\nWould you like to install the update now?",
-                u"Riyan Tools Update",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Information
-            )
-            
-            if res == MessageBoxResult.Yes:
-                # Perform the git pull
-                git.git_pull(repo)
-                
-                MessageBox.Show(
-                    u"Update installed successfully!\n\nPlease click pyRevit 'Reload' (in the pyRevit tab) to apply the changes.",
-                    u"Update Success",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                )
-    except Exception:
-        # Fail silently so it never interrupts Revit startup
+    except Exception as e:
         pass
 
-# Run the update check once on a background thread
-t = threading.Thread(target=check_updates)
-t.daemon = True
+# Run the update check in a background thread so it doesn't block Revit startup
+t = threading.Thread(target=check_for_updates)
 t.start()
