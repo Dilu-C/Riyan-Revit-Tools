@@ -31,7 +31,7 @@ def check_for_updates():
         # If online version is different, prompt the user
         if online_version and online_version != local_version:
             msg = "A new update (v{}) is available for Riyan Revit Tools!\n\n".format(online_version)
-            msg += "Please double-click the 'Install_Riyan_Tools.bat' file on your Desktop to update."
+            msg += "Please click the 'Update' button in the Riyan tab to install it."
             forms.alert(msg, title="Riyan Tools Update")
             
     except Exception as e:

@@ -1,0 +1,99 @@
+# -*- coding: utf-8 -*-
+import os
+import urllib2
+import zipfile
+import tempfile
+import shutil
+import threading
+from pyrevit import forms, script, revit
+from pyrevit.loader import sessionmgr
+
+def update_tools():
+    try:
+        # 1. Determine paths
+        extension_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        local_version_file = os.path.join(extension_dir, 'version.txt')
+        
+        # 2. Get local version
+        local_version = "1.0"
+        if os.path.exists(local_version_file):
+            with open(local_version_file, 'r') as f:
+                local_version = f.read().strip()
+                
+        # 3. Check online version
+        url_version = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/version.txt"
+        req = urllib2.Request(url_version)
+        req.add_header('Cache-Control', 'no-cache')
+        req.add_header('Pragma', 'no-cache')
+        try:
+            response = urllib2.urlopen(req, timeout=5)
+            online_version = response.read().strip()
+        except:
+            forms.alert("Could not connect to GitHub to check for updates. Please check your internet connection.", title="Connection Error")
+            return
+            
+        # 4. Compare versions
+        if online_version == local_version:
+            forms.alert("You are already on the latest version (v{}). No updates needed!".format(local_version), title="Up to Date")
+            return
+            
+        # 5. Prompt for update
+        res = forms.alert("A new update (v{}) is available!\n\nCurrent version: v{}\n\nWould you like to download and install this update now?".format(online_version, local_version), 
+                          title="Update Available", options=["Update Now", "Cancel"])
+                          
+        if res == "Update Now":
+            with forms.ProgressBar(title="Downloading Update...") as pb:
+                pb.update_progress(10, 100)
+                
+                # 6. Download ZIP
+                zip_url = "https://github.com/Dilu-C/Riyan-Revit-Tools/archive/refs/heads/main.zip"
+                temp_dir = tempfile.gettempdir()
+                zip_path = os.path.join(temp_dir, "Riyan_Update.zip")
+                
+                req_zip = urllib2.Request(zip_url)
+                req_zip.add_header('Cache-Control', 'no-cache')
+                with open(zip_path, 'wb') as f:
+                    f.write(urllib2.urlopen(req_zip).read())
+                    
+                pb.update_progress(50, 100)
+                pb.title = "Installing Update..."
+                
+                # 7. Extract ZIP to a temporary folder
+                extract_path = os.path.join(temp_dir, "Riyan_Extracted")
+                if os.path.exists(extract_path):
+                    shutil.rmtree(extract_path, ignore_errors=True)
+                os.makedirs(extract_path)
+                
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(extract_path)
+                    
+                pb.update_progress(80, 100)
+                
+                # 8. Copy contents over the active extension directory
+                # The zip contains a root folder 'Riyan-Revit-Tools-main'
+                source_dir = os.path.join(extract_path, "Riyan-Revit-Tools-main")
+                
+                def copy_tree_overwrite(src, dst):
+                    if not os.path.exists(dst):
+                        os.makedirs(dst)
+                    for item in os.listdir(src):
+                        s = os.path.join(src, item)
+                        d = os.path.join(dst, item)
+                        if os.path.isdir(s):
+                            copy_tree_overwrite(s, d)
+                        else:
+                            shutil.copy2(s, d)
+                            
+                copy_tree_overwrite(source_dir, extension_dir)
+                
+                pb.update_progress(100, 100)
+                
+            # 9. Trigger pyRevit Reload
+            forms.alert("Update installed successfully!\nRevit will now reload to apply the changes.", title="Update Complete")
+            sessionmgr.reload_pyrevit()
+            
+    except Exception as e:
+        forms.alert("An error occurred during the update: {}".format(str(e)), title="Update Error")
+
+if __name__ == '__main__':
+    update_tools()
