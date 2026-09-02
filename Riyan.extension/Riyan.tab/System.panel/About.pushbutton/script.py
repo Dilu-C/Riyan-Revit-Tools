@@ -32,7 +32,7 @@ def show_about_dialog():
     xaml_str = """
     <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            Title="About Riyan Plugin" Height="210" Width="400"
+            Title="About Riyan Plugin" Height="290" Width="400"
             WindowStartupLocation="CenterScreen"
             Background="Transparent" WindowStyle="None" AllowsTransparency="True"
             ResizeMode="NoResize" FontFamily="Segoe UI">
