@@ -20,7 +20,7 @@ class UpdateForm(forms.WPFWindow):
             self.BtnAction.Content = "OK"
         elif state == "UPDATE_AVAILABLE":
             self.TxtTitle.Text = "Update Available!"
-            self.TxtMessage.Text = "A new update (v{}) is available!\nCurrent version: v{}\n\nWould you like to download and install this update now?".format(version_info[0], version_info[1])
+            self.TxtMessage.Text = "A new update (v{}) for the Riyan Revit Plugin Suite is available!\nCurrent version: v{}\n\nWould you like to download and install this update now?".format(version_info[0], version_info[1])
             self.BtnAction.Content = "Update Now"
         elif state == "ERROR":
             self.TxtTitle.Text = "Update Error"
@@ -70,7 +70,8 @@ def update_tools():
                 local_version = f.read().strip()
                 
         # 3. Check online version
-        url_version = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/version.txt"
+        import time
+        url_version = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/version.txt?t=" + str(time.time())
         req = urllib2.Request(url_version)
         req.add_header('Cache-Control', 'no-cache')
         req.add_header('Pragma', 'no-cache')

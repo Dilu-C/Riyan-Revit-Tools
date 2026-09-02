@@ -19,7 +19,7 @@ def check_for_updates():
                 local_version = f.read().strip()
                 
         # Fetch online version directly from GitHub raw content
-        url = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/version.txt"
+        url = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/version.txt?t=" + str(time.time())
         req = urllib2.Request(url)
         # Prevent caching
         req.add_header('Cache-Control', 'no-cache')
@@ -30,7 +30,7 @@ def check_for_updates():
         
         # If online version is different, prompt the user
         if online_version and online_version != local_version:
-            msg = "A new update (v{}) is available for Riyan Revit Tools!\n\n".format(online_version)
+            msg = "A new update (v{}) for the Riyan Revit Plugin Suite is available!\n\n".format(online_version)
             msg += "Please click the 'Update' button in the Riyan tab to install it."
             forms.alert(msg, title="Riyan Tools Update")
             
