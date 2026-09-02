@@ -36,3 +36,7 @@ When working on scripts in this repository, strictly adhere to the following rul
 9. **Template එක Mutate නොකිරීම (Always Copy)**:
    -  පළමු copy එක සඳහා `offset == 0` වුවත්, කිසිවිටෙක original template elements සෘජුව mutate නොකරන්න. එයින් template එක විනාශ වී ඊළඟ copies ඔක්කොම අවුල් වේ.
    - **නිවැරදි ක්‍රමය**: සැමවිටම `DB.ElementTransformUtils.CopyElements` භාවිතයෙන් අලුත්ම කොපියක් සාදා එය mutate කරන්න. අවසානයේදී original template elements ටික Delete කර දමන්න.
+10. **Active pyRevit Environment එක ඇතුලේ Code Test කිරීම**:
+   - User ටූල්ස් install කරලා තියෙන්නේ Install_Riyan_Tools.bat එකෙන් නිසා, Revit එකට කෝඩ් ලෝඩ් වෙන්නේ %APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools ෆෝල්ඩර් එකෙන්.
+   - හැබැයි මම (AI) කෝඩ් ලියන්නේ සහ GitHub වලට Push කරන්නේ Desktop එකේ තියෙන ඔරිජිනල් ෆෝල්ඩර් එකේ.
+   - **නිවැරදි ක්‍රමය**: මින් ඉදිරියට Desktop ෆෝල්ඩර් එකේ .py හරි .xaml ෆයිල් එකක් හරි වෙනස් කරපු ගමන්, අනිවාර්යයෙන්ම ඒ අලුත් ෆයිල් ටික %APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools ෆෝල්ඩර් එකටත් කෙලින්ම Copy කළ යුතුයි. එහෙම copy කරන්නේ නැතුව කිසිම වෙලාවක User ට "pyRevit Reload කරලා බලන්න" කියලා කියන්න තහනම්!
