@@ -25,23 +25,14 @@ VERSION = get_version()
 
 def show_about_dialog():
     plugin_dir = os.path.dirname(__file__)
-    curr = os.path.dirname(__file__)
-    ext_dir = None
-    for _ in range(5):
-        if os.path.exists(os.path.join(curr, "version.txt")):
-            ext_dir = curr
-            break
-        curr = os.path.dirname(curr)
-    
-    if ext_dir:
-        logo_path = os.path.join(ext_dir, "Riyan.tab", "Coordination.panel", "Copy from Link.pushbutton", "logo.png")
-    else:
+    logo_path = os.path.join(plugin_dir, "logo.png")
+    if not os.path.exists(logo_path):
         logo_path = os.path.join(plugin_dir, "icon.png")
 
     xaml_str = """
     <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            Title="About Riyan Plugin" Height="280" Width="450"
+            Title="About Riyan Plugin" Height="210" Width="400"
             WindowStartupLocation="CenterScreen"
             Background="Transparent" WindowStyle="None" AllowsTransparency="True"
             ResizeMode="NoResize" FontFamily="Segoe UI">
