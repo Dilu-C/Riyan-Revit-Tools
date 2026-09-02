@@ -12,43 +12,44 @@ if exist "%APPDATA%\pyRevit\Extensions\Riyan.extension" rmdir /s /q "%APPDATA%\p
 if exist "%APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools" rmdir /s /q "%APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools"
 
 echo [2/3] Downloading latest tools from GitHub...
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
-    " = Join-Path C:\Users\User\AppData\Local\Temp 'RiyanTools.zip'; " ^
-    " = Join-Path C:\Users\User\AppData\Roaming 'pyRevit\Extensions'; " ^
-    "if (!(Test-Path )) { New-Item -ItemType Directory -Path  -Force | Out-Null }; " ^
-    "Write-Host 'Downloading repository package...'; " ^
-    "Invoke-WebRequest -Uri 'https://github.com/Dilu-C/Riyan-Revit-Tools/archive/refs/heads/main.zip' -OutFile ; " ^
-    "Write-Host 'Extracting files...'; " ^
-    "Expand-Archive -Path  -DestinationPath  -Force; " ^
-    "Remove-Item  -Force; " ^
-    " = Join-Path  'Riyan-Revit-Tools-main'; " ^
-    " = Join-Path  'Riyan-Revit-Tools'; " ^
-    "if (Test-Path ) { " ^
-    "  if (Test-Path ) { Remove-Item  -Recurse -Force }; " ^
-    "  Rename-Item -Path  -NewName 'Riyan-Revit-Tools'; " ^
-    "}"
+set "PS_SCRIPT=%TEMP%\riyan_install.ps1"
+if exist "%PS_SCRIPT%" del "%PS_SCRIPT%"
 
-echo [3/3] Configuring pyRevit extension...
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    " = Join-Path C:\Users\User\AppData\Roaming 'pyRevit\pyRevit_config.ini'; " ^
-    " = Join-Path C:\Users\User\AppData\Roaming 'pyRevit\Extensions\Riyan-Revit-Tools'; " ^
-    "if (Test-Path ) { " ^
-    "   = Get-Content  -Raw; " ^
-    "  if ( -notmatch [regex]::Escape()) { " ^
-    "     = .Replace('\', '\\'); " ^
-    "    if ( -match 'userextensions\s*=\s*\[(.*?)\]') { " ^
-    "       = [1].Trim(); " ^
-    "      if () {  = \"userextensions = [, \"\"]\" } else {  = \"userextensions = [\"\"]\" }; " ^
-    "       =  -replace 'userextensions\s*=\s*\[.*?\]', ; " ^
-    "    } else { " ^
-    "       =  + \"
-userextensions = [\"\"]
-\"; " ^
-    "    }; " ^
-    "    Set-Content  ; " ^
-    "  } " ^
-    "}"
+echo [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 >> "%PS_SCRIPT%"
+echo $zipPath = Join-Path $env:TEMP 'RiyanTools.zip' >> "%PS_SCRIPT%"
+echo $extDir = Join-Path $env:APPDATA 'pyRevit\Extensions' >> "%PS_SCRIPT%"
+echo if (!(Test-Path $extDir^)^) { New-Item -ItemType Directory -Path $extDir -Force ^| Out-Null } >> "%PS_SCRIPT%"
+echo Write-Host 'Downloading repository package...' >> "%PS_SCRIPT%"
+echo Invoke-WebRequest -Uri 'https://github.com/Dilu-C/Riyan-Revit-Tools/archive/refs/heads/main.zip' -OutFile $zipPath >> "%PS_SCRIPT%"
+echo Write-Host 'Extracting files...' >> "%PS_SCRIPT%"
+echo Expand-Archive -Path $zipPath -DestinationPath $extDir -Force >> "%PS_SCRIPT%"
+echo Remove-Item $zipPath -Force >> "%PS_SCRIPT%"
+echo $extracted = Join-Path $extDir 'Riyan-Revit-Tools-main' >> "%PS_SCRIPT%"
+echo $final = Join-Path $extDir 'Riyan-Revit-Tools' >> "%PS_SCRIPT%"
+echo if (Test-Path $extracted^) { >> "%PS_SCRIPT%"
+echo     if (Test-Path $final^) { Remove-Item $final -Recurse -Force } >> "%PS_SCRIPT%"
+echo     Rename-Item -Path $extracted -NewName 'Riyan-Revit-Tools' >> "%PS_SCRIPT%"
+echo } >> "%PS_SCRIPT%"
+echo Write-Host '[3/3] Configuring pyRevit extension...' >> "%PS_SCRIPT%"
+echo $cfg = Join-Path $env:APPDATA 'pyRevit\pyRevit_config.ini' >> "%PS_SCRIPT%"
+echo $target = Join-Path $env:APPDATA 'pyRevit\Extensions\Riyan-Revit-Tools' >> "%PS_SCRIPT%"
+echo if (Test-Path $cfg^) { >> "%PS_SCRIPT%"
+echo     $content = Get-Content $cfg -Raw >> "%PS_SCRIPT%"
+echo     if ($content -notmatch [regex]::Escape($target^)^) { >> "%PS_SCRIPT%"
+echo         $escaped = $target.Replace('\', '\\'^) >> "%PS_SCRIPT%"
+echo         if ($content -match 'userextensions\s*=\s*\[(.*?)\]'^) { >> "%PS_SCRIPT%"
+echo             $existing = $matches[1].Trim(^) >> "%PS_SCRIPT%"
+echo             if ($existing^) { $newVal = "userextensions = [$existing, `"$escaped`"]" } else { $newVal = "userextensions = [`"$escaped`"]" } >> "%PS_SCRIPT%"
+echo             $content = $content -replace 'userextensions\s*=\s*\[.*?\]', $newVal >> "%PS_SCRIPT%"
+echo         } else { >> "%PS_SCRIPT%"
+echo             $content = $content + "`nuserextensions = [`"$escaped`"]`n" >> "%PS_SCRIPT%"
+echo         } >> "%PS_SCRIPT%"
+echo         Set-Content $cfg $content >> "%PS_SCRIPT%"
+echo     } >> "%PS_SCRIPT%"
+echo } >> "%PS_SCRIPT%"
+
+powershell -NoProfile -ExecutionPolicy Bypass -File "%PS_SCRIPT%"
+del "%PS_SCRIPT%"
 
 echo.
 echo ========================================================
