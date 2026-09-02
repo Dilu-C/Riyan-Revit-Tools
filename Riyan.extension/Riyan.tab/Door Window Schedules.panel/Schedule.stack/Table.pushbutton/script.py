@@ -52,6 +52,15 @@ class LegendGenForm(forms.WPFWindow):
         if btn_gen: btn_gen.Click += self.BtnGenerate_Click
         if btn_cancel: btn_cancel.Click += self.BtnCancel_Click
 
+    def TitleBar_MouseDown(self, sender, e):
+        try:
+            self.DragMove()
+        except:
+            pass
+
+    def CloseBtn_Click(self, sender, e):
+        self.Close()
+
     def get_is_door(self):
         combo = self.FindName("ComboCategory")
         if combo: return combo.Text == "Doors"
