@@ -130,7 +130,7 @@ def show_about_dialog():
                         </Grid>
                         <Grid>
                             <TextBlock Text="Developer" Foreground="#6B7280" HorizontalAlignment="Left" FontSize="13" FontWeight="SemiBold"/>
-                            <TextBlock Text="Asanka, Dilupa, Udarie &amp; Chalana" Foreground="#111827" FontWeight="Bold" HorizontalAlignment="Right" FontSize="13"/>
+                            <TextBlock Text="Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#111827" FontWeight="Bold" HorizontalAlignment="Right" FontSize="13"/>
                         </Grid>
                     </StackPanel>
 
