@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 import System
 from pyrevit import forms
@@ -87,7 +87,7 @@ def show_about_dialog():
                 </Grid.RowDefinitions>
                 
                 <!-- TITLE BAR -->
-                <Border Grid.Row="0" Background="#F9FAFB" MouseLeftButtonDown="TitleBar_MouseDown" CornerRadius="10,10,0,0" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+                <Border x:Name="TitleBarBorder" Grid.Row="0" Background="#F9FAFB" CornerRadius="10,10,0,0" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
                     <Grid>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0,0,0">
                             <TextBlock Text="About Riyan" Foreground="#802F2D" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
@@ -167,7 +167,7 @@ def show_about_dialog():
         try: window.DragMove()
         except: pass
         
-    border_title = window.FindName("CloseBtn").Parent.Parent
+    border_title = window.FindName("TitleBarBorder")
     border_title.MouseLeftButtonDown += title_bar_drag
 
     window.ShowDialog()
