@@ -4,9 +4,58 @@ import urllib2
 import zipfile
 import tempfile
 import shutil
-import threading
-from pyrevit import forms, script, revit
+import System
+from pyrevit import forms
 from pyrevit.loader import sessionmgr
+
+class UpdateForm(forms.WPFWindow):
+    def __init__(self, xaml_path, state, version_info=None):
+        forms.WPFWindow.__init__(self, xaml_path)
+        self.result = False
+        
+        if state == "UP_TO_DATE":
+            self.TxtTitle.Text = "System Up to Date"
+            self.TxtMessage.Text = "You are already on the latest version (v{}). No updates needed!".format(version_info)
+            self.BtnCancel.Visibility = System.Windows.Visibility.Collapsed
+            self.BtnAction.Content = "OK"
+        elif state == "UPDATE_AVAILABLE":
+            self.TxtTitle.Text = "Update Available!"
+            self.TxtMessage.Text = "A new update (v{}) is available!\nCurrent version: v{}\n\nWould you like to download and install this update now?".format(version_info[0], version_info[1])
+            self.BtnAction.Content = "Update Now"
+        elif state == "ERROR":
+            self.TxtTitle.Text = "Update Error"
+            self.TxtMessage.Text = str(version_info)
+            self.BtnCancel.Visibility = System.Windows.Visibility.Collapsed
+            self.BtnAction.Content = "OK"
+        elif state == "SUCCESS":
+            self.TxtTitle.Text = "Update Complete"
+            self.TxtMessage.Text = "Update installed successfully!\nRevit will now reload to apply the changes."
+            self.BtnCancel.Visibility = System.Windows.Visibility.Collapsed
+            self.BtnAction.Content = "Reload pyRevit"
+            
+    def BtnAction_Click(self, sender, e):
+        self.result = True
+        self.Close()
+        
+    def BtnCancel_Click(self, sender, e):
+        self.result = False
+        self.Close()
+        
+    def TitleBar_MouseDown(self, sender, e):
+        try:
+            self.DragMove()
+        except:
+            pass
+            
+    def CloseBtn_Click(self, sender, e):
+        self.result = False
+        self.Close()
+
+def show_dialog(state, info=None):
+    xaml_file = os.path.join(os.path.dirname(__file__), "UI.xaml")
+    w = UpdateForm(xaml_file, state, info)
+    w.ShowDialog()
+    return w.result
 
 def update_tools():
     try:
@@ -29,19 +78,16 @@ def update_tools():
             response = urllib2.urlopen(req, timeout=5)
             online_version = response.read().strip()
         except:
-            forms.alert("Could not connect to GitHub to check for updates. Please check your internet connection.", title="Connection Error")
+            show_dialog("ERROR", "Could not connect to GitHub to check for updates. Please check your internet connection.")
             return
             
         # 4. Compare versions
         if online_version == local_version:
-            forms.alert("You are already on the latest version (v{}). No updates needed!".format(local_version), title="Up to Date")
+            show_dialog("UP_TO_DATE", local_version)
             return
             
         # 5. Prompt for update
-        res = forms.alert("A new update (v{}) is available!\n\nCurrent version: v{}\n\nWould you like to download and install this update now?".format(online_version, local_version), 
-                          title="Update Available", options=["Update Now", "Cancel"])
-                          
-        if res == "Update Now":
+        if show_dialog("UPDATE_AVAILABLE", (online_version, local_version)):
             with forms.ProgressBar(title="Downloading Update...") as pb:
                 pb.update_progress(10, 100)
                 
@@ -70,7 +116,6 @@ def update_tools():
                 pb.update_progress(80, 100)
                 
                 # 8. Copy contents over the active extension directory
-                # The zip contains a root folder 'Riyan-Revit-Tools-main'
                 source_dir = os.path.join(extract_path, "Riyan-Revit-Tools-main")
                 
                 def copy_tree_overwrite(src, dst):
@@ -89,11 +134,11 @@ def update_tools():
                 pb.update_progress(100, 100)
                 
             # 9. Trigger pyRevit Reload
-            forms.alert("Update installed successfully!\nRevit will now reload to apply the changes.", title="Update Complete")
-            sessionmgr.reload_pyrevit()
+            if show_dialog("SUCCESS"):
+                sessionmgr.reload_pyrevit()
             
     except Exception as e:
-        forms.alert("An error occurred during the update: {}".format(str(e)), title="Update Error")
+        show_dialog("ERROR", "An error occurred during the update: {}".format(str(e)))
 
 if __name__ == '__main__':
     update_tools()
