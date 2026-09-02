@@ -76,7 +76,7 @@ def show_about_dialog():
             </Style>
         </Window.Resources>
 
-        <Border Background="White" CornerRadius="10" BorderBrush="#E5E7EB" BorderThickness="1">
+        <Border Background="#F3F4F6" CornerRadius="10" BorderBrush="#D1D5DB" BorderThickness="1">
             <Border.Effect>
                 <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
             </Border.Effect>
@@ -87,7 +87,7 @@ def show_about_dialog():
                 </Grid.RowDefinitions>
                 
                 <!-- TITLE BAR -->
-                <Border x:Name="TitleBarBorder" Grid.Row="0" Background="#F9FAFB" CornerRadius="10,10,0,0" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+                <Border x:Name="TitleBarBorder" Grid.Row="0" Background="#E5E7EB" CornerRadius="10,10,0,0" BorderBrush="#D1D5DB" BorderThickness="0,0,0,1">
                     <Grid>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0,0,0">
                             <TextBlock Text="About Riyan" Foreground="#802F2D" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
