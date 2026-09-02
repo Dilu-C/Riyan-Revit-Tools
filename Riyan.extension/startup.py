@@ -30,9 +30,18 @@ def check_for_updates():
         
         # If online version is different, prompt the user
         if online_version and online_version != local_version:
-            msg = "A new update (v{}) for the Riyan Revit Plugin Suite is available!\n\n".format(online_version)
+            msg = "A new update (v{}) for the Riyan Revit Plugin Suite is available!\n".format(online_version)
             msg += "Please click the 'Update' button in the Riyan tab to install it."
-            forms.alert(msg, title="Riyan Tools Update")
+            
+            try:
+                # Toast notification (slides from bottom right, very professional)
+                forms.toast(msg, title="Riyan Tools Update", appid="Riyan Revit Plugin")
+            except:
+                # Fallback to TopMost MessageBox if toast fails
+                import clr
+                clr.AddReference("System.Windows.Forms")
+                from System.Windows.Forms import MessageBox, MessageBoxButtons, MessageBoxIcon, MessageBoxOptions, MessageBoxDefaultButton
+                MessageBox.Show(msg, "Riyan Tools Update", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification)
             
     except Exception as e:
         # Fails silently so it never interrupts the user's workflow
