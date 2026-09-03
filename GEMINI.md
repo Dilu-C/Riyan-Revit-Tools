@@ -53,3 +53,8 @@ When working on scripts in this repository, strictly adhere to the following rul
    - Before asking the user to test any code, Review every letter, space (indentation), and dot 10-12 times.
    - Use terminal commands (e.g., python -m py_compile) where possible to verify Python code for syntax/typo errors.
    - Never present untested or error-prone (half-baked) code to the user. Present only when 100% sure it is logically and syntactically correct.
+
+14. **No Unicode Emojis in XAML**:
+   - Never use Unicode symbols or emojis (e.g., ??, ??, ?, -) for UI elements in XAML files.
+   - It causes Mojibake encoding issues (e.g., 🌞) when parsed by pyRevit.
+   - Always stick to standard ASCII text (e.g., Content="X", Content="-", Content="Theme").
