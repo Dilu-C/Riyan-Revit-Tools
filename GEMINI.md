@@ -40,3 +40,11 @@ When working on scripts in this repository, strictly adhere to the following rul
    - User ටූල්ස් install කරලා තියෙන්නේ Install_Riyan_Tools.bat එකෙන් නිසා, Revit එකට කෝඩ් ලෝඩ් වෙන්නේ %APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools ෆෝල්ඩර් එකෙන්.
    - හැබැයි මම (AI) කෝඩ් ලියන්නේ සහ GitHub වලට Push කරන්නේ Desktop එකේ තියෙන ඔරිජිනල් ෆෝල්ඩර් එකේ.
    - **නිවැරදි ක්‍රමය**: මින් ඉදිරියට Desktop ෆෝල්ඩර් එකේ .py හරි .xaml ෆයිල් එකක් හරි වෙනස් කරපු ගමන්, අනිවාර්යයෙන්ම ඒ අලුත් ෆයිල් ටික %APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools ෆෝල්ඩර් එකටත් කෙලින්ම Copy කළ යුතුයි. එහෙම copy කරන්නේ නැතුව කිසිම වෙලාවක User ට "pyRevit Reload කරලා බලන්න" කියලා කියන්න තහනම්!
+
+11. **Auto-Generate Custom Icons for New Tools**:
+   - Whenever a new pyRevit tool (Pushbutton) is created, ALWAYS proactively generate a custom icon.png using the generate_image tool.
+   - Do not just leave a placeholder or copy an unrelated icon.
+   - Use the ImagePaths parameter to pass an existing icon (e.g., from Export Manager.pushbutton\icon.png) as a style reference so the newly generated icon matches the user's preferred visual format (e.g., minimalist, modern, matching theme).
+
+12. **Sinhala Communication Only (Including Proposals)**:
+   - When communicating with the user, writing Implementation Plans, AND writing Learning Proposals, ALWAYS use colloquial Sinhala (Singlish). Do not output internal AI proposals in English unless explicitly requested.
