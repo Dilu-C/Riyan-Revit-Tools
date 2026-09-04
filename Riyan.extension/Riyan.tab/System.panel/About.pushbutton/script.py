@@ -19,7 +19,7 @@ def get_version():
             curr = os.path.dirname(curr)
     except:
         pass
-    return "1.1"
+    return "1.3"
 
 VERSION = get_version()
 
@@ -84,20 +84,24 @@ def show_about_dialog():
                             <TextBlock Text="About Riyan" Foreground="#802F2D" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,6,0">
-                            <Button x:Name="CloseBtn" Content="✕" Width="28" Height="28" BorderThickness="0" Cursor="Hand" Background="Transparent" Foreground="#6B7280" FontSize="12">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <Button x:Name="CloseBtn" Content="✕" Width="36" Height="35" BorderThickness="0" Cursor="Hand" Background="Transparent" Foreground="#6B7280" FontSize="11" FontWeight="Bold">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="0,9,0,0">
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Background" Value="#FEE2E2"/>
-                                                            <Setter Property="Foreground" Value="#EF4444"/>
+                                                            <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
+                                                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="bd" Property="Background" Value="#661F1D"/>
+                                                            <Setter Property="Foreground" Value="#FFFFFF"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -126,7 +130,7 @@ def show_about_dialog():
                     <StackPanel Grid.Row="2" Margin="0,15,0,15">
                         <Grid Margin="0,0,0,10">
                             <TextBlock Text="Version" Foreground="#6B7280" HorizontalAlignment="Left" FontSize="13" FontWeight="SemiBold"/>
-                            <TextBlock Text="v{version}" Foreground="#111827" FontWeight="Bold" HorizontalAlignment="Right" FontSize="13"/>
+                            <TextBlock Text="V{version}" Foreground="#111827" FontWeight="Bold" HorizontalAlignment="Right" FontSize="13"/>
                         </Grid>
                         <Grid>
                             <TextBlock Text="Developer" Foreground="#6B7280" HorizontalAlignment="Left" FontSize="13" FontWeight="SemiBold"/>

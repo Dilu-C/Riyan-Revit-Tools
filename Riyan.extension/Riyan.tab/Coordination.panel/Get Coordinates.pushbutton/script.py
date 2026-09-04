@@ -42,7 +42,7 @@ XAML = """
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Get Coordinates - v3.2 (PREMIUM MASTER STABLE)"
+    Title="Get Coordinates - V3.2 (PREMIUM MASTER STABLE)"
     Width="450" Height="780"
     WindowStartupLocation="CenterScreen"
     ResizeMode="NoResize"

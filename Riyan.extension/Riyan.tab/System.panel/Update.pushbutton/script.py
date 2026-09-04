@@ -15,12 +15,12 @@ class UpdateForm(forms.WPFWindow):
         
         if state == "UP_TO_DATE":
             self.TxtTitle.Text = "System Up to Date"
-            self.TxtMessage.Text = "You are already on the latest version (v{}). No updates needed!".format(version_info)
+            self.TxtMessage.Text = "You are already on the latest version (V{}). No updates needed!".format(version_info)
             self.BtnCancel.Visibility = System.Windows.Visibility.Collapsed
             self.BtnAction.Content = "OK"
         elif state == "UPDATE_AVAILABLE":
             self.TxtTitle.Text = "Update Available!"
-            self.TxtMessage.Text = "A new update (v{}) for the Riyan Revit Plugin Suite is available!\nCurrent version: v{}\n\nWould you like to download and install this update now?".format(version_info[0], version_info[1])
+            self.TxtMessage.Text = "A new update (V{}) for the Riyan Revit Plugin Suite is available!\nCurrent version: V{}\n\nWould you like to download and install this update now?".format(version_info[0], version_info[1])
             self.BtnAction.Content = "Update Now"
         elif state == "ERROR":
             self.TxtTitle.Text = "Update Error"
@@ -61,13 +61,26 @@ def update_tools():
     try:
         # 1. Determine paths
         extension_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-        local_version_file = os.path.join(extension_dir, 'version.txt')
+        parent_dir = os.path.dirname(extension_dir)
+        
+        # Check both potential locations for version.txt
+        v_candidates = [
+            os.path.join(extension_dir, 'version.txt'),
+            os.path.join(parent_dir, 'version.txt')
+        ]
         
         # 2. Get local version
-        local_version = "1.0"
-        if os.path.exists(local_version_file):
-            with open(local_version_file, 'r') as f:
-                local_version = f.read().strip()
+        local_version = "1.3"
+        for vfile in v_candidates:
+            if os.path.exists(vfile):
+                try:
+                    with open(vfile, 'r') as f:
+                        val = f.read().strip()
+                        if val:
+                            local_version = val
+                            break
+                except:
+                    pass
                 
         # 3. Check online version
         import time

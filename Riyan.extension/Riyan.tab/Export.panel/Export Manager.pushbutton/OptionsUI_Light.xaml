@@ -77,7 +77,27 @@
             <Border Grid.Row="0" Background="#D4D4D4" CornerRadius="8,8,0,0" MouseDown="TitleBar_MouseDown">
                 <Grid>
                     <TextBlock Text="Export Options" Foreground="{StaticResource AccentColor}" VerticalAlignment="Center" Margin="15,0" FontWeight="SemiBold"/>
-                    <Button x:Name="CloseBtn" Content="✕" Width="40" Background="Transparent" Foreground="#555555" BorderThickness="0" HorizontalAlignment="Right" Click="CloseBtn_Click" Cursor="Hand"/>
+                    <Button x:Name="CloseBtn" Content="✕" Width="40" Background="Transparent" Foreground="#555555" BorderThickness="0" HorizontalAlignment="Right" Click="CloseBtn_Click" Cursor="Hand" FontSize="12">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="0,8,0,0">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
+                                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </Grid>
             </Border>
 

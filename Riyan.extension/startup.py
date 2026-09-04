@@ -10,13 +10,22 @@ def check_for_updates():
         time.sleep(15)
         
         extension_dir = os.path.dirname(os.path.dirname(__file__))
-        local_version_file = os.path.join(extension_dir, 'version.txt')
-        
-        # Default local version
-        local_version = "1.0"
-        if os.path.exists(local_version_file):
-            with open(local_version_file, 'r') as f:
-                local_version = f.read().strip()
+        parent_dir = os.path.dirname(extension_dir)
+        v_candidates = [
+            os.path.join(extension_dir, 'version.txt'),
+            os.path.join(parent_dir, 'version.txt')
+        ]
+        local_version = "1.3"
+        for vfile in v_candidates:
+            if os.path.exists(vfile):
+                try:
+                    with open(vfile, 'r') as f:
+                        val = f.read().strip()
+                        if val:
+                            local_version = val
+                            break
+                except:
+                    pass
                 
         # Fetch online version directly from GitHub raw content
         url = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/version.txt?t=" + str(time.time())
@@ -30,7 +39,7 @@ def check_for_updates():
         
         # If online version is different, prompt the user
         if online_version and online_version != local_version:
-            msg = "A new update (v{}) for the Riyan Revit Plugin Suite is available!\n".format(online_version)
+            msg = "A new update (V{}) for the Riyan Revit Plugin Suite is available!\n".format(online_version)
             msg += "Please click the 'Update' button in the Riyan tab to install it."
             
             try:

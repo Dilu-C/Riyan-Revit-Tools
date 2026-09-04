@@ -25,7 +25,12 @@ import re
 def apply_theme_to_xaml(xaml_str):
     import os
     tab_dir = os.path.dirname(os.path.dirname(__commandpath__))
-    logo_path = os.path.join(tab_dir, "About.panel", "About.pushbutton", "logo.png").replace("\\", "/")
+    logo_path = os.path.join(tab_dir, "System.panel", "About.pushbutton", "logo.png")
+    if not os.path.exists(logo_path):
+        logo_path = os.path.join(os.path.dirname(__commandpath__), "logo.png")
+    if not os.path.exists(logo_path):
+        logo_path = os.path.join(tab_dir, "Coordination.panel", "ChangeHostLevel.pushbutton", "logo.png")
+    logo_path = logo_path.replace("\\", "/")
     xaml_str = xaml_str.replace("LOGO_PATH", logo_path)
 
     theme = load_settings().get("theme", "Dark")
@@ -119,7 +124,7 @@ class CustomExportCompletedWindow(object):
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="bd" Property="Background" Value="#C0272D"/>
+                                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
                                                     <Setter Property="Foreground" Value="White"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
@@ -238,7 +243,7 @@ class CustomAlertWindow(object):
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#C0272D"/>
+                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
@@ -376,7 +381,21 @@ class CustomAlertWindow(object):
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                     <TextBlock Text="{}" Foreground="#333333" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </StackPanel>
-                <Button x:Name="CloseBtn" Content="X" HorizontalAlignment="Right" Width="44" Height="36" BorderThickness="0" Background="Transparent" Foreground="#666666" FontSize="12" Cursor="Hand"/>
+                <Button x:Name="CloseBtn" Content="✕" HorizontalAlignment="Right" Width="44" Height="36" BorderThickness="0" Background="Transparent" Foreground="#666666" FontSize="12" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
             </Grid>
 
             <!-- Content Area -->
@@ -463,7 +482,7 @@ class CustomTextInputWindow(object):
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#C0272D"/>
+                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
@@ -628,7 +647,7 @@ class CustomProfileSaveWindow(object):
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#C0272D"/>
+                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
@@ -1632,7 +1651,11 @@ class ExportManagerForm(forms.WPFWindow):
             from System.Windows.Media.Imaging import BitmapImage
             from System import Uri
             tab_dir = os.path.dirname(os.path.dirname(__commandpath__))
-            logo_path = os.path.join(tab_dir, "About.panel", "About.pushbutton", "logo.png")
+            logo_path = os.path.join(tab_dir, "System.panel", "About.pushbutton", "logo.png")
+            if not os.path.exists(logo_path):
+                logo_path = os.path.join(os.path.dirname(__commandpath__), "logo.png")
+            if not os.path.exists(logo_path):
+                logo_path = os.path.join(tab_dir, "Coordination.panel", "ChangeHostLevel.pushbutton", "logo.png")
             if os.path.exists(logo_path):
                 self.TitleLogo.Source = BitmapImage(Uri(logo_path))
         except Exception as e:
@@ -3112,9 +3135,18 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
         try:
             import inspect
             script_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-            logo_path = os.path.join(os.path.dirname(os.path.dirname(script_dir)), "About.panel", "About.pushbutton", "logo.png")
-            logo_uri = "file:///" + logo_path.replace("\\", "/")
-        except:
+            tab_dir = os.path.dirname(os.path.dirname(script_dir))
+            logo_path = os.path.join(tab_dir, "System.panel", "About.pushbutton", "logo.png")
+            if not os.path.exists(logo_path):
+                logo_path = os.path.join(script_dir, "logo.png")
+            if not os.path.exists(logo_path):
+                logo_path = os.path.join(tab_dir, "Coordination.panel", "ChangeHostLevel.pushbutton", "logo.png")
+            if os.path.exists(logo_path):
+                logo_uri = "file:///" + logo_path.replace("\\", "/")
+            else:
+                logo_path = ""
+                logo_uri = ""
+        except Exception:
             logo_path = ""
             logo_uri = ""
         
