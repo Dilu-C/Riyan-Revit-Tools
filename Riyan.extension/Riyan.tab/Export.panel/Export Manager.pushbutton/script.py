@@ -238,7 +238,7 @@ class CustomAlertWindow(object):
                         FontSize="12">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                            <Border x:Name="bd" Background="Transparent">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -1643,7 +1643,7 @@ class CustomConflictWindow(Window):
         self.ShowDialog()
         return self.result, self.apply_all
 class ExportManagerForm(forms.WPFWindow):
-    def __init__(self, xaml_file_name, sheets, views):
+    def __init__(self, xaml_file_name, sheets, views, state=None):
         forms.WPFWindow.__init__(self, xaml_file_name)
 
         try:
@@ -1721,6 +1721,10 @@ class ExportManagerForm(forms.WPFWindow):
         self.CmbPdfSetup.SelectionChanged += self.CmbPdfSetup_SelectionChanged
         self.CmbDwgSetup.SelectionChanged += self.CmbDwgSetup_SelectionChanged
         self._init_done = True
+        self.restart_for_theme = False
+        self.saved_state = None
+        if state:
+            self.restore_state(state)
 
     def reload_schemes(self):
         settings = load_settings()
@@ -1973,6 +1977,95 @@ class ExportManagerForm(forms.WPFWindow):
 
         except Exception as ex:
             show_alert("Sort error: " + str(ex), is_error=True)
+
+    def ThemeToggle_Click(self, sender, e):
+        current_theme = self.settings.get("theme", "Dark")
+        new_theme = "Light" if current_theme == "Dark" else "Dark"
+        self.settings["theme"] = new_theme
+        save_settings(self.settings)
+
+        self.restart_for_theme = True
+        self.saved_state = self.capture_state()
+        self.DialogResult = False
+        self.Close()
+
+    def capture_state(self):
+        state = {}
+        try:
+            state["Left"] = self.Left
+            state["Top"] = self.Top
+            state["Width"] = self.Width
+            state["Height"] = self.Height
+            state["WindowState"] = self.WindowState
+            state["TabIndex"] = self.MainTabControl.SelectedIndex
+            state["ExportPath"] = self.TxtExportPath.Text
+            state["Profile"] = self.CmbProfile.SelectedItem
+            state["PdfIndex"] = self.CmbPdfSetup.SelectedIndex
+            state["DwgIndex"] = self.CmbDwgSetup.SelectedIndex
+            state["SearchText"] = self.TxtSearch.Text
+            state["SelectedSheets"] = [s.Sheet.Id for s in self.sheets if s.IsSelected]
+            state["SelectedViews"] = [v.Sheet.Id for v in self.views if v.IsSelected]
+            state["IsViewsActive"] = (getattr(self, "current_items", None) == self.views)
+            if hasattr(self, "ChkActiveOnly") and self.ChkActiveOnly:
+                state["ActiveOnly"] = self.ChkActiveOnly.IsChecked
+        except Exception:
+            pass
+        return state
+
+    def restore_state(self, state):
+        if not state:
+            return
+        try:
+            import System.Windows
+            if "Left" in state and state["Left"] is not None:
+                self.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual
+                self.Left = state["Left"]
+                self.Top = state["Top"]
+                self.Width = state["Width"]
+                self.Height = state["Height"]
+                self.WindowState = state["WindowState"]
+
+            if "ExportPath" in state and state["ExportPath"]:
+                self.export_path = state["ExportPath"]
+                self.TxtExportPath.Text = self.export_path
+
+            if "Profile" in state and state["Profile"] and state["Profile"] in self.CmbProfile.ItemsSource:
+                self.CmbProfile.SelectedItem = state["Profile"]
+
+            if "PdfIndex" in state and state["PdfIndex"] >= 0:
+                self.CmbPdfSetup.SelectedIndex = state["PdfIndex"]
+
+            if "DwgIndex" in state and state["DwgIndex"] >= 0:
+                self.CmbDwgSetup.SelectedIndex = state["DwgIndex"]
+
+            if "SearchText" in state and state["SearchText"]:
+                self.TxtSearch.Text = state["SearchText"]
+
+            if "ActiveOnly" in state and hasattr(self, "ChkActiveOnly") and self.ChkActiveOnly:
+                self.ChkActiveOnly.IsChecked = state["ActiveOnly"]
+
+            sel_sheet_ids = set(state.get("SelectedSheets", []))
+            for s in self.sheets:
+                if s.Sheet.Id in sel_sheet_ids:
+                    s.IsSelected = True
+
+            sel_view_ids = set(state.get("SelectedViews", []))
+            for v in self.views:
+                if v.Sheet.Id in sel_view_ids:
+                    v.IsSelected = True
+
+            if state.get("IsViewsActive", False) and getattr(self, "RbViews", None):
+                self.RbViews.IsChecked = True
+                self.current_items = self.views
+                self.GridSheets.ItemsSource = self.current_items
+
+            if "TabIndex" in state and state["TabIndex"] >= 0:
+                self.MainTabControl.SelectedIndex = state["TabIndex"]
+
+            self.update_selection_stats()
+            self.update_combined_filename_preview()
+        except Exception:
+            pass
 
     def MinimizeBtn_Click(self, sender, e):
         import System.Windows
@@ -2973,11 +3066,16 @@ def main():
 
     if not sheets and not views:
         show_alert("No Sheets or Views found in the current project.", is_warning=True)
-    theme = load_settings().get("theme", "Dark")
-    exp_name = "ExportUI_Light.xaml" if theme == "Light" else "ExportUI.xaml"
-    xaml_path = os.path.join(os.path.dirname(__file__), exp_name)
-    form = ExportManagerForm(xaml_path, sheets, views)
-    form.ShowDialog()
+    saved_state = None
+    while True:
+        theme = load_settings().get("theme", "Dark")
+        exp_name = "ExportUI_Light.xaml" if theme == "Light" else "ExportUI.xaml"
+        xaml_path = os.path.join(os.path.dirname(__file__), exp_name)
+        form = ExportManagerForm(xaml_path, sheets, views, state=saved_state)
+        form.ShowDialog()
+        if not getattr(form, "restart_for_theme", False):
+            break
+        saved_state = getattr(form, "saved_state", None)
 
 def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, combined_parts=None):
     import os
