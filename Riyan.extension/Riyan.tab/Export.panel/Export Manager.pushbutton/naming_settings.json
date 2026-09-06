@@ -1,13 +1,6 @@
 {
     "split_by_format": true, 
-    "theme": "Dark", 
-    "view_sets": {
-        "111": [
-            "00-000-000-00L", 
-            "00-000-000-00P", 
-            "00-000-000-00P"
-        ]
-    }, 
+    "theme": "Light", 
     "profile_settings": {
         "RYN_Bobo_Combined": {
             "is_combined": true, 
@@ -38,6 +31,13 @@
             "is_dwg_checked": false, 
             "pdf_setting": "Default"
         }
+    }, 
+    "view_sets": {
+        "111": [
+            "00-000-000-00L", 
+            "00-000-000-00P", 
+            "00-000-000-00P"
+        ]
     }, 
     "active_combined_scheme": "RYN_Hurasveli_Combined", 
     "export_options": {
@@ -254,7 +254,7 @@
             }
         ]
     }, 
-    "active_scheme": "RYN_Ehdhuffaru_Sheetwise", 
+    "active_scheme": "RYN_Export_Combined", 
     "combined_schemes": {
         "Default": [
             {
