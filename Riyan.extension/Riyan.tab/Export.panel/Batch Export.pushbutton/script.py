@@ -1476,27 +1476,25 @@ class BatchExportForm(forms.WPFWindow):
                 # Wire ui_row so Revit ProgressChanged events directly update each sheet row
                 mock_queue = [MockQueueItem(item["sheet"], item["filename"], ui_row=item["ui_row"]) for item in pdf_items]
                 
-                self.TxtPercent.Text = "Exporting Combined PDF..."
-                self.ExportProgressBar.Value = 0
-                self.do_events()
-                
-                em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
-                
+                # Ensure all selected sheets explicitly start as Pending
                 for item in pdf_items:
-                    item["ui_row"].set_status("Done", is_done=True)
-                
-                # Generate Excel Transmittal / Drawing List
-                try:
-                    self.TxtPercent.Text = "Generating Excel Drawing List..."
+                    item["ui_row"].set_status("Pending")
+                self.do_events()
+
+                if is_check_print:
+                    # Check Print Mode: Combined PDF only
+                    self.TxtPercent.Text = "Exporting Combined PDF..."
+                    self.ExportProgressBar.Value = 0
                     self.do_events()
-                    vms = [item.SheetVM for item in mock_queue]
-                    em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_name.strip(), comb_parts)
-                except Exception as ex_tr:
-                    log_diag("Excel transmittal note: " + str(ex_tr))
-                
-                # Export individual PDFs and DWGs if Full Set mode
-                if not is_check_print:
-                    row.set_status("Exporting...", is_exporting=True)
+                    
+                    em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
+                    
+                    for item in pdf_items:
+                        item["ui_row"].set_status("Done", is_done=True)
+                    total_exported_sheets += len(pdf_items)
+                else:
+                    # Final Export Mode: Individual Single PDFs and DWGs first!
+                    # Each sheet transitions Pending -> Exporting... -> Done individually
                     pdf_out_dir = os.path.join(row.output_location, "PDF")
                     dwg_out_dir = os.path.join(row.output_location, "DWG")
                     if not os.path.exists(pdf_out_dir):
@@ -1513,10 +1511,11 @@ class BatchExportForm(forms.WPFWindow):
                         sheet = item["sheet"]
                         fname = item["filename"]
                         
-                        pct = int((float(idx) / total_single) * 100)
+                        # Active sheet is Exporting... (all previous are Done, all upcoming are Pending!)
+                        s_row.set_status("Exporting...", is_exporting=True)
+                        pct = int((float(idx) / total_single) * 90)
                         self.ExportProgressBar.Value = pct
                         self.TxtPercent.Text = "Exporting [{}/{}]: {} (PDF)".format(idx + 1, total_single, fname)
-                        s_row.set_status("Exporting...", is_exporting=True)
                         self.do_events()
                         
                         try:
@@ -1532,11 +1531,27 @@ class BatchExportForm(forms.WPFWindow):
                         except Exception as ex_dwg:
                             log_diag("DWG error: " + str(ex_dwg))
                             
+                        # Mark this sheet as Done!
                         s_row.set_status("Done", is_done=True)
                         total_exported_sheets += 1
                         self.do_events()
-                else:
-                    total_exported_sheets += len(pdf_items)
+
+                    # Now that all individual sheets are Done, generate Combined PDF
+                    if not self._cancel_export:
+                        self.TxtPercent.Text = "Generating Combined PDF ({} sheets)...".format(len(pdf_items))
+                        self.ExportProgressBar.Value = 95
+                        self.do_events()
+                        em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
+
+                # Generate Excel Transmittal / Drawing List
+                if not self._cancel_export:
+                    try:
+                        self.TxtPercent.Text = "Generating Excel Drawing List..."
+                        self.do_events()
+                        vms = [item.SheetVM for item in mock_queue]
+                        em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_name.strip(), comb_parts)
+                    except Exception as ex_tr:
+                        log_diag("Excel transmittal note: " + str(ex_tr))
                 
                 if should_close:
                     try: bg_doc.Close(False)
