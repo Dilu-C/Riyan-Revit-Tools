@@ -127,7 +127,19 @@ def get_or_open_document(file_path, close_worksets=False):
             pass
     else:
         try:
-            ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.OpenLastViewed)
+            ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.OpenAllWorksets)
+            try:
+                model_path_temp = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
+                ws_info = DB.WorksharingUtils.GetUserWorksetInfo(model_path_temp)
+                close_ids = System.Collections.Generic.List[DB.WorksetId]()
+                for w in ws_info:
+                    w_lower = w.Name.lower()
+                    if any(k in w_lower for k in ["not to print", "not for print", "do not print"]):
+                        close_ids.Add(w.Id)
+                if close_ids.Count > 0:
+                    ws_opt.Close(close_ids)
+            except Exception:
+                pass
             opt.SetOpenWorksetsConfiguration(ws_opt)
         except Exception:
             pass
