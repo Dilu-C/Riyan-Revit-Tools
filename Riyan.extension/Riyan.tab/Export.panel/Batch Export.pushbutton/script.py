@@ -696,17 +696,54 @@ class BatchExportForm(forms.WPFWindow):
             except Exception:
                 pass
 
-            # 2. Export 1-sheet PDF using Revit's native vector engine (guarantees 100% full model geometry)
+            # 2. Export 1-sheet PDF for preview
             pdf_opt = DB.PDFExportOptions()
             pdf_opt.FileName = pdf_prefix
             pdf_opt.Combine = True
-            if hasattr(DB, "RasterQualityType"):
-                pdf_opt.RasterQuality = DB.RasterQualityType.Medium
+            
+            # Check if sheet contains 3D views or shaded elements requiring raster processing
+            needs_raster = False
+            try:
+                for vpid in sheet_element.GetAllViewports():
+                    vp = bg_doc.GetElement(vpid)
+                    if not vp: continue
+                    v = bg_doc.GetElement(vp.ViewId)
+                    if not v: continue
+                    if isinstance(v, DB.View3D) or getattr(v, "ViewType", None) == DB.ViewType.ThreeD:
+                        needs_raster = True
+                        break
+                    ds = str(getattr(v, "DisplayStyle", ""))
+                    if any(s in ds for s in ["Shading", "Realistic", "ConsistentColors", "Textures"]):
+                        needs_raster = True
+                        break
+                    if getattr(v, "AreShadowsOn", False) or getattr(v, "AmbientShadows", False):
+                        needs_raster = True
+                        break
+            except Exception:
+                pass
+
+            if hasattr(pdf_opt, "AlwaysUseRaster") and needs_raster:
+                pdf_opt.AlwaysUseRaster = True
+                if hasattr(DB, "RasterQualityType"):
+                    pdf_opt.RasterQuality = DB.RasterQualityType.High
+            else:
+                if hasattr(DB, "RasterQualityType"):
+                    pdf_opt.RasterQuality = DB.RasterQualityType.Medium
+
+            if hasattr(DB, "ColorDepthType") and hasattr(pdf_opt, "ColorDepth"):
+                pdf_opt.ColorDepth = DB.ColorDepthType.Color
+
             if hasattr(DB, "PDFExportQualityType"):
                 pdf_opt.ExportQuality = DB.PDFExportQualityType.DPI144
             zt = get_zoom_fit_type()
             if zt is not None:
                 pdf_opt.ZoomType = zt
+
+            try:
+                bg_doc.Regenerate()
+            except Exception:
+                pass
+
             views = System.Collections.Generic.List[DB.ElementId]()
             views.Add(sheet_element.Id)
             
