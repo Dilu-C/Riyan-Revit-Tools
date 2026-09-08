@@ -34,9 +34,25 @@ def get_or_open_document(file_path, close_worksets=False):
     Returns: (doc, should_close)
     Prevents 'The active document may not be closed from the API' error.
     """
+    import re
     file_path_abs = os.path.abspath(file_path).lower()
     file_base = os.path.splitext(os.path.basename(file_path))[0].lower()
+    clean_fb = re.sub(r'[^a-zA-Z0-9]', '', file_base)
     
+    # 0. Check revit.doc directly
+    try:
+        curr_doc = getattr(revit, "doc", None)
+        if curr_doc:
+            p = curr_doc.PathName
+            if p and os.path.abspath(p).lower() == file_path_abs:
+                return (curr_doc, False)
+            t = curr_doc.Title.lower()
+            clean_t = re.sub(r'[^a-zA-Z0-9]', '', t)
+            if t == file_base or t.startswith(file_base) or file_base.startswith(t) or (clean_fb and clean_t and (clean_fb in clean_t or clean_t in clean_fb)):
+                return (curr_doc, False)
+    except Exception:
+        pass
+
     # 1. Check ActiveUIDocument
     active_uidoc = getattr(__revit__, "ActiveUIDocument", None)
     if active_uidoc and active_uidoc.Document:
@@ -46,7 +62,8 @@ def get_or_open_document(file_path, close_worksets=False):
             if p and os.path.abspath(p).lower() == file_path_abs:
                 return (doc, False)
             t = doc.Title.lower()
-            if t == file_base or t.startswith(file_base) or file_base.startswith(t):
+            clean_t = re.sub(r'[^a-zA-Z0-9]', '', t)
+            if t == file_base or t.startswith(file_base) or file_base.startswith(t) or (clean_fb and clean_t and (clean_fb in clean_t or clean_t in clean_fb)):
                 return (doc, False)
         except Exception:
             pass
@@ -58,7 +75,8 @@ def get_or_open_document(file_path, close_worksets=False):
             if p and os.path.abspath(p).lower() == file_path_abs:
                 return (d, False)
             t = d.Title.lower()
-            if t == file_base or t.startswith(file_base) or file_base.startswith(t):
+            clean_t = re.sub(r'[^a-zA-Z0-9]', '', t)
+            if t == file_base or t.startswith(file_base) or file_base.startswith(t) or (clean_fb and clean_t and (clean_fb in clean_t or clean_t in clean_fb)):
                 return (d, False)
         except Exception:
             pass
@@ -82,6 +100,23 @@ def get_or_open_document(file_path, close_worksets=False):
             
     model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
     bg_doc = app.OpenDocumentFile(model_path, opt)
+    
+    # Reload Revit links if not closing worksets
+    if not close_worksets:
+        try:
+            link_types = DB.FilteredElementCollector(bg_doc).OfClass(DB.RevitLinkType).ToElements()
+            for lt in link_types:
+                try:
+                    if not lt.IsLoaded(bg_doc, lt.Id):
+                        lt.Load()
+                except Exception:
+                    try:
+                        lt.Reload()
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
     return (bg_doc, True)
 
 # ----------------- MOCK CLASSES -----------------
@@ -555,6 +590,21 @@ class BatchExportForm(forms.WPFWindow):
         try:
             bg_doc, should_close = get_or_open_document(file_path, close_worksets=False)
             
+            # Ensure Revit Links are loaded
+            try:
+                link_types = DB.FilteredElementCollector(bg_doc).OfClass(DB.RevitLinkType).ToElements()
+                for lt in link_types:
+                    try:
+                        if not lt.IsLoaded(bg_doc, lt.Id):
+                            lt.Load()
+                    except Exception:
+                        try:
+                            lt.Reload()
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+            
             try:
                 bg_doc.Regenerate()
             except Exception:
@@ -595,7 +645,7 @@ class BatchExportForm(forms.WPFWindow):
             ieo.ShadowViewsFileType = DB.ImageFileType.PNG
             ieo.ImageResolution = DB.ImageResolution.DPI_150
             ieo.ZoomType = DB.ZoomFitType.FitToPage
-            ieo.PixelSize = 2500
+            ieo.PixelSize = 3000
             
             bg_doc.ExportImage(ieo)
             
@@ -610,7 +660,8 @@ class BatchExportForm(forms.WPFWindow):
                         actual_path = os.path.join(temp_dir, f)
                         break
                         
-            sr.set_status("")
+            doc_source = "Active Doc" if not should_close else "BG Doc"
+            sr.set_status("Ready (" + doc_source + ")")
             
             if os.path.exists(actual_path):
                 self.preview_cache[sheet_id] = actual_path
