@@ -133,23 +133,6 @@ def get_or_open_document(file_path, close_worksets=False):
             
     model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
     bg_doc = app.OpenDocumentFile(model_path, opt)
-    
-    # Reload Revit links if not closing worksets
-    if not close_worksets:
-        try:
-            link_types = DB.FilteredElementCollector(bg_doc).OfClass(DB.RevitLinkType).ToElements()
-            for lt in link_types:
-                try:
-                    if not lt.IsLoaded(bg_doc, lt.Id):
-                        lt.Load()
-                except Exception:
-                    try:
-                        lt.Reload()
-                    except Exception:
-                        pass
-        except Exception:
-            pass
-
     return (bg_doc, True)
 
 # ----------------- MOCK CLASSES -----------------
@@ -523,6 +506,35 @@ class BatchExportForm(forms.WPFWindow):
 
         if hasattr(self, 'ImgPreview') and self.ImgPreview:
             self.ImgPreview.MouseLeftButtonDown += self.on_preview_image_click
+
+        self.doc_cache = {}
+        try:
+            self.Closed += self.on_window_closed
+        except Exception:
+            pass
+
+    def get_cached_document(self, file_path):
+        key = os.path.abspath(file_path).lower()
+        if key in self.doc_cache:
+            d, should_close = self.doc_cache[key]
+            if d and getattr(d, 'IsValidObject', True):
+                return (d, False)
+        doc, should_close = get_or_open_document(file_path, close_worksets=False)
+        self.doc_cache[key] = (doc, should_close)
+        return (doc, False)
+
+    def cleanup_cached_documents(self):
+        for key, (d, should_close) in self.doc_cache.items():
+            if should_close and d:
+                try:
+                    if getattr(d, 'IsValidObject', True):
+                        d.Close(False)
+                except Exception:
+                    pass
+        self.doc_cache.clear()
+
+    def on_window_closed(self, sender, e):
+        self.cleanup_cached_documents()
         
     def do_events(self):
         Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, System.Action(lambda: None))
@@ -535,6 +547,7 @@ class BatchExportForm(forms.WPFWindow):
 
     def CloseBtn_Click(self, sender, e):
         self._cancel_export = True
+        self.cleanup_cached_documents()
         self.Close()
 
     def MinimizeBtn_Click(self, sender, e):
@@ -644,16 +657,12 @@ class BatchExportForm(forms.WPFWindow):
         self.do_events()
         
         bg_doc = None
-        should_close = False
         try:
-            bg_doc, should_close = get_or_open_document(file_path, close_worksets=False)
+            bg_doc, _ = self.get_cached_document(file_path)
             
             sheet_element = bg_doc.GetElement(sheet_id)
             if not sheet_element:
                 forms.alert("Sheet not found in document.")
-                if should_close:
-                    try: bg_doc.Close(False)
-                    except: pass
                 sr.set_status("")
                 if hasattr(self, 'GridPreviewPrompt'):
                     self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
@@ -678,6 +687,10 @@ class BatchExportForm(forms.WPFWindow):
             pdf_opt = DB.PDFExportOptions()
             pdf_opt.FileName = pdf_prefix
             pdf_opt.Combine = True
+            if hasattr(DB, "RasterQualityType"):
+                pdf_opt.RasterQuality = DB.RasterQualityType.Medium
+            if hasattr(DB, "PDFExportQualityType"):
+                pdf_opt.ExportQuality = DB.PDFExportQualityType.DPI144
             zt = get_zoom_fit_type()
             if zt is not None:
                 pdf_opt.ZoomType = zt
@@ -712,7 +725,7 @@ class BatchExportForm(forms.WPFWindow):
             # 3. Convert page 0 of PDF to high-res PNG using native Windows WinRT
             ps1_path = os.path.join(os.path.dirname(__file__), "render_pdf.ps1")
             import subprocess
-            cmd = ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', ps1_path, '-PdfPath', actual_pdf, '-PngPath', png_out, '-Width', '2400']
+            cmd = ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', ps1_path, '-PdfPath', actual_pdf, '-PngPath', png_out, '-Width', '1400']
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             proc = subprocess.Popen(cmd, startupinfo=startupinfo)
@@ -739,10 +752,6 @@ class BatchExportForm(forms.WPFWindow):
             if hasattr(self, 'GridPreviewLoading'):
                 self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
             forms.alert(str(ex))
-        finally:
-            if should_close and bg_doc:
-                try: bg_doc.Close(False)
-                except Exception: pass
 
     def extract_mock_data(self, bg_doc, row):
         pi = getattr(bg_doc, "ProjectInformation", None)
