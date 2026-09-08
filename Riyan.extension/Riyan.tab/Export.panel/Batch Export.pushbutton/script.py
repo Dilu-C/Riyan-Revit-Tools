@@ -75,7 +75,7 @@ def get_or_open_document(file_path, close_worksets=False):
             pass
     else:
         try:
-            ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.OpenAllWorksets)
+            ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.OpenLastViewed)
             opt.SetOpenWorksetsConfiguration(ws_opt)
         except Exception:
             pass
