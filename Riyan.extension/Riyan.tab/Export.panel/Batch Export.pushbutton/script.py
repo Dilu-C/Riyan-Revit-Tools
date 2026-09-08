@@ -576,7 +576,7 @@ class BatchExportForm(forms.WPFWindow):
         file_path = sr.parent.file_path
         sheet_id = sr.mock_sheet.UniqueId
         
-        sr.set_status("Loading Preview...")
+        sr.set_status("Loading Vector Preview...")
         if hasattr(self, 'GridPreviewLoading'):
             self.GridPreviewLoading.Visibility = System.Windows.Visibility.Visible
         if hasattr(self, 'GridPreviewPrompt'):
@@ -590,26 +590,6 @@ class BatchExportForm(forms.WPFWindow):
         try:
             bg_doc, should_close = get_or_open_document(file_path, close_worksets=False)
             
-            # Ensure Revit Links are loaded
-            try:
-                link_types = DB.FilteredElementCollector(bg_doc).OfClass(DB.RevitLinkType).ToElements()
-                for lt in link_types:
-                    try:
-                        if not lt.IsLoaded(bg_doc, lt.Id):
-                            lt.Load()
-                    except Exception:
-                        try:
-                            lt.Reload()
-                        except Exception:
-                            pass
-            except Exception:
-                pass
-            
-            try:
-                bg_doc.Regenerate()
-            except Exception:
-                pass
-            
             sheet_element = bg_doc.GetElement(sheet_id)
             if not sheet_element:
                 forms.alert("Sheet not found in document.")
@@ -622,91 +602,76 @@ class BatchExportForm(forms.WPFWindow):
                 if hasattr(self, 'GridPreviewLoading'):
                     self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
                 return
-                
-            total_doc_walls = DB.FilteredElementCollector(bg_doc).OfCategory(DB.BuiltInCategory.OST_Walls).GetElementCount()
-            w_in_view = 0
-            try:
-                for vp_id in sheet_element.GetAllViewports():
-                    vp = bg_doc.GetElement(vp_id)
-                    if vp:
-                        w_in_view += DB.FilteredElementCollector(bg_doc, vp.ViewId).OfCategory(DB.BuiltInCategory.OST_Walls).GetElementCount()
-            except Exception:
-                pass
-
-            # If document is open in Revit UI, activate sheet to ensure viewport graphics are rendered
-            prev_view = None
-            active_uidoc = getattr(revit, "uidoc", None)
-            if active_uidoc and not should_close:
-                try:
-                    prev_view = active_uidoc.ActiveView
-                    if prev_view and prev_view.Id != sheet_element.Id:
-                        active_uidoc.ActiveView = sheet_element
-                except Exception:
-                    pass
-
-            try:
-                bg_doc.Regenerate()
-            except Exception:
-                pass
 
             temp_dir = os.environ.get("TEMP")
-            temp_img = os.path.join(temp_dir, "riyan_batch_preview_" + sheet_element.UniqueId)
-            
-            # Clean up old preview files for this sheet so fresh render is guaranteed
+            pdf_prefix = "riyan_preview_" + sheet_element.UniqueId
+            png_out = os.path.join(temp_dir, pdf_prefix + ".png")
+
+            # 1. Clean up old temp preview files for this sheet
             try:
                 for f in os.listdir(temp_dir):
-                    if f.startswith("riyan_batch_preview_" + sheet_element.UniqueId) and f.endswith(".png"):
+                    if f.startswith(pdf_prefix):
                         try: os.remove(os.path.join(temp_dir, f))
                         except: pass
             except Exception:
                 pass
+
+            # 2. Export 1-sheet PDF using Revit's native vector engine (guarantees 100% full model geometry)
+            pdf_opt = DB.PDFExportOptions()
+            pdf_opt.FileName = pdf_prefix
+            pdf_opt.Combine = False
+            pdf_opt.ZoomType = DB.PDFZoomType.FitToPage
+            views = System.Collections.Generic.List[DB.ElementId]()
+            views.Add(sheet_element.Id)
             
-            ieo = DB.ImageExportOptions()
-            ieo.ExportRange = DB.ExportRange.SetOfViews
-            id_list = System.Collections.Generic.List[DB.ElementId]()
-            id_list.Add(sheet_element.Id)
-            ieo.SetViewsAndSheets(id_list)
-            ieo.FilePath = temp_img
-            ieo.HLRandWFViewsFileType = DB.ImageFileType.PNG
-            ieo.ShadowViewsFileType = DB.ImageFileType.PNG
-            ieo.ImageResolution = DB.ImageResolution.DPI_150
-            ieo.ZoomType = DB.ZoomFitType.FitToPage
-            ieo.PixelSize = 3000
-            
-            bg_doc.ExportImage(ieo)
-            
-            # Restore previous view if we activated sheet
-            if active_uidoc and prev_view and prev_view.Id != sheet_element.Id:
-                try:
-                    active_uidoc.ActiveView = prev_view
-                except Exception:
-                    pass
+            bg_doc.Export(temp_dir, views, pdf_opt)
 
             if should_close:
                 try: bg_doc.Close(False)
                 except: pass
-                
-            actual_path = temp_img + "- Sheet - " + sheet_element.SheetNumber + " - " + sheet_element.Name + ".png"
-            if not os.path.exists(actual_path):
+
+            # Locate the exported PDF file
+            actual_pdf = None
+            try:
                 for f in os.listdir(temp_dir):
-                    if f.startswith("riyan_batch_preview_" + sheet_element.UniqueId) and f.endswith(".png"):
-                        actual_path = os.path.join(temp_dir, f)
+                    if f.startswith(pdf_prefix) and f.endswith(".pdf"):
+                        actual_pdf = os.path.join(temp_dir, f)
                         break
-                        
-            doc_source = "Active Doc" if not should_close else "BG Doc"
-            status_text = "Ready ({} | Walls: {} in view, {} total)".format(doc_source, w_in_view, total_doc_walls)
-            sr.set_status(status_text)
-            
-            if os.path.exists(actual_path):
-                self.preview_cache[sheet_id] = actual_path
-                self.display_preview_image(actual_path)
-            else:
-                forms.alert("Failed to generate preview image.")
+            except Exception:
+                pass
+
+            if not actual_pdf or not os.path.exists(actual_pdf):
+                forms.alert("Failed to export PDF for preview.")
+                sr.set_status("Preview Error", is_error=True)
                 if hasattr(self, 'GridPreviewPrompt'):
                     self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
                 if hasattr(self, 'GridPreviewLoading'):
                     self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
-                
+                return
+
+            # 3. Convert page 0 of PDF to high-res PNG using native Windows WinRT
+            ps1_path = os.path.join(os.path.dirname(__file__), "render_pdf.ps1")
+            import subprocess
+            cmd = ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', ps1_path, '-PdfPath', actual_pdf, '-PngPath', png_out, '-Width', '2400']
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            proc = subprocess.Popen(cmd, startupinfo=startupinfo)
+            proc.wait()
+
+            sr.set_status("")
+
+            if os.path.exists(png_out) and os.path.getsize(png_out) > 0:
+                self.preview_cache[sheet_id] = png_out
+                self.display_preview_image(png_out)
+            else:
+                # Direct fallback to system PDF viewer
+                os.startfile(actual_pdf)
+                sr.set_status("Opened in PDF Viewer")
+                if hasattr(self, 'GridPreviewPrompt'):
+                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+                if hasattr(self, 'GridPreviewLoading'):
+                    self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
+
         except Exception as ex:
             sr.set_status("Preview Error", is_error=True)
             if hasattr(self, 'GridPreviewPrompt'):
