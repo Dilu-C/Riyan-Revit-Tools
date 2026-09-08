@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import clr
 import os
+import shutil
+from datetime import datetime
 import json
 import re
 
@@ -2726,6 +2728,12 @@ class ExportManagerForm(forms.WPFWindow):
             pass
 
         try:
+            # --- AUTO-ARCHIVE PREVIOUS DELIVERABLES ---
+            try:
+                archive_previous_exports(folder)
+            except Exception:
+                pass
+
             # --- PRE-FLIGHT CHECKS ---
             combine_pdf = hasattr(self, 'RbCombineFiles') and (self.RbCombineFiles.IsChecked == True)
             
@@ -2914,8 +2922,167 @@ class ExportManagerForm(forms.WPFWindow):
 
 
 # ------------------------------------------------------------------------------
-# Export Execution Logic
+# Export Execution Logic & Automatic Archiving
 # ------------------------------------------------------------------------------
+def archive_previous_exports(destination_folder):
+    """
+    Safely archives existing DWG folder, PDF folder, Combined PDFs and loose PDF/DWG files
+    into: <destination_folder>/00 PREVIOUS/<YYYY-MM-DD>/<01, 02...>/
+    Never touches active working .rvt files or 00 PREVIOUS folder.
+    """
+    if not destination_folder or not os.path.exists(destination_folder):
+        return None
+
+    try:
+        entries = os.listdir(destination_folder)
+    except Exception:
+        return None
+
+    items_to_archive = []
+    latest_mtime = 0
+
+    for entry in entries:
+        full_path = os.path.join(destination_folder, entry)
+        entry_upper = entry.strip().upper()
+
+        # Guardrails: Never archive 00 PREVIOUS or active working .rvt files
+        if entry_upper in ["00 PREVIOUS", "00 PREVIOUSE", "00_PREVIOUS"]:
+            continue
+        if entry_upper.endswith(".RVT"):
+            continue
+
+        is_dwg_dir = os.path.isdir(full_path) and entry_upper == "DWG"
+        is_pdf_dir = os.path.isdir(full_path) and entry_upper == "PDF"
+        is_dwg_file = os.path.isfile(full_path) and entry_upper.endswith(".DWG")
+        is_pdf_file = os.path.isfile(full_path) and entry_upper.endswith(".PDF")
+
+        if is_dwg_dir or is_pdf_dir:
+            try:
+                sub_files = [f for f in os.listdir(full_path) if not f.startswith('.')]
+                if sub_files:
+                    items_to_archive.append((full_path, entry, True))
+                    for sf in sub_files:
+                        try:
+                            t = os.path.getmtime(os.path.join(full_path, sf))
+                            if t > latest_mtime:
+                                latest_mtime = t
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+        elif is_dwg_file or is_pdf_file:
+            items_to_archive.append((full_path, entry, False))
+            try:
+                t = os.path.getmtime(full_path)
+                if t > latest_mtime:
+                    latest_mtime = t
+            except Exception:
+                pass
+
+    if not items_to_archive:
+        # No existing exports to archive; ensure fresh folders exist
+        dwg_dir = os.path.join(destination_folder, "DWG")
+        pdf_dir = os.path.join(destination_folder, "PDF")
+        if not os.path.exists(dwg_dir):
+            try: os.makedirs(dwg_dir)
+            except Exception: pass
+        if not os.path.exists(pdf_dir):
+            try: os.makedirs(pdf_dir)
+            except Exception: pass
+        return None
+
+    # 1. Locate or create 00 PREVIOUS
+    prev_dir = None
+    for entry in entries:
+        if entry.strip().upper() in ["00 PREVIOUS", "00 PREVIOUSE", "00_PREVIOUS"]:
+            cand = os.path.join(destination_folder, entry)
+            if os.path.isdir(cand):
+                prev_dir = cand
+                break
+
+    if not prev_dir:
+        prev_dir = os.path.join(destination_folder, "00 PREVIOUS")
+        if not os.path.exists(prev_dir):
+            try:
+                os.makedirs(prev_dir)
+            except Exception:
+                pass
+
+    # 2. Determine Date (from mtime of files or current date)
+    if latest_mtime > 0:
+        date_str = datetime.fromtimestamp(latest_mtime).strftime("%Y-%m-%d")
+    else:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+
+    date_dir = os.path.join(prev_dir, date_str)
+    if not os.path.exists(date_dir):
+        try:
+            os.makedirs(date_dir)
+        except Exception:
+            pass
+
+    # 3. Determine Version subfolder (01, 02, 03...)
+    ver_num = 1
+    while True:
+        ver_str = "{:02d}".format(ver_num)
+        target_ver_dir = os.path.join(date_dir, ver_str)
+        if not os.path.exists(target_ver_dir):
+            try:
+                os.makedirs(target_ver_dir)
+            except Exception:
+                pass
+            break
+        else:
+            try:
+                existing_ver_contents = [c.upper() for c in os.listdir(target_ver_dir)]
+                has_dwg = "DWG" in existing_ver_contents
+                has_pdf = "PDF" in existing_ver_contents
+                has_files = any(c.endswith(".PDF") or c.endswith(".DWG") for c in existing_ver_contents)
+                if not (has_dwg or has_pdf or has_files):
+                    break
+            except Exception:
+                pass
+            ver_num += 1
+
+    # 4. Move items into target_ver_dir
+    for src_path, name, is_dir in items_to_archive:
+        dest_path = os.path.join(target_ver_dir, name)
+        try:
+            if is_dir:
+                if os.path.exists(dest_path):
+                    for sub in os.listdir(src_path):
+                        s_sub = os.path.join(src_path, sub)
+                        d_sub = os.path.join(dest_path, sub)
+                        if os.path.exists(d_sub):
+                            try:
+                                if os.path.isdir(d_sub): shutil.rmtree(d_sub)
+                                else: os.remove(d_sub)
+                            except Exception: pass
+                        shutil.move(s_sub, d_sub)
+                    try: os.rmdir(src_path)
+                    except Exception: pass
+                else:
+                    shutil.move(src_path, dest_path)
+            else:
+                if os.path.exists(dest_path):
+                    try: os.remove(dest_path)
+                    except Exception: pass
+                shutil.move(src_path, dest_path)
+        except Exception:
+            pass
+
+    # 5. Recreate fresh empty DWG and PDF folders for new export
+    dwg_dir = os.path.join(destination_folder, "DWG")
+    pdf_dir = os.path.join(destination_folder, "PDF")
+    if not os.path.exists(dwg_dir):
+        try: os.makedirs(dwg_dir)
+        except Exception: pass
+    if not os.path.exists(pdf_dir):
+        try: os.makedirs(pdf_dir)
+        except Exception: pass
+
+    return os.path.join(date_str, ver_str)
+
 def export_dwg(folder, sheet, filename, dwg_setting):
     opt = DB.DWGExportOptions()
     if dwg_setting:

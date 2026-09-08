@@ -25,6 +25,45 @@ import imp
 em_script_path = os.path.join(export_mgr_dir, 'script.py')
 em_script = imp.load_source('em_script', em_script_path)
 
+from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
+from System import Uri, UriKind
+
+def get_or_open_document(file_path):
+    """
+    Safely gets an already open document or opens it in background.
+    Returns: (doc, should_close)
+    Prevents 'The active document may not be closed from the API' error.
+    """
+    file_path_abs = os.path.abspath(file_path).lower()
+    
+    # 1. Check ActiveUIDocument
+    active_uidoc = getattr(__revit__, "ActiveUIDocument", None)
+    if active_uidoc and active_uidoc.Document:
+        try:
+            p = active_uidoc.Document.PathName
+            if p and os.path.abspath(p).lower() == file_path_abs:
+                return (active_uidoc.Document, False)
+        except Exception:
+            pass
+            
+    # 2. Check all open documents
+    for d in app.Documents:
+        try:
+            p = d.PathName
+            if p and os.path.abspath(p).lower() == file_path_abs:
+                return (d, False)
+        except Exception:
+            pass
+            
+    # 3. Background open
+    opt = DB.OpenOptions()
+    opt.DetachFromCentralOption = DB.DetachFromCentralOption.DetachAndPreserveWorksets
+    ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.CloseAllWorksets)
+    opt.SetOpenWorksetsConfiguration(ws_opt)
+    model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
+    bg_doc = app.OpenDocumentFile(model_path, opt)
+    return (bg_doc, True)
+
 # ----------------- MOCK CLASSES -----------------
 class MockParameter:
     def __init__(self, name, val):
@@ -360,6 +399,7 @@ class BatchExportForm(forms.WPFWindow):
         self.rows = []
         self._cancel_export = False
         self.selected_sheet = None
+        self.preview_cache = {}
         
         self.settings = {}
         settings_path = os.path.join(export_mgr_dir, "naming_settings.json")
@@ -367,6 +407,9 @@ class BatchExportForm(forms.WPFWindow):
             with open(settings_path, 'r') as f:
                 self.settings = json.load(f)
         self.profiles = sorted(self.settings.get("schemes", {}).keys())
+
+        if hasattr(self, 'ImgPreview') and self.ImgPreview:
+            self.ImgPreview.MouseLeftButtonDown += self.on_preview_image_click
         
     def do_events(self):
         Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, System.Action(lambda: None))
@@ -407,14 +450,66 @@ class BatchExportForm(forms.WPFWindow):
             if brush_dim: self.selected_sheet.txt_status.Foreground = brush_dim
             
         self.selected_sheet = sheet_row
-        # Use light yellow background for selection to match Export Manager style
         select_color = ColorConverter.ConvertFromString("#FFF2C8")
         self.selected_sheet.border.Background = SolidColorBrush(select_color)
         
-        # Keep text explicitly black for readability on light yellow, overriding theme
         black_brush = SolidColorBrush(System.Windows.Media.Colors.Black)
         self.selected_sheet.txt_name.Foreground = black_brush
         self.selected_sheet.txt_status.Foreground = black_brush
+
+        # Update Right Side Panel (Sheet Info & Preview)
+        try:
+            ms = sheet_row.mock_sheet
+            if hasattr(self, 'TxtDetailNumber'):
+                self.TxtDetailNumber.Text = getattr(ms, 'SheetNumber', '-')
+            if hasattr(self, 'TxtDetailName'):
+                self.TxtDetailName.Text = getattr(ms, 'Name', '-')
+            if hasattr(self, 'TxtDetailExportName'):
+                self.TxtDetailExportName.Text = sheet_row.generated_name or '-'
+            if hasattr(self, 'TxtDetailModel'):
+                self.TxtDetailModel.Text = os.path.basename(sheet_row.parent.file_path)
+
+            # Check cached preview
+            sheet_id = ms.UniqueId
+            if sheet_id in self.preview_cache and os.path.exists(self.preview_cache[sheet_id]):
+                self.display_preview_image(self.preview_cache[sheet_id])
+            else:
+                if hasattr(self, 'ImgPreview'):
+                    self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
+                if hasattr(self, 'GridPreviewLoading'):
+                    self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
+                if hasattr(self, 'GridPreviewPrompt'):
+                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+                if hasattr(self, 'TxtPreviewHint'):
+                    self.TxtPreviewHint.Text = "Click Preview to view"
+                if hasattr(self, 'BtnDoPreview'):
+                    self.BtnDoPreview.Visibility = System.Windows.Visibility.Visible
+        except Exception:
+            pass
+
+    def display_preview_image(self, img_path):
+        try:
+            bi = BitmapImage()
+            bi.BeginInit()
+            bi.CacheOption = BitmapCacheOption.OnLoad
+            bi.UriSource = Uri(img_path, UriKind.Absolute)
+            bi.EndInit()
+            bi.Freeze()
+            self.ImgPreview.Source = bi
+            self.ImgPreview.Visibility = System.Windows.Visibility.Visible
+            if hasattr(self, 'GridPreviewPrompt'):
+                self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Collapsed
+            if hasattr(self, 'GridPreviewLoading'):
+                self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
+        except Exception:
+            pass
+
+    def on_preview_image_click(self, sender, e):
+        if self.selected_sheet and self.selected_sheet.mock_sheet.UniqueId in self.preview_cache:
+            img_path = self.preview_cache[self.selected_sheet.mock_sheet.UniqueId]
+            if os.path.exists(img_path):
+                from _preview_script import show_preview
+                show_preview(img_path, self.selected_sheet.generated_name)
 
     def BtnPreview_Click(self, sender, e):
         if not self.selected_sheet:
@@ -426,23 +521,34 @@ class BatchExportForm(forms.WPFWindow):
         sheet_id = sr.mock_sheet.UniqueId
         
         sr.set_status("Loading Preview...")
+        if hasattr(self, 'GridPreviewLoading'):
+            self.GridPreviewLoading.Visibility = System.Windows.Visibility.Visible
+        if hasattr(self, 'GridPreviewPrompt'):
+            self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Collapsed
+        if hasattr(self, 'ImgPreview'):
+            self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
         self.do_events()
         
+        bg_doc = None
+        should_close = False
         try:
-            opt = DB.OpenOptions()
-            opt.DetachFromCentralOption = DB.DetachFromCentralOption.DetachAndPreserveWorksets
-            model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
-            bg_doc = app.OpenDocumentFile(model_path, opt)
+            bg_doc, should_close = get_or_open_document(file_path)
             
             sheet_element = bg_doc.GetElement(sheet_id)
             if not sheet_element:
                 forms.alert("Sheet not found in document.")
-                bg_doc.Close(False)
+                if should_close:
+                    try: bg_doc.Close(False)
+                    except: pass
                 sr.set_status("")
+                if hasattr(self, 'GridPreviewPrompt'):
+                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+                if hasattr(self, 'GridPreviewLoading'):
+                    self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
                 return
                 
             temp_dir = os.environ.get("TEMP")
-            temp_img = os.path.join(temp_dir, "riyan_batch_preview")
+            temp_img = os.path.join(temp_dir, "riyan_batch_preview_" + sheet_element.UniqueId)
             
             ieo = DB.ImageExportOptions()
             ieo.ExportRange = DB.ExportRange.SetOfViews
@@ -457,26 +563,35 @@ class BatchExportForm(forms.WPFWindow):
             
             bg_doc.ExportImage(ieo)
             
-            # Construct path BEFORE closing the document
+            if should_close:
+                try: bg_doc.Close(False)
+                except: pass
+                
             actual_path = temp_img + "- Sheet - " + sheet_element.SheetNumber + " - " + sheet_element.Name + ".png"
-            bg_doc.Close(False)
-            
             if not os.path.exists(actual_path):
                 for f in os.listdir(temp_dir):
-                    if f.startswith("riyan_batch_preview") and f.endswith(".png"):
+                    if f.startswith("riyan_batch_preview_" + sheet_element.UniqueId) and f.endswith(".png"):
                         actual_path = os.path.join(temp_dir, f)
                         break
                         
             sr.set_status("")
             
             if os.path.exists(actual_path):
-                from _preview_script import show_preview
-                show_preview(actual_path, sr.generated_name)
+                self.preview_cache[sheet_id] = actual_path
+                self.display_preview_image(actual_path)
             else:
                 forms.alert("Failed to generate preview image.")
+                if hasattr(self, 'GridPreviewPrompt'):
+                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+                if hasattr(self, 'GridPreviewLoading'):
+                    self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
                 
         except Exception as ex:
             sr.set_status("Preview Error", is_error=True)
+            if hasattr(self, 'GridPreviewPrompt'):
+                self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+            if hasattr(self, 'GridPreviewLoading'):
+                self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
             forms.alert(str(ex))
 
     def extract_mock_data(self, bg_doc, row):
@@ -542,14 +657,10 @@ class BatchExportForm(forms.WPFWindow):
                 self.do_events()
                 
                 row.set_status("Reading...", is_exporting=True)
+                bg_doc = None
+                should_close = False
                 try:
-                    opt = DB.OpenOptions()
-                    opt.DetachFromCentralOption = DB.DetachFromCentralOption.DetachAndPreserveWorksets
-                    ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.CloseAllWorksets)
-                    opt.SetOpenWorksetsConfiguration(ws_opt)
-                    
-                    model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(row.file_path)
-                    bg_doc = app.OpenDocumentFile(model_path, opt)
+                    bg_doc, should_close = get_or_open_document(row.file_path)
                     
                     sets = self.extract_mock_data(bg_doc, row)
                     
@@ -557,10 +668,15 @@ class BatchExportForm(forms.WPFWindow):
                     if sets:
                         row.cmb_set.SelectedIndex = 0
                         
-                    bg_doc.Close(False)
+                    if should_close:
+                        try: bg_doc.Close(False)
+                        except: pass
                     row.set_status("Ready")
                 except Exception as ex:
                     row.set_status("Error loading sets: " + str(ex), is_error=True)
+                    if should_close and bg_doc:
+                        try: bg_doc.Close(False)
+                        except: pass
                     forms.alert(str(ex) + '\n\n' + traceback.format_exc())
 
     def BtnClearAll_Click(self, sender, e):
@@ -579,18 +695,31 @@ class BatchExportForm(forms.WPFWindow):
         self._cancel_export = False
         is_check_print = self.RbCheckPrint.IsChecked
         
+        archived_locations = set()
+
         for row in self.rows:
             if self._cancel_export: break
             
             row.main_container.BringIntoView()
             self.do_events()
             
+            # Archive previous exports in output_location if not already done in this session
+            if row.output_location and row.output_location not in archived_locations:
+                row.set_status("Archiving previous files...", is_exporting=True)
+                try:
+                    arch_sub = em_script.archive_previous_exports(row.output_location)
+                    if arch_sub:
+                        row.set_status("Archived to 00 PREVIOUS\\" + arch_sub)
+                        self.do_events()
+                except Exception:
+                    pass
+                archived_locations.add(row.output_location)
+
             row.set_status("Opening file...", is_exporting=True)
+            bg_doc = None
+            should_close = False
             try:
-                opt = DB.OpenOptions()
-                opt.DetachFromCentralOption = DB.DetachFromCentralOption.DetachAndPreserveWorksets
-                model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(row.file_path)
-                bg_doc = app.OpenDocumentFile(model_path, opt)
+                bg_doc, should_close = get_or_open_document(row.file_path)
                 
                 em_script.doc = bg_doc
                 
@@ -611,7 +740,9 @@ class BatchExportForm(forms.WPFWindow):
                 
                 if not pdf_items:
                     row.set_status("No sheets to export", is_error=True)
-                    bg_doc.Close(False)
+                    if should_close:
+                        try: bg_doc.Close(False)
+                        except: pass
                     continue
                 
                 row.set_status("Exporting Combined PDF...", is_exporting=True)
@@ -625,6 +756,15 @@ class BatchExportForm(forms.WPFWindow):
                 
                 if not is_check_print:
                     row.set_status("Exporting CAD & Single PDFs...", is_exporting=True)
+                    pdf_out_dir = os.path.join(row.output_location, "PDF")
+                    dwg_out_dir = os.path.join(row.output_location, "DWG")
+                    if not os.path.exists(pdf_out_dir):
+                        try: os.makedirs(pdf_out_dir)
+                        except Exception: pass
+                    if not os.path.exists(dwg_out_dir):
+                        try: os.makedirs(dwg_out_dir)
+                        except Exception: pass
+
                     for item in pdf_items:
                         if self._cancel_export: break
                         s_row = item["ui_row"]
@@ -634,21 +774,23 @@ class BatchExportForm(forms.WPFWindow):
                         s_row.set_status("Exporting PDF...", is_exporting=True)
                         self.TxtPercent.Text = "Exporting: {}".format(fname)
                         self.do_events()
-                        em_script.export_pdf_2022(row.output_location, sheet, fname, DB.PDFZoomType.FitToPage, 100)
+                        em_script.export_pdf_2022(pdf_out_dir, sheet, fname, DB.PDFZoomType.FitToPage, 100)
                         
                         s_row.set_status("Exporting CAD...", is_exporting=True)
-                        em_script.export_dwg(row.output_location, sheet, fname, None)
+                        em_script.export_dwg(dwg_out_dir, sheet, fname, None)
                         
                         s_row.set_status("Done", is_done=True)
                 
-                bg_doc.Close(False)
+                if should_close:
+                    try: bg_doc.Close(False)
+                    except: pass
                 row.set_status("Completed!", is_done=True)
                 
             except Exception as ex:
                 row.set_status("Error", is_error=True)
-                try:
-                    if bg_doc: bg_doc.Close(False)
-                except: pass
+                if should_close and bg_doc:
+                    try: bg_doc.Close(False)
+                    except: pass
                 
         self.BtnExport.IsEnabled = True
         self.TxtPercent.Text = "Finished!"
