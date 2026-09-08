@@ -1392,7 +1392,6 @@ class BatchExportForm(forms.WPFWindow):
         self._cancel_export = False
         is_check_print = self.RbCheckPrint.IsChecked
         
-        archived_locations = set()
         first_folder = None
         total_exported_sheets = 0
         total_failed_sheets = 0
@@ -1406,18 +1405,6 @@ class BatchExportForm(forms.WPFWindow):
             
             if not first_folder and row.output_location:
                 first_folder = row.output_location
-
-            # Archive previous exports in output_location if not already done in this session
-            if row.output_location and row.output_location not in archived_locations:
-                row.set_status("Archiving...")
-                try:
-                    arch_sub = em_script.archive_previous_exports(row.output_location)
-                    if arch_sub:
-                        row.set_status("Archived")
-                        self.do_events()
-                except Exception:
-                    pass
-                archived_locations.add(row.output_location)
 
             row.set_status("Preparing...")
             bg_doc = None
@@ -1472,6 +1459,20 @@ class BatchExportForm(forms.WPFWindow):
                     comb_name = os.path.splitext(os.path.basename(row.file_path))[0]
                 
                 comb_filename = comb_name.strip() + ".pdf"
+                
+                # Selective archiving: safely move ONLY previous deliverables matching this model
+                if row.output_location:
+                    target_files = [comb_filename, comb_name.strip() + " - LIST OF DRAWINGS.doc"]
+                    if not is_check_print:
+                        for itm in pdf_items:
+                            f_base = itm.get("filename", "")
+                            if f_base:
+                                target_files.append(f_base + ".pdf")
+                                target_files.append(f_base + ".dwg")
+                    try:
+                        em_script.archive_previous_exports(row.output_location, target_files)
+                    except Exception as ex_arch:
+                        log_diag("Selective archive error: " + str(ex_arch))
                 
                 # Wire ui_row so Revit ProgressChanged events directly update each sheet row
                 mock_queue = [MockQueueItem(item["sheet"], item["filename"], ui_row=item["ui_row"]) for item in pdf_items]
