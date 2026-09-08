@@ -206,7 +206,7 @@ class SheetRow:
                         raise Exception("Not found")
                 except:
                     # Fallback if binding fails
-                    fixed_widths = {0: 250, 1: 150, 2: 150, 3: 150, 4: 150} # 4 is * in XAML but we give it a min fallback
+                    fixed_widths = {0: 380, 1: 130, 2: 130, 3: 130, 4: 150} # 4 is * in XAML but we give it a min fallback
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
@@ -227,6 +227,7 @@ class SheetRow:
         
         self.txt_name = TextBlock()
         self.txt_name.Text = self.mock_sheet.SheetNumber + " - " + self.mock_sheet.Name
+        self.txt_name.ToolTip = self.mock_sheet.SheetNumber + " - " + self.mock_sheet.Name
         self.txt_name.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
         sp_name.ClipToBounds = True
         self.txt_name.VerticalAlignment = VerticalAlignment.Center
@@ -296,7 +297,7 @@ class FileRow:
                         raise Exception("Not found")
                 except:
                     # Fallback if binding fails
-                    fixed_widths = {0: 250, 1: 150, 2: 150, 3: 150, 4: 150} # 4 is * in XAML but we give it a min fallback
+                    fixed_widths = {0: 380, 1: 130, 2: 130, 3: 130, 4: 150} # 4 is * in XAML but we give it a min fallback
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
@@ -333,6 +334,7 @@ class FileRow:
         
         self.txt_file = TextBlock()
         self.txt_file.Text = os.path.basename(file_path)
+        self.txt_file.ToolTip = os.path.basename(file_path)
         self.txt_file.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
         sp_file.ClipToBounds = True
         self.txt_file.VerticalAlignment = VerticalAlignment.Center
