@@ -62,106 +62,103 @@ def _safe_get_param_val(p):
         pass
     return ""
 
-def get_or_open_document(file_path, close_worksets=False):
-    """
-    Safely gets an already open document or opens it in background.
-    Returns: (doc, should_close)
-    Prevents 'The active document may not be closed from the API' error.
-    """
-    import re
-    file_path_abs = os.path.abspath(file_path).lower()
-    file_base = os.path.splitext(os.path.basename(file_path))[0].lower()
-    clean_fb = re.sub(r'[^a-zA-Z0-9]', '', file_base)
-    
-    # 0. Check revit.doc directly
+def log_diag(msg):
     try:
-        curr_doc = getattr(revit, "doc", None)
-        if curr_doc:
-            p = curr_doc.PathName
-            if p and os.path.abspath(p).lower() == file_path_abs:
-                return (curr_doc, False)
-            t = curr_doc.Title.lower()
-            clean_t = re.sub(r'[^a-zA-Z0-9]', '', t)
-            if t == file_base or t.startswith(file_base) or file_base.startswith(t) or (clean_fb and clean_t and (clean_fb in clean_t or clean_t in clean_fb)):
-                return (curr_doc, False)
+        log_file = os.path.join(os.environ.get("TEMP", "C:\\Temp"), "riyan_batch_debug.log")
+        with open(log_file, "a") as f:
+            import datetime
+            f.write("[{}] {}\n".format(datetime.datetime.now().strftime("%H:%M:%S"), msg))
     except Exception:
         pass
 
+def get_or_open_document(file_path, close_worksets=False):
+    """
+    Safely gets an already open UI document or opens it fresh in background.
+    Returns: (doc, should_close)
+    Prevents 'The active document may not be closed from the API' error.
+    """
+    file_path_abs = os.path.abspath(file_path).lower()
+    file_base = os.path.splitext(os.path.basename(file_path))[0].lower()
+    
+    log_diag("get_or_open_document requested: " + file_path_abs)
+
+    # 0. Check revit.doc directly (Active UI Document)
+    try:
+        curr_doc = getattr(revit, "doc", None)
+        if curr_doc:
+            p = getattr(curr_doc, "PathName", "")
+            if p and os.path.abspath(p).lower() == file_path_abs:
+                log_diag("Found in revit.doc: " + p)
+                return (curr_doc, False)
+    except Exception as ex:
+        log_diag("revit.doc check exception: " + str(ex))
+
     # 1. Check ActiveUIDocument
-    active_uidoc = getattr(__revit__, "ActiveUIDocument", None)
-    if active_uidoc and active_uidoc.Document:
-        try:
+    try:
+        active_uidoc = getattr(__revit__, "ActiveUIDocument", None)
+        if active_uidoc and active_uidoc.Document:
             doc = active_uidoc.Document
-            p = doc.PathName
+            p = getattr(doc, "PathName", "")
             if p and os.path.abspath(p).lower() == file_path_abs:
+                log_diag("Found in ActiveUIDocument: " + p)
                 return (doc, False)
-            t = doc.Title.lower()
-            clean_t = re.sub(r'[^a-zA-Z0-9]', '', t)
-            if t == file_base or t.startswith(file_base) or file_base.startswith(t) or (clean_fb and clean_t and (clean_fb in clean_t or clean_t in clean_fb)):
-                return (doc, False)
-        except Exception:
-            pass
-            
-    # 2. Check all open documents
-    for d in app.Documents:
+    except Exception as ex:
+        log_diag("ActiveUIDocument check exception: " + str(ex))
+
+    # 2. Check all open documents in Revit UI tabs (exact PathName only)
+    # Also PURGE any orphaned detached documents left in memory from previous sessions
+    for d in list(app.Documents):
         try:
-            p = d.PathName
+            p = getattr(d, 'PathName', '')
             if p and os.path.abspath(p).lower() == file_path_abs:
+                log_diag("Found in app.Documents (open tab): " + p)
                 return (d, False)
-            t = d.Title.lower()
-            clean_t = re.sub(r'[^a-zA-Z0-9]', '', t)
-            if t == file_base or t.startswith(file_base) or file_base.startswith(t) or (clean_fb and clean_t and (clean_fb in clean_t or clean_t in clean_fb)):
-                return (d, False)
-        except Exception:
-            pass
-            
-    # 3. Background open
+            if not p:
+                # Detached background document left in memory from a previous run
+                t = getattr(d, 'Title', '').strip().lower()
+                if t == file_base or t == (file_base + "_detached") or (file_base in t and "detached" in t):
+                    log_diag("Purging orphaned detached document from memory: " + t)
+                    try:
+                        d.Close(False)
+                    except Exception as cex:
+                        log_diag("Could not close orphan: " + str(cex))
+        except Exception as ex:
+            log_diag("app.Documents loop exception: " + str(ex))
+
+    # 3. Background open fresh from disk
+    log_diag("Opening fresh background document from disk with all worksets...")
     opt = DB.OpenOptions()
     opt.DetachFromCentralOption = DB.DetachFromCentralOption.DetachAndPreserveWorksets
     
-    if close_worksets:
-        try:
-            ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.CloseAllWorksets)
-            opt.SetOpenWorksetsConfiguration(ws_opt)
-        except Exception:
-            pass
-    else:
-        try:
-            ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.OpenAllWorksets)
-            try:
-                model_path_temp = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
-                ws_info = DB.WorksharingUtils.GetUserWorksetInfo(model_path_temp)
-                close_ids = System.Collections.Generic.List[DB.WorksetId]()
-                for w in ws_info:
-                    w_lower = w.Name.lower()
-                    if any(k in w_lower for k in ["not to print", "not for print", "do not print"]):
-                        close_ids.Add(w.Id)
-                if close_ids.Count > 0:
-                    ws_opt.Close(close_ids)
-            except Exception:
-                pass
-            opt.SetOpenWorksetsConfiguration(ws_opt)
-        except Exception:
-            pass
-            
+    # ALWAYS Open ALL Worksets (closing worksets deletes them permanently in detached mode!)
+    ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.OpenAllWorksets)
+    opt.SetOpenWorksetsConfiguration(ws_opt)
+
     model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
     bg_doc = app.OpenDocumentFile(model_path, opt)
     
-    if not close_worksets:
-        try:
-            link_types = DB.FilteredElementCollector(bg_doc).OfClass(DB.RevitLinkType).ToElements()
-            for lt in link_types:
-                try:
-                    if not lt.IsLoaded(bg_doc, lt.Id):
-                        ext_ref = lt.GetExternalFileReference()
-                        if ext_ref:
-                            lpath = DB.ModelPathUtils.ConvertModelPathToUserVisiblePath(ext_ref.GetAbsolutePath())
-                            if lpath and os.path.exists(lpath):
-                                lt.Load()
-                except Exception:
-                    pass
-        except Exception:
-            pass
+    # Diagnostic audit of model elements
+    try:
+        w_cnt = DB.FilteredElementCollector(bg_doc).OfCategory(DB.BuiltInCategory.OST_Walls).GetElementCount()
+        d_cnt = DB.FilteredElementCollector(bg_doc).OfCategory(DB.BuiltInCategory.OST_Doors).GetElementCount()
+        ws_col = DB.FilteredWorksetCollector(bg_doc).OfKind(DB.WorksetKind.UserWorkset).ToWorksets()
+        log_diag("Opened bg_doc successfully! Title='{}', Walls={}, Doors={}, UserWorksets={}".format(
+            getattr(bg_doc, 'Title', '-'), w_cnt, d_cnt, ws_col.Count))
+    except Exception as ex:
+        log_diag("Audit exception: " + str(ex))
+
+    # Reload Revit links if any
+    try:
+        link_types = DB.FilteredElementCollector(bg_doc).OfClass(DB.RevitLinkType).ToElements()
+        for lt in link_types:
+            try:
+                if not DB.RevitLinkType.IsLoaded(bg_doc, lt.Id):
+                    log_diag("Reloading link: " + str(lt.Name))
+                    lt.Reload()
+            except Exception as lex:
+                log_diag("Link reload note: " + str(lex))
+    except Exception as ex:
+        log_diag("Link collector exception: " + str(ex))
 
     return (bg_doc, True)
 
@@ -927,10 +924,9 @@ class BatchExportForm(forms.WPFWindow):
             except Exception:
                 pass
 
-            # Preview is a visual UI thumbnail (converted to a 1400px PNG via WinRT).
-            # AlwaysUseRaster = True forces Revit's DirectX Hardware Display Manager to render
-            # 100% of all model geometry, Area Plan color fills, 3D shading, and annotations without skipping.
-            if hasattr(pdf_opt, "AlwaysUseRaster"):
+            # Only use raster if view specifically requires it (3D or shaded).
+            # Standard 2D plans and sections use native Vector export for 100% CAD precision.
+            if hasattr(pdf_opt, "AlwaysUseRaster") and needs_raster:
                 pdf_opt.AlwaysUseRaster = True
 
             if hasattr(DB, "RasterQualityType"):
@@ -939,8 +935,6 @@ class BatchExportForm(forms.WPFWindow):
             if hasattr(DB, "ColorDepthType") and hasattr(pdf_opt, "ColorDepth"):
                 pdf_opt.ColorDepth = DB.ColorDepthType.Color
 
-            if hasattr(DB, "PDFExportQualityType"):
-                pdf_opt.ExportQuality = DB.PDFExportQualityType.DPI144
             zt = get_zoom_fit_type()
             if zt is not None:
                 pdf_opt.ZoomType = zt
@@ -949,6 +943,9 @@ class BatchExportForm(forms.WPFWindow):
                 bg_doc.Regenerate()
             except Exception:
                 pass
+
+            log_diag("Exporting preview for Sheet: {} - {}, needs_raster={}".format(
+                getattr(sheet_element, 'SheetNumber', '-'), getattr(sheet_element, 'Name', '-'), needs_raster))
 
             views = System.Collections.Generic.List[DB.ElementId]()
             views.Add(sheet_element.Id)
@@ -973,6 +970,12 @@ class BatchExportForm(forms.WPFWindow):
                     export_ok, os.path.join(temp_dir, pdf_prefix + ".pdf"), getattr(sheet_element, 'SheetNumber', '-')))
                 sr.set_status("Preview Error", is_error=True)
                 return
+
+            try:
+                sz = os.path.getsize(actual_pdf)
+                log_diag("Preview PDF exported successfully: {} ({} bytes)".format(actual_pdf, sz))
+            except Exception:
+                pass
 
             # 3. Convert page 0 of PDF to high-res PNG using native Windows WinRT
             ps1_path = os.path.join(os.path.dirname(__file__), "render_pdf.ps1")
@@ -1275,11 +1278,11 @@ class BatchExportForm(forms.WPFWindow):
                     pass
                 archived_locations.add(row.output_location)
 
-            row.set_status("Opening file...", is_exporting=True)
+            row.set_status("Preparing file...", is_exporting=True)
             bg_doc = None
             should_close = False
             try:
-                bg_doc, should_close = get_or_open_document(row.file_path, close_worksets=False)
+                bg_doc, should_close = self.get_cached_document(row.file_path)
                 
                 em_script.doc = bg_doc
                 
