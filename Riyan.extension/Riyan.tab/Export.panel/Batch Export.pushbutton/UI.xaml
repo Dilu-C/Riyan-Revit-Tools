@@ -126,15 +126,15 @@
 
                     <Grid Grid.Row="1" Margin="0,0,0,8" Background="Transparent">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition x:Name="HCol0" Width="380" SharedSizeGroup="Col0"/>
+                            <ColumnDefinition x:Name="HCol0" Width="330" MinWidth="250" SharedSizeGroup="Col0"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition x:Name="HCol1" Width="130" SharedSizeGroup="Col1"/>
+                            <ColumnDefinition x:Name="HCol1" Width="140" MinWidth="120" SharedSizeGroup="Col1"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition x:Name="HCol2" Width="130" SharedSizeGroup="Col2"/>
+                            <ColumnDefinition x:Name="HCol2" Width="140" MinWidth="120" SharedSizeGroup="Col2"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition x:Name="HCol3" Width="130" SharedSizeGroup="Col3"/>
+                            <ColumnDefinition x:Name="HCol3" Width="160" MinWidth="140" SharedSizeGroup="Col3"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition x:Name="HCol4" Width="*" SharedSizeGroup="Col4"/>
+                            <ColumnDefinition x:Name="HCol4" Width="*" MinWidth="160" SharedSizeGroup="Col4"/>
                         </Grid.ColumnDefinitions>
                         
                         <Border Grid.Column="0" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Revit File" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
@@ -149,7 +149,7 @@
                         <Border Grid.Column="6" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Output Location" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                         <GridSplitter Grid.Column="7" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="8" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Status" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="8" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="10,0,0,5"><TextBlock Text="Status" HorizontalAlignment="Left" Margin="5,0,0,0" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                     </Grid>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <StackPanel x:Name="FileStack" Orientation="Vertical">

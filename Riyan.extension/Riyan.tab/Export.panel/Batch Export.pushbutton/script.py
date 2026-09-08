@@ -285,7 +285,7 @@ class SheetRow:
                     else:
                         raise Exception("Not found")
                 except:
-                    fixed_widths = {0: 380, 1: 130, 2: 130, 3: 130, 4: 150}
+                    fixed_widths = {0: 330, 1: 140, 2: 140, 3: 160, 4: 180}
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
@@ -318,6 +318,9 @@ class SheetRow:
         self.txt_status = TextBlock()
         self.txt_status.Text = ""
         self.txt_status.VerticalAlignment = VerticalAlignment.Center
+        self.txt_status.HorizontalAlignment = HorizontalAlignment.Left
+        self.txt_status.Margin = Thickness(15, 0, 5, 0)
+        self.txt_status.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
         if brush_main: self.txt_status.Foreground = brush_dim
         Grid.SetColumn(self.txt_status, 8)
         self.grid.Children.Add(self.txt_status)
@@ -356,6 +359,7 @@ class SheetRow:
             self.txt_status.Text = clean_msg
             brush_dim = self.form.FindResource("TextDim")
             if brush_dim: self.txt_status.Foreground = brush_dim
+        self.txt_status.ToolTip = clean_msg
         self.form.do_events()
 
 class CollectionGroup:
@@ -402,7 +406,7 @@ class CollectionGroup:
                     else:
                         raise Exception("Not found")
                 except:
-                    fixed_widths = {0: 380, 1: 130, 2: 130, 3: 130, 4: 150}
+                    fixed_widths = {0: 330, 1: 140, 2: 140, 3: 160, 4: 180}
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
@@ -528,15 +532,13 @@ class FileRow:
                         raise Exception("Not found")
                 except:
                     # Fallback if binding fails
-                    fixed_widths = {0: 380, 1: 130, 2: 130, 3: 130, 4: 150} # 4 is * in XAML but we give it a min fallback
+                    fixed_widths = {0: 330, 1: 140, 2: 140, 3: 160, 4: 180} # 4 is * in XAML but we give it a min fallback
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
             else:
                 cd.Width = GridLength(3, GridUnitType.Pixel)
             self.grid.ColumnDefinitions.Add(cd)
-            
-
             
         sp_file = StackPanel()
         sp_file.Orientation = Orientation.Horizontal
@@ -556,21 +558,17 @@ class FileRow:
         self.btn_expand.Height = 20
         self.btn_expand.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
         self.btn_expand.BorderThickness = Thickness(0)
-        self.btn_expand.Foreground = brush_dim
-        self.btn_expand.Click += self.on_expand
+        self.btn_expand.Foreground = brush_main if brush_main else SolidColorBrush(System.Windows.Media.Colors.White)
+        self.btn_expand.Click += self.on_expand_toggle
         sp_file.Children.Add(self.btn_expand)
         
-        sp_file.Cursor = System.Windows.Input.Cursors.Hand
-        sp_file.MouseLeftButtonDown += self.on_expand
-        
         self.txt_file = TextBlock()
-        self.txt_file.Text = os.path.basename(file_path)
-        self.txt_file.ToolTip = os.path.basename(file_path)
+        self.txt_file.Text = os.path.basename(self.file_path)
+        self.txt_file.ToolTip = self.file_path
+        self.txt_file.FontWeight = System.Windows.FontWeights.SemiBold
         self.txt_file.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
         sp_file.ClipToBounds = True
         self.txt_file.VerticalAlignment = VerticalAlignment.Center
-        self.txt_file.Margin = Thickness(5,0,5,0)
-        self.txt_file.ToolTip = file_path
         if brush_main: self.txt_file.Foreground = brush_main
         sp_file.Children.Add(self.txt_file)
         
@@ -578,20 +576,19 @@ class FileRow:
         self.grid.Children.Add(sp_file)
         
         self.cmb_set = ComboBox()
-        self.cmb_set.VerticalAlignment = VerticalAlignment.Center
+        if cmb_style: self.cmb_set.Style = cmb_style
+        self.cmb_set.Height = 26
         self.cmb_set.Margin = Thickness(5,0,5,0)
         self.cmb_set.SelectionChanged += self.on_options_changed
         Grid.SetColumn(self.cmb_set, 2)
         self.grid.Children.Add(self.cmb_set)
         
         self.cmb_profile = ComboBox()
-        self.cmb_profile.ItemsSource = self.profiles
-        self.cmb_profile.VerticalAlignment = VerticalAlignment.Center
+        if cmb_style: self.cmb_profile.Style = cmb_style
+        self.cmb_profile.Height = 26
         self.cmb_profile.Margin = Thickness(5,0,5,0)
-        active_sc = form_instance.settings.get("active_scheme", "")
-        if active_sc and active_sc in self.profiles:
-            self.cmb_profile.SelectedItem = active_sc
-        elif self.profiles:
+        self.cmb_profile.ItemsSource = form_instance.profiles
+        if form_instance.profiles:
             self.cmb_profile.SelectedIndex = 0
         self.cmb_profile.SelectionChanged += self.on_options_changed
         Grid.SetColumn(self.cmb_profile, 4)
@@ -625,7 +622,9 @@ class FileRow:
         self.txt_status = TextBlock()
         self.txt_status.Text = ""
         self.txt_status.VerticalAlignment = VerticalAlignment.Center
-        self.txt_status.Margin = Thickness(5,0,5,0)
+        self.txt_status.HorizontalAlignment = HorizontalAlignment.Left
+        self.txt_status.Margin = Thickness(15, 0, 5, 0)
+        self.txt_status.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
         if brush_main: self.txt_status.Foreground = brush_main
         Grid.SetColumn(self.txt_status, 8)
         self.grid.Children.Add(self.txt_status)
@@ -681,6 +680,7 @@ class FileRow:
             self.txt_status.Text = clean_msg
             brush_dim = self.form.FindResource("TextDim")
             if brush_dim: self.txt_status.Foreground = brush_dim
+        self.txt_status.ToolTip = self.txt_status.Text
         self.form.do_events()
         
     def on_options_changed(self, sender, e):
