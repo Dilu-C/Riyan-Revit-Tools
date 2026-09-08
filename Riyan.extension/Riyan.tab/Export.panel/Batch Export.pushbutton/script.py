@@ -669,31 +669,31 @@ class BatchExportForm(forms.WPFWindow):
             # 2. Export 1-sheet PDF using Revit's native vector engine (guarantees 100% full model geometry)
             pdf_opt = DB.PDFExportOptions()
             pdf_opt.FileName = pdf_prefix
-            pdf_opt.Combine = False
+            pdf_opt.Combine = True
             zt = get_zoom_fit_type()
             if zt is not None:
                 pdf_opt.ZoomType = zt
             views = System.Collections.Generic.List[DB.ElementId]()
             views.Add(sheet_element.Id)
             
-            bg_doc.Export(temp_dir, views, pdf_opt)
-
-            if should_close:
-                try: bg_doc.Close(False)
-                except: pass
+            export_ok = bg_doc.Export(temp_dir, views, pdf_opt)
 
             # Locate the exported PDF file
-            actual_pdf = None
-            try:
-                for f in os.listdir(temp_dir):
-                    if f.startswith(pdf_prefix) and f.endswith(".pdf"):
-                        actual_pdf = os.path.join(temp_dir, f)
-                        break
-            except Exception:
-                pass
+            actual_pdf = os.path.join(temp_dir, pdf_prefix + ".pdf")
+            if not os.path.exists(actual_pdf):
+                actual_pdf = None
+                try:
+                    for f in os.listdir(temp_dir):
+                        if f.endswith(".pdf"):
+                            if f.startswith(pdf_prefix) or (sheet_element.SheetNumber and sheet_element.SheetNumber in f):
+                                actual_pdf = os.path.join(temp_dir, f)
+                                break
+                except Exception:
+                    pass
 
             if not actual_pdf or not os.path.exists(actual_pdf):
-                forms.alert("Failed to export PDF for preview.")
+                forms.alert("Failed to export PDF for preview.\n\nExport Status: {}\nOutput Path: {}\nSheet: {}".format(
+                    export_ok, os.path.join(temp_dir, pdf_prefix + ".pdf"), getattr(sheet_element, 'SheetNumber', '-')))
                 sr.set_status("Preview Error", is_error=True)
                 if hasattr(self, 'GridPreviewPrompt'):
                     self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
@@ -731,6 +731,10 @@ class BatchExportForm(forms.WPFWindow):
             if hasattr(self, 'GridPreviewLoading'):
                 self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
             forms.alert(str(ex))
+        finally:
+            if should_close and bg_doc:
+                try: bg_doc.Close(False)
+                except Exception: pass
 
     def extract_mock_data(self, bg_doc, row):
         pi = getattr(bg_doc, "ProjectInformation", None)
