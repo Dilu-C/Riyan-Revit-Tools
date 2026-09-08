@@ -146,6 +146,23 @@ def get_or_open_document(file_path, close_worksets=False):
             
     model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
     bg_doc = app.OpenDocumentFile(model_path, opt)
+    
+    if not close_worksets:
+        try:
+            link_types = DB.FilteredElementCollector(bg_doc).OfClass(DB.RevitLinkType).ToElements()
+            for lt in link_types:
+                try:
+                    if not lt.IsLoaded(bg_doc, lt.Id):
+                        ext_ref = lt.GetExternalFileReference()
+                        if ext_ref:
+                            lpath = DB.ModelPathUtils.ConvertModelPathToUserVisiblePath(ext_ref.GetAbsolutePath())
+                            if lpath and os.path.exists(lpath):
+                                lt.Load()
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
     return (bg_doc, True)
 
 # ----------------- MOCK CLASSES -----------------
@@ -910,13 +927,14 @@ class BatchExportForm(forms.WPFWindow):
             except Exception:
                 pass
 
-            if hasattr(pdf_opt, "AlwaysUseRaster") and needs_raster:
+            # Preview is a visual UI thumbnail (converted to a 1400px PNG via WinRT).
+            # AlwaysUseRaster = True forces Revit's DirectX Hardware Display Manager to render
+            # 100% of all model geometry, Area Plan color fills, 3D shading, and annotations without skipping.
+            if hasattr(pdf_opt, "AlwaysUseRaster"):
                 pdf_opt.AlwaysUseRaster = True
-                if hasattr(DB, "RasterQualityType"):
-                    pdf_opt.RasterQuality = DB.RasterQualityType.High
-            else:
-                if hasattr(DB, "RasterQualityType"):
-                    pdf_opt.RasterQuality = DB.RasterQualityType.Medium
+
+            if hasattr(DB, "RasterQualityType"):
+                pdf_opt.RasterQuality = DB.RasterQualityType.High if needs_raster else DB.RasterQualityType.Medium
 
             if hasattr(DB, "ColorDepthType") and hasattr(pdf_opt, "ColorDepth"):
                 pdf_opt.ColorDepth = DB.ColorDepthType.Color
@@ -1202,7 +1220,9 @@ class BatchExportForm(forms.WPFWindow):
                 bg_doc = None
                 should_close = False
                 try:
-                    bg_doc, should_close = get_or_open_document(row.file_path, close_worksets=True)
+                    bg_doc, should_close = get_or_open_document(row.file_path, close_worksets=False)
+                    key = os.path.abspath(row.file_path).lower()
+                    self.doc_cache[key] = (bg_doc, should_close)
                     
                     sets = self.extract_mock_data(bg_doc, row)
                     
@@ -1210,9 +1230,6 @@ class BatchExportForm(forms.WPFWindow):
                     if sets:
                         row.cmb_set.SelectedIndex = 0
                         
-                    if should_close:
-                        try: bg_doc.Close(False)
-                        except: pass
                     row.set_status("Ready")
                 except Exception as ex:
                     row.set_status("Error loading sets: " + str(ex), is_error=True)
@@ -1222,6 +1239,7 @@ class BatchExportForm(forms.WPFWindow):
                     forms.alert(str(ex) + '\n\n' + traceback.format_exc())
 
     def BtnClearAll_Click(self, sender, e):
+        self.cleanup_cached_documents()
         self.FileStack.Children.Clear()
         self.rows = []
         self.selected_sheet = None

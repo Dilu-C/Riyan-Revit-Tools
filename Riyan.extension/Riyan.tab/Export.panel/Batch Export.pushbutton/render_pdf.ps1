@@ -1,7 +1,8 @@
 param(
     [string]$PdfPath,
     [string]$PngPath,
-    [int]$Width = 2400
+    [int]$Width = 2400,
+    [int]$PageIndex = 0
 )
 
 Add-Type -AssemblyName System.Runtime.WindowsRuntime
@@ -21,7 +22,8 @@ $pdfTask = $asTaskGeneric.MakeGenericMethod([Windows.Data.Pdf.PdfDocument]).Invo
 $pdfTask.Wait()
 $pdfDoc = $pdfTask.Result
 
-$page = $pdfDoc.GetPage(0)
+$idx = [Math]::Max(0, [Math]::Min([int]($pdfDoc.PageCount - 1), $PageIndex))
+$page = $pdfDoc.GetPage($idx)
 
 if (Test-Path $PngPath) { Remove-Item $PngPath -Force }
 $dir = [System.IO.Path]::GetDirectoryName($PngPath)
