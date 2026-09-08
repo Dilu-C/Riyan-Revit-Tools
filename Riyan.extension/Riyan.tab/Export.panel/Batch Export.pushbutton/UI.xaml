@@ -140,7 +140,7 @@
                         <Border Grid.Column="0" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Revit File" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                         <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="2" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Sheet Set" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="2" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Sheet Set / Collection" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                         <GridSplitter Grid.Column="3" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
                         <Border Grid.Column="4" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Naming Profile" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
@@ -207,6 +207,9 @@
                                     
                                     <TextBlock Text="Sheet Name" Foreground="{StaticResource TextDim}" FontSize="10"/>
                                     <TextBlock x:Name="TxtDetailName" Text="-" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                                    
+                                    <TextBlock Text="Sheet Collection" Foreground="{StaticResource TextDim}" FontSize="10"/>
+                                    <TextBlock x:Name="TxtDetailCollection" Text="-" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,6" TextWrapping="Wrap"/>
                                     
                                     <TextBlock Text="Export Filename" Foreground="{StaticResource TextDim}" FontSize="10"/>
                                     <TextBlock x:Name="TxtDetailExportName" Text="-" Foreground="{StaticResource TextMain}" FontSize="11" Margin="0,0,0,6" TextWrapping="Wrap"/>

@@ -167,6 +167,7 @@ class MockElement:
         self.Name = name
         self.SheetNumber = number
         self.UniqueId = unique_id
+        self.sheet_collection = ""
         self.Parameters = []
         self._param_dict = {}
         if number:
@@ -215,11 +216,13 @@ class MockQueueItem:
 
 # ----------------- UI CLASSES -----------------
 class SheetRow:
-    def __init__(self, mock_sheet, parent_file_row, form_instance):
+    def __init__(self, mock_sheet, parent_file_row, form_instance, parent_group=None):
         self.mock_sheet = mock_sheet
         self.parent = parent_file_row
+        self.parent_group = parent_group
         self.form = form_instance
         self.generated_name = ""
+        self._updating = False
         
         brush_main = form_instance.FindResource("TextMain")
         brush_dim = form_instance.FindResource("TextDim")
@@ -249,16 +252,13 @@ class SheetRow:
                     else:
                         raise Exception("Not found")
                 except:
-                    # Fallback if binding fails
-                    fixed_widths = {0: 380, 1: 130, 2: 130, 3: 130, 4: 150} # 4 is * in XAML but we give it a min fallback
+                    fixed_widths = {0: 380, 1: 130, 2: 130, 3: 130, 4: 150}
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
             else:
                 cd.Width = GridLength(3, GridUnitType.Pixel)
             self.grid.ColumnDefinitions.Add(cd)
-        
-
             
         sp_name = StackPanel()
         sp_name.Orientation = Orientation.Horizontal
@@ -266,7 +266,8 @@ class SheetRow:
         self.chk = System.Windows.Controls.CheckBox()
         self.chk.IsChecked = False
         self.chk.VerticalAlignment = VerticalAlignment.Center
-        self.chk.Margin = Thickness(30, 0, 5, 0)
+        self.chk.Margin = Thickness(38, 0, 5, 0) if parent_group else Thickness(30, 0, 5, 0)
+        self.chk.Click += self.on_chk_clicked
         sp_name.Children.Add(self.chk)
         
         self.txt_name = TextBlock()
@@ -290,6 +291,12 @@ class SheetRow:
         
         self.border.MouseLeftButtonDown += self.on_select
 
+    def on_chk_clicked(self, sender, e):
+        if self.parent_group:
+            self.parent_group.update_collection_checkbox()
+        elif self.parent:
+            self.parent.update_master_checkbox()
+
     def on_select(self, sender, e):
         self.form.select_sheet(self)
         
@@ -304,6 +311,137 @@ class SheetRow:
             self.txt_status.Text = msg
         self.form.do_events()
 
+class CollectionGroup:
+    def __init__(self, collection_name, parent_file_row, form_instance):
+        self.collection_name = collection_name
+        self.parent = parent_file_row
+        self.form = form_instance
+        self.sheet_rows = []
+        self.is_expanded = True
+        self._updating_checks = False
+        
+        brush_main = form_instance.FindResource("TextMain")
+        brush_dim = form_instance.FindResource("TextDim")
+        border_brush = form_instance.FindResource("BorderColor")
+        header_bg = form_instance.FindResource("TitleBarBg")
+        
+        self.container = StackPanel()
+        self.container.Orientation = Orientation.Vertical
+        
+        self.header_border = Border()
+        self.header_border.BorderThickness = Thickness(0, 0, 0, 1)
+        if border_brush: self.header_border.BorderBrush = border_brush
+        if header_bg: self.header_border.Background = header_bg
+        else: self.header_border.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+        self.header_border.Padding = Thickness(5, 4, 5, 4)
+        self.header_border.Cursor = System.Windows.Input.Cursors.Hand
+        self.header_border.MouseLeftButtonDown += self.on_header_click
+        
+        self.grid = Grid()
+        self.header_border.Child = self.grid
+        
+        from System.Windows.Data import Binding, BindingMode
+        for i in range(9):
+            cd = System.Windows.Controls.ColumnDefinition()
+            if i % 2 == 0:
+                col_index = i // 2
+                try:
+                    h_col = form_instance.FindName("HCol" + str(col_index))
+                    if h_col:
+                        b = Binding("Width")
+                        b.Source = h_col
+                        b.Mode = BindingMode.TwoWay
+                        System.Windows.Data.BindingOperations.SetBinding(cd, System.Windows.Controls.ColumnDefinition.WidthProperty, b)
+                    else:
+                        raise Exception("Not found")
+                except:
+                    fixed_widths = {0: 380, 1: 130, 2: 130, 3: 130, 4: 150}
+                    if col_index in fixed_widths:
+                        cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
+                        cd.SharedSizeGroup = "Col" + str(col_index)
+            else:
+                cd.Width = GridLength(3, GridUnitType.Pixel)
+            self.grid.ColumnDefinitions.Add(cd)
+            
+        sp = StackPanel()
+        sp.Orientation = Orientation.Horizontal
+        sp.VerticalAlignment = VerticalAlignment.Center
+        
+        self.chk = System.Windows.Controls.CheckBox()
+        self.chk.IsChecked = False
+        self.chk.IsThreeState = True
+        self.chk.VerticalAlignment = VerticalAlignment.Center
+        self.chk.Margin = Thickness(18, 0, 5, 0)
+        self.chk.Click += self.on_chk_clicked
+        sp.Children.Add(self.chk)
+        
+        self.btn_expand = Button()
+        self.btn_expand.Content = "-"
+        self.btn_expand.Width = 20
+        self.btn_expand.Height = 20
+        self.btn_expand.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+        self.btn_expand.BorderThickness = Thickness(0)
+        if brush_dim: self.btn_expand.Foreground = brush_dim
+        self.btn_expand.Cursor = System.Windows.Input.Cursors.Hand
+        self.btn_expand.Click += self.on_expand
+        sp.Children.Add(self.btn_expand)
+        
+        self.txt_title = TextBlock()
+        self.txt_title.Text = self.collection_name
+        self.txt_title.FontWeight = System.Windows.FontWeights.SemiBold
+        self.txt_title.VerticalAlignment = VerticalAlignment.Center
+        self.txt_title.Margin = Thickness(5, 0, 5, 0)
+        if brush_main: self.txt_title.Foreground = brush_main
+        sp.Children.Add(self.txt_title)
+        
+        Grid.SetColumn(sp, 0)
+        self.grid.Children.Add(sp)
+        
+        self.container.Children.Add(self.header_border)
+        
+        self.child_stack = StackPanel()
+        self.child_stack.Orientation = Orientation.Vertical
+        self.container.Children.Add(self.child_stack)
+
+    def on_header_click(self, sender, e):
+        if e.OriginalSource == self.chk or e.OriginalSource == self.btn_expand:
+            return
+        self.on_expand(sender, e)
+
+    def on_expand(self, sender, e):
+        self.is_expanded = not self.is_expanded
+        self.btn_expand.Content = "-" if self.is_expanded else "+"
+        self.child_stack.Visibility = System.Windows.Visibility.Visible if self.is_expanded else System.Windows.Visibility.Collapsed
+
+    def on_chk_clicked(self, sender, e):
+        val = (self.chk.IsChecked == True)
+        self.chk.IsChecked = val
+        for sr in self.sheet_rows:
+            sr.chk.IsChecked = val
+        self.parent.update_master_checkbox()
+
+    def update_collection_checkbox(self):
+        checked = sum(1 for sr in self.sheet_rows if sr.chk.IsChecked == True)
+        total = len(self.sheet_rows)
+        if total > 0 and checked == total:
+            self.chk.IsChecked = True
+        elif checked == 0:
+            self.chk.IsChecked = False
+        else:
+            self.chk.IsChecked = None
+        self.parent.update_master_checkbox()
+
+    def add_sheet_row(self, s_row):
+        self.sheet_rows.append(s_row)
+        self.child_stack.Children.Add(s_row.border)
+        count = len(self.sheet_rows)
+        self.txt_title.Text = "{} ({} sheet{})".format(self.collection_name, count, "s" if count != 1 else "")
+
+    def set_checked_state(self, is_checked):
+        self.chk.IsChecked = is_checked
+        for sr in self.sheet_rows:
+            sr.chk.IsChecked = is_checked
+
 class FileRow:
     def __init__(self, file_path, form_instance):
         self.file_path = file_path
@@ -313,7 +451,9 @@ class FileRow:
         self.mock_doc = MockDoc()
         self.sets_dict = {}
         self.sheet_rows = []
+        self.collection_groups = []
         self.is_expanded = True
+        self._updating_master = False
         
         brush_main = form_instance.FindResource("TextMain")
         brush_dim = form_instance.FindResource("TextDim")
@@ -357,10 +497,10 @@ class FileRow:
         
         self.chk_all = System.Windows.Controls.CheckBox()
         self.chk_all.IsChecked = False
+        self.chk_all.IsThreeState = True
         self.chk_all.VerticalAlignment = VerticalAlignment.Center
         self.chk_all.Margin = Thickness(5, 0, 5, 0)
-        self.chk_all.Checked += self.on_chk_all_changed
-        self.chk_all.Unchecked += self.on_chk_all_changed
+        self.chk_all.Click += self.on_chk_all_clicked
         sp_file.Children.Add(self.chk_all)
         
         self.btn_expand = Button()
@@ -446,10 +586,23 @@ class FileRow:
         self.sheet_stack = StackPanel()
         self.main_container.Children.Add(self.sheet_stack)
 
-    def on_chk_all_changed(self, sender, e):
-        is_checked = self.chk_all.IsChecked
+    def on_chk_all_clicked(self, sender, e):
+        val = (self.chk_all.IsChecked == True)
+        self.chk_all.IsChecked = val
+        for cg in getattr(self, 'collection_groups', []):
+            cg.set_checked_state(val)
         for sr in self.sheet_rows:
-            sr.chk.IsChecked = is_checked
+            sr.chk.IsChecked = val
+
+    def update_master_checkbox(self):
+        checked = sum(1 for sr in self.sheet_rows if sr.chk.IsChecked == True)
+        total = len(self.sheet_rows)
+        if total > 0 and checked == total:
+            self.chk_all.IsChecked = True
+        elif checked == 0:
+            self.chk_all.IsChecked = False
+        else:
+            self.chk_all.IsChecked = None
 
     def on_expand(self, sender, e):
         self.is_expanded = not self.is_expanded
@@ -486,16 +639,49 @@ class FileRow:
             
             self.sheet_stack.Children.Clear()
             self.sheet_rows = []
+            self.collection_groups = []
             
             mock_sheets = self.sets_dict.get(set_name, [])
-            for ms in mock_sheets:
-                s_row = SheetRow(ms, self, self.form)
-                name = em_script.generate_filename(ms, scheme_parts, self.mock_doc)
-                s_row.generated_name = name
-                s_row.txt_name.Text = name
-                s_row.txt_name.ToolTip = name
-                self.sheet_rows.append(s_row)
-                self.sheet_stack.Children.Add(s_row.border)
+            has_collections = any(bool(getattr(ms, 'sheet_collection', '')) for ms in mock_sheets)
+            
+            if not has_collections:
+                for ms in mock_sheets:
+                    s_row = SheetRow(ms, self, self.form)
+                    name = em_script.generate_filename(ms, scheme_parts, self.mock_doc)
+                    s_row.generated_name = name
+                    s_row.txt_name.Text = name
+                    s_row.txt_name.ToolTip = name
+                    self.sheet_rows.append(s_row)
+                    self.sheet_stack.Children.Add(s_row.border)
+            else:
+                coll_map = {}
+                for ms in mock_sheets:
+                    c = getattr(ms, 'sheet_collection', '')
+                    if not c:
+                        c = "Other Sheets"
+                    if c not in coll_map:
+                        coll_map[c] = []
+                    coll_map[c].append(ms)
+                
+                sorted_colls = sorted([c for c in coll_map.keys() if c != "Other Sheets"])
+                if "Other Sheets" in coll_map:
+                    sorted_colls.append("Other Sheets")
+                    
+                for c_name in sorted_colls:
+                    c_group = CollectionGroup(c_name, self, self.form)
+                    self.collection_groups.append(c_group)
+                    self.sheet_stack.Children.Add(c_group.container)
+                    
+                    for ms in coll_map[c_name]:
+                        s_row = SheetRow(ms, self, self.form, parent_group=c_group)
+                        name = em_script.generate_filename(ms, scheme_parts, self.mock_doc)
+                        s_row.generated_name = name
+                        s_row.txt_name.Text = name
+                        s_row.txt_name.ToolTip = name
+                        self.sheet_rows.append(s_row)
+                        c_group.add_sheet_row(s_row)
+                        
+            self.update_master_checkbox()
         except Exception as ex:
             import traceback
             forms.alert(str(ex) + '\n\n' + traceback.format_exc(), title='Options Error')
@@ -603,6 +789,8 @@ class BatchExportForm(forms.WPFWindow):
                 self.TxtDetailNumber.Text = getattr(ms, 'SheetNumber', '-')
             if hasattr(self, 'TxtDetailName'):
                 self.TxtDetailName.Text = getattr(ms, 'Name', '-')
+            if hasattr(self, 'TxtDetailCollection'):
+                self.TxtDetailCollection.Text = getattr(ms, 'sheet_collection', '') or 'None'
             if hasattr(self, 'TxtDetailExportName'):
                 self.TxtDetailExportName.Text = sheet_row.generated_name or '-'
             if hasattr(self, 'TxtDetailModel'):
@@ -841,6 +1029,26 @@ class BatchExportForm(forms.WPFWindow):
             if s_name:
                 me.add_param("Sheet Name", s_name)
 
+            # Extract Sheet Collection (Revit 2025 native or Parameter)
+            sheet_coll = ""
+            try:
+                if hasattr(v, "SheetCollectionId") and v.SheetCollectionId != DB.ElementId.InvalidElementId:
+                    sc_elem = bg_doc.GetElement(v.SheetCollectionId)
+                    if sc_elem and hasattr(sc_elem, "Name"):
+                        sheet_coll = sc_elem.Name
+            except Exception:
+                pass
+            if not sheet_coll:
+                try:
+                    p = v.LookupParameter("Sheet Collection")
+                    if p and p.AsString():
+                        sheet_coll = p.AsString().strip()
+                except Exception:
+                    pass
+            me.sheet_collection = sheet_coll
+            if sheet_coll:
+                me.add_param("Sheet Collection", sheet_coll)
+
             # Extract revision
             try:
                 rev_p = v.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
@@ -885,8 +1093,15 @@ class BatchExportForm(forms.WPFWindow):
             
         all_mock_list = sorted(all_mock_list, key=lambda x: x.SheetNumber)
         row.sets_dict["<All Sheets>"] = all_mock_list
+        
+        # 2. Add Sheet Collections
+        unique_collections = sorted(list(set(me.sheet_collection for me in all_mock_list if me.sheet_collection)))
+        for c_name in unique_collections:
+            coll_mock_list = [me for me in all_mock_list if me.sheet_collection == c_name]
+            key_name = "[Collection] " + c_name
+            row.sets_dict[key_name] = coll_mock_list
                 
-        # 2. Add Sheet Sets
+        # 3. Add Sheet Sets
         vss_collector = DB.FilteredElementCollector(bg_doc).OfClass(DB.ViewSheetSet).ToElements()
         for vss in vss_collector:
             mock_list = []
@@ -899,6 +1114,27 @@ class BatchExportForm(forms.WPFWindow):
                         me.add_param("Sheet Number", s_num)
                     if s_name:
                         me.add_param("Sheet Name", s_name)
+                    
+                    # Extract Sheet Collection
+                    sheet_coll = ""
+                    try:
+                        if hasattr(v, "SheetCollectionId") and v.SheetCollectionId != DB.ElementId.InvalidElementId:
+                            sc_elem = bg_doc.GetElement(v.SheetCollectionId)
+                            if sc_elem and hasattr(sc_elem, "Name"):
+                                sheet_coll = sc_elem.Name
+                    except Exception:
+                        pass
+                    if not sheet_coll:
+                        try:
+                            p = v.LookupParameter("Sheet Collection")
+                            if p and p.AsString():
+                                sheet_coll = p.AsString().strip()
+                        except Exception:
+                            pass
+                    me.sheet_collection = sheet_coll
+                    if sheet_coll:
+                        me.add_param("Sheet Collection", sheet_coll)
+
                     try:
                         rev_p = v.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
                         if rev_p:
@@ -935,13 +1171,14 @@ class BatchExportForm(forms.WPFWindow):
                         pass
                     mock_list.append(me)
             mock_list = sorted(mock_list, key=lambda x: x.SheetNumber)
-            row.sets_dict[vss.Name] = mock_list
+            key_name = "[Set] " + vss.Name
+            row.sets_dict[key_name] = mock_list
             
-        keys = sorted(row.sets_dict.keys())
-        if "<All Sheets>" in keys:
-            keys.remove("<All Sheets>")
-            keys.insert(0, "<All Sheets>")
-        return keys
+        coll_keys = [k for k in sorted(row.sets_dict.keys()) if k.startswith("[Collection]")]
+        set_keys = [k for k in sorted(row.sets_dict.keys()) if k.startswith("[Set]")]
+        other_keys = [k for k in sorted(row.sets_dict.keys()) if k not in coll_keys and k not in set_keys and k != "<All Sheets>"]
+        ordered_keys = ["<All Sheets>"] + coll_keys + set_keys + other_keys
+        return ordered_keys
 
     def BtnAddFile_Click(self, sender, e):
         dlg = WinForms.OpenFileDialog()
