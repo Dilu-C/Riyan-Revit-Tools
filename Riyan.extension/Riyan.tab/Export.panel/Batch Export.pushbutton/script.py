@@ -242,6 +242,10 @@ class MockQueueItem:
                     self.ui_row.set_status("Done", is_done=True)
                 elif value == "Error":
                     self.ui_row.set_status("Error", is_error=True)
+                elif value == "Pending":
+                    self.ui_row.set_status("Pending")
+                elif value == "Skipped":
+                    self.ui_row.set_status("Skipped")
                 elif value:
                     self.ui_row.set_status(value)
             except Exception:
@@ -1381,7 +1385,7 @@ class BatchExportForm(forms.WPFWindow):
                 pdf_items = []
                 for s_row in row.sheet_rows:
                     if s_row.chk.IsChecked != True:
-                        s_row.set_status("Skipped", is_done=True)
+                        s_row.set_status("Skipped")
                         total_skipped_sheets += 1
                         continue
                         
@@ -1392,7 +1396,7 @@ class BatchExportForm(forms.WPFWindow):
                             "filename": s_row.generated_name,
                             "ui_row": s_row
                         })
-                        s_row.set_status("Waiting...", is_exporting=True)
+                        s_row.set_status("Pending")
                 
                 if not pdf_items:
                     row.set_status("No sheets to export", is_error=True)
