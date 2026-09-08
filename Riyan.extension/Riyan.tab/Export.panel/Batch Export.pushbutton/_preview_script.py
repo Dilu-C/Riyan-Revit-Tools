@@ -37,8 +37,25 @@ class PreviewForm(forms.WPFWindow):
         self.Close()
         
     def TitleBar_MouseDown(self, sender, e):
+        if e.ClickCount == 2:
+            self.toggle_maximize()
+            return
         if e.ChangedButton == System.Windows.Input.MouseButton.Left:
             self.DragMove()
+
+    def BtnMaximize_Click(self, sender, e):
+        self.toggle_maximize()
+
+    def toggle_maximize(self):
+        if self.WindowState == System.Windows.WindowState.Maximized:
+            self.WindowState = System.Windows.WindowState.Normal
+            if hasattr(self, 'BtnMaximize'):
+                self.BtnMaximize.Content = u"\u25A2"
+        else:
+            self.WindowState = System.Windows.WindowState.Maximized
+            if hasattr(self, 'BtnMaximize'):
+                self.BtnMaximize.Content = u"\u29C9"
+        self.Dispatcher.BeginInvoke(System.Action(lambda: self.BtnFit_Click(None, None)))
 
     def on_pan_start(self, sender, e):
         # Don't pan if clicking the scrollbars
