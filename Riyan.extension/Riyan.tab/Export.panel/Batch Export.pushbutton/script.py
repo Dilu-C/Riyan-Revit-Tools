@@ -560,7 +560,7 @@ class FileRow:
         self.btn_expand.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
         self.btn_expand.BorderThickness = Thickness(0)
         self.btn_expand.Foreground = brush_main if brush_main else SolidColorBrush(System.Windows.Media.Colors.White)
-        self.btn_expand.Click += self.on_expand_toggle
+        self.btn_expand.Click += self.on_expand
         sp_file.Children.Add(self.btn_expand)
         
         self.txt_file = TextBlock()
@@ -577,18 +577,16 @@ class FileRow:
         self.grid.Children.Add(sp_file)
         
         self.cmb_set = ComboBox()
-        if cmb_style: self.cmb_set.Style = cmb_style
-        self.cmb_set.Height = 26
+        self.cmb_set.VerticalAlignment = VerticalAlignment.Center
         self.cmb_set.Margin = Thickness(5,0,5,0)
         self.cmb_set.SelectionChanged += self.on_options_changed
         Grid.SetColumn(self.cmb_set, 2)
         self.grid.Children.Add(self.cmb_set)
         
         self.cmb_profile = ComboBox()
-        if cmb_style: self.cmb_profile.Style = cmb_style
-        self.cmb_profile.Height = 26
-        self.cmb_profile.Margin = Thickness(5,0,5,0)
         self.cmb_profile.ItemsSource = form_instance.profiles
+        self.cmb_profile.VerticalAlignment = VerticalAlignment.Center
+        self.cmb_profile.Margin = Thickness(5,0,5,0)
         if form_instance.profiles:
             self.cmb_profile.SelectedIndex = 0
         self.cmb_profile.SelectionChanged += self.on_options_changed
