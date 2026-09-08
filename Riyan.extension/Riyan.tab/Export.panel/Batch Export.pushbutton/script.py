@@ -817,6 +817,7 @@ class BatchExportForm(forms.WPFWindow):
             Items = DummyItems()
         self.GridQueue = DummyQueue()
         try:
+            self.Closing += self.on_window_closing
             self.Closed += self.on_window_closed
         except Exception:
             pass
@@ -826,13 +827,13 @@ class BatchExportForm(forms.WPFWindow):
         if key in self.doc_cache:
             d, should_close = self.doc_cache[key]
             if d and getattr(d, 'IsValidObject', True):
-                return (d, False)
+                return (d, should_close)
         doc, should_close = get_or_open_document(file_path, close_worksets=False)
         self.doc_cache[key] = (doc, should_close)
-        return (doc, False)
+        return (doc, should_close)
 
     def cleanup_cached_documents(self):
-        for key, (d, should_close) in self.doc_cache.items():
+        for key, (d, should_close) in list(self.doc_cache.items()):
             if should_close and d:
                 try:
                     if getattr(d, 'IsValidObject', True):
@@ -840,6 +841,10 @@ class BatchExportForm(forms.WPFWindow):
                 except Exception:
                     pass
         self.doc_cache.clear()
+
+    def on_window_closing(self, sender, e):
+        self._cancel_export = True
+        self.cleanup_cached_documents()
 
     def on_window_closed(self, sender, e):
         self.cleanup_cached_documents()
@@ -1345,9 +1350,6 @@ class BatchExportForm(forms.WPFWindow):
                 should_close = False
                 try:
                     bg_doc, should_close = get_or_open_document(row.file_path, close_worksets=False)
-                    key = os.path.abspath(row.file_path).lower()
-                    self.doc_cache[key] = (bg_doc, should_close)
-                    
                     sets = self.extract_mock_data(bg_doc, row)
                     
                     row.cmb_set.ItemsSource = sets
@@ -1357,10 +1359,14 @@ class BatchExportForm(forms.WPFWindow):
                     row.set_status("Ready")
                 except Exception as ex:
                     row.set_status("Error loading sets: " + str(ex), is_error=True)
-                    if should_close and bg_doc:
-                        try: bg_doc.Close(False)
-                        except: pass
                     forms.alert(str(ex) + '\n\n' + traceback.format_exc())
+                finally:
+                    if should_close and bg_doc:
+                        try:
+                            if getattr(bg_doc, 'IsValidObject', True):
+                                bg_doc.Close(False)
+                        except Exception:
+                            pass
 
     def BtnClearAll_Click(self, sender, e):
         self.cleanup_cached_documents()
@@ -1617,7 +1623,10 @@ def main():
         xaml_path = os.path.join(os.path.dirname(__file__), exp_name)
         
         form = BatchExportForm(xaml_path)
-        form.ShowDialog()
+        try:
+            form.ShowDialog()
+        finally:
+            form.cleanup_cached_documents()
     except Exception as ex:
         forms.alert('Failed to load UI:\n\n' + str(ex) + '\n\n' + traceback.format_exc(), title='UI Error')
 
