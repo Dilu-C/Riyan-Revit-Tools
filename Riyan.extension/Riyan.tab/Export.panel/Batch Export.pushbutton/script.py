@@ -623,6 +623,32 @@ class BatchExportForm(forms.WPFWindow):
                     self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
                 return
                 
+            total_doc_walls = DB.FilteredElementCollector(bg_doc).OfCategory(DB.BuiltInCategory.OST_Walls).GetElementCount()
+            w_in_view = 0
+            try:
+                for vp_id in sheet_element.GetAllViewports():
+                    vp = bg_doc.GetElement(vp_id)
+                    if vp:
+                        w_in_view += DB.FilteredElementCollector(bg_doc, vp.ViewId).OfCategory(DB.BuiltInCategory.OST_Walls).GetElementCount()
+            except Exception:
+                pass
+
+            # If document is open in Revit UI, activate sheet to ensure viewport graphics are rendered
+            prev_view = None
+            active_uidoc = getattr(revit, "uidoc", None)
+            if active_uidoc and not should_close:
+                try:
+                    prev_view = active_uidoc.ActiveView
+                    if prev_view and prev_view.Id != sheet_element.Id:
+                        active_uidoc.ActiveView = sheet_element
+                except Exception:
+                    pass
+
+            try:
+                bg_doc.Regenerate()
+            except Exception:
+                pass
+
             temp_dir = os.environ.get("TEMP")
             temp_img = os.path.join(temp_dir, "riyan_batch_preview_" + sheet_element.UniqueId)
             
@@ -649,6 +675,13 @@ class BatchExportForm(forms.WPFWindow):
             
             bg_doc.ExportImage(ieo)
             
+            # Restore previous view if we activated sheet
+            if active_uidoc and prev_view and prev_view.Id != sheet_element.Id:
+                try:
+                    active_uidoc.ActiveView = prev_view
+                except Exception:
+                    pass
+
             if should_close:
                 try: bg_doc.Close(False)
                 except: pass
@@ -661,7 +694,8 @@ class BatchExportForm(forms.WPFWindow):
                         break
                         
             doc_source = "Active Doc" if not should_close else "BG Doc"
-            sr.set_status("Ready (" + doc_source + ")")
+            status_text = "Ready ({} | Walls: {} in view, {} total)".format(doc_source, w_in_view, total_doc_walls)
+            sr.set_status(status_text)
             
             if os.path.exists(actual_path):
                 self.preview_cache[sheet_id] = actual_path
