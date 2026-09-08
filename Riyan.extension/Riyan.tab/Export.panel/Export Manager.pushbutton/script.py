@@ -1032,22 +1032,77 @@ def generate_filename(sheet, scheme_parts, doc):
         val = ""
         p = sheet.LookupParameter(param_name)
         if not p:
-            for bp in sheet.Parameters:
-                if bp.Definition.Name == param_name:
-                    p = bp
-                    break
-        if p:
-            val = p.AsValueString() or p.AsString() or ""
-
-        if not val and doc.ProjectInformation:
-            pi_p = doc.ProjectInformation.LookupParameter(param_name)
-            if not pi_p:
-                for bp in doc.ProjectInformation.Parameters:
-                    if bp.Definition.Name == param_name:
-                        pi_p = bp
+            for bp in getattr(sheet, "Parameters", []):
+                try:
+                    if bp.Definition and bp.Definition.Name == param_name:
+                        p = bp
                         break
+                except Exception:
+                    pass
+        if p:
+            try:
+                val = p.AsValueString() or p.AsString() or ""
+            except Exception:
+                try: val = p.AsString() or ""
+                except Exception: val = ""
+
+        # Fallback to direct sheet properties if parameter lookup yielded empty
+        if not val:
+            if param_name in ["Sheet Number", "Number", "Sheet_Number", "Drawing Number"]:
+                val = getattr(sheet, "SheetNumber", "") or ""
+            elif param_name in ["Sheet Name", "Name"]:
+                val = getattr(sheet, "Name", "") or ""
+            elif param_name == "Current Revision":
+                if hasattr(sheet, "get_Parameter"):
+                    try:
+                        rp = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
+                        if rp:
+                            val = rp.AsString() or rp.AsValueString() or ""
+                    except Exception:
+                        pass
+                if not val and hasattr(sheet, "Revision"):
+                    val = getattr(sheet, "Revision", "") or ""
+
+        # Case-insensitive fallback on sheet parameters
+        if not val:
+            p_lower = param_name.strip().lower()
+            for bp in getattr(sheet, "Parameters", []):
+                try:
+                    if bp.Definition and bp.Definition.Name and bp.Definition.Name.strip().lower() == p_lower:
+                        val = bp.AsValueString() or bp.AsString() or ""
+                        if val:
+                            break
+                except Exception:
+                    pass
+
+        # Project Information lookup
+        if not val and doc and getattr(doc, "ProjectInformation", None):
+            pi = doc.ProjectInformation
+            pi_p = pi.LookupParameter(param_name)
+            if not pi_p:
+                for bp in getattr(pi, "Parameters", []):
+                    try:
+                        if bp.Definition and bp.Definition.Name == param_name:
+                            pi_p = bp
+                            break
+                    except Exception:
+                        pass
             if pi_p:
-                val = pi_p.AsValueString() or pi_p.AsString() or ""
+                try:
+                    val = pi_p.AsValueString() or pi_p.AsString() or ""
+                except Exception:
+                    try: val = pi_p.AsString() or ""
+                    except Exception: val = ""
+            if not val:
+                p_lower = param_name.strip().lower()
+                for bp in getattr(pi, "Parameters", []):
+                    try:
+                        if bp.Definition and bp.Definition.Name and bp.Definition.Name.strip().lower() == p_lower:
+                            val = bp.AsValueString() or bp.AsString() or ""
+                            if val:
+                                break
+                    except Exception:
+                        pass
 
         name_parts.append(prefix + val + suffix + separator)
 
@@ -1064,7 +1119,7 @@ def generate_filename(sheet, scheme_parts, doc):
         try:
             filename = sheet.SheetNumber + " - " + sheet.Name
         except AttributeError:
-            filename = str(sheet.ViewType) + " - " + sheet.Name
+            filename = str(getattr(sheet, "ViewType", "Sheet")) + " - " + getattr(sheet, "Name", "")
 
     return filename
 

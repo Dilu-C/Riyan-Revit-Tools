@@ -26,7 +26,40 @@ em_script_path = os.path.join(export_mgr_dir, 'script.py')
 em_script = imp.load_source('em_script', em_script_path)
 
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
-from System import Uri, UriKind
+def get_zoom_fit_type():
+    if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage"):
+        return DB.ZoomType.FitToPage
+    elif hasattr(DB, "PDFZoomType") and hasattr(DB.PDFZoomType, "FitToPage"):
+        return DB.PDFZoomType.FitToPage
+    return None
+
+def _safe_get_param_val(p):
+    if not p: return ""
+    try:
+        st = p.StorageType
+        if st == DB.StorageType.String:
+            return p.AsString() or ""
+        elif st == DB.StorageType.Integer:
+            return str(p.AsInteger())
+        elif st == DB.StorageType.Double:
+            try:
+                return p.AsValueString() or str(p.AsDouble())
+            except Exception:
+                return str(p.AsDouble())
+        elif st == DB.StorageType.ElementId:
+            id_val = p.AsElementId()
+            return str(id_val.IntegerValue) if id_val else ""
+    except Exception:
+        pass
+    try:
+        return p.AsString() or ""
+    except Exception:
+        pass
+    try:
+        return p.AsValueString() or ""
+    except Exception:
+        pass
+    return ""
 
 def get_or_open_document(file_path, close_worksets=False):
     """
@@ -140,12 +173,27 @@ class MockElement:
         self.UniqueId = unique_id
         self.Parameters = []
         self._param_dict = {}
+        if number:
+            self.add_param("Sheet Number", number)
+            self.add_param("Sheet_Number", number)
+            self.add_param("Drawing Number", number)
+        if name:
+            self.add_param("Sheet Name", name)
+            self.add_param("Name", name)
+
     def add_param(self, name, val):
+        if not name: return
         p = MockParameter(name, val)
         self.Parameters.append(p)
         self._param_dict[name] = p
+        self._param_dict[name.strip().lower()] = p
+
     def LookupParameter(self, name):
-        return self._param_dict.get(name, None)
+        if not name: return None
+        p = self._param_dict.get(name, None)
+        if not p:
+            p = self._param_dict.get(name.strip().lower(), None)
+        return p
 
 class MockDoc:
     def __init__(self):
@@ -622,7 +670,9 @@ class BatchExportForm(forms.WPFWindow):
             pdf_opt = DB.PDFExportOptions()
             pdf_opt.FileName = pdf_prefix
             pdf_opt.Combine = False
-            pdf_opt.ZoomType = DB.PDFZoomType.FitToPage
+            zt = get_zoom_fit_type()
+            if zt is not None:
+                pdf_opt.ZoomType = zt
             views = System.Collections.Generic.List[DB.ElementId]()
             views.Add(sheet_element.Id)
             
@@ -683,11 +733,20 @@ class BatchExportForm(forms.WPFWindow):
             forms.alert(str(ex))
 
     def extract_mock_data(self, bg_doc, row):
-        pi = bg_doc.ProjectInformation
+        pi = getattr(bg_doc, "ProjectInformation", None)
         if pi:
-            for p in pi.Parameters:
-                val = p.AsValueString() or p.AsString() or ""
-                row.mock_doc.ProjectInformation.add_param(p.Definition.Name, val)
+            try:
+                for p in pi.Parameters:
+                    try:
+                        p_name = p.Definition.Name if p.Definition else ""
+                        if p_name:
+                            val = _safe_get_param_val(p)
+                            if val:
+                                row.mock_doc.ProjectInformation.add_param(p_name, val)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
                 
         # 1. Add All Sheets
         all_sheets = DB.FilteredElementCollector(bg_doc).OfClass(DB.ViewSheet).ToElements()
@@ -695,12 +754,59 @@ class BatchExportForm(forms.WPFWindow):
         for v in all_sheets:
             try:
                 if v.IsPlaceholder: continue
-            except: pass
+            except Exception:
+                pass
             
-            me = MockElement(v.Name, v.SheetNumber, v.UniqueId)
-            for p in v.Parameters:
-                val = p.AsValueString() or p.AsString() or ""
-                me.add_param(p.Definition.Name, val)
+            s_num = getattr(v, 'SheetNumber', '') or ''
+            s_name = getattr(v, 'Name', '') or ''
+            me = MockElement(s_name, s_num, v.UniqueId)
+            
+            # Explicitly guarantee Sheet Number & Sheet Name
+            if s_num:
+                me.add_param("Sheet Number", s_num)
+            if s_name:
+                me.add_param("Sheet Name", s_name)
+
+            # Extract revision
+            try:
+                rev_p = v.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
+                if rev_p:
+                    rev_val = _safe_get_param_val(rev_p)
+                    if rev_val:
+                        me.add_param("Current Revision", rev_val)
+            except Exception:
+                pass
+                
+            # Safely extract all sheet parameters
+            try:
+                for p in v.Parameters:
+                    try:
+                        p_name = p.Definition.Name if p.Definition else ""
+                        if p_name:
+                            val = _safe_get_param_val(p)
+                            if val:
+                                me.add_param(p_name, val)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+            # Also extract Title Block parameters (drawing numbers, custom volume/code params)
+            try:
+                tbs = DB.FilteredElementCollector(bg_doc, v.Id).OfCategory(DB.BuiltInCategory.OST_TitleBlocks).ToElements()
+                for tb in tbs:
+                    for p in tb.Parameters:
+                        try:
+                            p_name = p.Definition.Name if p.Definition else ""
+                            if p_name and not me.LookupParameter(p_name):
+                                val = _safe_get_param_val(p)
+                                if val:
+                                    me.add_param(p_name, val)
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+                
             all_mock_list.append(me)
             
         all_mock_list = sorted(all_mock_list, key=lambda x: x.SheetNumber)
@@ -712,10 +818,47 @@ class BatchExportForm(forms.WPFWindow):
             mock_list = []
             for v in vss.Views:
                 if v.ViewType == DB.ViewType.DrawingSheet:
-                    me = MockElement(v.Name, v.SheetNumber, v.UniqueId)
-                    for p in v.Parameters:
-                        val = p.AsValueString() or p.AsString() or ""
-                        me.add_param(p.Definition.Name, val)
+                    s_num = getattr(v, 'SheetNumber', '') or ''
+                    s_name = getattr(v, 'Name', '') or ''
+                    me = MockElement(s_name, s_num, v.UniqueId)
+                    if s_num:
+                        me.add_param("Sheet Number", s_num)
+                    if s_name:
+                        me.add_param("Sheet Name", s_name)
+                    try:
+                        rev_p = v.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
+                        if rev_p:
+                            rev_val = _safe_get_param_val(rev_p)
+                            if rev_val:
+                                me.add_param("Current Revision", rev_val)
+                    except Exception:
+                        pass
+                    try:
+                        for p in v.Parameters:
+                            try:
+                                p_name = p.Definition.Name if p.Definition else ""
+                                if p_name:
+                                    val = _safe_get_param_val(p)
+                                    if val:
+                                        me.add_param(p_name, val)
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+                    try:
+                        tbs = DB.FilteredElementCollector(bg_doc, v.Id).OfCategory(DB.BuiltInCategory.OST_TitleBlocks).ToElements()
+                        for tb in tbs:
+                            for p in tb.Parameters:
+                                try:
+                                    p_name = p.Definition.Name if p.Definition else ""
+                                    if p_name and not me.LookupParameter(p_name):
+                                        val = _safe_get_param_val(p)
+                                        if val:
+                                            me.add_param(p_name, val)
+                                except Exception:
+                                    pass
+                    except Exception:
+                        pass
                     mock_list.append(me)
             mock_list = sorted(mock_list, key=lambda x: x.SheetNumber)
             row.sets_dict[vss.Name] = mock_list
@@ -837,7 +980,7 @@ class BatchExportForm(forms.WPFWindow):
                 comb_filename = "Combined_Set_{}.pdf".format(os.path.basename(row.file_path).replace('.rvt',''))
                 
                 mock_queue = [MockQueueItem(item["sheet"], item["filename"]) for item in pdf_items]
-                em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, DB.PDFZoomType.FitToPage, 100, window_instance=self)
+                em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
                 
                 for item in pdf_items:
                     item["ui_row"].set_status("Combined Check Print Done", is_done=True)
@@ -862,7 +1005,7 @@ class BatchExportForm(forms.WPFWindow):
                         s_row.set_status("Exporting PDF...", is_exporting=True)
                         self.TxtPercent.Text = "Exporting: {}".format(fname)
                         self.do_events()
-                        em_script.export_pdf_2022(pdf_out_dir, sheet, fname, DB.PDFZoomType.FitToPage, 100)
+                        em_script.export_pdf_2022(pdf_out_dir, sheet, fname, get_zoom_fit_type(), 100)
                         
                         s_row.set_status("Exporting CAD...", is_exporting=True)
                         em_script.export_dwg(dwg_out_dir, sheet, fname, None)
