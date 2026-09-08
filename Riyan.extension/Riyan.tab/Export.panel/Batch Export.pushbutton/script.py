@@ -405,7 +405,10 @@ class FileRow:
         self.cmb_profile.ItemsSource = self.profiles
         self.cmb_profile.VerticalAlignment = VerticalAlignment.Center
         self.cmb_profile.Margin = Thickness(5,0,5,0)
-        if self.profiles:
+        active_sc = form_instance.settings.get("active_scheme", "")
+        if active_sc and active_sc in self.profiles:
+            self.cmb_profile.SelectedItem = active_sc
+        elif self.profiles:
             self.cmb_profile.SelectedIndex = 0
         self.cmb_profile.SelectionChanged += self.on_options_changed
         Grid.SetColumn(self.cmb_profile, 4)
@@ -482,6 +485,8 @@ class FileRow:
             set_name = self.cmb_set.SelectedItem
             profile_name = self.cmb_profile.SelectedItem
             scheme_parts = self.form.settings.get("schemes", {}).get(profile_name, [])
+            if not scheme_parts:
+                scheme_parts = self.form.settings.get("combined_schemes", {}).get(profile_name, [])
             
             self.sheet_stack.Children.Clear()
             self.sheet_rows = []
@@ -492,6 +497,7 @@ class FileRow:
                 name = em_script.generate_filename(ms, scheme_parts, self.mock_doc)
                 s_row.generated_name = name
                 s_row.txt_name.Text = name
+                s_row.txt_name.ToolTip = name
                 self.sheet_rows.append(s_row)
                 self.sheet_stack.Children.Add(s_row.border)
         except Exception as ex:
@@ -511,7 +517,9 @@ class BatchExportForm(forms.WPFWindow):
         if os.path.exists(settings_path):
             with open(settings_path, 'r') as f:
                 self.settings = json.load(f)
-        self.profiles = sorted(self.settings.get("schemes", {}).keys())
+        all_schemes = set(self.settings.get("schemes", {}).keys())
+        all_schemes.update(self.settings.get("combined_schemes", {}).keys())
+        self.profiles = sorted(list(all_schemes))
 
         if hasattr(self, 'ImgPreview') and self.ImgPreview:
             self.ImgPreview.MouseLeftButtonDown += self.on_preview_image_click
