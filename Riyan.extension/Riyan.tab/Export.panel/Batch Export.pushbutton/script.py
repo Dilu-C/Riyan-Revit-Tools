@@ -1406,7 +1406,27 @@ class BatchExportForm(forms.WPFWindow):
                     continue
                 
                 row.set_status("Exporting Combined PDF...", is_exporting=True)
-                comb_filename = "Combined_Set_{}.pdf".format(os.path.basename(row.file_path).replace('.rvt',''))
+                
+                comb_name = None
+                profile_name = row.cmb_profile.SelectedItem if hasattr(row, 'cmb_profile') and row.cmb_profile else None
+                comb_parts = None
+                if profile_name:
+                    comb_parts = row.form.settings.get("combined_schemes", {}).get(profile_name, None)
+                    if not comb_parts:
+                        comb_parts = row.form.settings.get("schemes", {}).get(profile_name, None)
+                
+                if comb_parts and pdf_items:
+                    try:
+                        first_sheet = pdf_items[0]["sheet"]
+                        comb_name = em_script.generate_filename(first_sheet, comb_parts, bg_doc)
+                    except Exception as ex_name:
+                        log_diag("Combined naming error: " + str(ex_name))
+                        comb_name = None
+                
+                if not comb_name or comb_name.strip() in ["", "Combined_PDF"]:
+                    comb_name = os.path.splitext(os.path.basename(row.file_path))[0]
+                
+                comb_filename = comb_name.strip() + ".pdf"
                 
                 # Wire ui_row so Revit ProgressChanged events directly update each sheet row
                 mock_queue = [MockQueueItem(item["sheet"], item["filename"], ui_row=item["ui_row"]) for item in pdf_items]
@@ -1425,7 +1445,7 @@ class BatchExportForm(forms.WPFWindow):
                     self.TxtPercent.Text = "Generating Excel Drawing List..."
                     self.do_events()
                     vms = [item.SheetVM for item in mock_queue]
-                    em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_filename.replace('.pdf',''))
+                    em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_name.strip(), comb_parts)
                 except Exception as ex_tr:
                     log_diag("Excel transmittal note: " + str(ex_tr))
                 
