@@ -149,7 +149,7 @@
                         <Border Grid.Column="6" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Output Location" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                         <GridSplitter Grid.Column="7" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="8" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="10,0,0,5"><TextBlock Text="Status" HorizontalAlignment="Left" Margin="5,0,0,0" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="8" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Status" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                     </Grid>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <StackPanel x:Name="FileStack" Orientation="Vertical">

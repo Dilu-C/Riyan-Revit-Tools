@@ -318,8 +318,9 @@ class SheetRow:
         self.txt_status = TextBlock()
         self.txt_status.Text = ""
         self.txt_status.VerticalAlignment = VerticalAlignment.Center
-        self.txt_status.HorizontalAlignment = HorizontalAlignment.Left
-        self.txt_status.Margin = Thickness(15, 0, 5, 0)
+        self.txt_status.HorizontalAlignment = HorizontalAlignment.Center
+        self.txt_status.TextAlignment = System.Windows.TextAlignment.Center
+        self.txt_status.Margin = Thickness(5, 0, 5, 0)
         self.txt_status.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
         if brush_main: self.txt_status.Foreground = brush_dim
         Grid.SetColumn(self.txt_status, 8)
@@ -622,8 +623,9 @@ class FileRow:
         self.txt_status = TextBlock()
         self.txt_status.Text = ""
         self.txt_status.VerticalAlignment = VerticalAlignment.Center
-        self.txt_status.HorizontalAlignment = HorizontalAlignment.Left
-        self.txt_status.Margin = Thickness(15, 0, 5, 0)
+        self.txt_status.HorizontalAlignment = HorizontalAlignment.Center
+        self.txt_status.TextAlignment = System.Windows.TextAlignment.Center
+        self.txt_status.Margin = Thickness(5, 0, 5, 0)
         self.txt_status.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
         if brush_main: self.txt_status.Foreground = brush_main
         Grid.SetColumn(self.txt_status, 8)
