@@ -859,12 +859,18 @@ class BatchExportForm(forms.WPFWindow):
                 self.TxtDetailModel.Text = os.path.basename(sheet_row.parent.file_path)
 
             # Check cached preview
+            model_path = os.path.abspath(sheet_row.parent.file_path).lower()
             sheet_id = ms.UniqueId
-            if sheet_id in self.preview_cache and os.path.exists(self.preview_cache[sheet_id]):
-                self.display_preview_image(self.preview_cache[sheet_id])
+            cache_key = (model_path, sheet_id)
+            
+            # Immediately clear and hide previous image so no stale preview ever lingers
+            if hasattr(self, 'ImgPreview') and self.ImgPreview:
+                self.ImgPreview.Source = None
+                self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
+
+            if cache_key in self.preview_cache and os.path.exists(self.preview_cache[cache_key]):
+                self.display_preview_image(self.preview_cache[cache_key])
             else:
-                if hasattr(self, 'ImgPreview'):
-                    self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
                 if hasattr(self, 'GridPreviewLoading'):
                     self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
                 if hasattr(self, 'GridPreviewPrompt'):
@@ -895,12 +901,16 @@ class BatchExportForm(forms.WPFWindow):
                 self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
 
     def on_preview_image_click(self, sender, e):
-        if self.selected_sheet and self.selected_sheet.mock_sheet.UniqueId in self.preview_cache:
-            img_path = self.preview_cache[self.selected_sheet.mock_sheet.UniqueId]
-            if os.path.exists(img_path):
-                from _preview_script import show_preview
-                title = self.selected_sheet.generated_name or (self.selected_sheet.mock_sheet.SheetNumber + " - " + self.selected_sheet.mock_sheet.Name)
-                show_preview(img_path, title)
+        if self.selected_sheet:
+            model_path = os.path.abspath(self.selected_sheet.parent.file_path).lower()
+            sheet_id = self.selected_sheet.mock_sheet.UniqueId
+            cache_key = (model_path, sheet_id)
+            if cache_key in self.preview_cache:
+                img_path = self.preview_cache[cache_key]
+                if os.path.exists(img_path):
+                    from _preview_script import show_preview
+                    title = self.selected_sheet.generated_name or (self.selected_sheet.mock_sheet.SheetNumber + " - " + self.selected_sheet.mock_sheet.Name)
+                    show_preview(img_path, title)
 
     def BtnPreview_Click(self, sender, e):
         if not self.selected_sheet:
@@ -909,7 +919,9 @@ class BatchExportForm(forms.WPFWindow):
             
         sr = self.selected_sheet
         file_path = sr.parent.file_path
+        file_path_abs = os.path.abspath(file_path).lower()
         sheet_id = sr.mock_sheet.UniqueId
+        cache_key = (file_path_abs, sheet_id)
         
         if hasattr(self, 'BtnDoPreview'):
             self.BtnDoPreview.IsEnabled = False
@@ -933,11 +945,15 @@ class BatchExportForm(forms.WPFWindow):
                 sr.set_status("")
                 return
 
+            import zlib
+            import re
+            model_hash = hex(zlib.crc32(file_path_abs.encode('utf-8')) & 0xffffffff)[2:]
+            model_clean = re.sub(r'[^a-zA-Z0-9_]', '', os.path.splitext(os.path.basename(file_path))[0])[:15]
             temp_dir = os.environ.get("TEMP")
-            pdf_prefix = "riyan_preview_" + sheet_element.UniqueId
+            pdf_prefix = "riyan_prev_{}_{}_{}".format(model_clean, model_hash, sheet_element.UniqueId)
             png_out = os.path.join(temp_dir, pdf_prefix + ".png")
 
-            # 1. Clean up old temp preview files for this sheet
+            # 1. Clean up old temp preview files for this exact model and sheet
             try:
                 for f in os.listdir(temp_dir):
                     if f.startswith(pdf_prefix):
@@ -1006,10 +1022,9 @@ class BatchExportForm(forms.WPFWindow):
                 actual_pdf = None
                 try:
                     for f in os.listdir(temp_dir):
-                        if f.endswith(".pdf"):
-                            if f.startswith(pdf_prefix) or (sheet_element.SheetNumber and sheet_element.SheetNumber in f):
-                                actual_pdf = os.path.join(temp_dir, f)
-                                break
+                        if f.endswith(".pdf") and f.startswith(pdf_prefix):
+                            actual_pdf = os.path.join(temp_dir, f)
+                            break
                 except Exception:
                     pass
 
@@ -1044,7 +1059,7 @@ class BatchExportForm(forms.WPFWindow):
             sr.set_status("")
 
             if os.path.exists(png_out) and os.path.getsize(png_out) > 0:
-                self.preview_cache[sheet_id] = png_out
+                self.preview_cache[cache_key] = png_out
                 self.display_preview_image(png_out)
             else:
                 # Direct fallback to system PDF viewer
@@ -1294,6 +1309,19 @@ class BatchExportForm(forms.WPFWindow):
         self.FileStack.Children.Clear()
         self.rows = []
         self.selected_sheet = None
+        self.preview_cache.clear()
+        if hasattr(self, 'ImgPreview') and self.ImgPreview:
+            self.ImgPreview.Source = None
+            self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
+        if hasattr(self, 'GridPreviewPrompt') and self.GridPreviewPrompt:
+            self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+        if hasattr(self, 'TxtPreviewHint') and self.TxtPreviewHint:
+            self.TxtPreviewHint.Text = "Click Preview to view"
+        if hasattr(self, 'BtnDoPreview') and self.BtnDoPreview:
+            self.BtnDoPreview.Visibility = System.Windows.Visibility.Visible
+        for attr in ['TxtDetailNumber', 'TxtDetailName', 'TxtDetailCollection', 'TxtDetailExportName', 'TxtDetailModel']:
+            if hasattr(self, attr):
+                getattr(self, attr).Text = "-"
 
     def BtnExport_Click(self, sender, e):
         if not self.rows: return
