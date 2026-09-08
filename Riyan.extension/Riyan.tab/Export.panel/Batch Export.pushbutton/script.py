@@ -28,21 +28,26 @@ em_script = imp.load_source('em_script', em_script_path)
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
 from System import Uri, UriKind
 
-def get_or_open_document(file_path):
+def get_or_open_document(file_path, close_worksets=False):
     """
     Safely gets an already open document or opens it in background.
     Returns: (doc, should_close)
     Prevents 'The active document may not be closed from the API' error.
     """
     file_path_abs = os.path.abspath(file_path).lower()
+    file_base = os.path.splitext(os.path.basename(file_path))[0].lower()
     
     # 1. Check ActiveUIDocument
     active_uidoc = getattr(__revit__, "ActiveUIDocument", None)
     if active_uidoc and active_uidoc.Document:
         try:
-            p = active_uidoc.Document.PathName
+            doc = active_uidoc.Document
+            p = doc.PathName
             if p and os.path.abspath(p).lower() == file_path_abs:
-                return (active_uidoc.Document, False)
+                return (doc, False)
+            t = doc.Title.lower()
+            if t == file_base or t.startswith(file_base) or file_base.startswith(t):
+                return (doc, False)
         except Exception:
             pass
             
@@ -52,14 +57,29 @@ def get_or_open_document(file_path):
             p = d.PathName
             if p and os.path.abspath(p).lower() == file_path_abs:
                 return (d, False)
+            t = d.Title.lower()
+            if t == file_base or t.startswith(file_base) or file_base.startswith(t):
+                return (d, False)
         except Exception:
             pass
             
     # 3. Background open
     opt = DB.OpenOptions()
     opt.DetachFromCentralOption = DB.DetachFromCentralOption.DetachAndPreserveWorksets
-    ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.CloseAllWorksets)
-    opt.SetOpenWorksetsConfiguration(ws_opt)
+    
+    if close_worksets:
+        try:
+            ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.CloseAllWorksets)
+            opt.SetOpenWorksetsConfiguration(ws_opt)
+        except Exception:
+            pass
+    else:
+        try:
+            ws_opt = DB.WorksetConfiguration(DB.WorksetConfigurationOption.OpenAllWorksets)
+            opt.SetOpenWorksetsConfiguration(ws_opt)
+        except Exception:
+            pass
+            
     model_path = DB.ModelPathUtils.ConvertUserVisiblePathToModelPath(file_path)
     bg_doc = app.OpenDocumentFile(model_path, opt)
     return (bg_doc, True)
@@ -509,7 +529,8 @@ class BatchExportForm(forms.WPFWindow):
             img_path = self.preview_cache[self.selected_sheet.mock_sheet.UniqueId]
             if os.path.exists(img_path):
                 from _preview_script import show_preview
-                show_preview(img_path, self.selected_sheet.generated_name)
+                title = self.selected_sheet.generated_name or (self.selected_sheet.mock_sheet.SheetNumber + " - " + self.selected_sheet.mock_sheet.Name)
+                show_preview(img_path, title)
 
     def BtnPreview_Click(self, sender, e):
         if not self.selected_sheet:
@@ -532,7 +553,12 @@ class BatchExportForm(forms.WPFWindow):
         bg_doc = None
         should_close = False
         try:
-            bg_doc, should_close = get_or_open_document(file_path)
+            bg_doc, should_close = get_or_open_document(file_path, close_worksets=False)
+            
+            try:
+                bg_doc.Regenerate()
+            except Exception:
+                pass
             
             sheet_element = bg_doc.GetElement(sheet_id)
             if not sheet_element:
@@ -550,6 +576,15 @@ class BatchExportForm(forms.WPFWindow):
             temp_dir = os.environ.get("TEMP")
             temp_img = os.path.join(temp_dir, "riyan_batch_preview_" + sheet_element.UniqueId)
             
+            # Clean up old preview files for this sheet so fresh render is guaranteed
+            try:
+                for f in os.listdir(temp_dir):
+                    if f.startswith("riyan_batch_preview_" + sheet_element.UniqueId) and f.endswith(".png"):
+                        try: os.remove(os.path.join(temp_dir, f))
+                        except: pass
+            except Exception:
+                pass
+            
             ieo = DB.ImageExportOptions()
             ieo.ExportRange = DB.ExportRange.SetOfViews
             id_list = System.Collections.Generic.List[DB.ElementId]()
@@ -557,9 +592,10 @@ class BatchExportForm(forms.WPFWindow):
             ieo.SetViewsAndSheets(id_list)
             ieo.FilePath = temp_img
             ieo.HLRandWFViewsFileType = DB.ImageFileType.PNG
+            ieo.ShadowViewsFileType = DB.ImageFileType.PNG
             ieo.ImageResolution = DB.ImageResolution.DPI_150
             ieo.ZoomType = DB.ZoomFitType.FitToPage
-            ieo.PixelSize = 2048
+            ieo.PixelSize = 2500
             
             bg_doc.ExportImage(ieo)
             
@@ -660,7 +696,7 @@ class BatchExportForm(forms.WPFWindow):
                 bg_doc = None
                 should_close = False
                 try:
-                    bg_doc, should_close = get_or_open_document(row.file_path)
+                    bg_doc, should_close = get_or_open_document(row.file_path, close_worksets=True)
                     
                     sets = self.extract_mock_data(bg_doc, row)
                     
@@ -719,7 +755,7 @@ class BatchExportForm(forms.WPFWindow):
             bg_doc = None
             should_close = False
             try:
-                bg_doc, should_close = get_or_open_document(row.file_path)
+                bg_doc, should_close = get_or_open_document(row.file_path, close_worksets=False)
                 
                 em_script.doc = bg_doc
                 
