@@ -26,6 +26,7 @@ em_script_path = os.path.join(export_mgr_dir, 'script.py')
 em_script = imp.load_source('em_script', em_script_path)
 
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
+from System import Uri, UriKind
 def get_zoom_fit_type():
     if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage"):
         return DB.ZoomType.FitToPage
@@ -623,12 +624,13 @@ class BatchExportForm(forms.WPFWindow):
             bi.Freeze()
             self.ImgPreview.Source = bi
             self.ImgPreview.Visibility = System.Windows.Visibility.Visible
+        except Exception as ex:
+            forms.alert("Error loading preview image: " + str(ex))
+        finally:
             if hasattr(self, 'GridPreviewPrompt'):
                 self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Collapsed
             if hasattr(self, 'GridPreviewLoading'):
                 self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
-        except Exception:
-            pass
 
     def on_preview_image_click(self, sender, e):
         if self.selected_sheet and self.selected_sheet.mock_sheet.UniqueId in self.preview_cache:
@@ -647,6 +649,9 @@ class BatchExportForm(forms.WPFWindow):
         file_path = sr.parent.file_path
         sheet_id = sr.mock_sheet.UniqueId
         
+        if hasattr(self, 'BtnDoPreview'):
+            self.BtnDoPreview.IsEnabled = False
+
         sr.set_status("Loading Vector Preview...")
         if hasattr(self, 'GridPreviewLoading'):
             self.GridPreviewLoading.Visibility = System.Windows.Visibility.Visible
@@ -664,10 +669,6 @@ class BatchExportForm(forms.WPFWindow):
             if not sheet_element:
                 forms.alert("Sheet not found in document.")
                 sr.set_status("")
-                if hasattr(self, 'GridPreviewPrompt'):
-                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
-                if hasattr(self, 'GridPreviewLoading'):
-                    self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
                 return
 
             temp_dir = os.environ.get("TEMP")
@@ -716,20 +717,23 @@ class BatchExportForm(forms.WPFWindow):
                 forms.alert("Failed to export PDF for preview.\n\nExport Status: {}\nOutput Path: {}\nSheet: {}".format(
                     export_ok, os.path.join(temp_dir, pdf_prefix + ".pdf"), getattr(sheet_element, 'SheetNumber', '-')))
                 sr.set_status("Preview Error", is_error=True)
-                if hasattr(self, 'GridPreviewPrompt'):
-                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
-                if hasattr(self, 'GridPreviewLoading'):
-                    self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
                 return
 
             # 3. Convert page 0 of PDF to high-res PNG using native Windows WinRT
             ps1_path = os.path.join(os.path.dirname(__file__), "render_pdf.ps1")
             import subprocess
+            import time
             cmd = ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', ps1_path, '-PdfPath', actual_pdf, '-PngPath', png_out, '-Width', '1400']
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             proc = subprocess.Popen(cmd, startupinfo=startupinfo)
-            proc.wait()
+            start_t = time.time()
+            while proc.poll() is None:
+                System.Threading.Thread.Sleep(50)
+                if time.time() - start_t > 10:
+                    try: proc.kill()
+                    except Exception: pass
+                    break
 
             sr.set_status("")
 
@@ -740,18 +744,18 @@ class BatchExportForm(forms.WPFWindow):
                 # Direct fallback to system PDF viewer
                 os.startfile(actual_pdf)
                 sr.set_status("Opened in PDF Viewer")
-                if hasattr(self, 'GridPreviewPrompt'):
-                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
-                if hasattr(self, 'GridPreviewLoading'):
-                    self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
 
         except Exception as ex:
             sr.set_status("Preview Error", is_error=True)
-            if hasattr(self, 'GridPreviewPrompt'):
-                self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+            forms.alert(str(ex))
+        finally:
+            if hasattr(self, 'BtnDoPreview'):
+                self.BtnDoPreview.IsEnabled = True
             if hasattr(self, 'GridPreviewLoading'):
                 self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
-            forms.alert(str(ex))
+            if not (sheet_id in self.preview_cache and os.path.exists(self.preview_cache[sheet_id])):
+                if hasattr(self, 'GridPreviewPrompt'):
+                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
 
     def extract_mock_data(self, bg_doc, row):
         pi = getattr(bg_doc, "ProjectInformation", None)
