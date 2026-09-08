@@ -9,7 +9,7 @@ from pyrevit import script, revit
 from Autodesk.Revit import DB
 from Autodesk.Revit import UI
 import System
-from System.Windows import Thickness, GridLength, GridUnitType, HorizontalAlignment, VerticalAlignment, TextWrapping, Window, Application
+from System.Windows import Thickness, GridLength, GridUnitType, HorizontalAlignment, VerticalAlignment, TextWrapping, Window, Application, CornerRadius
 from System.Windows.Media import SolidColorBrush, ColorConverter
 from System.Windows.Controls import StackPanel, Grid, ComboBox, TextBlock, Button, Border, RadioButton, ScrollViewer, Orientation, ProgressBar
 from System.Windows.Input import MouseButtonEventHandler
@@ -28,9 +28,14 @@ em_script = imp.load_source('em_script', em_script_path)
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
 from System import Uri, UriKind
 
-BRUSH_DONE = SolidColorBrush(ColorConverter.ConvertFromString("#4CAF50"))
-BRUSH_EXPORTING = SolidColorBrush(ColorConverter.ConvertFromString("#F59E0B"))
-BRUSH_ERROR = SolidColorBrush(ColorConverter.ConvertFromString("#EF4444"))
+BG_DONE = SolidColorBrush(ColorConverter.ConvertFromString("#5CB85C"))
+BG_EXPORTING = SolidColorBrush(ColorConverter.ConvertFromString("#FFB300"))
+BG_ERROR = SolidColorBrush(ColorConverter.ConvertFromString("#E53935"))
+TEXT_DARK = SolidColorBrush(ColorConverter.ConvertFromString("#111111"))
+TEXT_WHITE = SolidColorBrush(System.Windows.Media.Colors.White)
+BRUSH_DONE = BG_DONE
+BRUSH_EXPORTING = BG_EXPORTING
+BRUSH_ERROR = BG_ERROR
 
 def get_zoom_fit_type():
     if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage"):
@@ -319,16 +324,25 @@ class SheetRow:
         Grid.SetColumn(sp_name, 0)
         self.grid.Children.Add(sp_name)
         
+        self.border_status = Border()
+        self.border_status.Padding = Thickness(6, 2, 6, 2)
+        self.border_status.CornerRadius = CornerRadius(3)
+        self.border_status.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+        self.border_status.HorizontalAlignment = HorizontalAlignment.Center
+        self.border_status.VerticalAlignment = VerticalAlignment.Center
+        
         self.txt_status = TextBlock()
-        self.txt_status.Text = ""
+        self.txt_status.Text = "Pending"
+        self.txt_status.FontWeight = System.Windows.FontWeights.SemiBold
         self.txt_status.VerticalAlignment = VerticalAlignment.Center
         self.txt_status.HorizontalAlignment = HorizontalAlignment.Center
         self.txt_status.TextAlignment = System.Windows.TextAlignment.Center
-        self.txt_status.Margin = Thickness(5, 0, 5, 0)
         self.txt_status.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
-        if brush_main: self.txt_status.Foreground = brush_dim
-        Grid.SetColumn(self.txt_status, 8)
-        self.grid.Children.Add(self.txt_status)
+        if brush_dim: self.txt_status.Foreground = brush_dim
+        
+        self.border_status.Child = self.txt_status
+        Grid.SetColumn(self.border_status, 8)
+        self.grid.Children.Add(self.border_status)
         
         self.border.MouseLeftButtonDown += self.on_select
 
@@ -342,29 +356,39 @@ class SheetRow:
         self.form.select_sheet(self)
         
     def set_status(self, msg, is_done=False, is_exporting=False, is_error=False):
-        clean_msg = msg
+        clean_msg = msg or ""
         for tag in ["[Done] ", "[Exporting] ", "[Error] "]:
             if clean_msg.startswith(tag):
                 clean_msg = clean_msg[len(tag):]
                 
-        if is_done:
-            self.txt_status.Text = clean_msg
-            self.txt_status.Foreground = BRUSH_DONE
-        elif is_exporting:
-            self.txt_status.Text = clean_msg
-            self.txt_status.Foreground = BRUSH_EXPORTING
+        brush_dim = self.form.FindResource("TextDim") or SolidColorBrush(ColorConverter.ConvertFromString("#888888"))
+
+        if is_done or clean_msg == "Done" or "Done" in clean_msg:
+            self.txt_status.Text = "Done"
+            self.txt_status.Foreground = TEXT_DARK
+            self.border_status.Background = BG_DONE
+        elif is_exporting or clean_msg == "Exporting..." or "Exporting" in clean_msg:
+            self.txt_status.Text = "Exporting..."
+            self.txt_status.Foreground = TEXT_DARK
+            self.border_status.Background = BG_EXPORTING
             try:
                 self.border.BringIntoView()
             except:
                 pass
-        elif is_error:
-            self.txt_status.Text = clean_msg
-            self.txt_status.Foreground = BRUSH_ERROR
+        elif is_error or clean_msg == "Error" or "Error" in clean_msg:
+            self.txt_status.Text = "Error"
+            self.txt_status.Foreground = TEXT_WHITE
+            self.border_status.Background = BG_ERROR
+        elif clean_msg == "Skipped":
+            self.txt_status.Text = "Skipped"
+            self.txt_status.Foreground = brush_dim
+            self.border_status.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
         else:
-            self.txt_status.Text = clean_msg
-            brush_dim = self.form.FindResource("TextDim")
-            if brush_dim: self.txt_status.Foreground = brush_dim
-        self.txt_status.ToolTip = clean_msg
+            self.txt_status.Text = clean_msg if clean_msg else "Pending"
+            self.txt_status.Foreground = brush_dim
+            self.border_status.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+
+        self.border_status.ToolTip = clean_msg
         self.form.do_events()
 
 class CollectionGroup:
@@ -622,16 +646,25 @@ class FileRow:
         loc_grid.Margin = Thickness(5,0,5,0)
         self.grid.Children.Add(loc_grid)
         
+        self.border_status = Border()
+        self.border_status.Padding = Thickness(6, 2, 6, 2)
+        self.border_status.CornerRadius = CornerRadius(3)
+        self.border_status.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+        self.border_status.HorizontalAlignment = HorizontalAlignment.Center
+        self.border_status.VerticalAlignment = VerticalAlignment.Center
+        
         self.txt_status = TextBlock()
-        self.txt_status.Text = ""
+        self.txt_status.Text = "Ready"
+        self.txt_status.FontWeight = System.Windows.FontWeights.SemiBold
         self.txt_status.VerticalAlignment = VerticalAlignment.Center
         self.txt_status.HorizontalAlignment = HorizontalAlignment.Center
         self.txt_status.TextAlignment = System.Windows.TextAlignment.Center
-        self.txt_status.Margin = Thickness(5, 0, 5, 0)
         self.txt_status.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
-        if brush_main: self.txt_status.Foreground = brush_main
-        Grid.SetColumn(self.txt_status, 8)
-        self.grid.Children.Add(self.txt_status)
+        if brush_dim: self.txt_status.Foreground = brush_dim
+        
+        self.border_status.Child = self.txt_status
+        Grid.SetColumn(self.border_status, 8)
+        self.grid.Children.Add(self.border_status)
         
         self.sheet_stack = StackPanel()
         self.main_container.Children.Add(self.sheet_stack)
@@ -666,25 +699,35 @@ class FileRow:
             self.txt_loc.Text = os.path.basename(dlg.SelectedPath)
             
     def set_status(self, msg, is_done=False, is_exporting=False, is_error=False):
-        clean_msg = msg
+        clean_msg = msg or ""
         for tag in ["[Done] ", "[Exporting] ", "[Error] "]:
             if clean_msg.startswith(tag):
                 clean_msg = clean_msg[len(tag):]
                 
-        if is_done:
-            self.txt_status.Text = "[Done] " + clean_msg
-            self.txt_status.Foreground = BRUSH_DONE
-        elif is_exporting:
-            self.txt_status.Text = "[Exporting] " + clean_msg
-            self.txt_status.Foreground = BRUSH_EXPORTING
-        elif is_error:
-            self.txt_status.Text = "[Error] " + clean_msg
-            self.txt_status.Foreground = BRUSH_ERROR
+        brush_dim = self.form.FindResource("TextDim") or SolidColorBrush(ColorConverter.ConvertFromString("#888888"))
+
+        if is_done or clean_msg == "Done" or "Done" in clean_msg or "Completed" in clean_msg:
+            self.txt_status.Text = "Done"
+            self.txt_status.Foreground = TEXT_DARK
+            self.border_status.Background = BG_DONE
+        elif is_exporting or clean_msg == "Exporting..." or "Exporting" in clean_msg:
+            self.txt_status.Text = "Exporting..."
+            self.txt_status.Foreground = TEXT_DARK
+            self.border_status.Background = BG_EXPORTING
+        elif is_error or clean_msg == "Error" or "Error" in clean_msg:
+            self.txt_status.Text = "Error"
+            self.txt_status.Foreground = TEXT_WHITE
+            self.border_status.Background = BG_ERROR
+        elif clean_msg in ["Ready", "Pending"]:
+            self.txt_status.Text = clean_msg
+            self.txt_status.Foreground = brush_dim
+            self.border_status.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
         else:
             self.txt_status.Text = clean_msg
-            brush_dim = self.form.FindResource("TextDim")
-            if brush_dim: self.txt_status.Foreground = brush_dim
-        self.txt_status.ToolTip = self.txt_status.Text
+            self.txt_status.Foreground = brush_dim
+            self.border_status.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+
+        self.border_status.ToolTip = clean_msg
         self.form.do_events()
         
     def on_options_changed(self, sender, e):
@@ -838,7 +881,8 @@ class BatchExportForm(forms.WPFWindow):
         if self.selected_sheet:
             self.selected_sheet.border.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
             if brush_main: self.selected_sheet.txt_name.Foreground = brush_main
-            if brush_dim: self.selected_sheet.txt_status.Foreground = brush_dim
+            if brush_dim and self.selected_sheet.txt_status.Text in ["Pending", "Skipped", ""]:
+                self.selected_sheet.txt_status.Foreground = brush_dim
             
         self.selected_sheet = sheet_row
         select_color = ColorConverter.ConvertFromString("#FFF2C8")
@@ -846,7 +890,8 @@ class BatchExportForm(forms.WPFWindow):
         
         black_brush = SolidColorBrush(System.Windows.Media.Colors.Black)
         self.selected_sheet.txt_name.Foreground = black_brush
-        self.selected_sheet.txt_status.Foreground = black_brush
+        if self.selected_sheet.txt_status.Text in ["Pending", "Skipped", ""]:
+            self.selected_sheet.txt_status.Foreground = black_brush
 
         # Update Right Side Panel (Sheet Info & Preview)
         try:
@@ -1405,7 +1450,7 @@ class BatchExportForm(forms.WPFWindow):
                         except: pass
                     continue
                 
-                row.set_status("Exporting Combined PDF...", is_exporting=True)
+                row.set_status("Exporting...", is_exporting=True)
                 
                 comb_name = None
                 profile_name = row.cmb_profile.SelectedItem if hasattr(row, 'cmb_profile') and row.cmb_profile else None
@@ -1438,7 +1483,7 @@ class BatchExportForm(forms.WPFWindow):
                 em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
                 
                 for item in pdf_items:
-                    item["ui_row"].set_status("Done" if is_check_print else "Combined PDF Done", is_done=True)
+                    item["ui_row"].set_status("Done", is_done=True)
                 
                 # Generate Excel Transmittal / Drawing List
                 try:
@@ -1451,7 +1496,7 @@ class BatchExportForm(forms.WPFWindow):
                 
                 # Export individual PDFs and DWGs if Full Set mode
                 if not is_check_print:
-                    row.set_status("Exporting CAD & Single PDFs...", is_exporting=True)
+                    row.set_status("Exporting...", is_exporting=True)
                     pdf_out_dir = os.path.join(row.output_location, "PDF")
                     dwg_out_dir = os.path.join(row.output_location, "DWG")
                     if not os.path.exists(pdf_out_dir):
@@ -1471,7 +1516,7 @@ class BatchExportForm(forms.WPFWindow):
                         pct = int((float(idx) / total_single) * 100)
                         self.ExportProgressBar.Value = pct
                         self.TxtPercent.Text = "Exporting [{}/{}]: {} (PDF)".format(idx + 1, total_single, fname)
-                        s_row.set_status("Exporting PDF...", is_exporting=True)
+                        s_row.set_status("Exporting...", is_exporting=True)
                         self.do_events()
                         
                         try:
@@ -1480,7 +1525,6 @@ class BatchExportForm(forms.WPFWindow):
                             log_diag("Single PDF error: " + str(ex_pdf))
                             
                         self.TxtPercent.Text = "Exporting [{}/{}]: {} (DWG)".format(idx + 1, total_single, fname)
-                        s_row.set_status("Exporting CAD...", is_exporting=True)
                         self.do_events()
                         
                         try:
@@ -1497,7 +1541,7 @@ class BatchExportForm(forms.WPFWindow):
                 if should_close:
                     try: bg_doc.Close(False)
                     except: pass
-                row.set_status("Completed!", is_done=True)
+                row.set_status("Done", is_done=True)
                 
             except Exception as ex:
                 total_failed_sheets += len(row.sheet_rows)
