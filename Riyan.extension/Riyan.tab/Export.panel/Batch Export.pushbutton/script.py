@@ -897,6 +897,8 @@ class BatchExportForm(forms.WPFWindow):
         finally:
             if hasattr(self, 'GridPreviewPrompt'):
                 self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Collapsed
+            if hasattr(self, 'BtnDoPreview'):
+                self.BtnDoPreview.Visibility = System.Windows.Visibility.Collapsed
             if hasattr(self, 'GridPreviewLoading'):
                 self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
 
@@ -1074,9 +1076,16 @@ class BatchExportForm(forms.WPFWindow):
                 self.BtnDoPreview.IsEnabled = True
             if hasattr(self, 'GridPreviewLoading'):
                 self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
-            if not (sheet_id in self.preview_cache and os.path.exists(self.preview_cache[sheet_id])):
+            if cache_key in self.preview_cache and os.path.exists(self.preview_cache[cache_key]):
+                if hasattr(self, 'GridPreviewPrompt'):
+                    self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Collapsed
+                if hasattr(self, 'BtnDoPreview'):
+                    self.BtnDoPreview.Visibility = System.Windows.Visibility.Collapsed
+            else:
                 if hasattr(self, 'GridPreviewPrompt'):
                     self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+                if hasattr(self, 'BtnDoPreview'):
+                    self.BtnDoPreview.Visibility = System.Windows.Visibility.Visible
 
     def extract_mock_data(self, bg_doc, row):
         pi = getattr(bg_doc, "ProjectInformation", None)
