@@ -363,11 +363,11 @@ class SheetRow:
                 
         brush_dim = self.form.FindResource("TextDim") or SolidColorBrush(ColorConverter.ConvertFromString("#888888"))
 
-        if is_done or clean_msg == "Done" or "Done" in clean_msg:
+        if is_done or clean_msg == "Done":
             self.txt_status.Text = "Done"
             self.txt_status.Foreground = TEXT_DARK
             self.border_status.Background = BG_DONE
-        elif is_exporting or clean_msg == "Exporting..." or "Exporting" in clean_msg:
+        elif clean_msg == "Exporting..." or (is_exporting and clean_msg in ["", "Exporting", "Exporting..."]):
             self.txt_status.Text = "Exporting..."
             self.txt_status.Foreground = TEXT_DARK
             self.border_status.Background = BG_EXPORTING
@@ -375,7 +375,7 @@ class SheetRow:
                 self.border.BringIntoView()
             except:
                 pass
-        elif is_error or clean_msg == "Error" or "Error" in clean_msg:
+        elif is_error or clean_msg == "Error":
             self.txt_status.Text = "Error"
             self.txt_status.Foreground = TEXT_WHITE
             self.border_status.Background = BG_ERROR
@@ -706,19 +706,19 @@ class FileRow:
                 
         brush_dim = self.form.FindResource("TextDim") or SolidColorBrush(ColorConverter.ConvertFromString("#888888"))
 
-        if is_done or clean_msg == "Done" or "Done" in clean_msg or "Completed" in clean_msg:
+        if is_done or clean_msg == "Done":
             self.txt_status.Text = "Done"
             self.txt_status.Foreground = TEXT_DARK
             self.border_status.Background = BG_DONE
-        elif is_exporting or clean_msg == "Exporting..." or "Exporting" in clean_msg:
+        elif clean_msg == "Exporting..." or (is_exporting and clean_msg in ["", "Exporting", "Exporting..."]):
             self.txt_status.Text = "Exporting..."
             self.txt_status.Foreground = TEXT_DARK
             self.border_status.Background = BG_EXPORTING
-        elif is_error or clean_msg == "Error" or "Error" in clean_msg:
+        elif is_error or clean_msg == "Error":
             self.txt_status.Text = "Error"
             self.txt_status.Foreground = TEXT_WHITE
             self.border_status.Background = BG_ERROR
-        elif clean_msg in ["Ready", "Pending"]:
+        elif clean_msg in ["Ready", "Pending", "Loading...", "Reading..."]:
             self.txt_status.Text = clean_msg
             self.txt_status.Foreground = brush_dim
             self.border_status.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
@@ -1340,7 +1340,7 @@ class BatchExportForm(forms.WPFWindow):
                 self.FileStack.Children.Add(border)
                 self.do_events()
                 
-                row.set_status("Reading...", is_exporting=True)
+                row.set_status("Loading...")
                 bg_doc = None
                 should_close = False
                 try:
@@ -1409,17 +1409,17 @@ class BatchExportForm(forms.WPFWindow):
 
             # Archive previous exports in output_location if not already done in this session
             if row.output_location and row.output_location not in archived_locations:
-                row.set_status("Archiving previous files...", is_exporting=True)
+                row.set_status("Archiving...")
                 try:
                     arch_sub = em_script.archive_previous_exports(row.output_location)
                     if arch_sub:
-                        row.set_status("Archived to 00 PREVIOUS\\" + arch_sub)
+                        row.set_status("Archived")
                         self.do_events()
                 except Exception:
                     pass
                 archived_locations.add(row.output_location)
 
-            row.set_status("Preparing file...", is_exporting=True)
+            row.set_status("Preparing...")
             bg_doc = None
             should_close = False
             try:
