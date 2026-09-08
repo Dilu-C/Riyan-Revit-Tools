@@ -3214,7 +3214,8 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
                     if args.UpperRange > 0:
                         pct = int((float(args.Position) / args.UpperRange) * 100)
                         window_instance.ExportProgressBar.Value = pct
-                    window_instance.GridQueue.Items.Refresh()
+                    if hasattr(window_instance, 'GridQueue') and window_instance.GridQueue:
+                        window_instance.GridQueue.Items.Refresh()
                     window_instance.do_events()
             elif window_instance:
                 if args.UpperRange > 0:

@@ -27,6 +27,11 @@ em_script = imp.load_source('em_script', em_script_path)
 
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
 from System import Uri, UriKind
+
+BRUSH_DONE = SolidColorBrush(ColorConverter.ConvertFromString("#4CAF50"))
+BRUSH_EXPORTING = SolidColorBrush(ColorConverter.ConvertFromString("#F59E0B"))
+BRUSH_ERROR = SolidColorBrush(ColorConverter.ConvertFromString("#EF4444"))
+
 def get_zoom_fit_type():
     if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage"):
         return DB.ZoomType.FitToPage
@@ -211,11 +216,12 @@ class MockDoc:
         self.ProjectInformation = MockElement("ProjInfo", "", "")
 
 class MockQueueItem:
-    def __init__(self, sheet, target_filename):
+    def __init__(self, sheet, target_filename, ui_row=None):
         self.SheetId = sheet.UniqueId
         self.SheetNumber = getattr(sheet, 'SheetNumber', '')
         self.SheetName = getattr(sheet, 'Name', '')
         self.TargetFileName = target_filename
+        self.ui_row = ui_row
         self._status = ""
         
         class MockSheetVM:
@@ -226,7 +232,20 @@ class MockQueueItem:
     @property
     def Status(self): return self._status
     @Status.setter
-    def Status(self, value): self._status = value
+    def Status(self, value):
+        self._status = value
+        if self.ui_row:
+            try:
+                if value == "Exporting...":
+                    self.ui_row.set_status("Exporting...", is_exporting=True)
+                elif value == "Done":
+                    self.ui_row.set_status("Done", is_done=True)
+                elif value == "Error":
+                    self.ui_row.set_status("Error", is_error=True)
+                elif value:
+                    self.ui_row.set_status(value)
+            except Exception:
+                pass
 
 # ----------------- UI CLASSES -----------------
 class SheetRow:
@@ -315,14 +334,28 @@ class SheetRow:
         self.form.select_sheet(self)
         
     def set_status(self, msg, is_done=False, is_exporting=False, is_error=False):
+        clean_msg = msg
+        for tag in ["[Done] ", "[Exporting] ", "[Error] "]:
+            if clean_msg.startswith(tag):
+                clean_msg = clean_msg[len(tag):]
+                
         if is_done:
-            self.txt_status.Text = "[Done] " + msg
+            self.txt_status.Text = clean_msg
+            self.txt_status.Foreground = BRUSH_DONE
         elif is_exporting:
-            self.txt_status.Text = "[Exporting] " + msg
+            self.txt_status.Text = clean_msg
+            self.txt_status.Foreground = BRUSH_EXPORTING
+            try:
+                self.border.BringIntoView()
+            except:
+                pass
         elif is_error:
-            self.txt_status.Text = "[Error] " + msg
+            self.txt_status.Text = clean_msg
+            self.txt_status.Foreground = BRUSH_ERROR
         else:
-            self.txt_status.Text = msg
+            self.txt_status.Text = clean_msg
+            brush_dim = self.form.FindResource("TextDim")
+            if brush_dim: self.txt_status.Foreground = brush_dim
         self.form.do_events()
 
 class CollectionGroup:
@@ -630,14 +663,24 @@ class FileRow:
             self.txt_loc.Text = os.path.basename(dlg.SelectedPath)
             
     def set_status(self, msg, is_done=False, is_exporting=False, is_error=False):
+        clean_msg = msg
+        for tag in ["[Done] ", "[Exporting] ", "[Error] "]:
+            if clean_msg.startswith(tag):
+                clean_msg = clean_msg[len(tag):]
+                
         if is_done:
-            self.txt_status.Text = "[Done] " + msg
+            self.txt_status.Text = "[Done] " + clean_msg
+            self.txt_status.Foreground = BRUSH_DONE
         elif is_exporting:
-            self.txt_status.Text = "[Exporting] " + msg
+            self.txt_status.Text = "[Exporting] " + clean_msg
+            self.txt_status.Foreground = BRUSH_EXPORTING
         elif is_error:
-            self.txt_status.Text = "[Error] " + msg
+            self.txt_status.Text = "[Error] " + clean_msg
+            self.txt_status.Foreground = BRUSH_ERROR
         else:
-            self.txt_status.Text = msg
+            self.txt_status.Text = clean_msg
+            brush_dim = self.form.FindResource("TextDim")
+            if brush_dim: self.txt_status.Foreground = brush_dim
         self.form.do_events()
         
     def on_options_changed(self, sender, e):
@@ -721,6 +764,11 @@ class BatchExportForm(forms.WPFWindow):
             self.ImgPreview.MouseLeftButtonDown += self.on_preview_image_click
 
         self.doc_cache = {}
+        class DummyQueue:
+            class DummyItems:
+                def Refresh(self): pass
+            Items = DummyItems()
+        self.GridQueue = DummyQueue()
         try:
             self.Closed += self.on_window_closed
         except Exception:
@@ -1259,6 +1307,10 @@ class BatchExportForm(forms.WPFWindow):
         is_check_print = self.RbCheckPrint.IsChecked
         
         archived_locations = set()
+        first_folder = None
+        total_exported_sheets = 0
+        total_failed_sheets = 0
+        total_skipped_sheets = 0
 
         for row in self.rows:
             if self._cancel_export: break
@@ -1266,6 +1318,9 @@ class BatchExportForm(forms.WPFWindow):
             row.main_container.BringIntoView()
             self.do_events()
             
+            if not first_folder and row.output_location:
+                first_folder = row.output_location
+
             # Archive previous exports in output_location if not already done in this session
             if row.output_location and row.output_location not in archived_locations:
                 row.set_status("Archiving previous files...", is_exporting=True)
@@ -1290,6 +1345,7 @@ class BatchExportForm(forms.WPFWindow):
                 for s_row in row.sheet_rows:
                     if s_row.chk.IsChecked != True:
                         s_row.set_status("Skipped", is_done=True)
+                        total_skipped_sheets += 1
                         continue
                         
                     sheet_element = bg_doc.GetElement(s_row.mock_sheet.UniqueId)
@@ -1311,12 +1367,28 @@ class BatchExportForm(forms.WPFWindow):
                 row.set_status("Exporting Combined PDF...", is_exporting=True)
                 comb_filename = "Combined_Set_{}.pdf".format(os.path.basename(row.file_path).replace('.rvt',''))
                 
-                mock_queue = [MockQueueItem(item["sheet"], item["filename"]) for item in pdf_items]
+                # Wire ui_row so Revit ProgressChanged events directly update each sheet row
+                mock_queue = [MockQueueItem(item["sheet"], item["filename"], ui_row=item["ui_row"]) for item in pdf_items]
+                
+                self.TxtPercent.Text = "Exporting Combined PDF..."
+                self.ExportProgressBar.Value = 0
+                self.do_events()
+                
                 em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
                 
                 for item in pdf_items:
-                    item["ui_row"].set_status("Combined Check Print Done", is_done=True)
+                    item["ui_row"].set_status("Done" if is_check_print else "Combined PDF Done", is_done=True)
                 
+                # Generate Excel Transmittal / Drawing List
+                try:
+                    self.TxtPercent.Text = "Generating Excel Drawing List..."
+                    self.do_events()
+                    vms = [item.SheetVM for item in mock_queue]
+                    em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_filename.replace('.pdf',''))
+                except Exception as ex_tr:
+                    log_diag("Excel transmittal note: " + str(ex_tr))
+                
+                # Export individual PDFs and DWGs if Full Set mode
                 if not is_check_print:
                     row.set_status("Exporting CAD & Single PDFs...", is_exporting=True)
                     pdf_out_dir = os.path.join(row.output_location, "PDF")
@@ -1328,21 +1400,38 @@ class BatchExportForm(forms.WPFWindow):
                         try: os.makedirs(dwg_out_dir)
                         except Exception: pass
 
-                    for item in pdf_items:
+                    total_single = len(pdf_items)
+                    for idx, item in enumerate(pdf_items):
                         if self._cancel_export: break
                         s_row = item["ui_row"]
                         sheet = item["sheet"]
                         fname = item["filename"]
                         
+                        pct = int((float(idx) / total_single) * 100)
+                        self.ExportProgressBar.Value = pct
+                        self.TxtPercent.Text = "Exporting [{}/{}]: {} (PDF)".format(idx + 1, total_single, fname)
                         s_row.set_status("Exporting PDF...", is_exporting=True)
-                        self.TxtPercent.Text = "Exporting: {}".format(fname)
                         self.do_events()
-                        em_script.export_pdf_2022(pdf_out_dir, sheet, fname, get_zoom_fit_type(), 100)
                         
+                        try:
+                            em_script.export_pdf_2022(pdf_out_dir, sheet, fname, get_zoom_fit_type(), 100)
+                        except Exception as ex_pdf:
+                            log_diag("Single PDF error: " + str(ex_pdf))
+                            
+                        self.TxtPercent.Text = "Exporting [{}/{}]: {} (DWG)".format(idx + 1, total_single, fname)
                         s_row.set_status("Exporting CAD...", is_exporting=True)
-                        em_script.export_dwg(dwg_out_dir, sheet, fname, None)
+                        self.do_events()
                         
+                        try:
+                            em_script.export_dwg(dwg_out_dir, sheet, fname, None)
+                        except Exception as ex_dwg:
+                            log_diag("DWG error: " + str(ex_dwg))
+                            
                         s_row.set_status("Done", is_done=True)
+                        total_exported_sheets += 1
+                        self.do_events()
+                else:
+                    total_exported_sheets += len(pdf_items)
                 
                 if should_close:
                     try: bg_doc.Close(False)
@@ -1350,13 +1439,45 @@ class BatchExportForm(forms.WPFWindow):
                 row.set_status("Completed!", is_done=True)
                 
             except Exception as ex:
+                total_failed_sheets += len(row.sheet_rows)
                 row.set_status("Error", is_error=True)
                 if should_close and bg_doc:
                     try: bg_doc.Close(False)
                     except: pass
+                log_diag("Export error: " + str(ex) + "\n" + traceback.format_exc())
                 
         self.BtnExport.IsEnabled = True
+        self.ExportProgressBar.Value = 100
         self.TxtPercent.Text = "Finished!"
+        
+        # Show Custom Export Completed Window if not cancelled
+        if not self._cancel_export and first_folder:
+            theme = "Dark"
+            try:
+                settings_path = os.path.join(export_mgr_dir, "naming_settings.json")
+                if os.path.exists(settings_path):
+                    with open(settings_path, 'r') as f:
+                        settings = json.load(f)
+                        theme = settings.get("theme", "Dark")
+            except:
+                pass
+                
+            if total_exported_sheets > 0 and total_failed_sheets == 0:
+                msg = "Batch export completed successfully.\nTotal sheets exported: {}".format(total_exported_sheets)
+            elif total_exported_sheets > 0:
+                msg = "Batch export finished with warnings.\nSuccessfully exported: {}\nFailed: {}\nSkipped: {}".format(
+                    total_exported_sheets, total_failed_sheets, total_skipped_sheets
+                )
+            elif total_failed_sheets > 0:
+                msg = "Batch export failed.\nErrors encountered during export."
+            else:
+                msg = "No sheets were exported."
+                
+            try:
+                cw = em_script.CustomExportCompletedWindow(first_folder, msg, theme)
+                cw.ShowDialog()
+            except Exception as ex_cw:
+                log_diag("Completion window error: " + str(ex_cw))
 
 def main():
     try:
