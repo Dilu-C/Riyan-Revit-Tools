@@ -105,7 +105,7 @@ def show_update_toast(online_version, local_version):
             
             # Message
             txt_msg = TextBlock()
-            txt_msg.Text = u"New Version V{} is available (Current: V{}).\nClick Update Now or use Riyan tab > Update.".format(online_version, local_version)
+            txt_msg.Text = u"New Version V{} is available (Current: V{}).\nGo to Riyan tab > System > Update to install.".format(online_version, local_version)
             txt_msg.Foreground = SolidColorBrush(Color.FromRgb(175, 175, 180))
             txt_msg.FontSize = 11
             txt_msg.Margin = System.Windows.Thickness(0, 4, 0, 10)
@@ -116,40 +116,16 @@ def show_update_toast(online_version, local_version):
             btn_panel.Orientation = System.Windows.Controls.Orientation.Horizontal
             
             btn_update = Button()
-            btn_update.Content = u"Update Now"
+            btn_update.Content = u"Got It 👍"
             btn_update.Background = SolidColorBrush(Color.FromRgb(128, 47, 45))
             btn_update.Foreground = Brushes.White
             btn_update.FontWeight = System.Windows.FontWeights.SemiBold
             btn_update.FontSize = 11
-            btn_update.Padding = System.Windows.Thickness(14, 4, 14, 4)
+            btn_update.Padding = System.Windows.Thickness(16, 4, 16, 4)
             btn_update.BorderThickness = System.Windows.Thickness(0)
             btn_update.Cursor = System.Windows.Input.Cursors.Hand
-            
-            def do_update(s, e):
-                win.Close()
-                try:
-                    update_script_dir = os.path.join(os.path.dirname(__file__), "Riyan.tab", "System.panel", "Update.pushbutton")
-                    if update_script_dir not in sys.path:
-                        sys.path.insert(0, update_script_dir)
-                    import script as update_mod
-                    update_mod.update_tools()
-                except Exception as ex:
-                    import System.Windows.Forms as WinForms
-                    WinForms.MessageBox.Show("Please click 'Update' in the Riyan tab: " + str(ex), "Riyan Update")
-                    
-            btn_update.Click += do_update
+            btn_update.Click += lambda s, e: win.Close()
             btn_panel.Children.Add(btn_update)
-            
-            btn_dismiss = Button()
-            btn_dismiss.Content = u"Later"
-            btn_dismiss.Background = Brushes.Transparent
-            btn_dismiss.Foreground = SolidColorBrush(Color.FromRgb(160, 160, 160))
-            btn_dismiss.FontSize = 11
-            btn_dismiss.Margin = System.Windows.Thickness(12, 0, 0, 0)
-            btn_dismiss.BorderThickness = System.Windows.Thickness(0)
-            btn_dismiss.Cursor = System.Windows.Input.Cursors.Hand
-            btn_dismiss.Click += lambda s, e: win.Close()
-            btn_panel.Children.Add(btn_dismiss)
             
             stack.Children.Add(btn_panel)
             Grid.SetColumn(stack, 0)
