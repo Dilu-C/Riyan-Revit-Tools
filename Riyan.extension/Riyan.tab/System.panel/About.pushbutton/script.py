@@ -139,8 +139,7 @@ def show_about_dialog():
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Row="3">
-                        <Button x:Name="BtnWhatsNew" Content="What's New in V2.0 🚀" Padding="14,0" Height="32" Style="{StaticResource PrimaryBtn}" Margin="0,0,10,0"/>
-                        <Button x:Name="BtnOk" Content="OK" Width="80" Height="32" Style="{StaticResource PrimaryBtn}"/>
+                        <Button x:Name="BtnOk" Content="OK" Width="100" Height="32" Style="{StaticResource PrimaryBtn}"/>
                     </StackPanel>
                 </Grid>
             </Grid>
@@ -160,19 +159,6 @@ def show_about_dialog():
     
     btn_ok = window.FindName("BtnOk")
     btn_ok.Click += lambda s, e: window.Close()
-    
-    btn_whats_new = window.FindName("BtnWhatsNew")
-    def on_whats_new(s, e):
-        window.Close()
-        try:
-            ext_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            if ext_root not in sys.path:
-                sys.path.insert(0, ext_root)
-            import whats_new
-            whats_new.show_whats_new()
-        except Exception:
-            pass
-    btn_whats_new.Click += on_whats_new
     
     def title_bar_drag(sender, e):
         try: window.DragMove()

@@ -29,16 +29,19 @@ class UpdateForm(forms.WPFWindow):
             self.BtnAction.Content = "OK"
         elif state == "SUCCESS":
             self.TxtTitle.Text = "Update Complete"
-            self.TxtMessage.Text = "Update installed successfully!\nRevit will now reload to apply the changes."
-            self.BtnCancel.Visibility = System.Windows.Visibility.Collapsed
+            self.TxtMessage.Text = "Riyan Revit Tools V{} has been installed successfully!\n\nYou can view the new features now or reload pyRevit to start using them.".format(version_info if version_info else "2.0")
+            self.BtnCancel.Visibility = System.Windows.Visibility.Visible
+            self.BtnCancel.Content = "What's New 🚀"
+            self.BtnCancel.Width = 120
             self.BtnAction.Content = "Reload pyRevit"
+            self.BtnAction.Width = 120
             
     def BtnAction_Click(self, sender, e):
-        self.result = True
+        self.result = "RELOAD"
         self.Close()
         
     def BtnCancel_Click(self, sender, e):
-        self.result = False
+        self.result = "WHATS_NEW"
         self.Close()
         
     def TitleBar_MouseDown(self, sender, e):
@@ -48,7 +51,7 @@ class UpdateForm(forms.WPFWindow):
             pass
             
     def CloseBtn_Click(self, sender, e):
-        self.result = False
+        self.result = "RELOAD"
         self.Close()
 
 def show_dialog(state, info=None):
@@ -148,16 +151,17 @@ def update_tools():
                 pb.update_progress(100, 100)
                 
             # 9. Trigger pyRevit Reload & What's New
-            if show_dialog("SUCCESS"):
+            choice = show_dialog("SUCCESS", online_version)
+            if choice == "WHATS_NEW":
                 try:
-                    ext_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+                    ext_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
                     if ext_root not in sys.path:
                         sys.path.insert(0, ext_root)
                     import whats_new
                     whats_new.show_whats_new()
                 except Exception:
                     pass
-                sessionmgr.reload_pyrevit()
+            sessionmgr.reload_pyrevit()
             
     except Exception as e:
         show_dialog("ERROR", "An error occurred during the update: {}".format(str(e)))
