@@ -17,3 +17,8 @@ desktop.ini
 # Revit backup files
 *.0001.rvt
 *.0002.rvt
+
+# Internal docs and test scripts
+GEMINI.md
+.agents/
+test_*.py
