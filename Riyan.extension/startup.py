@@ -176,8 +176,43 @@ def show_update_toast(online_version, local_version):
         except:
             pass
 
+def cleanup_legacy_files():
+    try:
+        import shutil
+        current_dir = os.path.dirname(__file__)
+        parent_dir = os.path.dirname(current_dir)
+        ext_folder = os.path.expandvars(r"%APPDATA%\pyRevit\Extensions")
+        
+        target_folders = set(filter(None, [ext_folder, parent_dir, current_dir]))
+        bad_files = [
+            "GEMINI.md", "GEMINI", "test_compile.py", "test_msg.py",
+            "Install_Riyan_Tools.bat", "Install_Riyan_Tools.zip"
+        ]
+        bad_dirs = [".agents"]
+        
+        for folder in target_folders:
+            if not os.path.exists(folder):
+                continue
+            for f in bad_files:
+                p = os.path.join(folder, f)
+                if os.path.isfile(p):
+                    try:
+                        os.remove(p)
+                    except Exception:
+                        pass
+            for d in bad_dirs:
+                p = os.path.join(folder, d)
+                if os.path.isdir(p):
+                    try:
+                        shutil.rmtree(d, ignore_errors=True)
+                    except Exception:
+                        pass
+    except Exception:
+        pass
+
 def check_for_updates():
     try:
+        cleanup_legacy_files()
         # Give Revit time to load UI
         time.sleep(12)
         local_v, online_v = get_versions()

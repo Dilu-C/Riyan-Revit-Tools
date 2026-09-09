@@ -142,6 +142,7 @@ def update_tools():
                 
                 # 8. Copy contents over the active extension directory
                 source_dir = os.path.join(extract_path, "Riyan-Revit-Tools-main")
+                source_ext = os.path.join(source_dir, "Riyan.extension")
                 
                 def copy_tree_overwrite(src, dst):
                     if not os.path.exists(dst):
@@ -154,7 +155,44 @@ def update_tools():
                         else:
                             shutil.copy2(s, d)
                             
-                copy_tree_overwrite(source_dir, extension_dir)
+                if os.path.basename(extension_dir).endswith(".extension") and os.path.exists(source_ext):
+                    copy_tree_overwrite(source_ext, extension_dir)
+                    # Also update version.txt in parent directory if it exists
+                    src_v = os.path.join(source_dir, "version.txt")
+                    if os.path.exists(src_v) and os.path.exists(parent_dir):
+                        try:
+                            shutil.copy2(src_v, os.path.join(parent_dir, "version.txt"))
+                        except Exception:
+                            pass
+                else:
+                    copy_tree_overwrite(source_dir, extension_dir)
+
+                # Clean up legacy / unwanted files from pyRevit Extensions and user folders
+                unwanted_files = [
+                    "GEMINI.md", "GEMINI", "test_compile.py", "test_msg.py",
+                    "Install_Riyan_Tools.bat", "Install_Riyan_Tools.zip"
+                ]
+                unwanted_dirs = [".agents"]
+                
+                ext_root = os.path.expandvars(r"%APPDATA%\pyRevit\Extensions")
+                clean_targets = set(filter(None, [extension_dir, parent_dir, ext_root]))
+                for folder in clean_targets:
+                    if not os.path.exists(folder):
+                        continue
+                    for uf in unwanted_files:
+                        target_f = os.path.join(folder, uf)
+                        if os.path.isfile(target_f):
+                            try:
+                                os.remove(target_f)
+                            except Exception:
+                                pass
+                    for ud in unwanted_dirs:
+                        target_d = os.path.join(folder, ud)
+                        if os.path.isdir(target_d):
+                            try:
+                                shutil.rmtree(target_d, ignore_errors=True)
+                            except Exception:
+                                pass
                 
                 pb.update_progress(100, 100)
                 

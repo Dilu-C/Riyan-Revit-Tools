@@ -10,6 +10,13 @@ echo.
 echo [1/3] Cleaning up previous installation...
 if exist "%APPDATA%\pyRevit\Extensions\Riyan.extension" rmdir /s /q "%APPDATA%\pyRevit\Extensions\Riyan.extension"
 if exist "%APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools" rmdir /s /q "%APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools"
+if exist "%APPDATA%\pyRevit\Extensions\GEMINI.md" del /f /q "%APPDATA%\pyRevit\Extensions\GEMINI.md"
+if exist "%APPDATA%\pyRevit\Extensions\GEMINI" del /f /q "%APPDATA%\pyRevit\Extensions\GEMINI"
+if exist "%APPDATA%\pyRevit\Extensions\.agents" rmdir /s /q "%APPDATA%\pyRevit\Extensions\.agents"
+if exist "%APPDATA%\pyRevit\Extensions\test_compile.py" del /f /q "%APPDATA%\pyRevit\Extensions\test_compile.py"
+if exist "%APPDATA%\pyRevit\Extensions\test_msg.py" del /f /q "%APPDATA%\pyRevit\Extensions\test_msg.py"
+if exist "%APPDATA%\pyRevit\Extensions\Install_Riyan_Tools.bat" del /f /q "%APPDATA%\pyRevit\Extensions\Install_Riyan_Tools.bat"
+if exist "%APPDATA%\pyRevit\Extensions\Install_Riyan_Tools.zip" del /f /q "%APPDATA%\pyRevit\Extensions\Install_Riyan_Tools.zip"
 
 echo [2/3] Downloading latest tools from GitHub...
 set "PS_SCRIPT=%TEMP%\riyan_install.ps1"
