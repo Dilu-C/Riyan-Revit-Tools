@@ -147,8 +147,16 @@ def update_tools():
                 
                 pb.update_progress(100, 100)
                 
-            # 9. Trigger pyRevit Reload
+            # 9. Trigger pyRevit Reload & What's New
             if show_dialog("SUCCESS"):
+                try:
+                    ext_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+                    if ext_root not in sys.path:
+                        sys.path.insert(0, ext_root)
+                    import whats_new
+                    whats_new.show_whats_new()
+                except Exception:
+                    pass
                 sessionmgr.reload_pyrevit()
             
     except Exception as e:

@@ -168,4 +168,12 @@ def show_about_dialog():
     window.ShowDialog()
 
 if __name__ == '__main__':
-    show_about_dialog()
+    try:
+        ext_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        if ext_root not in sys.path:
+            sys.path.insert(0, ext_root)
+        import whats_new
+        whats_new.show_whats_new()
+    except Exception:
+        show_about_dialog()
+
