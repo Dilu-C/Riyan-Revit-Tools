@@ -46,6 +46,14 @@ MAROON      = "#7B2C2C"
 MAROON_DARK = "#621F1F"
 MAROON_LITE = "#9B3C3C"
 
+def get_id_val(elem_id):
+    """Safely retrieves integer/long value of an ElementId across Revit <=2023 (.IntegerValue) and Revit 2024+ (.Value)."""
+    if elem_id is None:
+        return None
+    if hasattr(elem_id, "Value"):
+        return elem_id.Value
+    return elem_id.IntegerValue
+
 def get_family_and_type_names(elem_type):
     """Safely retrieves the family name and type name for a given ElementType."""
     fam_name = "System Family"
@@ -114,7 +122,7 @@ def get_hierarchy_in_links(link_instances):
                 cat_name = cat.Name
                 # Exclude junk/system categories and any hidden ones starting with <
                 if cat_name not in EXCLUDE_CATS and not cat_name.startswith("<"):
-                    cat_val = cat.Id.IntegerValue
+                    cat_val = get_id_val(cat.Id)
                     
                     type_id = elem.GetTypeId()
                     if type_id == ElementId.InvalidElementId:
@@ -813,7 +821,7 @@ def collect_elements_by_types(link_doc, selected_types):
         if not cat:
             continue
             
-        cat_val = cat.Id.IntegerValue
+        cat_val = get_id_val(cat.Id)
         if cat_val not in selected_cat_vals:
             continue
             
