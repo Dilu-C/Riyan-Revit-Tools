@@ -97,7 +97,8 @@ XAML_STRING = """
                                 <TextBlock Text="V2.0 MAJOR RELEASE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Smart Archiving, True Lifecycle Exporting &amp; Enterprise Memory Shield" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,0"/>
+                        <TextBlock Text="Smart Archiving, True Lifecycle Exporting &amp; Enterprise Memory Shield" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
+                        <TextBlock Text="👨‍💻 Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
 
                     <!-- Status Pill -->
