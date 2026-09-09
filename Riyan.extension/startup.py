@@ -206,35 +206,10 @@ def check_for_updates():
         time.sleep(12)
         local_v, online_v = get_versions()
         
-        # 1. If newer update available -> Show desktop side toast
+        # If newer update available -> Show desktop side toast only
         if online_v and online_v != local_v:
             show_update_toast(online_v, local_v)
             return
-
-        # 2. If updated to V2.0 -> Auto-open What's New once
-        if local_v == "2.0":
-            marker = os.path.join(os.path.dirname(__file__), "last_shown_version.txt")
-            already_shown = False
-            if os.path.exists(marker):
-                try:
-                    with open(marker, "r") as f:
-                        if f.read().strip() == "2.0":
-                            already_shown = True
-                except Exception:
-                    pass
-            
-            if not already_shown:
-                try:
-                    with open(marker, "w") as f:
-                        f.write("2.0")
-                except Exception:
-                    pass
-                
-                try:
-                    import whats_new
-                    whats_new.show_whats_new()
-                except Exception:
-                    pass
     except Exception:
         pass
 
