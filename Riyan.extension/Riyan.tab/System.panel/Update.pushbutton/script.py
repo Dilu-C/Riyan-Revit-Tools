@@ -70,7 +70,7 @@ def update_tools():
         ]
         
         # 2. Get local version
-        local_version = "1.3"
+        local_version = "2.0"
         for vfile in v_candidates:
             if os.path.exists(vfile):
                 try:

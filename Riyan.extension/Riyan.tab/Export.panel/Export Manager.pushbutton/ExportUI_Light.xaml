@@ -409,7 +409,7 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                         <Image x:Name="TitleLogo" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <TextBlock Text="Riyan Export Manager V1.3" Foreground="#802F2D" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="Riyan Export Manager V2.0" Foreground="#802F2D" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
                     <Button x:Name="btnThemeToggle" Content="🌙 Dark" Width="72" Height="24" Margin="0,2,10,0"

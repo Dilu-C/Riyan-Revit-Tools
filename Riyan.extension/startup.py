@@ -15,7 +15,7 @@ def check_for_updates():
             os.path.join(extension_dir, 'version.txt'),
             os.path.join(parent_dir, 'version.txt')
         ]
-        local_version = "1.3"
+        local_version = "2.0"
         for vfile in v_candidates:
             if os.path.exists(vfile):
                 try:
