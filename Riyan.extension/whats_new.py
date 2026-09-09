@@ -248,7 +248,11 @@ def show_whats_new():
         else:
             _open()
     except Exception as e:
-        print("Error showing What's New:", e)
+        try:
+            from pyrevit import forms
+            forms.alert("Could not display What's New window:\n" + str(e), title="What's New")
+        except:
+            pass
 
 if __name__ == '__main__':
     show_whats_new()
