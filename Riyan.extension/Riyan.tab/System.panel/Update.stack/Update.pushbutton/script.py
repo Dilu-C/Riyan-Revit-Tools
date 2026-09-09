@@ -63,7 +63,15 @@ def show_dialog(state, info=None):
 def update_tools():
     try:
         # 1. Determine paths
-        extension_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        curr = os.path.dirname(__file__)
+        extension_dir = None
+        for _ in range(6):
+            if os.path.basename(curr).endswith(".extension") or os.path.exists(os.path.join(curr, "startup.py")):
+                extension_dir = curr
+                break
+            curr = os.path.dirname(curr)
+        if not extension_dir:
+            extension_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         parent_dir = os.path.dirname(extension_dir)
         
         # Check both potential locations for version.txt
@@ -154,9 +162,8 @@ def update_tools():
             choice = show_dialog("SUCCESS", online_version)
             if choice == "WHATS_NEW":
                 try:
-                    ext_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-                    if ext_root not in sys.path:
-                        sys.path.insert(0, ext_root)
+                    if extension_dir not in sys.path:
+                        sys.path.insert(0, extension_dir)
                     import whats_new
                     whats_new.show_whats_new()
                 except Exception:
