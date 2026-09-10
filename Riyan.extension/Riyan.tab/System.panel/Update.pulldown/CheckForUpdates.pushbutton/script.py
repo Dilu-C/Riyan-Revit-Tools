@@ -194,11 +194,23 @@ def update_tools():
                                 shutil.rmtree(target_d, ignore_errors=True)
                             except Exception:
                                 pass
-                    # Clean legacy button directories inside System.panel
+                    # Clean legacy button directories inside System.panel and Coordination.panel
                     try:
                         for root, dirs, files in os.walk(folder):
-                            if os.path.basename(root) == "System.panel":
+                            bname = os.path.basename(root)
+                            if bname == "System.panel":
                                 for item in legacy_panel_items:
+                                    target = os.path.join(root, item)
+                                    if os.path.exists(target):
+                                        try:
+                                            if os.path.isdir(target):
+                                                shutil.rmtree(target, ignore_errors=True)
+                                            else:
+                                                os.remove(target)
+                                        except Exception:
+                                            pass
+                            elif bname == "Coordination.panel":
+                                for item in ["link.pushbutton"]:
                                     target = os.path.join(root, item)
                                     if os.path.exists(target):
                                         try:
