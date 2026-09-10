@@ -176,6 +176,7 @@ def update_tools():
                 
                 ext_root = os.path.expandvars(r"%APPDATA%\pyRevit\Extensions")
                 clean_targets = set(filter(None, [extension_dir, parent_dir, ext_root]))
+                legacy_panel_items = ["Update.pushbutton", "Update.stack", "WhatsNew.pushbutton"]
                 for folder in clean_targets:
                     if not os.path.exists(folder):
                         continue
@@ -193,6 +194,22 @@ def update_tools():
                                 shutil.rmtree(target_d, ignore_errors=True)
                             except Exception:
                                 pass
+                    # Clean legacy button directories inside System.panel
+                    try:
+                        for root, dirs, files in os.walk(folder):
+                            if os.path.basename(root) == "System.panel":
+                                for item in legacy_panel_items:
+                                    target = os.path.join(root, item)
+                                    if os.path.exists(target):
+                                        try:
+                                            if os.path.isdir(target):
+                                                shutil.rmtree(target, ignore_errors=True)
+                                            else:
+                                                os.remove(target)
+                                        except Exception:
+                                            pass
+                    except Exception:
+                        pass
                 
                 pb.update_progress(100, 100)
                 

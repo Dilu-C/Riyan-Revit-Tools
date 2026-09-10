@@ -190,6 +190,8 @@ def cleanup_legacy_files():
         ]
         bad_dirs = [".agents"]
         
+        legacy_panel_items = ["Update.pushbutton", "Update.stack", "WhatsNew.pushbutton"]
+        
         for folder in target_folders:
             if not os.path.exists(folder):
                 continue
@@ -204,9 +206,25 @@ def cleanup_legacy_files():
                 p = os.path.join(folder, d)
                 if os.path.isdir(p):
                     try:
-                        shutil.rmtree(d, ignore_errors=True)
+                        shutil.rmtree(p, ignore_errors=True)
                     except Exception:
                         pass
+            # Clean legacy button directories inside System.panel
+            try:
+                for root, dirs, files in os.walk(folder):
+                    if os.path.basename(root) == "System.panel":
+                        for item in legacy_panel_items:
+                            target = os.path.join(root, item)
+                            if os.path.exists(target):
+                                try:
+                                    if os.path.isdir(target):
+                                        shutil.rmtree(target, ignore_errors=True)
+                                    else:
+                                        os.remove(target)
+                                except Exception:
+                                    pass
+            except Exception:
+                pass
     except Exception:
         pass
 
