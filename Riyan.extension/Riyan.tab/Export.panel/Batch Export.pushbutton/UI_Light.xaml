@@ -3,7 +3,8 @@
         Title="Batch Export Manager" Height="700" Width="1320"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
-        ResizeMode="CanResizeWithGrip">
+        ResizeMode="CanResizeWithGrip"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <Window.Resources>
         <!-- Include all needed resources inline for simplicity or reference from parent -->
@@ -147,7 +148,8 @@
                             <ColumnDefinition x:Name="HCol3" Width="*" MinWidth="140" SharedSizeGroup="Col3"/>
                         </Grid.ColumnDefinitions>
                         
-                        <Border Grid.Column="0" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5">
+                        <Border Grid.Column="0" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"
+                                Cursor="Hand" Background="Transparent" PreviewMouseLeftButtonDown="HeaderFileCell_MouseDown">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
                                 <CheckBox x:Name="ChkSelectAllFiles" IsChecked="True" IsThreeState="True" VerticalAlignment="Center" Margin="0,0,8,0" Click="ChkSelectAllFiles_Click" ToolTip="Select / Deselect All Files"/>
                                 <TextBlock Text="Revit File" FontWeight="SemiBold" Foreground="{StaticResource TextDim}" VerticalAlignment="Center"/>

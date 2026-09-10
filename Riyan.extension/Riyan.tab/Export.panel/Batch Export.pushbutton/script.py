@@ -346,14 +346,48 @@ class SheetRow:
         
         self.border.MouseLeftButtonDown += self.on_select
 
+    def highlight(self, bg_brush, text_brush):
+        self.border.Background = bg_brush
+        self.txt_name.Foreground = text_brush
+        if self.txt_status.Text in ["Pending", "Skipped", ""]:
+            self.txt_status.Foreground = text_brush
+
+    def unhighlight(self, brush_main, brush_dim):
+        self.border.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+        if brush_main:
+            self.txt_name.Foreground = brush_main
+        if brush_dim and self.txt_status.Text in ["Pending", "Skipped", ""]:
+            self.txt_status.Foreground = brush_dim
+
     def on_chk_clicked(self, sender, e):
-        if self.parent_group:
-            self.parent_group.update_collection_checkbox()
-        elif self.parent:
-            self.parent.update_master_checkbox()
+        is_checked = (self.chk.IsChecked == True)
+        selected_sheets = getattr(self.form, 'selected_sheets', [])
+        if self in selected_sheets and len(selected_sheets) > 1:
+            for s in selected_sheets:
+                s.chk.IsChecked = is_checked
+                if s.parent_group:
+                    s.parent_group.update_collection_checkbox()
+                elif s.parent:
+                    s.parent.update_master_checkbox()
+        else:
+            if self.parent_group:
+                self.parent_group.update_collection_checkbox()
+            elif self.parent:
+                self.parent.update_master_checkbox()
+        if hasattr(self.form, 'update_file_count'):
+            self.form.update_file_count()
 
     def on_select(self, sender, e):
-        self.form.select_sheet(self)
+        if hasattr(e, "OriginalSource") and isinstance(e.OriginalSource, System.Windows.Controls.CheckBox):
+            return
+            
+        import System.Windows.Input
+        is_ctrl = System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.LeftCtrl) or \
+                  System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.RightCtrl)
+        is_shift = System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.LeftShift) or \
+                   System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.RightShift)
+                   
+        self.form.select_sheet_advanced(self, is_ctrl=is_ctrl, is_shift=is_shift)
         
     def set_status(self, msg, is_done=False, is_exporting=False, is_error=False):
         clean_msg = msg or ""
@@ -947,6 +981,17 @@ class BatchExportForm(forms.WPFWindow):
             else:
                 self.ChkSelectAllFiles.IsChecked = None
 
+    def HeaderFileCell_MouseDown(self, sender, e):
+        try:
+            if hasattr(e, "OriginalSource") and isinstance(e.OriginalSource, System.Windows.Controls.CheckBox):
+                return
+            new_val = not (self.ChkSelectAllFiles.IsChecked == True)
+            self.ChkSelectAllFiles.IsChecked = new_val
+            self.ChkSelectAllFiles_Click(self.ChkSelectAllFiles, None)
+            e.Handled = True
+        except Exception:
+            pass
+
     def ChkSelectAllFiles_Click(self, sender, e):
         val = (self.ChkSelectAllFiles.IsChecked == True)
         self.ChkSelectAllFiles.IsChecked = val
@@ -1016,26 +1061,58 @@ class BatchExportForm(forms.WPFWindow):
         except Exception as ex:
             forms.alert("Error saving theme: " + str(ex))
 
-    def select_sheet(self, sheet_row):
+    def select_sheet_advanced(self, sheet_row, is_ctrl=False, is_shift=False):
+        if not hasattr(self, 'selected_sheets'):
+            self.selected_sheets = []
+            
+        all_sheet_rows = []
+        for r in self.rows:
+            all_sheet_rows.extend(getattr(r, 'sheet_rows', []))
+            
         brush_main = self.FindResource("TextMain")
         brush_dim = self.FindResource("TextDim")
         
-        if self.selected_sheet:
-            self.selected_sheet.border.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
-            if brush_main: self.selected_sheet.txt_name.Foreground = brush_main
-            if brush_dim and self.selected_sheet.txt_status.Text in ["Pending", "Skipped", ""]:
-                self.selected_sheet.txt_status.Foreground = brush_dim
+        theme = self.settings.get("theme", "Dark")
+        if theme == "Dark":
+            select_brush = SolidColorBrush(ColorConverter.ConvertFromString("#4A2220"))
+            select_text = SolidColorBrush(System.Windows.Media.Colors.White)
+        else:
+            select_brush = SolidColorBrush(ColorConverter.ConvertFromString("#FFE7B3"))
+            select_text = SolidColorBrush(System.Windows.Media.Colors.Black)
+            
+        if is_shift and self.selected_sheets and sheet_row in all_sheet_rows:
+            last = self.selected_sheets[-1]
+            if last in all_sheet_rows:
+                idx1 = all_sheet_rows.index(last)
+                idx2 = all_sheet_rows.index(sheet_row)
+                start_i = min(idx1, idx2)
+                end_i = max(idx1, idx2)
+                new_selection = all_sheet_rows[start_i:end_i+1]
+                for s in self.selected_sheets:
+                    s.unhighlight(brush_main, brush_dim)
+                self.selected_sheets = new_selection
+                for s in self.selected_sheets:
+                    s.highlight(select_brush, select_text)
+        elif is_ctrl:
+            if sheet_row in self.selected_sheets:
+                sheet_row.unhighlight(brush_main, brush_dim)
+                self.selected_sheets.remove(sheet_row)
+            else:
+                self.selected_sheets.append(sheet_row)
+                sheet_row.highlight(select_brush, select_text)
+        else:
+            for s in self.selected_sheets:
+                s.unhighlight(brush_main, brush_dim)
+            self.selected_sheets = [sheet_row]
+            sheet_row.highlight(select_brush, select_text)
             
         self.selected_sheet = sheet_row
-        select_color = ColorConverter.ConvertFromString("#FFF2C8")
-        self.selected_sheet.border.Background = SolidColorBrush(select_color)
-        
-        black_brush = SolidColorBrush(System.Windows.Media.Colors.Black)
-        self.selected_sheet.txt_name.Foreground = black_brush
-        if self.selected_sheet.txt_status.Text in ["Pending", "Skipped", ""]:
-            self.selected_sheet.txt_status.Foreground = black_brush
+        self.update_sheet_details(sheet_row)
 
-        # Update Right Side Panel (Sheet Info & Preview)
+    def select_sheet(self, sheet_row):
+        self.select_sheet_advanced(sheet_row, is_ctrl=False, is_shift=False)
+
+    def update_sheet_details(self, sheet_row):
         try:
             ms = sheet_row.mock_sheet
             if hasattr(self, 'TxtDetailNumber'):
@@ -1070,6 +1147,52 @@ class BatchExportForm(forms.WPFWindow):
                     self.TxtPreviewHint.Text = "Click Preview to view"
                 if hasattr(self, 'BtnDoPreview'):
                     self.BtnDoPreview.Visibility = System.Windows.Visibility.Visible
+        except Exception:
+            pass
+
+    def Window_PreviewKeyDown(self, sender, e):
+        try:
+            import System.Windows.Input
+            import System.Windows.Controls
+            
+            # 1. Escape: Close window
+            if e.Key == System.Windows.Input.Key.Escape:
+                self.CloseBtn_Click(sender, e)
+                e.Handled = True
+                return
+                
+            # 2. Enter: Run Batch Export
+            if e.Key == System.Windows.Input.Key.Enter:
+                src = getattr(e, "OriginalSource", None)
+                if src and isinstance(src, System.Windows.Controls.TextBox):
+                    return
+                if hasattr(self, 'BtnExport') and self.BtnExport.IsEnabled:
+                    self.BtnExport_Click(sender, e)
+                    e.Handled = True
+                    return
+                    
+            # 3. Spacebar: Toggle selection on all highlighted sheets
+            if e.Key == System.Windows.Input.Key.Space:
+                src = getattr(e, "OriginalSource", None)
+                if src and isinstance(src, System.Windows.Controls.TextBox):
+                    return
+                    
+                selected = getattr(self, 'selected_sheets', [])
+                if not selected and self.selected_sheet:
+                    selected = [self.selected_sheet]
+                    
+                if selected:
+                    any_unchecked = any(not (s.chk.IsChecked == True) for s in selected)
+                    target = True if any_unchecked else False
+                    for s in selected:
+                        s.chk.IsChecked = target
+                        if s.parent_group:
+                            s.parent_group.update_collection_checkbox()
+                        elif s.parent:
+                            s.parent.update_master_checkbox()
+                    self.update_file_count()
+                    e.Handled = True
+                    return
         except Exception:
             pass
 
