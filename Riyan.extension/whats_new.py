@@ -14,7 +14,7 @@ from System.Windows import Application, Window
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riyan Revit Tools - V2.0 Major Release" Height="580" Width="820"
+        Title="Riyan Revit Tools - V2.2 Release" Height="580" Width="820"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize" FontFamily="Segoe UI">
@@ -94,10 +94,10 @@ XAML_STRING = """
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
                             <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="V2.0 MAJOR RELEASE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="V2.2 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Smart Archiving, True Lifecycle Exporting &amp; Enterprise Memory Shield" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
+                        <TextBlock Text="Full-Cell Selection, Spacebar Multi-Toggle &amp; Instant Dialog Shortcuts" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
                         <TextBlock Text="👨‍💻 Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -124,7 +124,7 @@ XAML_STRING = """
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Card 1: Smart Archiving -->
+                <!-- Card 1: Full-Cell Sheet Selection -->
                 <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -134,60 +134,60 @@ XAML_STRING = """
                         <TextBlock Grid.Column="0" Text="🎯" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Smart Selective Archiving" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Full-Cell Click Selection" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#1E3A2F" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Zero Over-Sweep" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Edge-to-Edge" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Only archives old files strictly matching active deliverables (Combined PDF, Drawing List, sheets). Other buildings remain 100% untouched."
+                            <TextBlock Text="No need to hit the tiny checkbox! Click anywhere across the entire cell or header to toggle sheet selection immediately with instant Hand feedback."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 2: True Lifecycle -->
+                <!-- Card 2: Spacebar Multi-Select -->
                 <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="🔄" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                        <TextBlock Grid.Column="0" Text="⌨️" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="True Lifecycle Ordering" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Spacebar Multi-Row Toggle" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#3B311B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Logical Flow" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Rapid Workflow" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Individual sheets export first with live Pending ➔ Exporting... ➔ Done status badges. Combined PDF compiles only after all sheets finish."
+                            <TextBlock Text="Select multiple sheet rows with Shift/Ctrl click, then press Spacebar or click any selected checkbox to toggle all of them simultaneously."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 3: Clean Naming -->
+                <!-- Card 3: Rapid Dialog Shortcuts -->
                 <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="🏷️" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                        <TextBlock Grid.Column="0" Text="⚡" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Clean Profile Deliverable Naming" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Enter &amp; Escape Keyboard Control" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#1E293B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="No Junk Prefixes" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Instant Action" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Hardcoded Combined_Set_ prefixes removed. All file deliverables strictly adhere to selected Project Profile Schemes or clean RVT Base Names."
+                            <TextBlock Text="Custom alerts, naming prompts, profile saves, and export completed dialogs now respond immediately to Enter (OK) and Escape (Cancel)."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 4: Memory Shield -->
+                <!-- Card 4: Memory Shield & Archiving -->
                 <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -197,12 +197,12 @@ XAML_STRING = """
                         <TextBlock Grid.Column="0" Text="🛡️" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Zero-Hang Revit Memory Shield" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Zero-Hang Memory Shield" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#311F3B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Instant Exit" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Rock Solid" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Background models close immediately after reading data and after export. No lingering document handles, zero lockup on exit, guaranteed clean UI."
+                            <TextBlock Text="Smart selective archiving and robust background model release ensure zero lingering handles and lightning-fast Revit operation."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>

@@ -2796,12 +2796,16 @@ class ExportManagerForm(forms.WPFWindow):
             new_val = not getattr(clicked_item, "IsSelected", False)
             selected_items = list(self.GridSheets.SelectedItems) if hasattr(self, "GridSheets") else []
 
-            # If multiple rows are highlighted and the clicked row is part of that selection:
             if clicked_item in selected_items and len(selected_items) > 1:
                 for item in selected_items:
                     item.IsSelected = new_val
             else:
                 clicked_item.IsSelected = new_val
+                if hasattr(self, "GridSheets"):
+                    try:
+                        self.GridSheets.SelectedItem = clicked_item
+                    except Exception:
+                        pass
 
             self.update_selection_stats()
             e.Handled = True

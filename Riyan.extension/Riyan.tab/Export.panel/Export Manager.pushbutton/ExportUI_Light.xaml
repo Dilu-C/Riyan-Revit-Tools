@@ -348,13 +348,13 @@
             <Setter Property="Foreground" Value="#222222"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="4,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="DataGridCell">
                         <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter VerticalAlignment="Center"/>
+                            <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -632,19 +632,57 @@
                                     </ContextMenu>
                                 </DataGrid.ContextMenu>
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="40" CanUserSort="False">
+                                    <DataGridTemplateColumn Width="45" CanUserSort="False">
+                                        <DataGridTemplateColumn.HeaderStyle>
+                                            <Style TargetType="DataGridColumnHeader">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                                <Setter Property="BorderBrush" Value="#C8C8C8"/>
+                                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                                <Setter Property="Padding" Value="0"/>
+                                                <Setter Property="Margin" Value="0"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#FFF9D6"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.HeaderStyle>
                                         <DataGridTemplateColumn.Header>
-                                            <Border PreviewMouseLeftButtonDown="HeaderCheckBoxCell_MouseDown" Background="Transparent" Cursor="Hand"
-                                                    Padding="10,8" Margin="-10,-8,-10,-8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <Grid PreviewMouseLeftButtonDown="HeaderCheckBoxCell_MouseDown" Background="#01000000" Cursor="Hand"
+                                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="32">
                                                 <CheckBox x:Name="CbHeaderSelectAll" Style="{StaticResource DarkCheckBox}" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
-                                            </Border>
+                                            </Grid>
                                         </DataGridTemplateColumn.Header>
+                                        <DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="BorderThickness" Value="0"/>
+                                                <Setter Property="Padding" Value="0"/>
+                                                <Setter Property="Margin" Value="0"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="DataGridCell">
+                                                            <Border Background="{TemplateBinding Background}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Border PreviewMouseLeftButtonDown="SheetCheckBoxCell_MouseDown" Background="Transparent" Cursor="Hand"
-                                                        Margin="-10,-6,-10,-6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <Grid PreviewMouseLeftButtonDown="SheetCheckBoxCell_MouseDown" Background="#01000000" Cursor="Hand"
+                                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                                     <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DarkCheckBox}" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
-                                                </Border>
+                                                </Grid>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
