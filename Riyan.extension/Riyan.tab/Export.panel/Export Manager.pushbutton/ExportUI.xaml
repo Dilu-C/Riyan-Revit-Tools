@@ -142,6 +142,21 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
+        <!-- Dark ContextMenu -->
+        <Style x:Key="DarkContextMenu" TargetType="ContextMenu">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Padding" Value="4,4"/>
+        </Style>
+        <Style x:Key="DarkMenuItem" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Padding" Value="8,5"/>
+        </Style>
+
         <!-- Dark RadioButton -->
         <Style x:Key="DarkRadio" TargetType="RadioButton">
             <Setter Property="Foreground" Value="#CCCCCC"/>
@@ -388,7 +403,7 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                         <Image x:Name="TitleLogo" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <TextBlock Text="Riyan Export Manager V2.0" Foreground="#802F2D" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="Riyan Export Manager" Foreground="#802F2D" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
                     <Button x:Name="btnThemeToggle" Content="☀️ Light" Width="72" Height="24" Margin="0,2,10,0"
@@ -506,9 +521,8 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/> <!-- Radios -->
                                 <ColumnDefinition Width="Auto"/> <!-- View/Sheet Set text -->
-                                <ColumnDefinition Width="Auto"/> <!-- Filter Checkbox + Combo -->
-                                <ColumnDefinition Width="Auto"/> <!-- Save Combo -->
-                                <ColumnDefinition Width="Auto"/> <!-- Star -->
+                                <ColumnDefinition Width="Auto"/> <!-- Filter Combo -->
+                                <ColumnDefinition Width="Auto"/> <!-- Set Action Buttons + Favorite -->
                                 <ColumnDefinition Width="*"/>    <!-- Spacer -->
                                 <ColumnDefinition Width="220"/>  <!-- Search -->
                             </Grid.ColumnDefinitions>
@@ -523,17 +537,50 @@
 
                             <ComboBox x:Name="CmbFilterSets" Grid.Column="2" Style="{StaticResource DarkComboBox}" Width="150" Margin="0,0,8,0" SelectionChanged="CmbFilterSets_SelectionChanged"/>
 
-                            <ComboBox x:Name="CmbSetActions" Grid.Column="3" Style="{StaticResource DarkComboBox}" Width="140" Margin="0,0,8,0" SelectionChanged="CmbSetActions_SelectionChanged">
-                                <ComboBoxItem Content="Unsaved Set" IsSelected="True"/>
-                                <ComboBoxItem Content="New set"/>
-                                <ComboBoxItem Content="Add to Existing"/>
-                                <ComboBoxItem Content="Delete set"/>
-                            </ComboBox>
-
-                            <TextBlock Grid.Column="4" Text="☆" Foreground="#C8922A" FontSize="16" VerticalAlignment="Center" Margin="0,0,0,0" ToolTip="Favorites"/>
+                            <!-- Set Action Buttons matching Revit Print Dialog -->
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                <!-- Save current set -->
+                                <Button x:Name="BtnSaveSet" Style="{StaticResource SecondaryBtn}" Width="26" Height="26" Margin="0,0,3,0" Click="BtnSaveSet_Click" ToolTip="Save current set">
+                                    <TextBlock Text="💾" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <!-- Duplicate set -->
+                                <Button x:Name="BtnDuplicateSet" Style="{StaticResource SecondaryBtn}" Width="26" Height="26" Margin="0,0,3,0" Click="BtnDuplicateSet_Click" ToolTip="Duplicate set">
+                                    <Grid Width="15" Height="15">
+                                        <Border Width="9" Height="11" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1,1,0,0" BorderBrush="#888888" BorderThickness="1" Background="#3A3A3A" CornerRadius="1"/>
+                                        <Border Width="9" Height="11" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,1,1" BorderBrush="#DDDDDD" BorderThickness="1" Background="#1E1E1E" CornerRadius="1"/>
+                                    </Grid>
+                                </Button>
+                                <!-- Create new set -->
+                                <Button x:Name="BtnNewSet" Style="{StaticResource SecondaryBtn}" Width="26" Height="26" Margin="0,0,3,0" Click="BtnNewSet_Click" ToolTip="Create new empty set">
+                                    <Grid Width="15" Height="15">
+                                        <Border Width="10" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,1,1" BorderBrush="#DDDDDD" BorderThickness="1" Background="#1E1E1E" CornerRadius="1"/>
+                                        <TextBlock Text="✦" FontSize="11" Foreground="#FF9800" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-1,-3,0,0"/>
+                                    </Grid>
+                                </Button>
+                                <!-- Rename set -->
+                                <Button x:Name="BtnRenameSet" Style="{StaticResource SecondaryBtn}" Width="26" Height="26" Margin="0,0,3,0" Click="BtnRenameSet_Click" ToolTip="Rename set">
+                                    <Border Width="15" Height="14" Background="#1976D2" CornerRadius="2">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock Text="A" FontSize="9" FontWeight="Bold" Foreground="White" Margin="0,-1,1,0"/>
+                                            <Rectangle Width="1.2" Height="9" Fill="White"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Button>
+                                <!-- Delete set -->
+                                <Button x:Name="BtnDeleteSet" Style="{StaticResource SecondaryBtn}" Width="26" Height="26" Margin="0,0,4,0" Click="BtnDeleteSet_Click" ToolTip="Delete set">
+                                    <Grid Width="15" Height="15">
+                                        <Border Width="10" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,1,1" BorderBrush="#DDDDDD" BorderThickness="1" Background="#1E1E1E" CornerRadius="1"/>
+                                        <TextBlock Text="✕" FontSize="10" Foreground="#F44336" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-1,-2,0,0"/>
+                                    </Grid>
+                                </Button>
+                                <!-- Favorite star -->
+                                <Button x:Name="BtnFavoriteStar" Style="{StaticResource SecondaryBtn}" Width="26" Height="26" Margin="1,0,0,0" Click="BtnFavorite_Click" ToolTip="Favorites">
+                                    <TextBlock x:Name="TxtFavoriteStar" Text="☆" Foreground="#C8922A" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+                                </Button>
+                            </StackPanel>
 
                             <!-- Live Search Box -->
-                            <Grid Grid.Column="6">
+                            <Grid Grid.Column="5">
                                 <TextBox x:Name="TxtSearch" Padding="8,6,24,6" TextChanged="TxtSearch_TextChanged"/>
                                 <TextBlock IsHitTestVisible="False" Text="Search..." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" Foreground="#555555">
                                     <TextBlock.Style>
@@ -552,32 +599,43 @@
 
                         <!-- Sheets DataGrid -->
                         <Border Grid.Row="1" CornerRadius="8" BorderBrush="#222222" BorderThickness="1" ClipToBounds="True">
-                            <DataGrid x:Name="GridSheets" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionMode="Extended" BorderThickness="0" CanUserResizeRows="True" CanUserSortColumns="False">
+                            <DataGrid x:Name="GridSheets" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionMode="Extended" BorderThickness="0" CanUserResizeRows="True" CanUserSortColumns="True" Sorting="GridSheets_Sorting" PreviewKeyDown="GridSheets_PreviewKeyDown">
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu Style="{StaticResource DarkContextMenu}">
+                                        <MenuItem Header="✓  Check Selected (Space)" Click="MenuCheckSelected_Click" Style="{StaticResource DarkMenuItem}"/>
+                                        <MenuItem Header="☐  Uncheck Selected" Click="MenuUncheckSelected_Click" Style="{StaticResource DarkMenuItem}"/>
+                                        <MenuItem Header="⇄  Invert Selected" Click="MenuInvertSelected_Click" Style="{StaticResource DarkMenuItem}"/>
+                                        <Separator/>
+                                        <MenuItem Header="Select All Sheets" Click="MenuCheckAll_Click" Style="{StaticResource DarkMenuItem}"/>
+                                        <MenuItem Header="Unselect All Sheets" Click="MenuUncheckAll_Click" Style="{StaticResource DarkMenuItem}"/>
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="40">
+                                    <DataGridTemplateColumn Width="40" CanUserSort="False">
                                         <DataGridTemplateColumn.Header>
-                                            <CheckBox x:Name="CbHeaderSelectAll" Style="{StaticResource DarkCheckBox}" Click="CbHeaderSelectAll_Click" HorizontalAlignment="Center"/>
+                                            <Border PreviewMouseLeftButtonDown="HeaderCheckBoxCell_MouseDown" Background="Transparent" Cursor="Hand"
+                                                    Padding="10,8" Margin="-10,-8,-10,-8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <CheckBox x:Name="CbHeaderSelectAll" Style="{StaticResource DarkCheckBox}" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                            </Border>
                                         </DataGridTemplateColumn.Header>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DarkCheckBox}" HorizontalAlignment="Center" VerticalAlignment="Center" Click="CbSheetSelect_Click"/>
+                                                <Border PreviewMouseLeftButtonDown="SheetCheckBoxCell_MouseDown" Background="Transparent" Cursor="Hand"
+                                                        Margin="-10,-6,-10,-6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DarkCheckBox}" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                                </Border>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTextColumn Width="150" IsReadOnly="True" FontWeight="Bold" SortMemberPath="SheetNumber">
+                                    <DataGridTextColumn Width="150" IsReadOnly="True" FontWeight="Bold" SortMemberPath="SheetNumber" CanUserSort="True">
                                         <DataGridTextColumn.Header>
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <TextBlock Text="Sheet Number" FontSize="11" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center"/>
-                                                <Button PreviewMouseLeftButtonUp="SortBtn_Click" Tag="SheetNumber" Content="▼" FontSize="11" Foreground="#888888" Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="6,0,0,0" Padding="4,2">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent">
-                                                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                            </StackPanel>
+                                            <Border Tag="SheetNumber" PreviewMouseLeftButtonDown="SortHeader_MouseDown" Background="Transparent" Cursor="Hand"
+                                                    Padding="10,8" Margin="-10,-8,-10,-8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False">
+                                                    <TextBlock Text="Sheet Number" FontSize="11" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="TxtSort_SheetNumber" Text="▼" FontSize="10" Foreground="#888888" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Border>
                                         </DataGridTextColumn.Header>
                                         <DataGridTextColumn.Binding>
                                             <Binding Path="SheetNumber" Mode="OneWay"/>
@@ -591,20 +649,15 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Width="*" IsReadOnly="True" SortMemberPath="SheetName">
+                                    <DataGridTextColumn Width="*" IsReadOnly="True" SortMemberPath="SheetName" CanUserSort="True">
                                         <DataGridTextColumn.Header>
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <TextBlock Text="Sheet Name" FontSize="11" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center"/>
-                                                <Button PreviewMouseLeftButtonUp="SortBtn_Click" Tag="SheetName" Content="▼" FontSize="11" Foreground="#888888" Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="6,0,0,0" Padding="4,2">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent">
-                                                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                            </StackPanel>
+                                            <Border Tag="SheetName" PreviewMouseLeftButtonDown="SortHeader_MouseDown" Background="Transparent" Cursor="Hand"
+                                                    Padding="10,8" Margin="-10,-8,-10,-8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False">
+                                                    <TextBlock Text="Sheet Name" FontSize="11" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="TxtSort_SheetName" Text="▼" FontSize="10" Foreground="#888888" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Border>
                                         </DataGridTextColumn.Header>
                                         <DataGridTextColumn.Binding>
                                             <Binding Path="SheetName" Mode="OneWay"/>
@@ -617,20 +670,15 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Width="80" IsReadOnly="True" SortMemberPath="Revision">
+                                    <DataGridTextColumn Width="80" IsReadOnly="True" SortMemberPath="Revision" CanUserSort="True">
                                         <DataGridTextColumn.Header>
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <TextBlock Text="Revision" FontSize="11" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center"/>
-                                                <Button PreviewMouseLeftButtonUp="SortBtn_Click" Tag="Revision" Content="▼" FontSize="11" Foreground="#888888" Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="6,0,0,0" Padding="4,2">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent">
-                                                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                            </StackPanel>
+                                            <Border Tag="Revision" PreviewMouseLeftButtonDown="SortHeader_MouseDown" Background="Transparent" Cursor="Hand"
+                                                    Padding="10,8" Margin="-10,-8,-10,-8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False">
+                                                    <TextBlock Text="Revision" FontSize="11" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="TxtSort_Revision" Text="▼" FontSize="10" Foreground="#888888" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Border>
                                         </DataGridTextColumn.Header>
                                         <DataGridTextColumn.Binding>
                                             <Binding Path="Revision" Mode="OneWay"/>
@@ -643,20 +691,15 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Width="80" IsReadOnly="True" SortMemberPath="Size">
+                                    <DataGridTextColumn Width="80" IsReadOnly="True" SortMemberPath="Size" CanUserSort="True">
                                         <DataGridTextColumn.Header>
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <TextBlock Text="Size" FontSize="11" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center"/>
-                                                <Button PreviewMouseLeftButtonUp="SortBtn_Click" Tag="Size" Content="▼" FontSize="11" Foreground="#888888" Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="6,0,0,0" Padding="4,2">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent">
-                                                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                            </StackPanel>
+                                            <Border Tag="Size" PreviewMouseLeftButtonDown="SortHeader_MouseDown" Background="Transparent" Cursor="Hand"
+                                                    Padding="10,8" Margin="-10,-8,-10,-8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False">
+                                                    <TextBlock Text="Size" FontSize="11" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="TxtSort_Size" Text="▼" FontSize="10" Foreground="#888888" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Border>
                                         </DataGridTextColumn.Header>
                                         <DataGridTextColumn.Binding>
                                             <Binding Path="Size" Mode="OneWay"/>
@@ -671,7 +714,7 @@
                                     </DataGridTextColumn>
 
                                     <!-- Custom File Name Column — Accented Header like ProSheets -->
-                                    <DataGridTemplateColumn Width="2.5*" SortMemberPath="CustomFileName" IsReadOnly="True">
+                                    <DataGridTemplateColumn Width="2.5*" SortMemberPath="CustomFileName" CanUserSort="False" IsReadOnly="True">
                                         <DataGridTemplateColumn.Header>
                                             <Button Click="BtnNamingBuilder_Click" Cursor="Hand" Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                                 <Button.Template>
@@ -722,7 +765,9 @@
                         <Grid Grid.Row="2" Margin="0,12,0,0">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <CheckBox x:Name="CbShowActive" Click="CbShowActive_Click" Content="Show only active Sheets/Views" Style="{StaticResource DarkCheckBox}" Margin="0,0,8,0"/>
-                                <TextBlock Text="☆" Foreground="#C8922A" FontSize="16" VerticalAlignment="Center" ToolTip="Favorites"/>
+                                <Button x:Name="BtnBottomFavoriteStar" Click="BtnFavorite_Click" Width="24" Height="24" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Favorites" VerticalAlignment="Center">
+                                    <TextBlock x:Name="TxtBottomFavoriteStar" Text="☆" Foreground="#C8922A" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
                             </StackPanel>
                         </Grid>
                     </Grid>

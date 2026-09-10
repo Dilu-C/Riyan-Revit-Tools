@@ -280,7 +280,7 @@ class SheetRow:
         self.border.Child = self.grid
         
         from System.Windows.Data import Binding, BindingMode
-        for i in range(9):
+        for i in range(7):
             cd = System.Windows.Controls.ColumnDefinition()
             if i % 2 == 0:
                 col_index = i // 2
@@ -294,7 +294,7 @@ class SheetRow:
                     else:
                         raise Exception("Not found")
                 except:
-                    fixed_widths = {0: 330, 1: 140, 2: 140, 3: 160, 4: 180}
+                    fixed_widths = {0: 380, 1: 180, 2: 200, 3: 160}
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
@@ -341,7 +341,7 @@ class SheetRow:
         if brush_dim: self.txt_status.Foreground = brush_dim
         
         self.border_status.Child = self.txt_status
-        Grid.SetColumn(self.border_status, 8)
+        Grid.SetColumn(self.border_status, 6)
         self.grid.Children.Add(self.border_status)
         
         self.border.MouseLeftButtonDown += self.on_select
@@ -421,7 +421,7 @@ class CollectionGroup:
         self.header_border.Child = self.grid
         
         from System.Windows.Data import Binding, BindingMode
-        for i in range(9):
+        for i in range(7):
             cd = System.Windows.Controls.ColumnDefinition()
             if i % 2 == 0:
                 col_index = i // 2
@@ -435,7 +435,7 @@ class CollectionGroup:
                     else:
                         raise Exception("Not found")
                 except:
-                    fixed_widths = {0: 330, 1: 140, 2: 140, 3: 160, 4: 180}
+                    fixed_widths = {0: 380, 1: 180, 2: 200, 3: 160}
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
@@ -527,13 +527,15 @@ class FileRow:
         self.file_path = file_path
         self.form = form_instance
         self.profiles = form_instance.profiles
-        self.output_location = ""
+        self.output_location = os.path.dirname(os.path.abspath(self.file_path))
         self.mock_doc = MockDoc()
         self.sets_dict = {}
         self.sheet_rows = []
         self.collection_groups = []
-        self.is_expanded = True
+        self.is_expanded = False
         self._updating_master = False
+        self.sheets_loaded = False
+        self._sheet_set_name = "PRINT"
         
         brush_main = form_instance.FindResource("TextMain")
         brush_dim = form_instance.FindResource("TextDim")
@@ -546,7 +548,7 @@ class FileRow:
         self.main_container.Children.Add(self.grid)
         
         from System.Windows.Data import Binding, BindingMode
-        for i in range(9):
+        for i in range(7):
             cd = System.Windows.Controls.ColumnDefinition()
             if i % 2 == 0:
                 col_index = i // 2
@@ -561,7 +563,7 @@ class FileRow:
                         raise Exception("Not found")
                 except:
                     # Fallback if binding fails
-                    fixed_widths = {0: 330, 1: 140, 2: 140, 3: 160, 4: 180} # 4 is * in XAML but we give it a min fallback
+                    fixed_widths = {0: 380, 1: 180, 2: 200, 3: 160}
                     if col_index in fixed_widths:
                         cd.Width = GridLength(fixed_widths[col_index], GridUnitType.Pixel)
                         cd.SharedSizeGroup = "Col" + str(col_index)
@@ -574,7 +576,7 @@ class FileRow:
         sp_file.VerticalAlignment = VerticalAlignment.Center
         
         self.chk_all = System.Windows.Controls.CheckBox()
-        self.chk_all.IsChecked = False
+        self.chk_all.IsChecked = True
         self.chk_all.IsThreeState = True
         self.chk_all.VerticalAlignment = VerticalAlignment.Center
         self.chk_all.Margin = Thickness(5, 0, 5, 0)
@@ -582,7 +584,7 @@ class FileRow:
         sp_file.Children.Add(self.chk_all)
         
         self.btn_expand = Button()
-        self.btn_expand.Content = "-"
+        self.btn_expand.Content = "+"
         self.btn_expand.Width = 20
         self.btn_expand.Height = 20
         self.btn_expand.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
@@ -605,21 +607,13 @@ class FileRow:
         self.grid.Children.Add(sp_file)
         
         self.cmb_set = ComboBox()
+        self.cmb_set.IsEditable = True
+        self.cmb_set.Text = "PRINT"
         self.cmb_set.VerticalAlignment = VerticalAlignment.Center
         self.cmb_set.Margin = Thickness(5,0,5,0)
         self.cmb_set.SelectionChanged += self.on_options_changed
         Grid.SetColumn(self.cmb_set, 2)
         self.grid.Children.Add(self.cmb_set)
-        
-        self.cmb_profile = ComboBox()
-        self.cmb_profile.ItemsSource = form_instance.profiles
-        self.cmb_profile.VerticalAlignment = VerticalAlignment.Center
-        self.cmb_profile.Margin = Thickness(5,0,5,0)
-        if form_instance.profiles:
-            self.cmb_profile.SelectedIndex = 0
-        self.cmb_profile.SelectionChanged += self.on_options_changed
-        Grid.SetColumn(self.cmb_profile, 4)
-        self.grid.Children.Add(self.cmb_profile)
         
         loc_grid = Grid()
         loc_grid.ColumnDefinitions.Add(System.Windows.Controls.ColumnDefinition())
@@ -628,9 +622,10 @@ class FileRow:
         loc_grid.ColumnDefinitions.Add(cd_btn)
         
         self.txt_loc = TextBlock()
-        self.txt_loc.Text = "Select Folder..."
+        self.txt_loc.Text = os.path.basename(self.output_location) or self.output_location
+        self.txt_loc.ToolTip = self.output_location
         self.txt_loc.VerticalAlignment = VerticalAlignment.Center
-        if brush_dim: self.txt_loc.Foreground = brush_dim
+        if brush_main: self.txt_loc.Foreground = brush_main
         Grid.SetColumn(self.txt_loc, 0)
         loc_grid.Children.Add(self.txt_loc)
         
@@ -642,7 +637,7 @@ class FileRow:
         Grid.SetColumn(self.btn_browse, 1)
         loc_grid.Children.Add(self.btn_browse)
         
-        Grid.SetColumn(loc_grid, 6)
+        Grid.SetColumn(loc_grid, 4)
         loc_grid.Margin = Thickness(5,0,5,0)
         self.grid.Children.Add(loc_grid)
         
@@ -663,10 +658,11 @@ class FileRow:
         if brush_dim: self.txt_status.Foreground = brush_dim
         
         self.border_status.Child = self.txt_status
-        Grid.SetColumn(self.border_status, 8)
+        Grid.SetColumn(self.border_status, 6)
         self.grid.Children.Add(self.border_status)
         
         self.sheet_stack = StackPanel()
+        self.sheet_stack.Visibility = System.Windows.Visibility.Collapsed
         self.main_container.Children.Add(self.sheet_stack)
 
     def on_chk_all_clicked(self, sender, e):
@@ -676,6 +672,8 @@ class FileRow:
             cg.set_checked_state(val)
         for sr in self.sheet_rows:
             sr.chk.IsChecked = val
+        if hasattr(self.form, 'update_file_count'):
+            self.form.update_file_count()
 
     def update_master_checkbox(self):
         checked = sum(1 for sr in self.sheet_rows if sr.chk.IsChecked == True)
@@ -686,10 +684,65 @@ class FileRow:
             self.chk_all.IsChecked = False
         else:
             self.chk_all.IsChecked = None
+        if hasattr(self.form, 'update_file_count'):
+            self.form.update_file_count()
+
+    def get_sheet_set_name(self):
+        if hasattr(self, 'cmb_set') and self.cmb_set:
+            if self.cmb_set.SelectedItem:
+                return str(self.cmb_set.SelectedItem).strip()
+            if self.cmb_set.Text:
+                return str(self.cmb_set.Text).strip()
+        return getattr(self, '_sheet_set_name', "PRINT")
+
+    def set_sheet_set_name(self, name):
+        self._sheet_set_name = name
+        if hasattr(self, 'cmb_set') and self.cmb_set:
+            self.cmb_set.Text = name
+
+    def load_sheets_on_demand(self):
+        self.set_status("Loading...")
+        self.form.do_events()
+        bg_doc = None
+        should_close = False
+        try:
+            bg_doc, should_close = self.form.get_cached_document(self.file_path)
+            sets, default_idx = self.form.extract_mock_data(bg_doc, self)
+            self.cmb_set.ItemsSource = sets
+            
+            cur_target = self.get_sheet_set_name()
+            matched_idx = -1
+            clean_cur = cur_target.replace("[Set] ", "").strip().lower()
+            for idx, s in enumerate(sets):
+                clean_s = str(s).replace("[Set] ", "").strip().lower()
+                if clean_cur == clean_s or clean_cur in clean_s:
+                    matched_idx = idx
+                    break
+                    
+            if matched_idx >= 0:
+                self.cmb_set.SelectedIndex = matched_idx
+            else:
+                self.cmb_set.Text = cur_target
+                if sets and 0 <= default_idx < len(sets):
+                    self.cmb_set.SelectedIndex = default_idx
+                    
+            self.sheets_loaded = True
+            self.set_status("Ready")
+        except Exception as ex:
+            self.set_status("Ready")
+        finally:
+            if should_close and bg_doc:
+                try:
+                    if getattr(bg_doc, 'IsValidObject', True):
+                        bg_doc.Close(False)
+                except Exception:
+                    pass
 
     def on_expand(self, sender, e):
         self.is_expanded = not self.is_expanded
         self.btn_expand.Content = "-" if self.is_expanded else "+"
+        if self.is_expanded and not getattr(self, 'sheets_loaded', False):
+            self.load_sheets_on_demand()
         self.sheet_stack.Visibility = System.Windows.Visibility.Visible if self.is_expanded else System.Windows.Visibility.Collapsed
 
     def on_browse(self, sender, e):
@@ -718,6 +771,10 @@ class FileRow:
             self.txt_status.Text = "Error"
             self.txt_status.Foreground = TEXT_WHITE
             self.border_status.Background = BG_ERROR
+        elif clean_msg.startswith("Skipped"):
+            self.txt_status.Text = "Skipped"
+            self.txt_status.Foreground = brush_dim
+            self.border_status.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
         elif clean_msg in ["Ready", "Pending", "Loading...", "Reading..."]:
             self.txt_status.Text = clean_msg
             self.txt_status.Foreground = brush_dim
@@ -732,11 +789,18 @@ class FileRow:
         
     def on_options_changed(self, sender, e):
         try:
-            if not self.cmb_set.SelectedItem or not self.cmb_profile.SelectedItem:
+            if not self.cmb_set.SelectedItem:
                 return
                 
             set_name = self.cmb_set.SelectedItem
-            profile_name = self.cmb_profile.SelectedItem
+            profile_name = None
+            if hasattr(self.form, 'CmbGlobalProfile') and self.form.CmbGlobalProfile and self.form.CmbGlobalProfile.SelectedItem:
+                profile_name = str(self.form.CmbGlobalProfile.SelectedItem)
+            elif hasattr(self, 'cmb_profile') and self.cmb_profile and self.cmb_profile.SelectedItem:
+                profile_name = str(self.cmb_profile.SelectedItem)
+            if not profile_name and self.form.profiles:
+                profile_name = self.form.profiles[0]
+                
             scheme_parts = self.form.settings.get("schemes", {}).get(profile_name, [])
             if not scheme_parts:
                 scheme_parts = self.form.settings.get("combined_schemes", {}).get(profile_name, [])
@@ -755,6 +819,7 @@ class FileRow:
                     s_row.generated_name = name
                     s_row.txt_name.Text = name
                     s_row.txt_name.ToolTip = name
+                    s_row.chk.IsChecked = True
                     self.sheet_rows.append(s_row)
                     self.sheet_stack.Children.Add(s_row.border)
             else:
@@ -782,8 +847,10 @@ class FileRow:
                         s_row.generated_name = name
                         s_row.txt_name.Text = name
                         s_row.txt_name.ToolTip = name
+                        s_row.chk.IsChecked = True
                         self.sheet_rows.append(s_row)
                         c_group.add_sheet_row(s_row)
+                    c_group.update_collection_checkbox()
                         
             self.update_master_checkbox()
         except Exception as ex:
@@ -807,6 +874,33 @@ class BatchExportForm(forms.WPFWindow):
         all_schemes.update(self.settings.get("combined_schemes", {}).keys())
         self.profiles = sorted(list(all_schemes))
 
+        # Wire Global Naming Profile
+        if hasattr(self, 'CmbGlobalProfile') and self.CmbGlobalProfile:
+            self.CmbGlobalProfile.ItemsSource = self.profiles
+            if self.profiles:
+                self.CmbGlobalProfile.SelectedIndex = 0
+            self.CmbGlobalProfile.SelectionChanged += self.on_global_profile_changed
+
+        # Wire Master Sheet Set from Active Revit Document (Instant, 0.001s, no background open)
+        active_sets = ["<All Sheets>", "PRINT"]
+        try:
+            active_doc = getattr(revit, "doc", None)
+            if active_doc:
+                col = DB.FilteredElementCollector(active_doc).OfClass(DB.ViewSheetSet)
+                for s in col:
+                    name = getattr(s, "Name", None)
+                    if name and name not in active_sets:
+                        active_sets.append(name)
+        except Exception as ex:
+            log_diag("Error querying active doc sheet sets: " + str(ex))
+
+        if hasattr(self, 'CmbMasterSet') and self.CmbMasterSet:
+            self.CmbMasterSet.ItemsSource = active_sets
+            self.CmbMasterSet.Text = "PRINT"
+
+        if hasattr(self, 'TxtFileCount') and self.TxtFileCount:
+            self.TxtFileCount.Text = "0 Files Loaded"
+
         if hasattr(self, 'ImgPreview') and self.ImgPreview:
             self.ImgPreview.MouseLeftButtonDown += self.on_preview_image_click
 
@@ -821,6 +915,49 @@ class BatchExportForm(forms.WPFWindow):
             self.Closed += self.on_window_closed
         except Exception:
             pass
+
+    def on_global_profile_changed(self, sender, e):
+        for row in self.rows:
+            if getattr(row, 'sheets_loaded', False) and getattr(row, 'sheet_rows', None):
+                try:
+                    row.on_options_changed(None, None)
+                except Exception as ex:
+                    log_diag("Profile change update error: " + str(ex))
+
+    def update_file_count(self):
+        total = len(self.rows)
+        if total == 0:
+            if hasattr(self, 'TxtFileCount') and self.TxtFileCount:
+                self.TxtFileCount.Text = "0 Files Loaded"
+            if hasattr(self, 'ChkSelectAllFiles') and self.ChkSelectAllFiles:
+                self.ChkSelectAllFiles.IsChecked = False
+            return
+            
+        selected = sum(1 for r in self.rows if getattr(r, 'chk_all', None) and r.chk_all.IsChecked != False)
+        if hasattr(self, 'TxtFileCount') and self.TxtFileCount:
+            self.TxtFileCount.Text = "{} Files Loaded ({} Selected)".format(total, selected)
+            
+        if hasattr(self, 'ChkSelectAllFiles') and self.ChkSelectAllFiles:
+            all_checked = all(getattr(r, 'chk_all', None) and r.chk_all.IsChecked == True for r in self.rows)
+            none_checked = all(getattr(r, 'chk_all', None) and r.chk_all.IsChecked == False for r in self.rows)
+            if all_checked:
+                self.ChkSelectAllFiles.IsChecked = True
+            elif none_checked:
+                self.ChkSelectAllFiles.IsChecked = False
+            else:
+                self.ChkSelectAllFiles.IsChecked = None
+
+    def ChkSelectAllFiles_Click(self, sender, e):
+        val = (self.ChkSelectAllFiles.IsChecked == True)
+        self.ChkSelectAllFiles.IsChecked = val
+        for r in self.rows:
+            if hasattr(r, 'chk_all') and r.chk_all:
+                r.chk_all.IsChecked = val
+            for cg in getattr(r, 'collection_groups', []):
+                cg.set_checked_state(val)
+            for sr in getattr(r, 'sheet_rows', []):
+                sr.chk.IsChecked = val
+        self.update_file_count()
 
     def get_cached_document(self, file_path):
         key = os.path.abspath(file_path).lower()
@@ -1321,52 +1458,145 @@ class BatchExportForm(forms.WPFWindow):
             key_name = "[Set] " + vss.Name
             row.sets_dict[key_name] = mock_list
             
-        coll_keys = [k for k in sorted(row.sets_dict.keys()) if k.startswith("[Collection]")]
         set_keys = [k for k in sorted(row.sets_dict.keys()) if k.startswith("[Set]")]
-        other_keys = [k for k in sorted(row.sets_dict.keys()) if k not in coll_keys and k not in set_keys and k != "<All Sheets>"]
-        ordered_keys = ["<All Sheets>"] + coll_keys + set_keys + other_keys
-        return ordered_keys
+        # If Sheet Sets exist in this document, ONLY show Sheet Sets in the dropdown
+        if set_keys:
+            ordered_keys = set_keys
+        else:
+            # Fallback if no Sheet Sets are configured in the model
+            ordered_keys = ["<All Sheets>"]
+
+        # Determine the default sheet set from collected sets without touching PrintManager (avoids DiRoots driver dialogs)
+        default_idx = 0
+        found_idx = -1
+
+        # 1. Check for a set with "default" in the name
+        for idx, k in enumerate(ordered_keys):
+            if "default" in k.lower():
+                found_idx = idx
+                break
+
+        # 2. Check for standard architectural sets (e.g. "arc set 1", "set 1", "arc set")
+        if found_idx == -1:
+            for kw in ["arc set 1", "set 1", "arc set", "set-1", "arc"]:
+                for idx, k in enumerate(ordered_keys):
+                    if kw in k.lower():
+                        found_idx = idx
+                        break
+                if found_idx != -1:
+                    break
+
+        if found_idx != -1:
+            default_idx = found_idx
+
+        return ordered_keys, default_idx
+
+    def add_revit_files(self, file_paths):
+        import re
+        self._cancel_export = False
+        existing = set(os.path.abspath(r.file_path).lower() for r in self.rows)
+        new_files = [f for f in file_paths if os.path.abspath(f).lower() not in existing]
+        if not new_files:
+            return
+
+        default_set = "PRINT"
+        if hasattr(self, 'CmbMasterSet') and self.CmbMasterSet:
+            if self.CmbMasterSet.SelectedItem:
+                default_set = str(self.CmbMasterSet.SelectedItem).strip()
+            elif self.CmbMasterSet.Text:
+                default_set = str(self.CmbMasterSet.Text).strip()
+        elif hasattr(self, 'TxtMasterSet') and self.TxtMasterSet and self.TxtMasterSet.Text:
+            default_set = self.TxtMasterSet.Text.strip() or "PRINT"
+
+        for f in new_files:
+            row = FileRow(f, self)
+            row.set_sheet_set_name(default_set)
+            self.rows.append(row)
+            
+            border = Border()
+            border.BorderBrush = self.FindResource("BorderColor")
+            border.BorderThickness = Thickness(0, 0, 0, 1)
+            border.Padding = Thickness(0, 5, 0, 5)
+            border.Child = row.main_container
+            
+            self.FileStack.Children.Add(border)
+            row.set_status("Ready")
+
+        self.update_file_count()
+        self.do_events()
+
+    def BtnApplySetToAll_Click(self, sender, e):
+        target_name = "PRINT"
+        if hasattr(self, 'CmbMasterSet') and self.CmbMasterSet:
+            if self.CmbMasterSet.SelectedItem:
+                target_name = str(self.CmbMasterSet.SelectedItem).strip()
+            elif self.CmbMasterSet.Text:
+                target_name = str(self.CmbMasterSet.Text).strip()
+        elif hasattr(self, 'TxtMasterSet') and self.TxtMasterSet and self.TxtMasterSet.Text:
+            target_name = self.TxtMasterSet.Text.strip()
+        if not target_name:
+            target_name = "PRINT"
+            
+        for row in self.rows:
+            row.set_sheet_set_name(target_name)
 
     def BtnAddFile_Click(self, sender, e):
         dlg = WinForms.OpenFileDialog()
         dlg.Filter = "Revit Files (*.rvt)|*.rvt"
         dlg.Multiselect = True
         if dlg.ShowDialog() == WinForms.DialogResult.OK:
-            for f in dlg.FileNames:
-                row = FileRow(f, self)
-                self.rows.append(row)
+            self.add_revit_files(dlg.FileNames)
+
+    def BtnAddFolder_Click(self, sender, e):
+        import re
+        dlg = WinForms.FolderBrowserDialog()
+        dlg.Description = "Select Folder Containing Revit Projects"
+        if dlg.ShowDialog() == WinForms.DialogResult.OK:
+            selected_dir = dlg.SelectedPath
+            if not selected_dir or not os.path.exists(selected_dir):
+                return
                 
-                border = Border()
-                border.BorderBrush = self.FindResource("BorderColor")
-                border.BorderThickness = Thickness(0, 0, 0, 1)
-                border.Padding = Thickness(0, 5, 0, 5)
-                border.Child = row.main_container
+            found_files = []
+            
+            # 1. Check if there are .rvt files directly inside selected folder
+            try:
+                for f in os.listdir(selected_dir):
+                    full_path = os.path.join(selected_dir, f)
+                    if os.path.isfile(full_path) and f.lower().endswith(".rvt"):
+                        if not re.search(r'\.\d{4}\.rvt$', f, re.IGNORECASE):
+                            found_files.append(full_path)
+            except Exception:
+                pass
                 
-                self.FileStack.Children.Add(border)
-                self.do_events()
+            # 2. Check each immediate subfolder inside selected folder
+            try:
+                subdirs = [os.path.join(selected_dir, d) for d in os.listdir(selected_dir) if os.path.isdir(os.path.join(selected_dir, d))]
+                subdirs.sort()
                 
-                row.set_status("Loading...")
-                bg_doc = None
-                should_close = False
-                try:
-                    bg_doc, should_close = get_or_open_document(row.file_path, close_worksets=False)
-                    sets = self.extract_mock_data(bg_doc, row)
-                    
-                    row.cmb_set.ItemsSource = sets
-                    if sets:
-                        row.cmb_set.SelectedIndex = 0
+                for sdir in subdirs:
+                    dir_name = os.path.basename(sdir).lower()
+                    if "backup" in dir_name or "temp" in dir_name or dir_name.startswith("00 "):
+                        continue
                         
-                    row.set_status("Ready")
-                except Exception as ex:
-                    row.set_status("Error loading sets: " + str(ex), is_error=True)
-                    forms.alert(str(ex) + '\n\n' + traceback.format_exc())
-                finally:
-                    if should_close and bg_doc:
-                        try:
-                            if getattr(bg_doc, 'IsValidObject', True):
-                                bg_doc.Close(False)
-                        except Exception:
-                            pass
+                    try:
+                        sub_files = []
+                        for sf in os.listdir(sdir):
+                            sf_path = os.path.join(sdir, sf)
+                            if os.path.isfile(sf_path) and sf.lower().endswith(".rvt"):
+                                if not re.search(r'\.\d{4}\.rvt$', sf, re.IGNORECASE):
+                                    sub_files.append(sf_path)
+                        sub_files.sort()
+                        found_files.extend(sub_files)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+                
+            if not found_files:
+                forms.alert("No Revit (.rvt) files found in the selected folder or its immediate subfolders.", title="No Files Found")
+                return
+                
+            self.add_revit_files(found_files)
 
     def BtnClearAll_Click(self, sender, e):
         self.cleanup_cached_documents()
@@ -1374,6 +1604,7 @@ class BatchExportForm(forms.WPFWindow):
         self.rows = []
         self.selected_sheet = None
         self.preview_cache.clear()
+        self.update_file_count()
         if hasattr(self, 'ImgPreview') and self.ImgPreview:
             self.ImgPreview.Source = None
             self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
@@ -1389,9 +1620,15 @@ class BatchExportForm(forms.WPFWindow):
 
     def BtnExport_Click(self, sender, e):
         if not self.rows: return
-        for row in self.rows:
+        
+        selected_rows = [r for r in self.rows if getattr(r, 'chk_all', None) and r.chk_all.IsChecked != False]
+        if not selected_rows:
+            forms.alert("No files selected for export. Please select at least one file.", title="None Selected")
+            return
+
+        for row in selected_rows:
             if not row.output_location or row.output_location == "Select Folder...":
-                forms.alert("Please select output locations for all files.", title="Missing Location")
+                forms.alert("Please select output locations for all selected files.", title="Missing Location")
                 return
         
         self.BtnExport.IsEnabled = False
@@ -1403,8 +1640,16 @@ class BatchExportForm(forms.WPFWindow):
         total_failed_sheets = 0
         total_skipped_sheets = 0
 
-        for row in self.rows:
+        total_files = len(self.rows)
+        for idx, row in enumerate(self.rows):
             if self._cancel_export: break
+            
+            if getattr(row, 'chk_all', None) and row.chk_all.IsChecked == False:
+                row.set_status("Skipped")
+                continue
+
+            if hasattr(self, 'TxtFileCount') and self.TxtFileCount:
+                self.TxtFileCount.Text = "Exporting file {} / {} ({} Selected)...".format(idx + 1, total_files, len(selected_rows))
             
             row.main_container.BringIntoView()
             self.do_events()
@@ -1421,23 +1666,84 @@ class BatchExportForm(forms.WPFWindow):
                 em_script.doc = bg_doc
                 
                 pdf_items = []
-                for s_row in row.sheet_rows:
-                    if s_row.chk.IsChecked != True:
-                        s_row.set_status("Skipped")
-                        total_skipped_sheets += 1
-                        continue
+                if row.sheet_rows:
+                    for s_row in row.sheet_rows:
+                        if s_row.chk.IsChecked != True:
+                            s_row.set_status("Skipped")
+                            total_skipped_sheets += 1
+                            continue
+                            
+                        sheet_element = bg_doc.GetElement(s_row.mock_sheet.UniqueId)
+                        if sheet_element:
+                            pdf_items.append({
+                                "sheet": sheet_element,
+                                "filename": s_row.generated_name,
+                                "ui_row": s_row
+                            })
+                            s_row.set_status("Pending")
+                else:
+                    target_set_name = row.get_sheet_set_name()
+                    clean_target = target_set_name.replace("[Set] ", "").strip().lower()
+                    
+                    vss_collector = DB.FilteredElementCollector(bg_doc).OfClass(DB.ViewSheetSet).ToElements()
+                    matched_vss = None
+                    for vss in vss_collector:
+                        if vss.Name.strip().lower() == clean_target:
+                            matched_vss = vss
+                            break
+                    if not matched_vss:
+                        for vss in vss_collector:
+                            if clean_target in vss.Name.strip().lower():
+                                matched_vss = vss
+                                break
+                    if not matched_vss and len(vss_collector) == 1:
+                        matched_vss = vss_collector[0]
                         
-                    sheet_element = bg_doc.GetElement(s_row.mock_sheet.UniqueId)
-                    if sheet_element:
+                    sheet_elements = []
+                    if matched_vss:
+                        for v in matched_vss.Views:
+                            if v.ViewType == DB.ViewType.DrawingSheet:
+                                try:
+                                    if not getattr(v, 'IsPlaceholder', False):
+                                        sheet_elements.append(v)
+                                except:
+                                    sheet_elements.append(v)
+                    else:
+                        if "<all sheets>" in clean_target:
+                            all_s = DB.FilteredElementCollector(bg_doc).OfClass(DB.ViewSheet).ToElements()
+                            sheet_elements = [s for s in all_s if not getattr(s, 'IsPlaceholder', False)]
+                        else:
+                            row.set_status("Skipped (No '{}' set)".format(target_set_name))
+                            total_skipped_sheets += 1
+                            if should_close and bg_doc:
+                                try: bg_doc.Close(False)
+                                except: pass
+                            continue
+                            
+                    sheet_elements = sorted(sheet_elements, key=lambda x: getattr(x, 'SheetNumber', ''))
+                    
+                    profile_name = None
+                    if hasattr(self, 'CmbGlobalProfile') and self.CmbGlobalProfile and self.CmbGlobalProfile.SelectedItem:
+                        profile_name = str(self.CmbGlobalProfile.SelectedItem)
+                    elif hasattr(row, 'cmb_profile') and row.cmb_profile and row.cmb_profile.SelectedItem:
+                        profile_name = str(row.cmb_profile.SelectedItem)
+                    if not profile_name and self.profiles:
+                        profile_name = self.profiles[0]
+                    scheme_parts = self.settings.get("schemes", {}).get(profile_name, [])
+                    if not scheme_parts:
+                        scheme_parts = self.settings.get("combined_schemes", {}).get(profile_name, [])
+                        
+                    for sh in sheet_elements:
+                        fname = em_script.generate_filename(sh, scheme_parts, bg_doc)
                         pdf_items.append({
-                            "sheet": sheet_element,
-                            "filename": s_row.generated_name,
-                            "ui_row": s_row
+                            "sheet": sh,
+                            "filename": fname,
+                            "ui_row": None
                         })
-                        s_row.set_status("Pending")
                 
                 if not pdf_items:
-                    row.set_status("No sheets to export", is_error=True)
+                    row.set_status("Skipped (No sheets)")
+                    total_skipped_sheets += 1
                     if should_close:
                         try: bg_doc.Close(False)
                         except: pass
@@ -1446,12 +1752,18 @@ class BatchExportForm(forms.WPFWindow):
                 row.set_status("Exporting...", is_exporting=True)
                 
                 comb_name = None
-                profile_name = row.cmb_profile.SelectedItem if hasattr(row, 'cmb_profile') and row.cmb_profile else None
+                profile_name = None
+                if hasattr(self, 'CmbGlobalProfile') and self.CmbGlobalProfile and self.CmbGlobalProfile.SelectedItem:
+                    profile_name = str(self.CmbGlobalProfile.SelectedItem)
+                elif hasattr(row, 'cmb_profile') and row.cmb_profile and row.cmb_profile.SelectedItem:
+                    profile_name = str(row.cmb_profile.SelectedItem)
+                if not profile_name and self.profiles:
+                    profile_name = self.profiles[0]
                 comb_parts = None
                 if profile_name:
-                    comb_parts = row.form.settings.get("combined_schemes", {}).get(profile_name, None)
+                    comb_parts = self.settings.get("combined_schemes", {}).get(profile_name, None)
                     if not comb_parts:
-                        comb_parts = row.form.settings.get("schemes", {}).get(profile_name, None)
+                        comb_parts = self.settings.get("schemes", {}).get(profile_name, None)
                 
                 if comb_parts and pdf_items:
                     try:
@@ -1480,12 +1792,51 @@ class BatchExportForm(forms.WPFWindow):
                     except Exception as ex_arch:
                         log_diag("Selective archive error: " + str(ex_arch))
                 
+                # Auto-sync Cover Page Sheet Issue Date with standard sheet issue date
+                try:
+                    std_issue_date = None
+                    for itm in pdf_items:
+                        sh = itm.get("sheet")
+                        sn = (sh.Name or "").upper().strip()
+                        snum = (sh.SheetNumber or "").upper().strip()
+                        if "COVER" not in sn and "COVER" not in snum and "00-000-000-00" not in snum and "000-000-00" not in snum and not any(k in sn or k in snum for k in ("START-UP", "STARTUP", "START UP", "SPLASH")):
+                            p_d = sh.get_Parameter(DB.BuiltInParameter.SHEET_ISSUE_DATE)
+                            if p_d and p_d.HasValue and p_d.AsString():
+                                val = p_d.AsString().strip()
+                                if val:
+                                    std_issue_date = val
+                                    break
+                    if std_issue_date:
+                        for itm in pdf_items:
+                            sh = itm.get("sheet")
+                            sn = (sh.Name or "").upper().strip()
+                            snum = (sh.SheetNumber or "").upper().strip()
+                            if "COVER" in sn or "COVER" in snum:
+                                p_d = sh.get_Parameter(DB.BuiltInParameter.SHEET_ISSUE_DATE)
+                                cur_val = p_d.AsString().strip() if (p_d and p_d.HasValue and p_d.AsString()) else ""
+                                if p_d and not p_d.IsReadOnly and cur_val != std_issue_date:
+                                    t_date = DB.Transaction(bg_doc, "Auto Sync Cover Page Issue Date")
+                                    t_date.Start()
+                                    p_d.Set(std_issue_date)
+                                    tb_collector = DB.FilteredElementCollector(bg_doc, sh.Id).OfCategory(DB.BuiltInCategory.OST_TitleBlocks).OfClass(DB.FamilyInstance).ToElements()
+                                    for tb_inst in tb_collector:
+                                        for d_name in ("ISSUED DATE", "Sheet Issue Date", "Issue Date", "Date/Time Stamp"):
+                                            p_tb_d = tb_inst.LookupParameter(d_name)
+                                            if p_tb_d and not p_tb_d.IsReadOnly:
+                                                p_tb_d.Set(std_issue_date)
+                                    t_date.Commit()
+                                    bg_doc.Regenerate()
+                                    log_diag("Synced Cover Page Issue Date to '{}'".format(std_issue_date))
+                except Exception as ex_sync_date:
+                    log_diag("Cover Page date sync warning: " + str(ex_sync_date))
+
                 # Wire ui_row so Revit ProgressChanged events directly update each sheet row
                 mock_queue = [MockQueueItem(item["sheet"], item["filename"], ui_row=item["ui_row"]) for item in pdf_items]
                 
                 # Ensure all selected sheets explicitly start as Pending
                 for item in pdf_items:
-                    item["ui_row"].set_status("Pending")
+                    if item.get("ui_row"):
+                        item["ui_row"].set_status("Pending")
                 self.do_events()
 
                 if is_check_print:
@@ -1497,7 +1848,8 @@ class BatchExportForm(forms.WPFWindow):
                     em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
                     
                     for item in pdf_items:
-                        item["ui_row"].set_status("Done", is_done=True)
+                        if item.get("ui_row"):
+                            item["ui_row"].set_status("Done", is_done=True)
                     total_exported_sheets += len(pdf_items)
                 else:
                     # Final Export Mode: Individual Single PDFs and DWGs first!
@@ -1514,12 +1866,13 @@ class BatchExportForm(forms.WPFWindow):
                     total_single = len(pdf_items)
                     for idx, item in enumerate(pdf_items):
                         if self._cancel_export: break
-                        s_row = item["ui_row"]
+                        s_row = item.get("ui_row")
                         sheet = item["sheet"]
                         fname = item["filename"]
                         
                         # Active sheet is Exporting... (all previous are Done, all upcoming are Pending!)
-                        s_row.set_status("Exporting...", is_exporting=True)
+                        if s_row:
+                            s_row.set_status("Exporting...", is_exporting=True)
                         pct = int((float(idx) / total_single) * 90)
                         self.ExportProgressBar.Value = pct
                         self.TxtPercent.Text = "Exporting [{}/{}]: {} (PDF)".format(idx + 1, total_single, fname)
@@ -1539,7 +1892,8 @@ class BatchExportForm(forms.WPFWindow):
                             log_diag("DWG error: " + str(ex_dwg))
                             
                         # Mark this sheet as Done!
-                        s_row.set_status("Done", is_done=True)
+                        if s_row:
+                            s_row.set_status("Done", is_done=True)
                         total_exported_sheets += 1
                         self.do_events()
 
@@ -1576,6 +1930,7 @@ class BatchExportForm(forms.WPFWindow):
         self.BtnExport.IsEnabled = True
         self.ExportProgressBar.Value = 100
         self.TxtPercent.Text = "Finished!"
+        self.update_file_count()
         
         # Show Custom Export Completed Window if not cancelled
         if not self._cancel_export and first_folder:

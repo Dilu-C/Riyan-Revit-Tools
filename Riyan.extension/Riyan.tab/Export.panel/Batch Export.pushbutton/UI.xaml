@@ -119,37 +119,49 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                        <Button x:Name="BtnAddFile" Style="{StaticResource PrimaryBtn}" Content="+ Add Revit Files" Width="130" Height="32" Click="BtnAddFile_Click"/>
-                        <Button x:Name="BtnClearAll" Style="{StaticResource SecondaryBtn}" Content="Clear All" Width="80" Height="32" Margin="10,0,0,0" Click="BtnClearAll_Click"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10" VerticalAlignment="Center">
+                        <Button x:Name="BtnAddFolder" Style="{StaticResource PrimaryBtn}" Content="+ Add Folder" Width="105" Height="32" Margin="0,0,6,0" Click="BtnAddFolder_Click"/>
+                        <Button x:Name="BtnAddFile" Style="{StaticResource SecondaryBtn}" Content="+ Add Revit Files" Width="115" Height="32" Click="BtnAddFile_Click"/>
+                        <Button x:Name="BtnClearAll" Style="{StaticResource SecondaryBtn}" Content="Clear All" Width="65" Height="32" Margin="6,0,12,0" Click="BtnClearAll_Click"/>
+                        
+                        <Border Width="1" Height="22" Background="{StaticResource BorderColor}" Margin="0,0,12,0"/>
+
+                        <TextBlock Text="Sheet Set for All:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource TextDim}" FontWeight="SemiBold"/>
+                        <ComboBox x:Name="CmbMasterSet" Width="130" Height="28" IsEditable="True" Text="PRINT" VerticalContentAlignment="Center" Margin="0,0,6,0"/>
+                        <Button x:Name="BtnApplySetToAll" Style="{StaticResource SecondaryBtn}" Content="Apply to All" Width="80" Height="28" Margin="0,0,12,0" Click="BtnApplySetToAll_Click"/>
+
+                        <Border Width="1" Height="22" Background="{StaticResource BorderColor}" Margin="0,0,12,0"/>
+
+                        <TextBlock Text="Naming Profile:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource TextDim}" FontWeight="SemiBold"/>
+                        <ComboBox x:Name="CmbGlobalProfile" Width="120" Height="28" VerticalContentAlignment="Center"/>
                     </StackPanel>
 
                     <Grid Grid.Row="1" Margin="0,0,0,8" Background="Transparent">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition x:Name="HCol0" Width="330" MinWidth="250" SharedSizeGroup="Col0"/>
+                            <ColumnDefinition x:Name="HCol0" Width="380" MinWidth="260" SharedSizeGroup="Col0"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition x:Name="HCol1" Width="140" MinWidth="120" SharedSizeGroup="Col1"/>
+                            <ColumnDefinition x:Name="HCol1" Width="180" MinWidth="130" SharedSizeGroup="Col1"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition x:Name="HCol2" Width="140" MinWidth="120" SharedSizeGroup="Col2"/>
+                            <ColumnDefinition x:Name="HCol2" Width="200" MinWidth="140" SharedSizeGroup="Col2"/>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition x:Name="HCol3" Width="160" MinWidth="140" SharedSizeGroup="Col3"/>
-                            <ColumnDefinition Width="3"/>
-                            <ColumnDefinition x:Name="HCol4" Width="*" MinWidth="160" SharedSizeGroup="Col4"/>
+                            <ColumnDefinition x:Name="HCol3" Width="*" MinWidth="140" SharedSizeGroup="Col3"/>
                         </Grid.ColumnDefinitions>
                         
-                        <Border Grid.Column="0" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Revit File" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="0" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
+                                <CheckBox x:Name="ChkSelectAllFiles" IsChecked="True" IsThreeState="True" VerticalAlignment="Center" Margin="0,0,8,0" Click="ChkSelectAllFiles_Click" ToolTip="Select / Deselect All Files"/>
+                                <TextBlock Text="Revit File" FontWeight="SemiBold" Foreground="{StaticResource TextDim}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
                         <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="2" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Sheet Set / Collection" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="2" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Sheet Set" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                         <GridSplitter Grid.Column="3" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="4" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Naming Profile" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="4" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Output Location" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                         <GridSplitter Grid.Column="5" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="6" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Output Location" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
-                        <GridSplitter Grid.Column="7" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
-                        
-                        <Border Grid.Column="8" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Status" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="6" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,0,1" Padding="5,0,0,5"><TextBlock Text="Status" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
                     </Grid>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <StackPanel x:Name="FileStack" Orientation="Vertical">
@@ -226,8 +238,11 @@
             <!-- Footer -->
             <Border Grid.Row="2" Background="{StaticResource TitleBarBg}" CornerRadius="0,0,10,10" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,1,0,0">
                 <Grid Margin="15,0">
-                    <ProgressBar x:Name="ExportProgressBar" Width="300" Height="8" HorizontalAlignment="Left" Foreground="{StaticResource PrimaryColor}" Background="#3F3F46" BorderThickness="0" Maximum="100"/>
-                    <TextBlock x:Name="TxtPercent" Text="Ready" HorizontalAlignment="Left" Margin="315,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextDim}" FontSize="11"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <TextBlock x:Name="TxtFileCount" Text="0 Files Loaded" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                        <ProgressBar x:Name="ExportProgressBar" Width="260" Height="8" Foreground="{StaticResource PrimaryColor}" Background="#3F3F46" BorderThickness="0" Maximum="100" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtPercent" Text="Ready" Margin="12,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextDim}" FontSize="11"/>
+                    </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button x:Name="BtnCancel" Style="{StaticResource SecondaryBtn}" Content="Cancel" Width="90" Height="32" Margin="0,0,10,0" Click="CloseBtn_Click"/>

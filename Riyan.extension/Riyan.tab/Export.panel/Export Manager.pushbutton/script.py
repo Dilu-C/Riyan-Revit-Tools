@@ -213,14 +213,37 @@ class CustomExportCompletedWindow(object):
         self.win.ShowDialog()
 
 class CustomAlertWindow(object):
-    def __init__(self, message, title, icon_char):
+    def __init__(self, message, title, icon_char, is_error=False, is_warning=False):
+        theme = load_settings().get("theme", "Dark")
+        is_light = (theme == "Light")
+
+        bg = "#FFFFFF" if is_light else "#161616"
+        tb_bg = "#F2F4F7" if is_light else "#1E1E1E"
+        footer_bg = "#F8F9FA" if is_light else "#121212"
+        border = "#D0D5DD" if is_light else "#3A3A3A"
+        footer_border = "#EAECF0" if is_light else "#222222"
+        fg_title = "#1D2939" if is_light else "#E0E0E0"
+        fg_msg = "#101828" if is_light else "#FFFFFF"
+        close_fg = "#667085" if is_light else "#888888"
+
+        if is_error:
+            icon_color = "#D92D20" if is_light else "#EF5350"
+        elif is_warning:
+            icon_color = "#B54708" if is_light else "#FBBF24"
+        else:
+            icon_color = "#079455" if is_light else "#34D399"
+
+        accent_color = "#802F2D" if is_light else "#C0272D"
+        btn_bg = "#802F2D"
+        btn_hover = "#661F1D" if is_light else "#9E3A38"
+
         xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Alert" Width="400" SizeToContent="Height"
         WindowStartupLocation="CenterScreen" 
-        Background="#111111" WindowStyle="None" AllowsTransparency="False"
+        Background="{bg}" WindowStyle="None" AllowsTransparency="False"
         ResizeMode="NoResize">
-    <Border BorderBrush="#3A3A3A" BorderThickness="1">
+    <Border BorderBrush="{border}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="36"/>
@@ -229,14 +252,14 @@ class CustomAlertWindow(object):
             </Grid.RowDefinitions>
 
             <!-- Title Bar -->
-            <Grid x:Name="TitleBar" Grid.Row="0" Background="#1A1A1A">
+            <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-                    <TextBlock x:Name="TxtAccent" Text="" Foreground="#802F2D" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock x:Name="TxtTitle" Text="Alert" Foreground="#CCCCCC" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtAccent" Text="" Foreground="{accent_color}" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtTitle" Text="Alert" Foreground="{fg_title}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Button x:Name="CloseBtn" Content="" HorizontalAlignment="Right"
                         Width="44" Height="36" BorderThickness="0" Cursor="Hand"
-                        Background="Transparent" Foreground="#666666"
+                        Background="Transparent" Foreground="{close_fg}"
                         FontSize="12">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
@@ -261,25 +284,25 @@ class CustomAlertWindow(object):
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock x:Name="TxtIcon" Grid.Column="0" Text="" Foreground="#802F2D" FontSize="26" 
+                <TextBlock x:Name="TxtIcon" Grid.Column="0" Text="" Foreground="{icon_color}" FontSize="26" 
                            VerticalAlignment="Center" Margin="0,0,16,0"/>
 
-                <TextBlock x:Name="TxtMessage" Grid.Column="1" Text="" Foreground="#CCCCCC" 
-                           FontSize="11.5" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <TextBlock x:Name="TxtMessage" Grid.Column="1" Text="" Foreground="{fg_msg}" 
+                           FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left"/>
             </Grid>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Background="#0E0E0E" BorderBrush="#222222" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Background="{footer_bg}" BorderBrush="{footer_border}" BorderThickness="0,1,0,0">
                 <Button x:Name="OkBtn" Content="OK" HorizontalAlignment="Right" Width="80" Height="26" 
-                        Margin="0,0,14,0" Cursor="Hand" Foreground="White" FontWeight="SemiBold" FontSize="11">
+                        Margin="0,0,14,0" Cursor="Hand" Foreground="White" FontWeight="Bold" FontSize="11" IsDefault="True" IsCancel="True">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="#802F2D" CornerRadius="3">
+                            <Border x:Name="bd" Background="{btn_bg}" CornerRadius="3">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#9E3A38"/>
+                                    <Setter TargetName="bd" Property="Background" Value="{btn_hover}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -289,8 +312,20 @@ class CustomAlertWindow(object):
         </Grid>
     </Border>
 </Window>
-"""
-        xaml_code = apply_theme_to_xaml(xaml_code)
+""".format(
+            bg=bg,
+            tb_bg=tb_bg,
+            footer_bg=footer_bg,
+            border=border,
+            footer_border=footer_border,
+            fg_title=fg_title,
+            fg_msg=fg_msg,
+            close_fg=close_fg,
+            icon_color=icon_color,
+            accent_color=accent_color,
+            btn_bg=btn_bg,
+            btn_hover=btn_hover
+        )
         r = XmlReader.Create(StringReader(xaml_code))
         self.win = XamlReader.Load(r)
 
@@ -309,14 +344,21 @@ class CustomAlertWindow(object):
         if self.TxtIcon:
             self.TxtIcon.Text = icon_char
         if self.TxtAccent:
-            self.TxtAccent.Text = u"\u2B0C"  # â¬Œ
+            self.TxtAccent.Text = u"\u2B0C"  # ⬌
         if self.CloseBtn:
-            self.CloseBtn.Content = u"\u2715"  # âœ•
+            self.CloseBtn.Content = u"\u2715"  # ✕
             self.CloseBtn.Click += self.CloseBtn_Click
         if self.OkBtn:
             self.OkBtn.Click += self.OkBtn_Click
         if self.TitleBar:
             self.TitleBar.MouseLeftButtonDown += self.TitleBar_MouseDown
+        self.win.PreviewKeyDown += self.Window_PreviewKeyDown
+
+    def Window_PreviewKeyDown(self, sender, e):
+        import System.Windows.Input
+        if e.Key == System.Windows.Input.Key.Enter or e.Key == System.Windows.Input.Key.Escape:
+            self.win.Close()
+            e.Handled = True
 
     def TitleBar_MouseDown(self, sender, e):
         try:
@@ -340,6 +382,7 @@ class CustomAlertWindow(object):
 
     def OkBtn_Click(self, sender, e):
         self.win.Close()
+
     def ShowDialog(self):
         return self.win.ShowDialog()
 
@@ -351,101 +394,10 @@ def show_alert(message, title="Export Manager", is_error=False, is_warning=False
         icon_char = u"\u26A0" # Warning
 
     try:
-        dialog = CustomAlertWindow(message, title, icon_char)
+        dialog = CustomAlertWindow(message, title, icon_char, is_error=is_error, is_warning=is_warning)
         dialog.ShowDialog()
-    except Exception as e:
-        forms.alert("Error rendering UI: " + str(e) + "\n\nOriginal message: " + message, title=title)
-
-# ------------------------------------------------------------------------------
-# Custom Alert Window (Hardcoded colors for visibility)
-# ------------------------------------------------------------------------------
-class CustomAlertWindow(object):
-    def __init__(self, message, title, icon_char):
-        from System.IO import StringReader
-        from System.Xml import XmlReader
-        from System.Windows.Markup import XamlReader
-        xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Alert" Width="450" SizeToContent="Height"
-        WindowStartupLocation="CenterScreen" 
-        Background="#FFFFFF" WindowStyle="None" AllowsTransparency="False"
-        ResizeMode="NoResize">
-    <Border BorderBrush="#CCCCCC" BorderThickness="1">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="36"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="46"/>
-            </Grid.RowDefinitions>
-
-            <!-- Title Bar -->
-            <Grid x:Name="TitleBar" Grid.Row="0" Background="#F0F0F0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-                    <TextBlock Text="{}" Foreground="#333333" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                </StackPanel>
-                <Button x:Name="CloseBtn" Content="✕" HorizontalAlignment="Right" Width="44" Height="36" BorderThickness="0" Background="Transparent" Foreground="#666666" FontSize="12" Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </Grid>
-
-            <!-- Content Area -->
-            <Grid Grid.Row="1" Margin="20,20,20,20">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{}" Foreground="#D32F2F" FontSize="26" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                <TextBlock Grid.Column="1" Text="{}" Foreground="#111111" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            </Grid>
-
-            <!-- Footer -->
-            <Border Grid.Row="2" Background="#F5F5F5" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
-                <Button x:Name="OkBtn" Content="OK" HorizontalAlignment="Right" Width="80" Height="26" Margin="0,0,14,0" Cursor="Hand" Background="#2196F3" Foreground="White" FontWeight="SemiBold" FontSize="11"/>
-            </Border>
-        </Grid>
-    </Border>
-</Window>
-""".format(title.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'), 
-           icon_char, 
-           message.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
-        
-        r = XmlReader.Create(StringReader(xaml_code))
-        self.win = XamlReader.Load(r)
-        
-        self.CloseBtn = self.win.FindName("CloseBtn")
-        self.OkBtn = self.win.FindName("OkBtn")
-        self.TitleBar = self.win.FindName("TitleBar")
-        
-        if self.CloseBtn:
-            self.CloseBtn.Click += self.close_window
-        if self.OkBtn:
-            self.OkBtn.Click += self.close_window
-        if self.TitleBar:
-            self.TitleBar.MouseLeftButtonDown += self.drag_window
-
-    def drag_window(self, sender, e):
-        try:
-            self.win.DragMove()
-        except:
-            pass
-
-    def close_window(self, sender, e):
-        self.win.Close()
-
-    def ShowDialog(self):
-        self.win.ShowDialog()
+    except Exception:
+        forms.alert(message, title=title)
 
 # ------------------------------------------------------------------------------
 # Custom Dark Text Input Dialog
@@ -453,13 +405,34 @@ class CustomAlertWindow(object):
 class CustomTextInputWindow(object):
     def __init__(self, title, description, default_value=""):
         self.result = None
+        theme = load_settings().get("theme", "Dark")
+        is_light = (theme == "Light")
+
+        bg = "#FFFFFF" if is_light else "#161616"
+        tb_bg = "#F2F4F7" if is_light else "#1E1E1E"
+        footer_bg = "#F8F9FA" if is_light else "#121212"
+        border = "#D0D5DD" if is_light else "#3A3A3A"
+        footer_border = "#EAECF0" if is_light else "#222222"
+        fg_title = "#1D2939" if is_light else "#E0E0E0"
+        fg_desc = "#101828" if is_light else "#FFFFFF"
+        input_bg = "#FFFFFF" if is_light else "#111111"
+        input_fg = "#101828" if is_light else "#FFFFFF"
+        input_border = "#D0D5DD" if is_light else "#333333"
+        cancel_bg = "#F2F4F7" if is_light else "#222222"
+        cancel_fg = "#344054" if is_light else "#AAAAAA"
+        cancel_hover = "#E4E7EC" if is_light else "#333333"
+        btn_bg = "#802F2D"
+        btn_hover = "#661F1D" if is_light else "#9E3A38"
+        accent_color = "#802F2D" if is_light else "#C0272D"
+        close_fg = "#667085" if is_light else "#888888"
+
         xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Input" Width="400" SizeToContent="Height"
         WindowStartupLocation="CenterScreen"
-        Background="#111111" WindowStyle="None" AllowsTransparency="False"
+        Background="{bg}" WindowStyle="None" AllowsTransparency="False"
         ResizeMode="NoResize">
-    <Border BorderBrush="#3A3A3A" BorderThickness="1">
+    <Border BorderBrush="{border}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="36"/>
@@ -468,18 +441,18 @@ class CustomTextInputWindow(object):
             </Grid.RowDefinitions>
 
             <!-- Title Bar -->
-            <Grid x:Name="TitleBar" Grid.Row="0" Background="#1A1A1A">
+            <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-                    <TextBlock x:Name="TxtAccent" Text="" Foreground="#802F2D" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock x:Name="TxtTitle" Text="Input" Foreground="#CCCCCC" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtAccent" Text="" Foreground="{accent_color}" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtTitle" Text="Input" Foreground="{fg_title}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Button x:Name="CloseBtn" Content="" HorizontalAlignment="Right"
                         Width="44" Height="36" BorderThickness="0" Cursor="Hand"
-                        Background="Transparent" Foreground="#666666"
+                        Background="Transparent" Foreground="{close_fg}"
                         FontSize="12">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                            <Border x:Name="bd" Background="Transparent">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -495,36 +468,36 @@ class CustomTextInputWindow(object):
 
             <!-- Content Area -->
             <StackPanel Grid.Row="1" Margin="20,16,20,16">
-                <TextBlock x:Name="TxtDescription" Text="Enter value:" Foreground="#CCCCCC" FontSize="11.5" Margin="0,0,0,8"/>
-                <TextBox x:Name="TxtInput" Background="#161616" Foreground="White" BorderBrush="#333333" BorderThickness="1" Padding="6,4" FontSize="12"/>
+                <TextBlock x:Name="TxtDescription" Text="Enter value:" Foreground="{fg_desc}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <TextBox x:Name="TxtInput" Background="{input_bg}" Foreground="{input_fg}" BorderBrush="{input_border}" BorderThickness="1" Padding="6,4" FontSize="12"/>
             </StackPanel>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Background="#0E0E0E" BorderBrush="#222222" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Background="{footer_bg}" BorderBrush="{footer_border}" BorderThickness="0,1,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="CancelBtn" Content="Cancel" Width="80" Height="26" Margin="0,0,8,0" Cursor="Hand" Foreground="#AAAAAA" FontSize="11">
+                    <Button x:Name="CancelBtn" Content="Cancel" Width="80" Height="26" Margin="0,0,8,0" Cursor="Hand" Foreground="{cancel_fg}" FontWeight="SemiBold" FontSize="11" IsCancel="True">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="#222222" CornerRadius="3">
+                                <Border x:Name="bd" Background="{cancel_bg}" CornerRadius="3">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Background" Value="#333333"/>
+                                        <Setter TargetName="bd" Property="Background" Value="{cancel_hover}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <Button x:Name="OkBtn" Content="OK" Width="80" Height="26" Margin="0,0,14,0" Cursor="Hand" Foreground="White" FontWeight="SemiBold" FontSize="11">
+                    <Button x:Name="OkBtn" Content="OK" Width="80" Height="26" Margin="0,0,14,0" Cursor="Hand" Foreground="White" FontWeight="Bold" FontSize="11" IsDefault="True">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="#802F2D" CornerRadius="3">
+                                <Border x:Name="bd" Background="{btn_bg}" CornerRadius="3">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Background" Value="#9E3A38"/>
+                                        <Setter TargetName="bd" Property="Background" Value="{btn_hover}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -535,8 +508,25 @@ class CustomTextInputWindow(object):
         </Grid>
     </Border>
 </Window>
-"""
-        xaml_code = apply_theme_to_xaml(xaml_code)
+""".format(
+            bg=bg,
+            tb_bg=tb_bg,
+            footer_bg=footer_bg,
+            border=border,
+            footer_border=footer_border,
+            fg_title=fg_title,
+            fg_desc=fg_desc,
+            input_bg=input_bg,
+            input_fg=input_fg,
+            input_border=input_border,
+            cancel_bg=cancel_bg,
+            cancel_fg=cancel_fg,
+            cancel_hover=cancel_hover,
+            btn_bg=btn_bg,
+            btn_hover=btn_hover,
+            accent_color=accent_color,
+            close_fg=close_fg
+        )
         r = XmlReader.Create(StringReader(xaml_code))
         self.win = XamlReader.Load(r)
 
@@ -557,15 +547,10 @@ class CustomTextInputWindow(object):
             self.TxtInput.Text = default_value
             self.TxtInput.SelectAll()
             
-        theme = load_settings().get("theme", "Dark")
-        if theme != "Dark" and self.TxtInput:
-            import System.Windows.Media
-            self.TxtInput.Foreground = System.Windows.Media.Brushes.Black
-            self.TxtInput.Background = System.Windows.Media.Brushes.White
         if self.TxtAccent:
-            self.TxtAccent.Text = u"\u2B0C"  # â¬Œ
+            self.TxtAccent.Text = u"\u2B0C"  # ⬌
         if self.CloseBtn:
-            self.CloseBtn.Content = u"\u2715"  # âœ•
+            self.CloseBtn.Content = u"\u2715"  # ✕
             self.CloseBtn.Click += self.CloseBtn_Click
         if self.CancelBtn:
             self.CancelBtn.Click += self.CancelBtn_Click
@@ -574,9 +559,29 @@ class CustomTextInputWindow(object):
         if self.TitleBar:
             self.TitleBar.MouseLeftButtonDown += self.TitleBar_MouseDown
 
-        # Focus textbox
+        # Focus textbox and wire enter/escape
         if self.TxtInput:
             self.TxtInput.Focus()
+            self.TxtInput.KeyDown += self.TxtInput_KeyDown
+        self.win.PreviewKeyDown += self.Window_PreviewKeyDown
+
+    def TxtInput_KeyDown(self, sender, e):
+        import System.Windows.Input
+        if e.Key == System.Windows.Input.Key.Enter:
+            self.OkBtn_Click(sender, e)
+            e.Handled = True
+        elif e.Key == System.Windows.Input.Key.Escape:
+            self.CancelBtn_Click(sender, e)
+            e.Handled = True
+
+    def Window_PreviewKeyDown(self, sender, e):
+        import System.Windows.Input
+        if e.Key == System.Windows.Input.Key.Enter:
+            self.OkBtn_Click(sender, e)
+            e.Handled = True
+        elif e.Key == System.Windows.Input.Key.Escape:
+            self.CancelBtn_Click(sender, e)
+            e.Handled = True
 
     def TitleBar_MouseDown(self, sender, e):
         try:
@@ -618,13 +623,32 @@ class CustomTextInputWindow(object):
 class CustomProfileSaveWindow(object):
     def __init__(self):
         self.result = None
+        theme = load_settings().get("theme", "Dark")
+        is_light = (theme == "Light")
+
+        bg = "#FFFFFF" if is_light else "#161616"
+        tb_bg = "#F2F4F7" if is_light else "#1E1E1E"
+        footer_bg = "#F8F9FA" if is_light else "#121212"
+        border = "#D0D5DD" if is_light else "#3A3A3A"
+        footer_border = "#EAECF0" if is_light else "#222222"
+        fg_title = "#1D2939" if is_light else "#E0E0E0"
+        fg_main = "#101828" if is_light else "#FFFFFF"
+        fg_sub = "#475467" if is_light else "#AAAAAA"
+        saveas_bg = "#F2F4F7" if is_light else "#222222"
+        saveas_fg = "#344054" if is_light else "#AAAAAA"
+        saveas_hover = "#E4E7EC" if is_light else "#333333"
+        btn_bg = "#802F2D"
+        btn_hover = "#661F1D" if is_light else "#9E3A38"
+        accent_color = "#802F2D" if is_light else "#C0272D"
+        close_fg = "#667085" if is_light else "#888888"
+
         xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Save Profile" Width="360" SizeToContent="Height"
         WindowStartupLocation="CenterScreen" 
-        Background="#111111" WindowStyle="None" AllowsTransparency="False"
+        Background="{bg}" WindowStyle="None" AllowsTransparency="False"
         ResizeMode="NoResize">
-    <Border BorderBrush="#3A3A3A" BorderThickness="1">
+    <Border BorderBrush="{border}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="36"/>
@@ -633,18 +657,18 @@ class CustomProfileSaveWindow(object):
             </Grid.RowDefinitions>
 
             <!-- Title Bar -->
-            <Grid x:Name="TitleBar" Grid.Row="0" Background="#1A1A1A">
+            <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-                    <TextBlock x:Name="TxtAccent" Text="" Foreground="#802F2D" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock x:Name="TxtTitle" Text="Save Profile" Foreground="#CCCCCC" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtAccent" Text="" Foreground="{accent_color}" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtTitle" Text="Save Profile" Foreground="{fg_title}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Button x:Name="CloseBtn" Content="" HorizontalAlignment="Right"
                         Width="44" Height="36" BorderThickness="0" Cursor="Hand"
-                        Background="Transparent" Foreground="#666666"
+                        Background="Transparent" Foreground="{close_fg}"
                         FontSize="12">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                            <Border x:Name="bd" Background="Transparent">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -660,38 +684,38 @@ class CustomProfileSaveWindow(object):
 
             <!-- Content Area -->
             <StackPanel Grid.Row="1" Margin="20,16,20,16">
-                <TextBlock Text="This profile will be updated with" Foreground="#CCCCCC" FontSize="11.5" Margin="0,0,0,12"/>
-                <TextBlock Text="- Custom Drawing Number" Foreground="#888888" FontSize="11.5" Margin="0,0,0,4"/>
-                <TextBlock Text="- Format options" Foreground="#888888" FontSize="11.5" Margin="0,0,0,4"/>
-                <TextBlock Text="  PDF, DWG, DGN, DWF/DWFx, NWC, IFC AND IMG" Foreground="#888888" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                <TextBlock Text="This profile will be updated with" Foreground="{fg_main}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                <TextBlock Text="- Custom Drawing Number" Foreground="{fg_sub}" FontSize="11.5" Margin="0,0,0,4"/>
+                <TextBlock Text="- Format options" Foreground="{fg_sub}" FontSize="11.5" Margin="0,0,0,4"/>
+                <TextBlock Text="  PDF, DWG, DGN, DWF/DWFx, NWC, IFC AND IMG" Foreground="{fg_sub}" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
             </StackPanel>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Background="#0E0E0E" BorderBrush="#222222" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Background="{footer_bg}" BorderBrush="{footer_border}" BorderThickness="0,1,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button x:Name="SaveAsBtn" Content="Save As" Width="80" Height="26" Margin="0,0,8,0" Cursor="Hand" Foreground="#AAAAAA" FontSize="11">
+                    <Button x:Name="SaveAsBtn" Content="Save As" Width="80" Height="26" Margin="0,0,8,0" Cursor="Hand" Foreground="{saveas_fg}" FontWeight="SemiBold" FontSize="11">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="#222222" CornerRadius="3">
+                                <Border x:Name="bd" Background="{saveas_bg}" CornerRadius="3">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Background" Value="#333333"/>
+                                        <Setter TargetName="bd" Property="Background" Value="{saveas_hover}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <Button x:Name="SaveBtn" Content="Save" Width="80" Height="26" Margin="0,0,14,0" Cursor="Hand" Foreground="White" FontWeight="SemiBold" FontSize="11">
+                    <Button x:Name="SaveBtn" Content="Save" Width="80" Height="26" Margin="0,0,14,0" Cursor="Hand" Foreground="White" FontWeight="Bold" FontSize="11" IsDefault="True">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="#802F2D" CornerRadius="3">
+                                <Border x:Name="bd" Background="{btn_bg}" CornerRadius="3">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Background" Value="#9E3A38"/>
+                                        <Setter TargetName="bd" Property="Background" Value="{btn_hover}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -702,8 +726,23 @@ class CustomProfileSaveWindow(object):
         </Grid>
     </Border>
 </Window>
-"""
-        xaml_code = apply_theme_to_xaml(xaml_code)
+""".format(
+            bg=bg,
+            tb_bg=tb_bg,
+            footer_bg=footer_bg,
+            border=border,
+            footer_border=footer_border,
+            fg_title=fg_title,
+            fg_main=fg_main,
+            fg_sub=fg_sub,
+            saveas_bg=saveas_bg,
+            saveas_fg=saveas_fg,
+            saveas_hover=saveas_hover,
+            btn_bg=btn_bg,
+            btn_hover=btn_hover,
+            accent_color=accent_color,
+            close_fg=close_fg
+        )
         r = XmlReader.Create(StringReader(xaml_code))
         self.win = XamlReader.Load(r)
 
@@ -714,9 +753,9 @@ class CustomProfileSaveWindow(object):
         self.TitleBar = self.win.FindName("TitleBar")
 
         if self.TxtAccent:
-            self.TxtAccent.Text = u"\u2B0C"  # â¬Œ
+            self.TxtAccent.Text = u"\u2B0C"  # ⬌
         if self.CloseBtn:
-            self.CloseBtn.Content = u"\u2715"  # âœ•
+            self.CloseBtn.Content = u"\u2715"  # ✕
             self.CloseBtn.Click += self.CloseBtn_Click
         if self.SaveAsBtn:
             self.SaveAsBtn.Click += self.SaveAsBtn_Click
@@ -724,6 +763,16 @@ class CustomProfileSaveWindow(object):
             self.SaveBtn.Click += self.SaveBtn_Click
         if self.TitleBar:
             self.TitleBar.MouseLeftButtonDown += self.TitleBar_MouseDown
+        self.win.PreviewKeyDown += self.Window_PreviewKeyDown
+
+    def Window_PreviewKeyDown(self, sender, e):
+        import System.Windows.Input
+        if e.Key == System.Windows.Input.Key.Enter:
+            self.SaveBtn_Click(sender, e)
+            e.Handled = True
+        elif e.Key == System.Windows.Input.Key.Escape:
+            self.CloseBtn_Click(sender, e)
+            e.Handled = True
 
     def TitleBar_MouseDown(self, sender, e):
         try:
@@ -783,6 +832,7 @@ def load_settings():
         },
         "profile_settings": {},
         "view_sets": {},
+        "favorite_set": "",
         "export_options": {
             "temp_hide_off": True,
             "worksharing_off": True,
@@ -806,6 +856,8 @@ def load_settings():
                 data["active_scheme"] = default_settings["active_scheme"]
             if "view_sets" not in data:
                 data["view_sets"] = {}
+            if "favorite_set" not in data:
+                data["favorite_set"] = ""
             if "profile_settings" not in data:
                 data["profile_settings"] = {}
             if "export_options" not in data:
@@ -822,10 +874,38 @@ def save_settings(settings):
         show_alert("Error saving naming settings:\n" + str(e), is_error=True)
 
 # ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # View Models
 # ------------------------------------------------------------------------------
-class SheetViewModel(object):
+try:
+    from System.ComponentModel import INotifyPropertyChanged, PropertyChangedEventArgs
+    import pyevent
+except Exception:
+    INotifyPropertyChanged = object
+    PropertyChangedEventArgs = None
+    pyevent = None
+
+ReactiveBase = getattr(forms, "Reactive", None)
+if not ReactiveBase and pyevent and INotifyPropertyChanged is not object:
+    class ReactiveBase(INotifyPropertyChanged):
+        PropertyChanged, _propertyChangedCaller = pyevent.make_event()
+        def add_PropertyChanged(self, value):
+            self.PropertyChanged += value
+        def remove_PropertyChanged(self, value):
+            self.PropertyChanged -= value
+        def OnPropertyChanged(self, prop_name):
+            if self._propertyChangedCaller:
+                self._propertyChangedCaller(self, PropertyChangedEventArgs(prop_name))
+elif not ReactiveBase:
+    ReactiveBase = object
+
+
+class SheetViewModel(ReactiveBase):
     def __init__(self, sheet, scheme_parts, doc, is_view=False):
+        try:
+            super(SheetViewModel, self).__init__()
+        except Exception:
+            pass
         self.Sheet = sheet
         self.is_view = is_view
 
@@ -863,7 +943,14 @@ class SheetViewModel(object):
 
     @IsSelected.setter
     def IsSelected(self, value):
-        self._is_selected = value
+        val = bool(value)
+        if self._is_selected != val:
+            self._is_selected = val
+            if hasattr(self, "OnPropertyChanged"):
+                try:
+                    self.OnPropertyChanged("IsSelected")
+                except Exception:
+                    pass
 
     @property
     def CustomFileName(self):
@@ -1775,8 +1862,9 @@ class ExportManagerForm(forms.WPFWindow):
         else:
             self.RbSaveSameFolder.IsChecked = True
 
-        self.CmbPdfSetup.SelectionChanged += self.CmbPdfSetup_SelectionChanged
-        self.CmbDwgSetup.SelectionChanged += self.CmbDwgSetup_SelectionChanged
+        self._action_busy = False
+        self.update_set_buttons_state()
+
         self._init_done = True
         self.restart_for_theme = False
         self.saved_state = None
@@ -1804,12 +1892,11 @@ class ExportManagerForm(forms.WPFWindow):
         self.active_scheme_parts = settings["schemes"].get(self.CmbProfile.SelectedItem, [])
 
     # ViewSheetSets logic
+    # ViewSheetSets logic
     def load_viewsets(self):
+        """Load Revit native ViewSheetSets (print sets)."""
         settings = load_settings()
         self.viewsets_dict = settings.get("view_sets", {})
-
-        self.viewset_names = list(self.viewsets_dict.keys())
-        self.viewset_names.sort()
 
         # Load Revit built-in ViewSheetSets (print sets)
         self.revit_viewsets = {}
@@ -1826,18 +1913,24 @@ class ExportManagerForm(forms.WPFWindow):
         except:
             pass
 
-        revit_set_names = sorted(self.revit_viewsets.keys())
+        revit_set_names = sorted(self.revit_viewsets.keys(), key=lambda s: s.lower())
+        self.viewset_names = revit_set_names
 
         # Populate the Filter dropdown: label, then Revit print sets only
         filter_items = ["-- Filter by V/S Set --"] + revit_set_names
 
+        prev_selected = self.CmbFilterSets.SelectedItem if hasattr(self, "CmbFilterSets") else None
+
         self.CmbFilterSets.ItemsSource = filter_items
-        self.CmbFilterSets.SelectedIndex = 0
+        if prev_selected and prev_selected in filter_items:
+            self.CmbFilterSets.SelectedItem = prev_selected
+        else:
+            self.CmbFilterSets.SelectedIndex = 0
 
         # Lookup: name -> sheet number list
         self.all_viewsets_dict = dict(self.revit_viewsets)
-
-
+        self.update_favorite_star()
+        self.update_set_buttons_state()
 
     def RbMode_Checked(self, sender, e):
         """Switch the DataGrid between Sheets and Views."""
@@ -1859,29 +1952,63 @@ class ExportManagerForm(forms.WPFWindow):
 
         selected = self.CmbFilterSets.SelectedItem
         # Ignore label/separator rows
-        if not selected or selected.startswith("--") or selected.startswith("---"):
+        if not selected or str(selected).startswith("--") or str(selected).startswith("---"):
             for sv in self.current_items:
                 sv.IsSelected = False
             if hasattr(self, 'CbShowActive'):
                 self.CbShowActive.IsChecked = False
             self.filter_sheets()
             self.update_selection_stats()
+            self.update_favorite_star()
+            self.update_set_buttons_state()
             return
 
-        set_numbers = self.all_viewsets_dict.get(selected, [])
+        selected_str = str(selected)
+        set_numbers = set(self.all_viewsets_dict.get(selected_str, []))
 
         for sv in self.current_items:
-            sv.IsSelected = (sv.SheetNumber in set_numbers)
+            sv.IsSelected = (sv.SheetNumber in set_numbers or sv.SheetName in set_numbers)
 
         if hasattr(self, 'CbShowActive'):
             self.CbShowActive.IsChecked = True
-            
+
         self.filter_sheets()
         self.update_selection_stats()
+        self.update_favorite_star()
+        self.update_set_buttons_state()
+
+    def _run_action_guarded(self, action_fn):
+        """Execute a set action with re-entrancy and double-click protection."""
+        if getattr(self, "_action_busy", False):
+            return
+        self._action_busy = True
+        try:
+            action_fn()
+        finally:
+            self._action_busy = False
+
+    def BtnSaveSet_Click(self, sender, e):
+        """Save/update current selection into the active ViewSheetSet."""
+        self._run_action_guarded(self._action_save_current_set)
+
+    def BtnNewSet_Click(self, sender, e):
+        """Create a new ViewSheetSet from current selection."""
+        self._run_action_guarded(self._action_new_set)
+
+    def BtnDuplicateSet_Click(self, sender, e):
+        """Duplicate the currently selected ViewSheetSet."""
+        self._run_action_guarded(self._action_duplicate_set)
+
+    def BtnRenameSet_Click(self, sender, e):
+        """Rename the currently selected ViewSheetSet."""
+        self._run_action_guarded(self._action_rename_set)
+
+    def BtnDeleteSet_Click(self, sender, e):
+        """Delete the currently selected ViewSheetSet."""
+        self._run_action_guarded(self._action_delete_set)
 
     def CmbSetActions_SelectionChanged(self, sender, e):
-        """Handle action ComboBox: New set / Add to Existing / Delete set."""
-        # Guard: this event can fire during XAML loading before __init__ completes
+        """Handle action ComboBox: Save current set / New set / Duplicate set / Rename set / Delete set."""
         if not hasattr(self, "CmbSetActions") or not hasattr(self, "current_items"):
             return
         cmb = self.CmbSetActions
@@ -1898,47 +2025,312 @@ class ExportManagerForm(forms.WPFWindow):
 
         # Reset back to "Unsaved Set" after action resolves
         try:
-            if label == "New set":
+            if label == "Save current set":
+                self._action_save_current_set()
+            elif label == "New set":
                 self._action_new_set()
-            elif label == "Add to Existing":
-                self._action_add_to_existing()
+            elif label == "Duplicate set":
+                self._action_duplicate_set()
+            elif label == "Rename set":
+                self._action_rename_set()
             elif label == "Delete set":
                 self._action_delete_set()
+            elif label == "Add to Existing":
+                self._action_add_to_existing()
         finally:
             cmb.SelectedIndex = 0
 
-    def _action_new_set(self):
-        """Save currently selected items as a new named set."""
+    def _action_save_current_set(self):
+        """Save/update current selection into the selected ViewSheetSet."""
+        selected_name = self.CmbFilterSets.SelectedItem
+        if not selected_name or str(selected_name).startswith("--"):
+            self._action_new_set()
+            return
+
+        selected_name = str(selected_name)
         selected_vms = [sv for sv in self.current_items if sv.IsSelected]
         if not selected_vms:
-            show_alert("No items selected to save.", is_warning=True)
+            show_alert("No items selected. A View/Sheet Set must contain at least one item.", is_warning=True)
             return
 
-        set_name = show_text_input("New View/Sheet Set", "Enter a name for the new set:")
-        if not set_name:
-            return
+        sheet_numbers = [sv.SheetNumber for sv in selected_vms]
 
+        # 1. Update settings["view_sets"]
         try:
             settings = load_settings()
             if "view_sets" not in settings:
                 settings["view_sets"] = {}
+            settings["view_sets"][selected_name] = sheet_numbers
+            save_settings(settings)
+        except:
+            pass
 
-            sheet_numbers = [sv.SheetNumber for sv in selected_vms]
+        # 2. Update Revit DB.ViewSheetSet if present
+        try:
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
+            for s in existing_sets:
+                if s.Name == selected_name:
+                    target_vss = s
+                    break
+
+            t = DB.Transaction(doc, "Export Manager - Update ViewSheetSet")
+            t.Start()
+            print_mgr = doc.PrintManager
+            vss = print_mgr.ViewSheetSetting
+
+            view_set = DB.ViewSet()
+            for sv in selected_vms:
+                if hasattr(sv, "Sheet") and sv.Sheet:
+                    view_set.Insert(sv.Sheet)
+
+            if target_vss:
+                vss.CurrentViewSheetSet = target_vss
+                vss.CurrentViewSheetSet.Views = view_set
+                try:
+                    vss.Save()
+                except:
+                    doc.Delete(target_vss.Id)
+                    vss.CurrentViewSheetSet.Views = view_set
+                    vss.SaveAs(selected_name)
+            else:
+                vss.CurrentViewSheetSet.Views = view_set
+                vss.SaveAs(selected_name)
+            t.Commit()
+        except Exception:
+            pass
+
+        show_alert("Set '{}' successfully updated ({} items).".format(selected_name, len(selected_vms)))
+        self.load_viewsets()
+        self.CmbFilterSets.SelectedItem = selected_name
+        if hasattr(self, "GridSheets"):
+            self.GridSheets.Items.Refresh()
+
+    def _action_new_set(self):
+        """Save currently selected items as a new named set both in settings and Revit."""
+        selected_vms = [sv for sv in self.current_items if sv.IsSelected]
+        if not selected_vms:
+            show_alert("Please select at least one sheet or view before creating a set.", is_warning=True)
+            return
+
+        set_name = show_text_input("New View/Sheet Set", "Enter a name for the new set:")
+        if not set_name or not set_name.strip():
+            return
+        set_name = set_name.strip()
+
+        # 1. ALWAYS save to settings["view_sets"]
+        sheet_numbers = [sv.SheetNumber for sv in selected_vms]
+        try:
+            settings = load_settings()
+            if "view_sets" not in settings:
+                settings["view_sets"] = {}
             settings["view_sets"][set_name] = sheet_numbers
             save_settings(settings)
-            show_alert("Set '{}' saved successfully.".format(set_name))
-            self.load_viewsets()
-
-            # Select the new set in the filter dropdown
-            try:
-                self.CmbFilterSets.SelectedIndex = self.viewset_names.index(set_name) + 1
-            except ValueError:
-                pass
         except Exception as ex:
-            show_alert("Failed to save set:\n" + str(ex), is_error=True)
+            show_alert("Failed to save set to settings:\n" + str(ex), is_error=True)
+            return
+
+        # 2. ALSO save to Revit DB.ViewSheetSet inside Transaction
+        try:
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
+            for s in existing_sets:
+                if s.Name.lower() == set_name.lower():
+                    target_vss = s
+                    break
+
+            t = DB.Transaction(doc, "Export Manager - Create ViewSheetSet")
+            t.Start()
+            print_mgr = doc.PrintManager
+            vss = print_mgr.ViewSheetSetting
+
+            view_set = DB.ViewSet()
+            for sv in selected_vms:
+                if hasattr(sv, "Sheet") and sv.Sheet:
+                    view_set.Insert(sv.Sheet)
+
+            if target_vss:
+                vss.CurrentViewSheetSet = target_vss
+                vss.CurrentViewSheetSet.Views = view_set
+                try:
+                    vss.Save()
+                except:
+                    doc.Delete(target_vss.Id)
+                    vss.CurrentViewSheetSet.Views = view_set
+                    vss.SaveAs(set_name)
+            else:
+                vss.CurrentViewSheetSet.Views = view_set
+                vss.SaveAs(set_name)
+            t.Commit()
+        except Exception:
+            pass
+
+        show_alert("Set '{}' saved successfully.".format(set_name))
+        self.load_viewsets()
+        if set_name in self.CmbFilterSets.ItemsSource:
+            self.CmbFilterSets.SelectedItem = set_name
+
+    def _action_duplicate_set(self):
+        """Duplicate the currently selected ViewSheetSet under a new name."""
+        selected_name = self.CmbFilterSets.SelectedItem
+        if not selected_name or str(selected_name).startswith("--"):
+            show_alert("Please select a View/Sheet Set in the dropdown to duplicate first.", is_warning=True)
+            return
+
+        selected_name = str(selected_name)
+        new_name = show_text_input("Duplicate View/Sheet Set", "Enter name for the duplicated set:", default_value=selected_name + " Copy")
+        if not new_name or not new_name.strip():
+            return
+        new_name = new_name.strip()
+
+        # Get existing sheet numbers from all_viewsets_dict
+        source_nums = list(self.all_viewsets_dict.get(selected_name, []))
+
+        # 1. Save to settings["view_sets"]
+        try:
+            settings = load_settings()
+            if "view_sets" not in settings:
+                settings["view_sets"] = {}
+            settings["view_sets"][new_name] = source_nums
+            save_settings(settings)
+        except:
+            pass
+
+        # 2. Duplicate in Revit DB.ViewSheetSet if possible
+        try:
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
+            for s in existing_sets:
+                if s.Name == selected_name:
+                    target_vss = s
+                    break
+
+            t = DB.Transaction(doc, "Export Manager - Duplicate ViewSheetSet")
+            t.Start()
+            print_mgr = doc.PrintManager
+            vss = print_mgr.ViewSheetSetting
+
+            copy_views = DB.ViewSet()
+            if target_vss:
+                for v in target_vss.Views:
+                    copy_views.Insert(v)
+            else:
+                for sv in self.sheets:
+                    if sv.SheetNumber in source_nums:
+                        copy_views.Insert(sv.Sheet)
+
+            vss.CurrentViewSheetSet.Views = copy_views
+            vss.SaveAs(new_name)
+            t.Commit()
+        except:
+            pass
+
+        show_alert("Set '{}' duplicated as '{}'.".format(selected_name, new_name))
+        self.load_viewsets()
+        if new_name in self.CmbFilterSets.ItemsSource:
+            self.CmbFilterSets.SelectedItem = new_name
+
+    def _action_rename_set(self):
+        """Rename the currently selected ViewSheetSet."""
+        selected_name = self.CmbFilterSets.SelectedItem
+        if not selected_name or str(selected_name).startswith("--"):
+            show_alert("Please select a View/Sheet Set in the dropdown to rename first.", is_warning=True)
+            return
+
+        selected_name = str(selected_name)
+        new_name = show_text_input("Rename View/Sheet Set", "Enter new name for '{}':".format(selected_name), default_value=selected_name)
+        if not new_name or not new_name.strip() or new_name.strip() == selected_name:
+            return
+        new_name = new_name.strip()
+
+        # 1. Update in settings["view_sets"] and favorite_set
+        try:
+            settings = load_settings()
+            if "view_sets" in settings and selected_name in settings["view_sets"]:
+                settings["view_sets"][new_name] = settings["view_sets"].pop(selected_name)
+            if settings.get("favorite_set") == selected_name:
+                settings["favorite_set"] = new_name
+            save_settings(settings)
+        except:
+            pass
+
+        # 2. Rename in Revit DB.ViewSheetSet if present
+        try:
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
+            for s in existing_sets:
+                if s.Name == selected_name:
+                    target_vss = s
+                    break
+
+            if target_vss:
+                t = DB.Transaction(doc, "Export Manager - Rename ViewSheetSet")
+                t.Start()
+                print_mgr = doc.PrintManager
+                vss = print_mgr.ViewSheetSetting
+                vss.CurrentViewSheetSet = target_vss
+                try:
+                    vss.Rename(new_name)
+                except:
+                    target_vss.Name = new_name
+                t.Commit()
+        except:
+            pass
+
+        show_alert("Set renamed from '{}' to '{}'.".format(selected_name, new_name))
+        self.load_viewsets()
+        if new_name in self.CmbFilterSets.ItemsSource:
+            self.CmbFilterSets.SelectedItem = new_name
+
+    def _action_delete_set(self):
+        """Delete the currently selected ViewSheetSet."""
+        selected_name = self.CmbFilterSets.SelectedItem
+        if not selected_name or str(selected_name).startswith("--"):
+            show_alert("Select a View/Sheet Set in the dropdown to delete first.", is_warning=True)
+            return
+
+        selected_name = str(selected_name)
+
+        # 1. Delete from settings["view_sets"] and favorite_set
+        try:
+            settings = load_settings()
+            if "view_sets" in settings and selected_name in settings["view_sets"]:
+                del settings["view_sets"][selected_name]
+            if settings.get("favorite_set") == selected_name:
+                settings["favorite_set"] = ""
+            save_settings(settings)
+        except:
+            pass
+
+        # 2. Delete from Revit DB.ViewSheetSet if present
+        try:
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
+            for s in existing_sets:
+                if s.Name == selected_name:
+                    target_vss = s
+                    break
+
+            if target_vss:
+                t = DB.Transaction(doc, "Export Manager - Delete ViewSheetSet")
+                t.Start()
+                try:
+                    print_mgr = doc.PrintManager
+                    print_mgr.ViewSheetSetting.CurrentViewSheetSet = print_mgr.ViewSheetSetting.InSession
+                except:
+                    pass
+                doc.Delete(target_vss.Id)
+                t.Commit()
+        except:
+            pass
+
+        show_alert("View/Sheet Set '{}' deleted.".format(selected_name))
+        self.load_viewsets()
+        self.CmbFilterSets.SelectedIndex = 0
+        self.update_set_buttons_state()
 
     def _action_add_to_existing(self):
-        """Add currently selected items to an already saved set."""
+        """Add currently selected items to an already saved ViewSheetSet."""
         if not self.viewset_names:
             show_alert("No saved sets found. Create a 'New set' first.", is_warning=True)
             return
@@ -1948,58 +2340,181 @@ class ExportManagerForm(forms.WPFWindow):
             show_alert("No items selected to add.", is_warning=True)
             return
 
-        # Ask user which set to add to via a simple text input with hint
-        hint = "Saved sets: " + ", ".join(self.viewset_names)
+        hint = "Available sets: " + ", ".join(self.viewset_names)
         set_name = show_text_input("Add to Existing Set", "Enter the set name to add to:\n({})".format(hint))
-        if not set_name:
+        if not set_name or not set_name.strip():
             return
-        if set_name not in self.viewsets_dict:
-            show_alert("Set '{}' not found.".format(set_name), is_warning=True)
-            return
+        set_name = set_name.strip()
 
+        # Find existing numbers
+        existing = list(self.all_viewsets_dict.get(set_name, []))
+        new_numbers = [sv.SheetNumber for sv in selected_vms]
+        merged = list(set(existing + new_numbers))
+
+        # 1. Update settings["view_sets"]
         try:
             settings = load_settings()
-            existing = settings["view_sets"].get(set_name, [])
-            new_numbers = [sv.SheetNumber for sv in selected_vms]
-            merged = list(set(existing + new_numbers))
+            if "view_sets" not in settings:
+                settings["view_sets"] = {}
             settings["view_sets"][set_name] = merged
             save_settings(settings)
-            show_alert("Added {} item(s) to set '{}'.".format(len(new_numbers), set_name))
-            self.load_viewsets()
-        except Exception as ex:
-            show_alert("Failed to update set:\n" + str(ex), is_error=True)
+        except:
+            pass
 
-    def _action_delete_set(self):
-        """Delete the set currently selected in the Filter dropdown."""
-        idx = self.CmbFilterSets.SelectedIndex
-        if idx <= 0:
-            show_alert("Select a set in the 'Filter by V/S Set' dropdown first.", is_warning=True)
-            return
+        # 2. Update Revit DB.ViewSheetSet if present
+        try:
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
+            for s in existing_sets:
+                if s.Name == set_name:
+                    target_vss = s
+                    break
 
-        set_name = self.viewset_names[idx - 1]
+            if target_vss:
+                t = DB.Transaction(doc, "Export Manager - Add to ViewSheetSet")
+                t.Start()
+                print_mgr = doc.PrintManager
+                vss = print_mgr.ViewSheetSetting
+                vss.CurrentViewSheetSet = target_vss
 
+                merged_views = DB.ViewSet()
+                existing_ids = set()
+                for v in target_vss.Views:
+                    merged_views.Insert(v)
+                    existing_ids.add(v.Id.IntegerValue)
+
+                for sv in selected_vms:
+                    if hasattr(sv, "Sheet") and sv.Sheet and sv.Sheet.Id.IntegerValue not in existing_ids:
+                        merged_views.Insert(sv.Sheet)
+                        existing_ids.add(sv.Sheet.Id.IntegerValue)
+
+                vss.CurrentViewSheetSet.Views = merged_views
+                try:
+                    vss.Save()
+                except:
+                    doc.Delete(target_vss.Id)
+                    vss.CurrentViewSheetSet = vss.InSession
+                    vss.CurrentViewSheetSet.Views = merged_views
+                    vss.SaveAs(target_vss.Name)
+                t.Commit()
+        except:
+            pass
+
+        show_alert("Added {} item(s) to set '{}'.".format(len(new_numbers), set_name))
+        self.load_viewsets()
+        self.CmbFilterSets.SelectedItem = set_name
+
+    def BtnFavorite_Click(self, sender, e):
+        """Toggle favorite for currently selected set, or quick-load favorite set if none selected."""
         try:
             settings = load_settings()
-            if "view_sets" in settings and set_name in settings["view_sets"]:
-                del settings["view_sets"][set_name]
-                save_settings(settings)
-            show_alert("Set '{}' deleted.".format(set_name))
-            self.load_viewsets()
-            self.CmbFilterSets.SelectedIndex = 0
+            fav = settings.get("favorite_set", "")
+            current_set = None
+            if hasattr(self, "CmbFilterSets") and self.CmbFilterSets.SelectedItem:
+                sel = str(self.CmbFilterSets.SelectedItem)
+                if not sel.startswith("--"):
+                    current_set = sel
+
+            if current_set:
+                if fav == current_set:
+                    settings["favorite_set"] = ""
+                    save_settings(settings)
+                    self.update_favorite_star()
+                    show_alert("Removed '{}' from Favorites.".format(current_set))
+                else:
+                    settings["favorite_set"] = current_set
+                    save_settings(settings)
+                    self.update_favorite_star()
+                    show_alert("Marked '{}' as Favorite Set.".format(current_set))
+            else:
+                if fav:
+                    found = False
+                    for i, item in enumerate(self.CmbFilterSets.ItemsSource):
+                        if str(item) == fav:
+                            self.CmbFilterSets.SelectedIndex = i
+                            found = True
+                            break
+                    if found:
+                        show_alert("Loaded Favorite Set: '{}'.".format(fav))
+                    else:
+                        show_alert("Favorite set '{}' was not found in this project.".format(fav), is_warning=True)
+                else:
+                    show_alert("No Favorite set saved yet.\nSelect a View/Sheet Set first, then click the star to mark it as Favorite.", is_warning=True)
         except Exception as ex:
-            show_alert("Failed to delete set:\n" + str(ex), is_error=True)
+            show_alert("Error handling Favorite:\n" + str(ex), is_error=True)
+
+    def update_favorite_star(self):
+        """Update visual appearance of favorite star icons."""
+        try:
+            settings = load_settings()
+            fav = settings.get("favorite_set", "")
+            current_set = None
+            if hasattr(self, "CmbFilterSets") and self.CmbFilterSets.SelectedItem:
+                sel = str(self.CmbFilterSets.SelectedItem)
+                if not sel.startswith("--"):
+                    current_set = sel
+
+            theme = self.settings.get("theme", "Dark") if hasattr(self, "settings") else "Dark"
+            is_light = (theme == "Light")
+            gold_color = "#B57B17" if is_light else "#FFC107"
+            dim_color = "#888888" if is_light else "#555555"
+
+            from System.Windows.Media import BrushConverter
+            bc = BrushConverter()
+
+            for star_name in ["TxtFavoriteStar", "TxtBottomFavoriteStar"]:
+                star_ctrl = getattr(self, star_name, None)
+                if not star_ctrl:
+                    continue
+
+                if current_set and current_set == fav:
+                    star_ctrl.Text = u"\u2605"
+                    star_ctrl.Foreground = bc.ConvertFromString(gold_color)
+                    star_ctrl.ToolTip = "Favorite Set: '{}' (Click to remove from Favorites)".format(fav)
+                elif fav:
+                    if current_set:
+                        star_ctrl.Text = u"\u2606"
+                        star_ctrl.Foreground = bc.ConvertFromString(dim_color)
+                        star_ctrl.ToolTip = "Click to set '{}' as Favorite (Current Fav: '{}')".format(current_set, fav)
+                    else:
+                        star_ctrl.Text = u"\u2605"
+                        star_ctrl.Foreground = bc.ConvertFromString(gold_color)
+                        star_ctrl.ToolTip = "Quick Load Favorite Set: '{}'".format(fav)
+                else:
+                    star_ctrl.Text = u"\u2606"
+                    star_ctrl.Foreground = bc.ConvertFromString(dim_color)
+                    star_ctrl.ToolTip = "Click to mark as Favorite"
+        except:
+            pass
+
+    def update_set_buttons_state(self):
+        """Enable or disable set management buttons based on current selection."""
+        try:
+            selected = self.CmbFilterSets.SelectedItem if hasattr(self, "CmbFilterSets") else None
+            has_valid_set = bool(selected and not str(selected).startswith("--") and not str(selected).startswith("---"))
+            for btn_name in ("BtnDeleteSet", "BtnRenameSet", "BtnDuplicateSet"):
+                btn = getattr(self, btn_name, None)
+                if btn:
+                    btn.IsEnabled = has_valid_set
+                    btn.Opacity = 1.0 if has_valid_set else 0.35
+        except Exception:
+            pass
 
     def TitleBar_MouseDown(self, sender, e):
         try:
             self.DragMove()
         except:
             pass
-    def SortBtn_Click(self, sender, e):
+    def execute_sort(self, prop_name):
         try:
-            e.Handled = True
-            prop_name = sender.Tag
             if not prop_name:
                 return
+
+            import time
+            now = time.time()
+            if hasattr(self, "_last_sort_time") and (now - self._last_sort_time < 0.25):
+                return
+            self._last_sort_time = now
 
             if not hasattr(self, "sort_dirs"):
                 self.sort_dirs = {}
@@ -2007,33 +2522,108 @@ class ExportManagerForm(forms.WPFWindow):
             current_dir = self.sort_dirs.get(prop_name, "Descending")
             if current_dir == "Ascending":
                 new_dir = "Descending"
-                sender.Content = u"\u25BC" # ▼
+                arrow_char = u"\u25BC" # ▼
             else:
                 new_dir = "Ascending"
-                sender.Content = u"\u25B2" # ▲
+                arrow_char = u"\u25B2" # ▲
 
             self.sort_dirs[prop_name] = new_dir
             reverse = (new_dir == "Descending")
 
-            items = getattr(self, "current_items", self.sheets)
+            # Update sort arrows & DataGrid column headers
+            sort_dir = None
+            try:
+                import System.ComponentModel
+                sort_dir = System.ComponentModel.ListSortDirection.Descending if reverse else System.ComponentModel.ListSortDirection.Ascending
+            except Exception:
+                pass
 
-            items.sort(key=lambda x: str(getattr(x, prop_name, "")), reverse=reverse)
+            if hasattr(self, "GridSheets"):
+                for c in self.GridSheets.Columns:
+                    h = getattr(c, "Header", None)
+                    tag = str(getattr(h, "Tag", "") or getattr(c, "SortMemberPath", "") or "")
+                    if tag in ["SheetNumber", "SheetName", "Revision", "Size"]:
+                        arrow = arrow_char if tag == prop_name else u"\u25BC"
+                        # Set native column SortDirection to trigger WPF theme style
+                        if sort_dir is not None:
+                            try:
+                                c.SortDirection = sort_dir if (tag == prop_name) else None
+                            except Exception:
+                                pass
+                        # Update arrow text in Header
+                        sp = getattr(h, "Child", None) or getattr(h, "Content", None)
+                        if sp and hasattr(sp, "Children") and sp.Children.Count > 1:
+                            try:
+                                sp.Children[1].Text = arrow
+                            except Exception:
+                                pass
+                        tb = getattr(self, "TxtSort_" + tag, None)
+                        if tb:
+                            try:
+                                tb.Text = arrow
+                            except Exception:
+                                pass
 
-            # Re-assign ItemsSource to force UI update, since view.Refresh() doesn't work for Python list order changes
-            new_list = [x for x in items]
-            selected = list(self.GridSheets.SelectedItems)
-            self.GridSheets.ItemsSource = None
-            self.GridSheets.ItemsSource = new_list
-            for item in selected:
-                self.GridSheets.SelectedItems.Add(item)
+            # Natural alphanumeric sorting function (e.g. A1, A2, A10)
+            def get_sort_key(vm):
+                val = getattr(vm, prop_name, "")
+                if val is None:
+                    val = ""
+                s = str(val).strip()
+                chunks = re.split(r'(\d+)', s)
+                key = []
+                for chunk in chunks:
+                    if chunk.isdigit():
+                        key.append((0, int(chunk)))
+                    elif chunk:
+                        key.append((1, chunk.lower()))
+                return key
 
-            if hasattr(self, "current_items"):
-                self.current_items = new_list
-            else:
-                self.sheets = new_list
+            if hasattr(self, "sheets") and self.sheets:
+                self.sheets.sort(key=get_sort_key, reverse=reverse)
+            if hasattr(self, "views") and self.views:
+                self.views.sort(key=get_sort_key, reverse=reverse)
+            if hasattr(self, "current_items") and self.current_items:
+                self.current_items.sort(key=get_sort_key, reverse=reverse)
+
+            self.filter_sheets()
 
         except Exception as ex:
             show_alert("Sort error: " + str(ex), is_error=True)
+
+    def SortHeader_MouseDown(self, sender, e):
+        try:
+            if hasattr(e, "ChangedButton"):
+                import System.Windows.Input
+                if e.ChangedButton != System.Windows.Input.MouseButton.Left:
+                    return
+            prop_name = str(getattr(sender, "Tag", "") or "")
+            if prop_name:
+                self.execute_sort(prop_name)
+        except Exception:
+            pass
+
+    def GridSheets_Sorting(self, sender, e):
+        try:
+            if hasattr(e, "Handled"):
+                e.Handled = True
+            prop_name = str(getattr(e.Column, "SortMemberPath", "") or "")
+            if not prop_name and hasattr(e.Column, "Header"):
+                prop_name = str(getattr(e.Column.Header, "Tag", "") or "")
+            if prop_name:
+                self.execute_sort(prop_name)
+        except Exception:
+            pass
+
+    def SortBtn_Click(self, sender, e):
+        try:
+            if hasattr(e, "Handled"):
+                e.Handled = True
+            prop_name = str(getattr(sender, "Tag", "") or "")
+            if prop_name:
+                self.execute_sort(prop_name)
+        except Exception:
+            pass
 
     def ThemeToggle_Click(self, sender, e):
         current_theme = self.settings.get("theme", "Dark")
@@ -2162,6 +2752,7 @@ class ExportManagerForm(forms.WPFWindow):
             if match_search and match_active:
                 filtered.append(sv)
                 
+        self.GridSheets.ItemsSource = None
         self.GridSheets.ItemsSource = filtered
 
     def CbShowActive_Click(self, sender, e):
@@ -2170,16 +2761,147 @@ class ExportManagerForm(forms.WPFWindow):
     def TxtSearch_TextChanged(self, sender, e):
         self.filter_sheets()
 
+    def HeaderCheckBoxCell_MouseDown(self, sender, e):
+        """Toggle select-all when clicking anywhere in the header checkbox cell."""
+        try:
+            import System.Windows.Input
+            if hasattr(e, "ChangedButton") and e.ChangedButton != System.Windows.Input.MouseButton.Left:
+                return
+
+            cb = getattr(self, "CbHeaderSelectAll", None)
+            new_val = True
+            if cb:
+                new_val = not (cb.IsChecked == True)
+                cb.IsChecked = new_val
+
+            items = self.GridSheets.ItemsSource or self.sheets
+            for sv in items:
+                sv.IsSelected = new_val
+            self.update_selection_stats()
+            e.Handled = True
+        except Exception:
+            pass
+
+    def SheetCheckBoxCell_MouseDown(self, sender, e):
+        """Toggle sheet selection when clicking anywhere inside the checkbox cell."""
+        try:
+            import System.Windows.Input
+            if hasattr(e, "ChangedButton") and e.ChangedButton != System.Windows.Input.MouseButton.Left:
+                return
+
+            clicked_item = getattr(sender, "DataContext", None)
+            if not clicked_item:
+                return
+
+            new_val = not getattr(clicked_item, "IsSelected", False)
+            selected_items = list(self.GridSheets.SelectedItems) if hasattr(self, "GridSheets") else []
+
+            # If multiple rows are highlighted and the clicked row is part of that selection:
+            if clicked_item in selected_items and len(selected_items) > 1:
+                for item in selected_items:
+                    item.IsSelected = new_val
+            else:
+                clicked_item.IsSelected = new_val
+
+            self.update_selection_stats()
+            e.Handled = True
+        except Exception:
+            pass
+
     def CbHeaderSelectAll_Click(self, sender, e):
-        is_checked = sender.IsChecked
+        is_checked = (sender.IsChecked == True)
         items = self.GridSheets.ItemsSource or self.sheets
         for sv in items:
             sv.IsSelected = is_checked
-        self.GridSheets.Items.Refresh()
         self.update_selection_stats()
 
     def CbSheetSelect_Click(self, sender, e):
-        self.update_selection_stats()
+        """Handle checkbox click - apply to all selected rows if clicked within a multi-selection."""
+        try:
+            is_checked = (sender.IsChecked == True)
+            clicked_item = getattr(sender, "DataContext", None)
+            selected_items = list(self.GridSheets.SelectedItems) if hasattr(self, "GridSheets") else []
+            if clicked_item and clicked_item in selected_items and len(selected_items) > 1:
+                for item in selected_items:
+                    item.IsSelected = is_checked
+            elif clicked_item:
+                clicked_item.IsSelected = is_checked
+        except Exception:
+            pass
+        finally:
+            self.update_selection_stats()
+
+    def GridSheets_PreviewKeyDown(self, sender, e):
+        """Toggle checkboxes on all highlighted rows when Spacebar is pressed."""
+        try:
+            import System.Windows.Input
+            import System.Windows.Controls
+            if e.Key == System.Windows.Input.Key.Space:
+                # Never intercept Space if user is currently typing in a TextBox (e.g. search or custom name)
+                if hasattr(e, "OriginalSource") and isinstance(e.OriginalSource, System.Windows.Controls.TextBox):
+                    return
+
+                selected_items = list(self.GridSheets.SelectedItems) if hasattr(self, "GridSheets") else []
+                if selected_items:
+                    # If any selected row is unchecked, check all selected rows.
+                    # If all are already checked, uncheck all of them.
+                    any_unchecked = any(not getattr(item, "IsSelected", False) for item in selected_items)
+                    target_state = True if any_unchecked else False
+                    for item in selected_items:
+                        item.IsSelected = target_state
+
+                    self.update_selection_stats()
+                    e.Handled = True
+        except Exception:
+            pass
+
+    def MenuCheckSelected_Click(self, sender, e):
+        self._set_selected_rows_checked(True)
+
+    def MenuUncheckSelected_Click(self, sender, e):
+        self._set_selected_rows_checked(False)
+
+    def MenuInvertSelected_Click(self, sender, e):
+        try:
+            selected_items = list(self.GridSheets.SelectedItems) if hasattr(self, "GridSheets") else []
+            if selected_items:
+                for item in selected_items:
+                    item.IsSelected = not getattr(item, "IsSelected", False)
+                self.update_selection_stats()
+        except Exception:
+            pass
+
+    def MenuCheckAll_Click(self, sender, e):
+        try:
+            items = getattr(self, "current_items", self.sheets)
+            for item in items:
+                item.IsSelected = True
+            if hasattr(self, "CbHeaderSelectAll"):
+                self.CbHeaderSelectAll.IsChecked = True
+            self.update_selection_stats()
+        except Exception:
+            pass
+
+    def MenuUncheckAll_Click(self, sender, e):
+        try:
+            items = getattr(self, "current_items", self.sheets)
+            for item in items:
+                item.IsSelected = False
+            if hasattr(self, "CbHeaderSelectAll"):
+                self.CbHeaderSelectAll.IsChecked = False
+            self.update_selection_stats()
+        except Exception:
+            pass
+
+    def _set_selected_rows_checked(self, is_checked):
+        try:
+            selected_items = list(self.GridSheets.SelectedItems) if hasattr(self, "GridSheets") else []
+            if selected_items:
+                for item in selected_items:
+                    item.IsSelected = is_checked
+                self.update_selection_stats()
+        except Exception:
+            pass
 
     # Tab 2: Format Logic
     def CbFormat_Click(self, sender, e):
