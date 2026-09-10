@@ -144,19 +144,36 @@ def update_tools():
                 source_dir = os.path.join(extract_path, "Riyan-Revit-Tools-main")
                 source_ext = os.path.join(source_dir, "Riyan.extension")
                 
-                def copy_tree_overwrite(src, dst):
+                def sync_clean_tree(src, dst):
                     if not os.path.exists(dst):
                         os.makedirs(dst)
-                    for item in os.listdir(src):
+                    src_items = set(os.listdir(src))
+                    dst_items = set(os.listdir(dst))
+                    
+                    # Automatically remove obsolete files/folders that exist locally but not in GitHub
+                    for old_item in (dst_items - src_items):
+                        if old_item in [".git", "__pycache__"]:
+                            continue
+                        target_path = os.path.join(dst, old_item)
+                        try:
+                            if os.path.isdir(target_path):
+                                shutil.rmtree(target_path, ignore_errors=True)
+                            else:
+                                os.remove(target_path)
+                        except Exception:
+                            pass
+                            
+                    # Copy and update all files from source
+                    for item in src_items:
                         s = os.path.join(src, item)
                         d = os.path.join(dst, item)
                         if os.path.isdir(s):
-                            copy_tree_overwrite(s, d)
+                            sync_clean_tree(s, d)
                         else:
                             shutil.copy2(s, d)
                             
                 if os.path.basename(extension_dir).endswith(".extension") and os.path.exists(source_ext):
-                    copy_tree_overwrite(source_ext, extension_dir)
+                    sync_clean_tree(source_ext, extension_dir)
                     # Also update version.txt in parent directory if it exists
                     src_v = os.path.join(source_dir, "version.txt")
                     if os.path.exists(src_v) and os.path.exists(parent_dir):
@@ -165,7 +182,7 @@ def update_tools():
                         except Exception:
                             pass
                 else:
-                    copy_tree_overwrite(source_dir, extension_dir)
+                    sync_clean_tree(source_dir, extension_dir)
 
                 # Clean up legacy / unwanted files from pyRevit Extensions and user folders
                 unwanted_files = [
