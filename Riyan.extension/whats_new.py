@@ -95,7 +95,7 @@ XAML_STRING = """
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
                             <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="V2.2.2 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="V2.2.3 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
                         <TextBlock Text="Interactive 4K Sheet Preview, Smooth Pan &amp; Zoom Engine &amp; Smart Updater" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
@@ -146,22 +146,22 @@ XAML_STRING = """
                     </Grid>
                 </Border>
 
-                <!-- Card 2: Spacebar Multi-Select -->
+                <!-- Card 2: Smart Updater & Locked File Shield -->
                 <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="⌨️" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                        <TextBlock Grid.Column="0" Text="🔄" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Spacebar Multi-Row Toggle" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Smart Updater &amp; Shield" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#3B311B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Rapid Workflow" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Bulletproof" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Select multiple sheet rows with Shift/Ctrl click, then press Spacebar or click any selected checkbox to toggle all of them simultaneously."
+                            <TextBlock Text="Update dialog cleanly cancels when clicking Close (✕) or Cancel. In-use file locks ([Errno 32]) are handled seamlessly so updates never crash."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
