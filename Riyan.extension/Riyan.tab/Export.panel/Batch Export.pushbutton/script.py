@@ -894,6 +894,10 @@ class FileRow:
                     
             self.sheets_loaded = True
             self.set_status("Ready")
+            try:
+                self.form.Activate()
+            except:
+                pass
         except Exception as ex:
             self.set_status("Ready")
         finally:
@@ -903,12 +907,20 @@ class FileRow:
                         bg_doc.Close(False)
                 except Exception:
                     pass
+            try:
+                self.form.Activate()
+            except:
+                pass
 
     def on_expand(self, sender, e):
         self.is_expanded = not self.is_expanded
         self.btn_expand.Content = "-" if self.is_expanded else "+"
         if self.is_expanded and not getattr(self, 'sheets_loaded', False):
             self.load_sheets_on_demand()
+        try:
+            self.form.Activate()
+        except:
+            pass
         self.sheet_stack.Visibility = System.Windows.Visibility.Visible if self.is_expanded else System.Windows.Visibility.Collapsed
 
     def on_browse(self, sender, e):
@@ -1026,6 +1038,19 @@ class FileRow:
 class BatchExportForm(forms.WPFWindow):
     def __init__(self, xaml_file_name):
         forms.WPFWindow.__init__(self, xaml_file_name)
+        
+        # Pin window as child/owned by Revit so it NEVER falls behind Revit window during background document loading
+        try:
+            import System.Windows.Interop as Interop
+            revit_handle = getattr(__revit__, "MainWindowHandle", None)
+            if not revit_handle:
+                import System.Diagnostics
+                revit_handle = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle
+            if revit_handle:
+                Interop.WindowInteropHelper(self).Owner = revit_handle
+        except Exception as ex:
+            log_diag("WindowInteropHelper Owner error: " + str(ex))
+
         self.rows = []
         self._cancel_export = False
         self.selected_sheet = None
@@ -1174,7 +1199,27 @@ class BatchExportForm(forms.WPFWindow):
 
     def TitleBar_MouseDown(self, sender, e):
         try:
-            self.DragMove()
+            if hasattr(e, "ClickCount") and e.ClickCount == 2:
+                self.toggle_maximize()
+                return
+            if e.ChangedButton == System.Windows.Input.MouseButton.Left:
+                self.DragMove()
+        except:
+            pass
+
+    def MaximizeBtn_Click(self, sender, e):
+        self.toggle_maximize()
+
+    def toggle_maximize(self):
+        try:
+            if self.WindowState == System.Windows.WindowState.Maximized:
+                self.WindowState = System.Windows.WindowState.Normal
+                if hasattr(self, 'BtnMaximize'):
+                    self.BtnMaximize.Content = u"\u25A1"
+            else:
+                self.WindowState = System.Windows.WindowState.Maximized
+                if hasattr(self, 'BtnMaximize'):
+                    self.BtnMaximize.Content = u"\u29C9"
         except:
             pass
 
@@ -1875,6 +1920,10 @@ class BatchExportForm(forms.WPFWindow):
 
         self.update_file_count()
         self.do_events()
+        try:
+            self.Activate()
+        except:
+            pass
 
     def BtnApplySetToAll_Click(self, sender, e):
         target_name = "PRINT"
