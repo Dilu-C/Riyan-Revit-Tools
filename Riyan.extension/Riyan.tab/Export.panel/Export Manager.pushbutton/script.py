@@ -2980,16 +2980,14 @@ class ExportManagerForm(forms.WPFWindow):
     def MenuPreviewSheet_Click(self, sender, e):
         try:
             item = getattr(self.GridSheets, 'SelectedItem', None) or self.selected_item
-            if not item:
+            if not item or not hasattr(item, 'Sheet') or not item.Sheet:
                 return
             self.selected_item = item
-            sheet_id = item.Sheet.UniqueId if hasattr(item, 'Sheet') and item.Sheet else None
-            if sheet_id and sheet_id in self.preview_cache and os.path.exists(self.preview_cache[sheet_id]):
-                self.on_preview_image_click(None, None)
-            else:
-                self.BtnPreview_Click(None, None)
-                if sheet_id and sheet_id in self.preview_cache and os.path.exists(self.preview_cache[sheet_id]):
-                    self.on_preview_image_click(None, None)
+            sheet_id = item.Sheet.UniqueId
+            img_path = self.preview_cache.get(sheet_id, None)
+            from _preview_script import show_preview
+            title = getattr(item, 'CustomFileName', '') or (str(item.SheetNumber) + " - " + str(item.SheetName))
+            show_preview(img_path, title, doc=doc, view_id=item.Sheet.Id)
         except Exception:
             pass
 
@@ -3019,12 +3017,10 @@ class ExportManagerForm(forms.WPFWindow):
             item = getattr(self.GridSheets, 'SelectedItem', None) or self.selected_item
             if item and hasattr(item, 'Sheet') and item.Sheet:
                 sheet_id = item.Sheet.UniqueId
-                if sheet_id in self.preview_cache:
-                    img_path = self.preview_cache[sheet_id]
-                    if os.path.exists(img_path):
-                        from _preview_script import show_preview
-                        title = getattr(item, 'CustomFileName', '') or (str(item.SheetNumber) + " - " + str(item.SheetName))
-                        show_preview(img_path, title)
+                img_path = self.preview_cache.get(sheet_id, None)
+                from _preview_script import show_preview
+                title = getattr(item, 'CustomFileName', '') or (str(item.SheetNumber) + " - " + str(item.SheetName))
+                show_preview(img_path, title, doc=doc, view_id=item.Sheet.Id)
         except Exception:
             pass
 
@@ -3036,129 +3032,14 @@ class ExportManagerForm(forms.WPFWindow):
 
         self.selected_item = item
         sheet_element = item.Sheet
-        sheet_id = sheet_element.UniqueId
-
-        if hasattr(self, 'BtnDoPreview') and self.BtnDoPreview:
-            self.BtnDoPreview.IsEnabled = False
-
-        if hasattr(self, 'GridPreviewLoading') and self.GridPreviewLoading:
-            self.GridPreviewLoading.Visibility = System.Windows.Visibility.Visible
-        if hasattr(self, 'GridPreviewPrompt') and self.GridPreviewPrompt:
-            self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Collapsed
-        if hasattr(self, 'ImgPreview') and self.ImgPreview:
-            self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
-        self.do_events()
+        title = getattr(item, 'CustomFileName', '') or (str(item.SheetNumber) + " - " + str(item.SheetName))
 
         try:
-            temp_dir = os.environ.get("TEMP", "C:\\Temp")
-            import re
-            model_clean = re.sub(r'[^a-zA-Z0-9_]', '', getattr(doc, 'Title', 'Project'))[:15]
-            pdf_prefix = "riyan_prev_{}_{}".format(model_clean, sheet_id)
-            png_out = os.path.join(temp_dir, pdf_prefix + ".png")
-
-            # Clean old preview files for this sheet
-            try:
-                for f in os.listdir(temp_dir):
-                    if f.startswith(pdf_prefix):
-                        try: os.remove(os.path.join(temp_dir, f))
-                        except: pass
-            except Exception:
-                pass
-
-            # Export 1-sheet PDF
-            pdf_opt = DB.PDFExportOptions()
-            pdf_opt.FileName = pdf_prefix
-            pdf_opt.Combine = True
-            
-            # Check raster needs (3D views, shading, textures)
-            needs_raster = False
-            try:
-                if hasattr(sheet_element, "GetAllViewports"):
-                    for vpid in sheet_element.GetAllViewports():
-                        vp = doc.GetElement(vpid)
-                        if not vp: continue
-                        v = doc.GetElement(vp.ViewId)
-                        if not v: continue
-                        if isinstance(v, DB.View3D) or getattr(v, "ViewType", None) == DB.ViewType.ThreeD:
-                            needs_raster = True
-                            break
-                        ds = str(getattr(v, "DisplayStyle", ""))
-                        if any(s in ds for s in ["Shading", "Realistic", "ConsistentColors", "Textures"]):
-                            needs_raster = True
-                            break
-                        if getattr(v, "AreShadowsOn", False) or getattr(v, "AmbientShadows", False):
-                            needs_raster = True
-                            break
-            except Exception:
-                pass
-
-            if hasattr(pdf_opt, "AlwaysUseRaster") and needs_raster:
-                pdf_opt.AlwaysUseRaster = True
-            if hasattr(DB, "RasterQualityType") and hasattr(pdf_opt, "RasterQuality"):
-                pdf_opt.RasterQuality = DB.RasterQualityType.High
-            if hasattr(DB, "ColorDepthType") and hasattr(pdf_opt, "ColorDepth"):
-                pdf_opt.ColorDepth = DB.ColorDepthType.Color
-            if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage") and hasattr(pdf_opt, "ZoomType"):
-                pdf_opt.ZoomType = DB.ZoomType.FitToPage
-            elif hasattr(DB, "PDFZoomType") and hasattr(DB.PDFZoomType, "FitToPage") and hasattr(pdf_opt, "ZoomType"):
-                pdf_opt.ZoomType = DB.PDFZoomType.FitToPage
-
-            try:
-                doc.Regenerate()
-            except Exception:
-                pass
-
-            from System.Collections.Generic import List
-            views = List[DB.ElementId]()
-            views.Add(sheet_element.Id)
-            doc.Export(temp_dir, views, pdf_opt)
-
-            # Locate exported PDF
-            actual_pdf = os.path.join(temp_dir, pdf_prefix + ".pdf")
-            if not os.path.exists(actual_pdf):
-                actual_pdf = None
-                try:
-                    for f in os.listdir(temp_dir):
-                        if f.endswith(".pdf") and f.startswith(pdf_prefix):
-                            actual_pdf = os.path.join(temp_dir, f)
-                            break
-                except Exception:
-                    pass
-
-            if not actual_pdf or not os.path.exists(actual_pdf):
-                show_alert("Failed to export PDF for preview.", is_error=True)
-                return
-
-            # Render page 0 of PDF to ultra high-res PNG (3840px 4K) using render_pdf.ps1
-            script_folder = os.path.dirname(__commandpath__ if '__commandpath__' in globals() else __file__)
-            ps1_path = os.path.join(script_folder, "render_pdf.ps1")
-            import subprocess
-            import time
-            cmd = ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', ps1_path, '-PdfPath', actual_pdf, '-PngPath', png_out, '-Width', '3840']
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            proc = subprocess.Popen(cmd, startupinfo=startupinfo)
-            start_t = time.time()
-            while proc.poll() is None:
-                System.Threading.Thread.Sleep(50)
-                if time.time() - start_t > 10:
-                    try: proc.kill()
-                    except Exception: pass
-                    break
-
-            if os.path.exists(png_out) and os.path.getsize(png_out) > 0:
-                self.preview_cache[sheet_id] = png_out
-                self.display_preview_image(png_out)
-            else:
-                show_alert("Failed to render preview image.", is_error=True)
+            from _preview_script import show_preview
+            show_preview(None, title, doc=doc, view_id=sheet_element.Id)
         except Exception as ex:
             import traceback
-            show_alert("Error generating preview:\n{}".format(traceback.format_exc()), is_error=True)
-        finally:
-            if hasattr(self, 'GridPreviewLoading') and self.GridPreviewLoading:
-                self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
-            if hasattr(self, 'BtnDoPreview') and self.BtnDoPreview:
-                self.BtnDoPreview.IsEnabled = True
+            show_alert("Error opening preview:\n{}".format(traceback.format_exc()), is_error=True)
 
     # Tab 2: Format Logic
     def CbFormat_Click(self, sender, e):

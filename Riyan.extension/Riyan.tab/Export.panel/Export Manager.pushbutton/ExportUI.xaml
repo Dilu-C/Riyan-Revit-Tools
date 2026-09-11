@@ -828,14 +828,16 @@
                                             <Image x:Name="ImgPreview" Stretch="Uniform" Visibility="Collapsed" Cursor="Hand" ToolTip="Click to view full size modal"/>
 
                                             <!-- Placeholder / Action Center -->
-                                            <StackPanel x:Name="GridPreviewPrompt" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <TextBlock x:Name="TxtPreviewHint" Text="Select a sheet from list" Foreground="#888888" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                                                <Button x:Name="BtnDoPreview" Style="{StaticResource PrimaryBtn}" Content="Preview Sheet" Width="120" Height="30" Visibility="Collapsed" Click="BtnPreview_Click"/>
+                                            <StackPanel x:Name="GridPreviewPrompt" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
+                                                <TextBlock Text="📐" FontSize="32" Foreground="#C8922A" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                                <TextBlock x:Name="TxtPreviewHint" Text="Select a sheet from list" Foreground="#888888" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,10" TextAlignment="Center"/>
+                                                <Button x:Name="BtnDoPreview" Style="{StaticResource PrimaryBtn}" Content="👁  Preview Sheet" Width="130" Height="30" Visibility="Collapsed" Click="BtnPreview_Click" Cursor="Hand"/>
+                                                <TextBlock Text="(or double-click row)" Foreground="#555555" FontSize="10" HorizontalAlignment="Center" Margin="0,6,0,0"/>
                                             </StackPanel>
 
                                             <!-- Loading Indicator -->
                                             <StackPanel x:Name="GridPreviewLoading" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
-                                                <TextBlock Text="Rendering Sheet..." Foreground="#888888" FontSize="12" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="Opening Sheet..." Foreground="#888888" FontSize="12" HorizontalAlignment="Center"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
