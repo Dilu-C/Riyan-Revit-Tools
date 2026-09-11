@@ -81,6 +81,21 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- ContextMenu Styles -->
+        <Style x:Key="ThemeContextMenu" TargetType="ContextMenu">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#222222"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Padding" Value="4,4"/>
+        </Style>
+        <Style x:Key="ThemeMenuItem" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="#222222"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Padding" Value="8,5"/>
+        </Style>
     </Window.Resources>
 
     <Border Background="{StaticResource WindowBg}" CornerRadius="10" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" Padding="0">
@@ -123,7 +138,22 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10" VerticalAlignment="Center">
                         <Button x:Name="BtnAddFolder" Style="{StaticResource PrimaryBtn}" Content="+ Add Folder" Width="105" Height="32" Margin="0,0,6,0" Click="BtnAddFolder_Click"/>
                         <Button x:Name="BtnAddFile" Style="{StaticResource SecondaryBtn}" Content="+ Add Revit Files" Width="115" Height="32" Click="BtnAddFile_Click"/>
-                        <Button x:Name="BtnClearAll" Style="{StaticResource SecondaryBtn}" Content="Clear All" Width="65" Height="32" Margin="6,0,12,0" Click="BtnClearAll_Click"/>
+                        <Button x:Name="BtnClearAll" Style="{StaticResource SecondaryBtn}" Content="Clear All" Width="65" Height="32" Margin="6,0,6,0" Click="BtnClearAll_Click"/>
+                        <Button x:Name="BtnSelectionOptions" Style="{StaticResource SecondaryBtn}" Content="Selection Options ▾" Height="32" Padding="10,0" Margin="0,0,12,0" Click="BtnSelectionOptions_Click">
+                            <Button.ContextMenu>
+                                <ContextMenu x:Name="MenuSelectionOptions" Style="{StaticResource ThemeContextMenu}">
+                                    <MenuItem Header="✓  Check Selected (Space)" Click="MenuCheckSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                    <MenuItem Header="☐  Uncheck Selected" Click="MenuUncheckSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                    <MenuItem Header="⇄  Invert Selected" Click="MenuInvertSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Select All Sheets" Click="MenuCheckAll_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                    <MenuItem Header="Unselect All Sheets" Click="MenuUncheckAll_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                    <Separator/>
+                                    <MenuItem Header="➕  Expand All Files" Click="MenuExpandAll_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                    <MenuItem Header="➖  Collapse All Files" Click="MenuCollapseAll_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
                         
                         <Border Width="1" Height="22" Background="{StaticResource BorderColor}" Margin="0,0,12,0"/>
 

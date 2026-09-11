@@ -273,7 +273,7 @@ class SheetRow:
         self.border.BorderThickness = Thickness(0,0,0,1)
         self.border.BorderBrush = form_instance.FindResource("BorderColor")
         self.border.Padding = Thickness(20, 2, 5, 2)
-        self.border.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+        self.border.Background = SolidColorBrush(ColorConverter.ConvertFromString("#01000000"))
         self.border.Cursor = System.Windows.Input.Cursors.Hand
         
         self.grid = Grid()
@@ -345,11 +345,24 @@ class SheetRow:
         self.grid.Children.Add(self.border_status)
         
         self.border.Focusable = True
+        self.border.FocusVisualStyle = None
         
         # Context Menu matching Export Manager
         cm = System.Windows.Controls.ContextMenu()
+        try:
+            cm_style = self.form.FindResource("ThemeContextMenu")
+            if cm_style: cm.Style = cm_style
+        except:
+            pass
+        mi_style = None
+        try:
+            mi_style = self.form.FindResource("ThemeMenuItem")
+        except:
+            pass
+
         mi_preview = System.Windows.Controls.MenuItem()
         mi_preview.Header = u"👁  Preview Sheet (Double-Click)"
+        if mi_style: mi_preview.Style = mi_style
         mi_preview.Click += lambda s, e: self.form.preview_sheet_row(self)
         cm.Items.Add(mi_preview)
         
@@ -357,16 +370,19 @@ class SheetRow:
         
         mi_check = System.Windows.Controls.MenuItem()
         mi_check.Header = u"✓  Check Selected (Space)"
+        if mi_style: mi_check.Style = mi_style
         mi_check.Click += lambda s, e: self.form.menu_check_selected(True)
         cm.Items.Add(mi_check)
         
         mi_uncheck = System.Windows.Controls.MenuItem()
         mi_uncheck.Header = u"☐  Uncheck Selected"
+        if mi_style: mi_uncheck.Style = mi_style
         mi_uncheck.Click += lambda s, e: self.form.menu_check_selected(False)
         cm.Items.Add(mi_uncheck)
         
         mi_invert = System.Windows.Controls.MenuItem()
         mi_invert.Header = u"⇄  Invert Selected"
+        if mi_style: mi_invert.Style = mi_style
         mi_invert.Click += lambda s, e: self.form.menu_invert_selected()
         cm.Items.Add(mi_invert)
         
@@ -374,16 +390,21 @@ class SheetRow:
         
         mi_check_all = System.Windows.Controls.MenuItem()
         mi_check_all.Header = u"Select All Sheets"
+        if mi_style: mi_check_all.Style = mi_style
         mi_check_all.Click += lambda s, e: self.form.menu_set_all_sheets(True)
         cm.Items.Add(mi_check_all)
         
         mi_uncheck_all = System.Windows.Controls.MenuItem()
         mi_uncheck_all.Header = u"Unselect All Sheets"
+        if mi_style: mi_uncheck_all.Style = mi_style
         mi_uncheck_all.Click += lambda s, e: self.form.menu_set_all_sheets(False)
         cm.Items.Add(mi_uncheck_all)
         
         self.border.ContextMenu = cm
-        self.border.MouseLeftButtonDown += self.on_mouse_down
+        self.border.PreviewMouseLeftButtonDown += self.on_mouse_down
+        self.border.PreviewMouseRightButtonDown += self.on_mouse_right_down
+        self.border.PreviewKeyDown += self.on_preview_key_down
+        self.chk.PreviewKeyDown += self.on_preview_key_down
 
     def highlight(self, bg_brush, text_brush):
         self.border.Background = bg_brush
@@ -421,11 +442,21 @@ class SheetRow:
         if hasattr(self.form, 'update_file_count'):
             self.form.update_file_count()
 
+    def on_preview_key_down(self, sender, e):
+        try:
+            import System.Windows.Input as WinInput
+            if e.Key == WinInput.Key.Space:
+                self.form.toggle_selected_sheets_space()
+                e.Handled = True
+        except:
+            pass
+
     def on_mouse_down(self, sender, e):
         if hasattr(e, "OriginalSource") and isinstance(e.OriginalSource, System.Windows.Controls.CheckBox):
             return
         try:
-            self.border.Focus()
+            import System.Windows.Input as WinInput
+            WinInput.Keyboard.Focus(self.border)
         except:
             pass
         if hasattr(e, "ClickCount") and e.ClickCount == 2:
@@ -434,15 +465,30 @@ class SheetRow:
             return
         self.on_select(sender, e)
 
+    def on_mouse_right_down(self, sender, e):
+        if hasattr(e, "OriginalSource") and isinstance(e.OriginalSource, System.Windows.Controls.CheckBox):
+            return
+        try:
+            import System.Windows.Input as WinInput
+            WinInput.Keyboard.Focus(self.border)
+        except:
+            pass
+        selected = getattr(self.form, 'selected_sheets', [])
+        if self not in selected:
+            self.form.select_sheet_advanced(self, is_ctrl=False, is_shift=False)
+
     def on_select(self, sender, e):
         if hasattr(e, "OriginalSource") and isinstance(e.OriginalSource, System.Windows.Controls.CheckBox):
             return
             
-        import System.Windows.Input
-        is_ctrl = System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.LeftCtrl) or \
-                  System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.RightCtrl)
-        is_shift = System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.LeftShift) or \
-                   System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.RightShift)
+        import System.Windows.Input as WinInput
+        modifiers = WinInput.Keyboard.Modifiers
+        is_shift = (modifiers & WinInput.ModifierKeys.Shift) == WinInput.ModifierKeys.Shift
+        is_ctrl = (modifiers & WinInput.ModifierKeys.Control) == WinInput.ModifierKeys.Control
+        if not is_shift:
+            is_shift = WinInput.Keyboard.IsKeyDown(WinInput.Key.LeftShift) or WinInput.Keyboard.IsKeyDown(WinInput.Key.RightShift)
+        if not is_ctrl:
+            is_ctrl = WinInput.Keyboard.IsKeyDown(WinInput.Key.LeftCtrl) or WinInput.Keyboard.IsKeyDown(WinInput.Key.RightCtrl)
                    
         self.form.select_sheet_advanced(self, is_ctrl=is_ctrl, is_shift=is_shift)
         
@@ -791,7 +837,34 @@ class FileRow:
     def set_sheet_set_name(self, name):
         self._sheet_set_name = name
         if hasattr(self, 'cmb_set') and self.cmb_set:
-            self.cmb_set.Text = name
+            clean_target = str(name).replace("[Set] ", "").strip().lower()
+            matched_idx = -1
+            if self.cmb_set.ItemsSource:
+                for idx, s in enumerate(self.cmb_set.ItemsSource):
+                    clean_s = str(s).replace("[Set] ", "").strip().lower()
+                    if clean_target == clean_s:
+                        matched_idx = idx
+                        break
+                if matched_idx == -1:
+                    for idx, s in enumerate(self.cmb_set.ItemsSource):
+                        clean_s = str(s).replace("[Set] ", "").strip().lower()
+                        if clean_target in clean_s or clean_s in clean_target:
+                            matched_idx = idx
+                            break
+            if matched_idx >= 0:
+                self.cmb_set.SelectedIndex = matched_idx
+                if getattr(self, 'sheets_loaded', False):
+                    self.on_options_changed(None, None)
+            else:
+                self.cmb_set.Text = name
+
+    def expand(self):
+        if not getattr(self, 'is_expanded', False):
+            self.on_expand(None, None)
+
+    def collapse(self):
+        if getattr(self, 'is_expanded', False):
+            self.on_expand(None, None)
 
     def load_sheets_on_demand(self):
         self.set_status("Loading...")
@@ -1009,8 +1082,11 @@ class BatchExportForm(forms.WPFWindow):
             self.Closing += self.on_window_closing
             self.Closed += self.on_window_closed
             self.PreviewKeyDown += self.Window_PreviewKeyDown
-        except Exception:
-            pass
+            self.KeyDown += self.Window_PreviewKeyDown
+            if hasattr(self, 'FileStack') and self.FileStack:
+                self.FileStack.PreviewKeyDown += self.Window_PreviewKeyDown
+        except Exception as ex:
+            log_diag("Error wiring window events: " + str(ex))
 
     def on_global_profile_changed(self, sender, e):
         for row in self.rows:
@@ -1242,29 +1318,70 @@ class BatchExportForm(forms.WPFWindow):
                 src = getattr(e, "OriginalSource", None)
                 if src and isinstance(src, System.Windows.Controls.TextBox):
                     return
-                    
-                selected = getattr(self, 'selected_sheets', [])
-                if not selected and self.selected_sheet:
-                    selected = [self.selected_sheet]
-                    
-                if selected:
-                    any_unchecked = any(not (s.chk.IsChecked == True) for s in selected)
-                    target = True if any_unchecked else False
-                    for s in selected:
-                        s.chk.IsChecked = target
-                        if s.parent_group:
-                            s.parent_group.update_collection_checkbox()
-                        elif s.parent:
-                            s.parent.update_master_checkbox()
-                    self.update_file_count()
-                    e.Handled = True
-                    return
+                self.toggle_selected_sheets_space()
+                e.Handled = True
+                return
         except Exception:
             pass
+
+    def toggle_selected_sheets_space(self):
+        try:
+            selected = getattr(self, 'selected_sheets', [])
+            if not selected and getattr(self, 'selected_sheet', None):
+                selected = [self.selected_sheet]
+                
+            if selected:
+                any_unchecked = any(not (s.chk.IsChecked == True) for s in selected)
+                target = True if any_unchecked else False
+                for s in selected:
+                    s.chk.IsChecked = target
+                    if s.parent_group:
+                        s.parent_group.update_collection_checkbox()
+                    elif s.parent:
+                        s.parent.update_master_checkbox()
+                affected_parents = set(s.parent for s in selected if s.parent)
+                for p in affected_parents:
+                    p.update_master_checkbox()
+                self.update_file_count()
+        except Exception as ex:
+            log_diag("toggle_selected_sheets_space error: " + str(ex))
 
     def preview_sheet_row(self, sheet_row):
         self.select_sheet_advanced(sheet_row, is_ctrl=False, is_shift=False)
         self.BtnPreview_Click(None, None)
+
+    def BtnSelectionOptions_Click(self, sender, e):
+        try:
+            btn = self.BtnSelectionOptions
+            if hasattr(btn, "ContextMenu") and btn.ContextMenu:
+                btn.ContextMenu.PlacementTarget = btn
+                btn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom
+                btn.ContextMenu.IsOpen = True
+        except Exception as ex:
+            log_diag("Error opening selection menu: " + str(ex))
+
+    def MenuCheckSelected_Click(self, sender, e):
+        self.menu_check_selected(True)
+
+    def MenuUncheckSelected_Click(self, sender, e):
+        self.menu_check_selected(False)
+
+    def MenuInvertSelected_Click(self, sender, e):
+        self.menu_invert_selected()
+
+    def MenuCheckAll_Click(self, sender, e):
+        self.menu_set_all_sheets(True)
+
+    def MenuUncheckAll_Click(self, sender, e):
+        self.menu_set_all_sheets(False)
+
+    def MenuExpandAll_Click(self, sender, e):
+        for r in self.rows:
+            r.expand()
+
+    def MenuCollapseAll_Click(self, sender, e):
+        for r in self.rows:
+            r.collapse()
 
     def menu_check_selected(self, target_state):
         selected = getattr(self, 'selected_sheets', [])
@@ -1276,6 +1393,9 @@ class BatchExportForm(forms.WPFWindow):
                 s.parent_group.update_collection_checkbox()
             elif s.parent:
                 s.parent.update_master_checkbox()
+        affected_parents = set(s.parent for s in selected if s.parent)
+        for p in affected_parents:
+            p.update_master_checkbox()
         self.update_file_count()
 
     def menu_invert_selected(self):
@@ -1288,6 +1408,9 @@ class BatchExportForm(forms.WPFWindow):
                 s.parent_group.update_collection_checkbox()
             elif s.parent:
                 s.parent.update_master_checkbox()
+        affected_parents = set(s.parent for s in selected if s.parent)
+        for p in affected_parents:
+            p.update_master_checkbox()
         self.update_file_count()
 
     def menu_set_all_sheets(self, target_state):
