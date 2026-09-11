@@ -6,18 +6,18 @@ from datetime import datetime
 import json
 import re
 
+clr.AddReference("System")
 clr.AddReference("PresentationCore")
 clr.AddReference("PresentationFramework")
 clr.AddReference("System.Xaml")
 clr.AddReference("System.Xml")
 
+import System
 from System.Windows import Window
 from System.IO import StringReader
 from System.Xml import XmlReader
 from System.Windows.Markup import XamlReader
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
-from System import Uri, UriKind
-import System
 
 from pyrevit import revit, DB, UI, forms
 
@@ -2998,7 +2998,7 @@ class ExportManagerForm(forms.WPFWindow):
             bi = BitmapImage()
             bi.BeginInit()
             bi.CacheOption = BitmapCacheOption.OnLoad
-            bi.UriSource = Uri(img_path, UriKind.Absolute)
+            bi.UriSource = System.Uri(img_path, System.UriKind.Absolute)
             bi.EndInit()
             bi.Freeze()
             if hasattr(self, 'ImgPreview') and self.ImgPreview:

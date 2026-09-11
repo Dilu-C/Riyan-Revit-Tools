@@ -1,8 +1,9 @@
 import os
-from pyrevit import forms
+import clr
+clr.AddReference("System")
 import System
+from pyrevit import forms
 from System.Windows.Media.Imaging import BitmapImage
-from System import Uri, UriKind
 
 class PreviewForm(forms.WPFWindow):
     def __init__(self, xaml_file_name, img_path, title):
@@ -11,7 +12,7 @@ class PreviewForm(forms.WPFWindow):
         
         bmp = BitmapImage()
         bmp.BeginInit()
-        bmp.UriSource = Uri(img_path, UriKind.Absolute)
+        bmp.UriSource = System.Uri(img_path, System.UriKind.Absolute)
         bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad
         bmp.EndInit()
         
