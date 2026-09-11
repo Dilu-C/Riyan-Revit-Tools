@@ -1901,7 +1901,7 @@ class ExportManagerForm(forms.WPFWindow):
 
     # ViewSheetSets logic
     # ViewSheetSets logic
-    def load_viewsets(self):
+    def load_viewsets(self, target_name=None):
         """Load Revit native ViewSheetSets (print sets)."""
         settings = load_settings()
         self.viewsets_dict = settings.get("view_sets", {})
@@ -1924,19 +1924,22 @@ class ExportManagerForm(forms.WPFWindow):
         revit_set_names = sorted(self.revit_viewsets.keys(), key=lambda s: s.lower())
         self.viewset_names = revit_set_names
 
+        # Lookup: name -> sheet number list (Populated before ItemsSource triggers selection events)
+        self.all_viewsets_dict = dict(self.revit_viewsets)
+
         # Populate the Filter dropdown: label, then Revit print sets only
         filter_items = ["-- Filter by V/S Set --"] + revit_set_names
 
         prev_selected = self.CmbFilterSets.SelectedItem if hasattr(self, "CmbFilterSets") else None
 
         self.CmbFilterSets.ItemsSource = filter_items
-        if prev_selected and prev_selected in filter_items:
+        if target_name and target_name in filter_items:
+            self.CmbFilterSets.SelectedItem = target_name
+        elif prev_selected and prev_selected in filter_items:
             self.CmbFilterSets.SelectedItem = prev_selected
         else:
             self.CmbFilterSets.SelectedIndex = 0
 
-        # Lookup: name -> sheet number list
-        self.all_viewsets_dict = dict(self.revit_viewsets)
         self.update_favorite_star()
         self.update_set_buttons_state()
 
@@ -2299,6 +2302,18 @@ class ExportManagerForm(forms.WPFWindow):
 
         selected_name = str(selected_name)
 
+        # Determine which set is directly below the deleted one before deletion
+        curr_idx = self.CmbFilterSets.SelectedIndex if hasattr(self, "CmbFilterSets") else 0
+        all_items = list(self.CmbFilterSets.ItemsSource) if (hasattr(self, "CmbFilterSets") and self.CmbFilterSets.ItemsSource) else []
+
+        target_to_select = None
+        if curr_idx + 1 < len(all_items):
+            # Pick the item directly below
+            target_to_select = all_items[curr_idx + 1]
+        elif curr_idx - 1 > 0:
+            # If deleting the last item in the list, pick the one directly above it
+            target_to_select = all_items[curr_idx - 1]
+
         # 1. Delete from settings["view_sets"] and favorite_set
         try:
             settings = load_settings()
@@ -2333,9 +2348,7 @@ class ExportManagerForm(forms.WPFWindow):
             pass
 
         show_alert("View/Sheet Set '{}' deleted.".format(selected_name))
-        self.load_viewsets()
-        self.CmbFilterSets.SelectedIndex = 0
-        self.update_set_buttons_state()
+        self.load_viewsets(target_name=target_to_select)
 
     def _action_add_to_existing(self):
         """Add currently selected items to an already saved ViewSheetSet."""
