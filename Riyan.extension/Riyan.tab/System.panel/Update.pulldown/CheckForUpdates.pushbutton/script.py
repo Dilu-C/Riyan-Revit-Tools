@@ -249,9 +249,14 @@ def update_tools():
                     if extension_dir not in sys.path:
                         sys.path.insert(0, extension_dir)
                     import whats_new
-                    whats_new.show_whats_new()
-                except Exception:
-                    pass
+                    try:
+                        reload(whats_new)
+                    except Exception:
+                        pass
+                    if hasattr(whats_new, "show_whats_new"):
+                        whats_new.show_whats_new()
+                except Exception as ex:
+                    forms.alert("Could not open What's New window:\n" + str(ex), title="What's New")
             sessionmgr.reload_pyrevit()
             
     except Exception as e:

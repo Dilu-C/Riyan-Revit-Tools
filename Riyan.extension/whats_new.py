@@ -2,14 +2,15 @@
 import os
 import sys
 import clr
-clr.AddReference('PresentationFramework')
-clr.AddReference('PresentationCore')
-clr.AddReference('WindowsBase')
-clr.AddReference('System.Xaml')
+try:
+    clr.AddReference('PresentationFramework')
+    clr.AddReference('PresentationCore')
+    clr.AddReference('WindowsBase')
+except Exception:
+    pass
 
+from pyrevit import forms
 import System
-from System.Windows.Markup import XamlReader
-from System.Windows import Application, Window
 
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -224,36 +225,37 @@ XAML_STRING = """
 </Window>
 """
 
+class WhatsNewWindow(forms.WPFWindow):
+    def __init__(self, xaml_source, literal_string=True):
+        forms.WPFWindow.__init__(self, xaml_source, literal_string=literal_string, handle_esc=True, set_owner=True)
+        
+        if hasattr(self, 'BtnClose') and self.BtnClose:
+            self.BtnClose.Click += self.CloseBtn_Click
+        if hasattr(self, 'BtnGotIt') and self.BtnGotIt:
+            self.BtnGotIt.Click += self.CloseBtn_Click
+        if hasattr(self, 'TitleBar') and self.TitleBar:
+            self.TitleBar.MouseLeftButtonDown += self.TitleBar_MouseDown
+            
+    def CloseBtn_Click(self, sender, e):
+        self.Close()
+        
+    def TitleBar_MouseDown(self, sender, e):
+        try:
+            self.DragMove()
+        except Exception:
+            pass
+
 def show_whats_new():
     try:
-        def _open():
-            win = XamlReader.Parse(XAML_STRING)
-            
-            btn_close = win.FindName("BtnClose")
-            btn_close.Click += lambda s, e: win.Close()
-            
-            btn_got_it = win.FindName("BtnGotIt")
-            btn_got_it.Click += lambda s, e: win.Close()
-            
-            title_bar = win.FindName("TitleBar")
-            def on_drag(s, e):
-                try: win.DragMove()
-                except: pass
-            title_bar.MouseLeftButtonDown += on_drag
-            
-            win.ShowDialog()
-
-        if Application.Current and Application.Current.Dispatcher and not Application.Current.Dispatcher.CheckAccess():
-            Application.Current.Dispatcher.Invoke(System.Action(_open))
-        else:
-            _open()
+        w = WhatsNewWindow(XAML_STRING, literal_string=True)
+        w.ShowDialog()
     except Exception as e:
         try:
-            from pyrevit import forms
             forms.alert("Could not display What's New window:\n" + str(e), title="What's New")
-        except:
+        except Exception:
             pass
 
 if __name__ == '__main__':
     show_whats_new()
+
 
