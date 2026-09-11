@@ -64,7 +64,7 @@ def show_update_toast(online_version, local_version):
         def build_and_show():
             win = Window()
             win.Title = "Riyan Tools Update"
-            win.WindowStyle = WindowStyle.None
+            win.WindowStyle = getattr(WindowStyle, 'None')
             win.AllowsTransparency = True
             win.Background = Brushes.Transparent
             win.Topmost = True
