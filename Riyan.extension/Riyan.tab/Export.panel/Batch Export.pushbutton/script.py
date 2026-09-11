@@ -1286,7 +1286,7 @@ class BatchExportForm(forms.WPFWindow):
                 if hasattr(self, 'GridPreviewPrompt'):
                     self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
                 if hasattr(self, 'TxtPreviewHint'):
-                    self.TxtPreviewHint.Text = "Click Preview to view"
+                    self.TxtPreviewHint.Text = "Ready to preview"
                 if hasattr(self, 'BtnDoPreview'):
                     self.BtnDoPreview.Visibility = System.Windows.Visibility.Visible
         except Exception:
@@ -1962,7 +1962,7 @@ class BatchExportForm(forms.WPFWindow):
         if hasattr(self, 'GridPreviewPrompt') and self.GridPreviewPrompt:
             self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
         if hasattr(self, 'TxtPreviewHint') and self.TxtPreviewHint:
-            self.TxtPreviewHint.Text = "Click Preview to view"
+            self.TxtPreviewHint.Text = "Ready to preview"
         if hasattr(self, 'BtnDoPreview') and self.BtnDoPreview:
             self.BtnDoPreview.Visibility = System.Windows.Visibility.Visible
         for attr in ['TxtDetailNumber', 'TxtDetailName', 'TxtDetailCollection', 'TxtDetailExportName', 'TxtDetailModel']:
