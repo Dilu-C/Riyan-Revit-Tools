@@ -15,7 +15,7 @@ import System
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riyan Revit Tools - V2.2 Release" Height="580" Width="820"
+        Title="Riyan Revit Tools - V2.2.5 Release" Height="580" Width="820"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize" FontFamily="Segoe UI">
@@ -71,7 +71,7 @@ XAML_STRING = """
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="Riyan BIM Automation System" Foreground="{StaticResource TextMuted}" FontSize="12" FontWeight="SemiBold"/>
                     </StackPanel>
-                    <Button x:Name="BtnClose" Content="✕" Width="36" Height="32" Background="Transparent" Foreground="{StaticResource TextMuted}" 
+                    <Button x:Name="BtnClose" Content="X" Width="36" Height="32" Background="Transparent" Foreground="{StaticResource TextMuted}" 
                             BorderThickness="0" FontSize="14" Cursor="Hand" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
@@ -95,17 +95,17 @@ XAML_STRING = """
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
                             <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="V2.2.4 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="V2.2.5 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Batch Exporter UI Overhaul, Revit Window Pinning, Isolated Esc Preview &amp; Python 3 Shield" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
-                        <TextBlock Text="👨‍💻 Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBlock Text="Smart Sheet Set Flow, Auto MOT Schedule Sync, Revit Window Pinning &amp; 4K Preview" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
+                        <TextBlock Text="Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
 
                     <!-- Status Pill -->
                     <Border Grid.Column="2" Background="#182A20" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Padding="12,6" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="●" Foreground="{StaticResource EmeraldText}" FontSize="12" Margin="0,0,6,0"/>
+                            <TextBlock Text="OK" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold" Margin="0,0,6,0"/>
                             <TextBlock Text="100% Tested &amp; Active" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
@@ -125,85 +125,93 @@ XAML_STRING = """
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Card 1: 4K Sheet Preview & Pan/Zoom -->
+                <!-- Card 1: Smart Sheet Set Flow -->
                 <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="🔍" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                        <Border Grid.Column="0" Width="28" Height="28" Background="#1E293B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="[S]" Foreground="#60A5FA" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="4K Sheet Preview &amp; Pan/Zoom" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
-                                <Border Background="#1E3A2F" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Ultra High-Res" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
+                                <TextBlock Text="Smart Sheet Set Selection Flow" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <Border Background="#1E293B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
+                                    <TextBlock Text="Productivity" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Export Manager now features an interactive 4K preview window with smooth left-click drag panning, cursor-centered mouse wheel zooming, Fit Page, and 100% buttons."
+                            <TextBlock Text="Export Manager automatically selects the next sheet set below when deleting a set. Features Spacebar toggle, Selection Options toolbar, and right-click context menu."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 2: Smart Updater & Locked File Shield -->
+                <!-- Card 2: Live MOT Schedule Auto-Sync -->
                 <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="🔄" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                        <Border Grid.Column="0" Width="28" Height="28" Background="#1E3A2F" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="[M]" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Smart Updater &amp; Shield" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
-                                <Border Background="#3B311B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Bulletproof" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
+                                <TextBlock Text="Live MOT Schedule Auto-Sync" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <Border Background="#1E3A2F" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
+                                    <TextBlock Text="BIM Auto" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Update dialog cleanly cancels when clicking Close (✕) or Cancel. In-use file locks ([Errno 32]) are handled seamlessly so updates never crash."
+                            <TextBlock Text="Update MOT Areas dynamically cleans and formats schedule title and headers matching the active level name, with precision metric unit conversions."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 3: Rapid Dialog Shortcuts -->
+                <!-- Card 3: Revit Parent Window Pinning -->
                 <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="⚡" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                        <Border Grid.Column="0" Width="28" Height="28" Background="#311F3B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="[P]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Enter &amp; Escape Keyboard Control" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
-                                <Border Background="#1E293B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Instant Action" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
+                                <TextBlock Text="Revit Parent Window Pinning" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <Border Background="#311F3B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
+                                    <TextBlock Text="Rock Solid" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Custom alerts, naming prompts, profile saves, and export completed dialogs now respond immediately to Enter (OK) and Escape (Cancel)."
+                            <TextBlock Text="Export Manager and all dialogs are permanently pinned to Revit's Win32 main window handle, ensuring background document processing never pushes tool windows behind."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 4: Memory Shield & Archiving -->
+                <!-- Card 4: 4K Ultra-Res Sheet Preview -->
                 <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="🛡️" FontSize="22" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                        <Border Grid.Column="0" Width="28" Height="28" Background="#3B311B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="[4K]" Foreground="#FBBF24" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Zero-Hang Memory Shield" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
-                                <Border Background="#311F3B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Rock Solid" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
+                                <TextBlock Text="4K Ultra-Res Sheet Preview" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <Border Background="#3B311B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
+                                    <TextBlock Text="Ultra High-Res" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Smart selective archiving and robust background model release ensure zero lingering handles and lightning-fast Revit operation."
+                            <TextBlock Text="Interactive 4K preview with smooth Left-Click Pan, Centered Mouse Wheel Zoom, Fit Page, 100% buttons, and isolated Escape key closing."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
@@ -214,10 +222,10 @@ XAML_STRING = """
             <Border Grid.Row="3" Background="#161619" CornerRadius="0,0,12,12" Padding="25,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⚡ Production Engine: " Foreground="{StaticResource TextMuted}" FontSize="12"/>
-                        <TextBlock Text="Revit 2022–2026 Active Production | 2027+ Ready" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold"/>
+                        <TextBlock Text="Production Engine: " Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                        <TextBlock Text="Revit 2022-2026 Active Production | 2027+ Ready" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold"/>
                     </StackPanel>
-                    <Button x:Name="BtnGotIt" Content="Got It, Let's Work! 🚀" Style="{StaticResource PrimaryBtn}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <Button x:Name="BtnGotIt" Content="Got It, Let's Work!" Style="{StaticResource PrimaryBtn}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </Grid>
