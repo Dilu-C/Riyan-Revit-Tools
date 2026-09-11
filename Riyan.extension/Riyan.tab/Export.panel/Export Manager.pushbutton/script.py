@@ -3098,8 +3098,10 @@ class ExportManagerForm(forms.WPFWindow):
                 pdf_opt.RasterQuality = DB.RasterQualityType.High if needs_raster else DB.RasterQualityType.Medium
             if hasattr(DB, "ColorDepthType") and hasattr(pdf_opt, "ColorDepth"):
                 pdf_opt.ColorDepth = DB.ColorDepthType.Color
-            if hasattr(DB, "ZoomFitType") and hasattr(pdf_opt, "ZoomType"):
-                pdf_opt.ZoomType = DB.ZoomFitType.FitToPage
+            if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage") and hasattr(pdf_opt, "ZoomType"):
+                pdf_opt.ZoomType = DB.ZoomType.FitToPage
+            elif hasattr(DB, "PDFZoomType") and hasattr(DB.PDFZoomType, "FitToPage") and hasattr(pdf_opt, "ZoomType"):
+                pdf_opt.ZoomType = DB.PDFZoomType.FitToPage
 
             try:
                 doc.Regenerate()
