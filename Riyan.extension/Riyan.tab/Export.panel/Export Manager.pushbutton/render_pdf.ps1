@@ -1,7 +1,7 @@
 param(
     [string]$PdfPath,
     [string]$PngPath,
-    [int]$Width = 2400,
+    [int]$Width = 3840,
     [int]$PageIndex = 0
 )
 
