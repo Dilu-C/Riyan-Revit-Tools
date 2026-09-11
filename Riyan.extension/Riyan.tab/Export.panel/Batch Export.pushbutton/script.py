@@ -1342,8 +1342,21 @@ class BatchExportForm(forms.WPFWindow):
             import System.Windows.Input
             import System.Windows.Controls
             
-            # 1. Escape: Close window
+            # 1. Escape: Close window only if no child/preview window or menu is active
             if e.Key == System.Windows.Input.Key.Escape:
+                if hasattr(self, 'MenuSelectionOptions') and self.MenuSelectionOptions and self.MenuSelectionOptions.IsOpen:
+                    self.MenuSelectionOptions.IsOpen = False
+                    e.Handled = True
+                    return
+                if hasattr(self, 'OwnedWindows'):
+                    has_open_child = False
+                    for ow in self.OwnedWindows:
+                        if getattr(ow, 'IsVisible', False):
+                            has_open_child = True
+                            break
+                    if has_open_child:
+                        e.Handled = True
+                        return
                 self.CloseBtn_Click(sender, e)
                 e.Handled = True
                 return
@@ -1499,7 +1512,7 @@ class BatchExportForm(forms.WPFWindow):
                 if os.path.exists(img_path):
                     from _preview_script import show_preview
                     title = self.selected_sheet.generated_name or (self.selected_sheet.mock_sheet.SheetNumber + " - " + self.selected_sheet.mock_sheet.Name)
-                    show_preview(img_path, title)
+                    show_preview(img_path, title, owner=self)
 
     def BtnPreview_Click(self, sender, e):
         if not self.selected_sheet:

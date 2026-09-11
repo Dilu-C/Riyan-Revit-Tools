@@ -3098,7 +3098,7 @@ class ExportManagerForm(forms.WPFWindow):
                 png_path = self.generate_sheet_preview(item)
             if png_path and os.path.exists(png_path):
                 from _preview_script import show_preview
-                show_preview(png_path, title)
+                show_preview(png_path, title, owner=self)
         except Exception:
             pass
 
@@ -3134,7 +3134,7 @@ class ExportManagerForm(forms.WPFWindow):
                     png_path = self.generate_sheet_preview(item)
                 if png_path and os.path.exists(png_path):
                     from _preview_script import show_preview
-                    show_preview(png_path, title)
+                    show_preview(png_path, title, owner=self)
         except Exception:
             pass
 
@@ -3158,7 +3158,7 @@ class ExportManagerForm(forms.WPFWindow):
             png_path = self.generate_sheet_preview(item)
             if png_path and os.path.exists(png_path):
                 from _preview_script import show_preview
-                show_preview(png_path, title)
+                show_preview(png_path, title, owner=self)
             else:
                 show_alert("Failed to generate preview for sheet.", is_error=True)
         except Exception as ex:

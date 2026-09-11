@@ -29,11 +29,22 @@ class PreviewForm(forms.WPFWindow):
         self.ScrollViewerMain.PreviewMouseLeftButtonUp += self.on_pan_end
         self.ScrollViewerMain.MouseLeave += self.on_pan_end
         self.Loaded += self.on_loaded
+        self.PreviewKeyDown += self.on_preview_key_down
+        self.KeyDown += self.on_preview_key_down
         
         self.is_panning = False
         self.pan_start_pos = None
         self.h_start_offset = 0
         self.v_start_offset = 0
+
+    def on_preview_key_down(self, sender, e):
+        try:
+            import System.Windows.Input
+            if e.Key == System.Windows.Input.Key.Escape:
+                e.Handled = True
+                self.Close()
+        except Exception:
+            pass
 
     def on_loaded(self, sender, e):
         self.BtnFit_Click(None, None)
@@ -147,7 +158,12 @@ class PreviewForm(forms.WPFWindow):
     def BtnActual_Click(self, sender, e):
         self.SliderZoom.Value = 1.0
 
-def show_preview(img_path, title):
+def show_preview(img_path, title, owner=None):
     xaml_path = os.path.join(os.path.dirname(__file__), 'Preview.xaml')
     form = PreviewForm(xaml_path, img_path, title)
+    if owner:
+        try:
+            form.Owner = owner
+        except Exception:
+            pass
     form.ShowDialog()
