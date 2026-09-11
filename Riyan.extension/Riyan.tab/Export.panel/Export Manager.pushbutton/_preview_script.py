@@ -6,30 +6,22 @@ from pyrevit import forms
 from System.Windows.Media.Imaging import BitmapImage
 
 class PreviewForm(forms.WPFWindow):
-    def __init__(self, xaml_file_name, img_path, title, doc=None, view_id=None):
+    def __init__(self, xaml_file_name, img_path, title):
         forms.WPFWindow.__init__(self, xaml_file_name)
         self.TxtTitle.Text = "Previewing: " + title
-        self.doc = doc
-        self.view_id = view_id
-        self.preview_ctrl = None
-        self.Closed += self.on_closed
-
-        if img_path and os.path.exists(img_path):
-            try:
-                bmp = BitmapImage()
-                bmp.BeginInit()
-                bmp.UriSource = System.Uri(img_path, System.UriKind.Absolute)
-                bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad
-                bmp.EndInit()
-                
-                self.ImgPreview.Source = bmp
-                self.ImgPreview.Stretch = getattr(System.Windows.Media.Stretch, "None")
-                try:
-                    System.Windows.Media.RenderOptions.SetBitmapScalingMode(self.ImgPreview, System.Windows.Media.BitmapScalingMode.HighQuality)
-                except Exception:
-                    pass
-            except Exception:
-                pass
+        
+        bmp = BitmapImage()
+        bmp.BeginInit()
+        bmp.UriSource = System.Uri(img_path, System.UriKind.Absolute)
+        bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad
+        bmp.EndInit()
+        
+        self.ImgPreview.Source = bmp
+        self.ImgPreview.Stretch = getattr(System.Windows.Media.Stretch, "None")
+        try:
+            System.Windows.Media.RenderOptions.SetBitmapScalingMode(self.ImgPreview, System.Windows.Media.BitmapScalingMode.HighQuality)
+        except Exception:
+            pass
         
         self.ScrollViewerMain.PreviewMouseWheel += self.on_mouse_wheel
         self.ScrollViewerMain.PreviewMouseLeftButtonDown += self.on_pan_start
@@ -44,36 +36,7 @@ class PreviewForm(forms.WPFWindow):
         self.v_start_offset = 0
 
     def on_loaded(self, sender, e):
-        if self.doc and self.view_id:
-            try:
-                from Autodesk.Revit.UI import PreviewControl
-                self.preview_ctrl = PreviewControl(self.doc, self.view_id)
-                if hasattr(self, 'BorderVectorPreviewHost') and self.BorderVectorPreviewHost:
-                    self.BorderVectorPreviewHost.Child = self.preview_ctrl
-                    self.BorderVectorPreviewHost.Visibility = System.Windows.Visibility.Visible
-                if hasattr(self, 'ScrollViewerMain') and self.ScrollViewerMain:
-                    self.ScrollViewerMain.Visibility = System.Windows.Visibility.Collapsed
-                if hasattr(self, 'BorderBottomBar') and self.BorderBottomBar:
-                    self.BorderBottomBar.Visibility = System.Windows.Visibility.Collapsed
-                return
-            except Exception as ex:
-                import traceback
-                print("PreviewControl vector initialization error:\n{}".format(traceback.format_exc()))
-        if hasattr(self, 'BorderVectorPreviewHost') and self.BorderVectorPreviewHost:
-            self.BorderVectorPreviewHost.Visibility = System.Windows.Visibility.Collapsed
-        if hasattr(self, 'ScrollViewerMain') and self.ScrollViewerMain:
-            self.ScrollViewerMain.Visibility = System.Windows.Visibility.Visible
-        if hasattr(self, 'BorderBottomBar') and self.BorderBottomBar:
-            self.BorderBottomBar.Visibility = System.Windows.Visibility.Visible
         self.BtnFit_Click(None, None)
-
-    def on_closed(self, sender, e):
-        try:
-            if self.preview_ctrl:
-                self.preview_ctrl.Dispose()
-                self.preview_ctrl = None
-        except Exception:
-            pass
 
     def BtnClose_Click(self, sender, e):
         self.Close()
@@ -184,7 +147,7 @@ class PreviewForm(forms.WPFWindow):
     def BtnActual_Click(self, sender, e):
         self.SliderZoom.Value = 1.0
 
-def show_preview(img_path=None, title="", doc=None, view_id=None):
+def show_preview(img_path, title):
     xaml_path = os.path.join(os.path.dirname(__file__), 'Preview.xaml')
-    form = PreviewForm(xaml_path, img_path, title, doc=doc, view_id=view_id)
+    form = PreviewForm(xaml_path, img_path, title)
     form.ShowDialog()
