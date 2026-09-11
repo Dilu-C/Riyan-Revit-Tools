@@ -344,7 +344,46 @@ class SheetRow:
         Grid.SetColumn(self.border_status, 6)
         self.grid.Children.Add(self.border_status)
         
-        self.border.MouseLeftButtonDown += self.on_select
+        self.border.Focusable = True
+        
+        # Context Menu matching Export Manager
+        cm = System.Windows.Controls.ContextMenu()
+        mi_preview = System.Windows.Controls.MenuItem()
+        mi_preview.Header = u"👁  Preview Sheet (Double-Click)"
+        mi_preview.Click += lambda s, e: self.form.preview_sheet_row(self)
+        cm.Items.Add(mi_preview)
+        
+        cm.Items.Add(System.Windows.Controls.Separator())
+        
+        mi_check = System.Windows.Controls.MenuItem()
+        mi_check.Header = u"✓  Check Selected (Space)"
+        mi_check.Click += lambda s, e: self.form.menu_check_selected(True)
+        cm.Items.Add(mi_check)
+        
+        mi_uncheck = System.Windows.Controls.MenuItem()
+        mi_uncheck.Header = u"☐  Uncheck Selected"
+        mi_uncheck.Click += lambda s, e: self.form.menu_check_selected(False)
+        cm.Items.Add(mi_uncheck)
+        
+        mi_invert = System.Windows.Controls.MenuItem()
+        mi_invert.Header = u"⇄  Invert Selected"
+        mi_invert.Click += lambda s, e: self.form.menu_invert_selected()
+        cm.Items.Add(mi_invert)
+        
+        cm.Items.Add(System.Windows.Controls.Separator())
+        
+        mi_check_all = System.Windows.Controls.MenuItem()
+        mi_check_all.Header = u"Select All Sheets"
+        mi_check_all.Click += lambda s, e: self.form.menu_set_all_sheets(True)
+        cm.Items.Add(mi_check_all)
+        
+        mi_uncheck_all = System.Windows.Controls.MenuItem()
+        mi_uncheck_all.Header = u"Unselect All Sheets"
+        mi_uncheck_all.Click += lambda s, e: self.form.menu_set_all_sheets(False)
+        cm.Items.Add(mi_uncheck_all)
+        
+        self.border.ContextMenu = cm
+        self.border.MouseLeftButtonDown += self.on_mouse_down
 
     def highlight(self, bg_brush, text_brush):
         self.border.Background = bg_brush
@@ -370,12 +409,30 @@ class SheetRow:
                 elif s.parent:
                     s.parent.update_master_checkbox()
         else:
+            self.form.select_sheet_advanced(self, is_ctrl=False, is_shift=False)
             if self.parent_group:
                 self.parent_group.update_collection_checkbox()
             elif self.parent:
                 self.parent.update_master_checkbox()
+        try:
+            self.border.Focus()
+        except:
+            pass
         if hasattr(self.form, 'update_file_count'):
             self.form.update_file_count()
+
+    def on_mouse_down(self, sender, e):
+        if hasattr(e, "OriginalSource") and isinstance(e.OriginalSource, System.Windows.Controls.CheckBox):
+            return
+        try:
+            self.border.Focus()
+        except:
+            pass
+        if hasattr(e, "ClickCount") and e.ClickCount == 2:
+            self.form.preview_sheet_row(self)
+            e.Handled = True
+            return
+        self.on_select(sender, e)
 
     def on_select(self, sender, e):
         if hasattr(e, "OriginalSource") and isinstance(e.OriginalSource, System.Windows.Controls.CheckBox):
@@ -635,6 +692,8 @@ class FileRow:
         sp_file.ClipToBounds = True
         self.txt_file.VerticalAlignment = VerticalAlignment.Center
         if brush_main: self.txt_file.Foreground = brush_main
+        self.txt_file.Cursor = System.Windows.Input.Cursors.Hand
+        self.txt_file.MouseLeftButtonDown += self.on_expand
         sp_file.Children.Add(self.txt_file)
         
         Grid.SetColumn(sp_file, 0)
@@ -939,6 +998,8 @@ class BatchExportForm(forms.WPFWindow):
             self.ImgPreview.MouseLeftButtonDown += self.on_preview_image_click
 
         self.doc_cache = {}
+        self.selected_sheets = []
+        self.selection_anchor = None
         class DummyQueue:
             class DummyItems:
                 def Refresh(self): pass
@@ -947,6 +1008,7 @@ class BatchExportForm(forms.WPFWindow):
         try:
             self.Closing += self.on_window_closing
             self.Closed += self.on_window_closed
+            self.PreviewKeyDown += self.Window_PreviewKeyDown
         except Exception:
             pass
 
@@ -1074,26 +1136,29 @@ class BatchExportForm(forms.WPFWindow):
         
         theme = self.settings.get("theme", "Dark")
         if theme == "Dark":
-            select_brush = SolidColorBrush(ColorConverter.ConvertFromString("#4A2220"))
-            select_text = SolidColorBrush(System.Windows.Media.Colors.White)
+            select_brush = SolidColorBrush(ColorConverter.ConvertFromString("#4F4210"))
+            select_text = SolidColorBrush(ColorConverter.ConvertFromString("#FFFFFF"))
         else:
-            select_brush = SolidColorBrush(ColorConverter.ConvertFromString("#FFE7B3"))
-            select_text = SolidColorBrush(System.Windows.Media.Colors.Black)
+            select_brush = SolidColorBrush(ColorConverter.ConvertFromString("#FCE38A"))
+            select_text = SolidColorBrush(ColorConverter.ConvertFromString("#111111"))
             
-        if is_shift and self.selected_sheets and sheet_row in all_sheet_rows:
-            last = self.selected_sheets[-1]
-            if last in all_sheet_rows:
-                idx1 = all_sheet_rows.index(last)
-                idx2 = all_sheet_rows.index(sheet_row)
-                start_i = min(idx1, idx2)
-                end_i = max(idx1, idx2)
-                new_selection = all_sheet_rows[start_i:end_i+1]
-                for s in self.selected_sheets:
-                    s.unhighlight(brush_main, brush_dim)
-                self.selected_sheets = new_selection
-                for s in self.selected_sheets:
-                    s.highlight(select_brush, select_text)
+        if is_shift and sheet_row in all_sheet_rows:
+            anchor = getattr(self, 'selection_anchor', None)
+            if not anchor or anchor not in all_sheet_rows:
+                anchor = self.selected_sheets[0] if self.selected_sheets else sheet_row
+                
+            idx1 = all_sheet_rows.index(anchor)
+            idx2 = all_sheet_rows.index(sheet_row)
+            start_i = min(idx1, idx2)
+            end_i = max(idx1, idx2)
+            new_selection = all_sheet_rows[start_i:end_i+1]
+            for s in self.selected_sheets:
+                s.unhighlight(brush_main, brush_dim)
+            self.selected_sheets = new_selection
+            for s in self.selected_sheets:
+                s.highlight(select_brush, select_text)
         elif is_ctrl:
+            self.selection_anchor = sheet_row
             if sheet_row in self.selected_sheets:
                 sheet_row.unhighlight(brush_main, brush_dim)
                 self.selected_sheets.remove(sheet_row)
@@ -1101,6 +1166,7 @@ class BatchExportForm(forms.WPFWindow):
                 self.selected_sheets.append(sheet_row)
                 sheet_row.highlight(select_brush, select_text)
         else:
+            self.selection_anchor = sheet_row
             for s in self.selected_sheets:
                 s.unhighlight(brush_main, brush_dim)
             self.selected_sheets = [sheet_row]
@@ -1195,6 +1261,45 @@ class BatchExportForm(forms.WPFWindow):
                     return
         except Exception:
             pass
+
+    def preview_sheet_row(self, sheet_row):
+        self.select_sheet_advanced(sheet_row, is_ctrl=False, is_shift=False)
+        self.BtnPreview_Click(None, None)
+
+    def menu_check_selected(self, target_state):
+        selected = getattr(self, 'selected_sheets', [])
+        if not selected and self.selected_sheet:
+            selected = [self.selected_sheet]
+        for s in selected:
+            s.chk.IsChecked = target_state
+            if s.parent_group:
+                s.parent_group.update_collection_checkbox()
+            elif s.parent:
+                s.parent.update_master_checkbox()
+        self.update_file_count()
+
+    def menu_invert_selected(self):
+        selected = getattr(self, 'selected_sheets', [])
+        if not selected and self.selected_sheet:
+            selected = [self.selected_sheet]
+        for s in selected:
+            s.chk.IsChecked = not (s.chk.IsChecked == True)
+            if s.parent_group:
+                s.parent_group.update_collection_checkbox()
+            elif s.parent:
+                s.parent.update_master_checkbox()
+        self.update_file_count()
+
+    def menu_set_all_sheets(self, target_state):
+        for r in self.rows:
+            for s in getattr(r, 'sheet_rows', []):
+                s.chk.IsChecked = target_state
+                if s.parent_group:
+                    s.parent_group.update_collection_checkbox()
+                elif s.parent:
+                    s.parent.update_master_checkbox()
+            r.update_master_checkbox()
+        self.update_file_count()
 
     def display_preview_image(self, img_path):
         try:

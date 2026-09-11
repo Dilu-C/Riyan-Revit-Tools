@@ -149,7 +149,7 @@
                         </Grid.ColumnDefinitions>
                         
                         <Border Grid.Column="0" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"
-                                Cursor="Hand" Background="Transparent" PreviewMouseLeftButtonDown="HeaderFileCell_MouseDown">
+                                Cursor="Hand" Background="#01000000" PreviewMouseLeftButtonDown="HeaderFileCell_MouseDown">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
                                 <CheckBox x:Name="ChkSelectAllFiles" IsChecked="True" IsThreeState="True" VerticalAlignment="Center" Margin="0,0,8,0" Click="ChkSelectAllFiles_Click" ToolTip="Select / Deselect All Files"/>
                                 <TextBlock Text="Revit File" FontWeight="SemiBold" Foreground="{StaticResource TextDim}" VerticalAlignment="Center"/>
