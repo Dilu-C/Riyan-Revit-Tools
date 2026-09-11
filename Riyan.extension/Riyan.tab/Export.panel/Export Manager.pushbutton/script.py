@@ -3095,7 +3095,7 @@ class ExportManagerForm(forms.WPFWindow):
             if hasattr(pdf_opt, "AlwaysUseRaster") and needs_raster:
                 pdf_opt.AlwaysUseRaster = True
             if hasattr(DB, "RasterQualityType") and hasattr(pdf_opt, "RasterQuality"):
-                pdf_opt.RasterQuality = DB.RasterQualityType.High if needs_raster else DB.RasterQualityType.Medium
+                pdf_opt.RasterQuality = DB.RasterQualityType.High
             if hasattr(DB, "ColorDepthType") and hasattr(pdf_opt, "ColorDepth"):
                 pdf_opt.ColorDepth = DB.ColorDepthType.Color
             if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage") and hasattr(pdf_opt, "ZoomType"):
@@ -3129,12 +3129,12 @@ class ExportManagerForm(forms.WPFWindow):
                 show_alert("Failed to export PDF for preview.", is_error=True)
                 return
 
-            # Render page 0 of PDF to high-res PNG using render_pdf.ps1
+            # Render page 0 of PDF to ultra high-res PNG (3840px 4K) using render_pdf.ps1
             script_folder = os.path.dirname(__commandpath__ if '__commandpath__' in globals() else __file__)
             ps1_path = os.path.join(script_folder, "render_pdf.ps1")
             import subprocess
             import time
-            cmd = ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', ps1_path, '-PdfPath', actual_pdf, '-PngPath', png_out, '-Width', '1400']
+            cmd = ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', ps1_path, '-PdfPath', actual_pdf, '-PngPath', png_out, '-Width', '3840']
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             proc = subprocess.Popen(cmd, startupinfo=startupinfo)

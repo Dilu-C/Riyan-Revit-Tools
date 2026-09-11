@@ -87,7 +87,7 @@
             
             <!-- Content -->
             <ScrollViewer x:Name="ScrollViewerMain" Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#D1D5DB">
-                <Image x:Name="ImgPreview" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                <Image x:Name="ImgPreview" RenderOptions.BitmapScalingMode="HighQuality" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
                     <Image.Effect>
                         <DropShadowEffect Color="Black" Opacity="0.15" BlurRadius="15" ShadowDepth="4"/>
                     </Image.Effect>

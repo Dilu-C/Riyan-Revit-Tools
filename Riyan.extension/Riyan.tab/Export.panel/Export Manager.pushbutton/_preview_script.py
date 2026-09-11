@@ -18,6 +18,10 @@ class PreviewForm(forms.WPFWindow):
         
         self.ImgPreview.Source = bmp
         self.ImgPreview.Stretch = getattr(System.Windows.Media.Stretch, "None")
+        try:
+            System.Windows.Media.RenderOptions.SetBitmapScalingMode(self.ImgPreview, System.Windows.Media.BitmapScalingMode.HighQuality)
+        except Exception:
+            pass
         
         self.ScrollViewerMain.PreviewMouseWheel += self.on_mouse_wheel
         self.ScrollViewerMain.PreviewMouseLeftButtonDown += self.on_pan_start
