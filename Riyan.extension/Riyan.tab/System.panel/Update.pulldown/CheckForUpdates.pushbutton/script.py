@@ -12,6 +12,7 @@ from pyrevit.loader import sessionmgr
 class UpdateForm(forms.WPFWindow):
     def __init__(self, xaml_path, state, version_info=None):
         forms.WPFWindow.__init__(self, xaml_path)
+        self.state = state
         self.result = False
         
         if state == "UP_TO_DATE":
@@ -38,11 +39,19 @@ class UpdateForm(forms.WPFWindow):
             self.BtnAction.Width = 120
             
     def BtnAction_Click(self, sender, e):
-        self.result = "RELOAD"
+        if self.state == "UPDATE_AVAILABLE":
+            self.result = True
+        elif self.state == "SUCCESS":
+            self.result = "RELOAD"
+        else:
+            self.result = "OK"
         self.Close()
         
     def BtnCancel_Click(self, sender, e):
-        self.result = "WHATS_NEW"
+        if self.state == "SUCCESS":
+            self.result = "WHATS_NEW"
+        else:
+            self.result = False
         self.Close()
         
     def TitleBar_MouseDown(self, sender, e):
@@ -52,7 +61,10 @@ class UpdateForm(forms.WPFWindow):
             pass
             
     def CloseBtn_Click(self, sender, e):
-        self.result = "RELOAD"
+        if self.state == "SUCCESS":
+            self.result = "RELOAD"
+        else:
+            self.result = False
         self.Close()
 
 def show_dialog(state, info=None):
@@ -171,7 +183,10 @@ def update_tools():
                         if os.path.isdir(s):
                             sync_clean_tree(s, d)
                         else:
-                            shutil.copy2(s, d)
+                            try:
+                                shutil.copy2(s, d)
+                            except Exception:
+                                pass
                             
                 if os.path.basename(extension_dir).endswith(".extension") and os.path.exists(source_ext):
                     sync_clean_tree(source_ext, extension_dir)
