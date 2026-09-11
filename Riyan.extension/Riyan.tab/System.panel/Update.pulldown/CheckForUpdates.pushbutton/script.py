@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 import urllib2
 import zipfile
 import tempfile
@@ -250,9 +251,13 @@ def update_tools():
                         sys.path.insert(0, extension_dir)
                     import whats_new
                     try:
-                        reload(whats_new)
+                        from importlib import reload as reload_mod
+                        reload_mod(whats_new)
                     except Exception:
-                        pass
+                        try:
+                            reload(whats_new)
+                        except Exception:
+                            pass
                     if hasattr(whats_new, "show_whats_new"):
                         whats_new.show_whats_new()
                 except Exception as ex:
