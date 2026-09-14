@@ -1902,7 +1902,7 @@ class ExportManagerForm(forms.WPFWindow):
     # ViewSheetSets logic
     # ViewSheetSets logic
     def load_viewsets(self, target_name=None):
-        """Load Revit native ViewSheetSets (print sets)."""
+        """Load Revit native ViewSheetSets (print sets) AND saved custom view sets."""
         settings = load_settings()
         self.viewsets_dict = settings.get("view_sets", {})
 
@@ -1918,17 +1918,20 @@ class ExportManagerForm(forms.WPFWindow):
                     else:
                         sheet_nums.append(view.Name)
                 self.revit_viewsets[vs.Name] = sheet_nums
-        except:
+        except Exception:
             pass
 
-        revit_set_names = sorted(self.revit_viewsets.keys(), key=lambda s: s.lower())
-        self.viewset_names = revit_set_names
+        # Combine both Revit native ViewSheetSets and custom saved sets
+        all_names = set(self.revit_viewsets.keys()) | set(self.viewsets_dict.keys())
+        sorted_names = sorted(list(all_names), key=lambda s: s.lower())
+        self.viewset_names = sorted_names
 
         # Lookup: name -> sheet number list (Populated before ItemsSource triggers selection events)
-        self.all_viewsets_dict = dict(self.revit_viewsets)
+        self.all_viewsets_dict = dict(self.viewsets_dict)
+        self.all_viewsets_dict.update(self.revit_viewsets)
 
-        # Populate the Filter dropdown: label, then Revit print sets only
-        filter_items = ["-- Filter by V/S Set --"] + revit_set_names
+        # Populate the Filter dropdown: label, then all sorted view/sheet sets
+        filter_items = ["-- Filter by V/S Set --"] + sorted_names
 
         prev_selected = self.CmbFilterSets.SelectedItem if hasattr(self, "CmbFilterSets") else None
 
@@ -2073,47 +2076,48 @@ class ExportManagerForm(forms.WPFWindow):
                 settings["view_sets"] = {}
             settings["view_sets"][selected_name] = sheet_numbers
             save_settings(settings)
-        except:
+        except Exception:
             pass
 
         # 2. Update Revit DB.ViewSheetSet if present
+        t = DB.Transaction(doc, "Export Manager - Update ViewSheetSet")
         try:
-            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
-            target_vss = None
-            for s in existing_sets:
-                if s.Name == selected_name:
-                    target_vss = s
-                    break
-
-            t = DB.Transaction(doc, "Export Manager - Update ViewSheetSet")
             t.Start()
             print_mgr = doc.PrintManager
             vss = print_mgr.ViewSheetSetting
+
+            # Always switch to InSession first so .Views can be modified
+            vss.CurrentViewSheetSet = vss.InSession
 
             view_set = DB.ViewSet()
             for sv in selected_vms:
                 if hasattr(sv, "Sheet") and sv.Sheet:
                     view_set.Insert(sv.Sheet)
 
-            if target_vss:
-                vss.CurrentViewSheetSet = target_vss
-                vss.CurrentViewSheetSet.Views = view_set
-                try:
-                    vss.Save()
-                except:
-                    doc.Delete(target_vss.Id)
-                    vss.CurrentViewSheetSet.Views = view_set
-                    vss.SaveAs(selected_name)
-            else:
-                vss.CurrentViewSheetSet.Views = view_set
-                vss.SaveAs(selected_name)
+            vss.CurrentViewSheetSet.Views = view_set
+
+            # Delete any existing set with same name so SaveAs updates cleanly
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            for s in existing_sets:
+                if s.Name.lower() == selected_name.lower():
+                    try:
+                        doc.Delete(s.Id)
+                        doc.Regenerate()
+                    except Exception:
+                        pass
+                    break
+
+            vss.SaveAs(selected_name)
             t.Commit()
         except Exception:
-            pass
+            try:
+                if t.HasStarted() and not t.HasEnded():
+                    t.RollBack()
+            except Exception:
+                pass
 
         show_alert("Set '{}' successfully updated ({} items).".format(selected_name, len(selected_vms)))
-        self.load_viewsets()
-        self.CmbFilterSets.SelectedItem = selected_name
+        self.load_viewsets(target_name=selected_name)
         if hasattr(self, "GridSheets"):
             self.GridSheets.Items.Refresh()
 
@@ -2142,44 +2146,44 @@ class ExportManagerForm(forms.WPFWindow):
             return
 
         # 2. ALSO save to Revit DB.ViewSheetSet inside Transaction
+        t = DB.Transaction(doc, "Export Manager - Create ViewSheetSet")
         try:
-            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
-            target_vss = None
-            for s in existing_sets:
-                if s.Name.lower() == set_name.lower():
-                    target_vss = s
-                    break
-
-            t = DB.Transaction(doc, "Export Manager - Create ViewSheetSet")
             t.Start()
             print_mgr = doc.PrintManager
             vss = print_mgr.ViewSheetSetting
+
+            # CRITICAL: Always switch to InSession first so .Views can be modified!
+            vss.CurrentViewSheetSet = vss.InSession
 
             view_set = DB.ViewSet()
             for sv in selected_vms:
                 if hasattr(sv, "Sheet") and sv.Sheet:
                     view_set.Insert(sv.Sheet)
 
-            if target_vss:
-                vss.CurrentViewSheetSet = target_vss
-                vss.CurrentViewSheetSet.Views = view_set
-                try:
-                    vss.Save()
-                except:
-                    doc.Delete(target_vss.Id)
-                    vss.CurrentViewSheetSet.Views = view_set
-                    vss.SaveAs(set_name)
-            else:
-                vss.CurrentViewSheetSet.Views = view_set
-                vss.SaveAs(set_name)
+            vss.CurrentViewSheetSet.Views = view_set
+
+            # Delete any existing set with the same name so SaveAs does not collide
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            for s in existing_sets:
+                if s.Name.lower() == set_name.lower():
+                    try:
+                        doc.Delete(s.Id)
+                        doc.Regenerate()
+                    except Exception:
+                        pass
+                    break
+
+            vss.SaveAs(set_name)
             t.Commit()
         except Exception:
-            pass
+            try:
+                if t.HasStarted() and not t.HasEnded():
+                    t.RollBack()
+            except Exception:
+                pass
 
         show_alert("Set '{}' saved successfully.".format(set_name))
-        self.load_viewsets()
-        if set_name in self.CmbFilterSets.ItemsSource:
-            self.CmbFilterSets.SelectedItem = set_name
+        self.load_viewsets(target_name=set_name)
 
     def _action_duplicate_set(self):
         """Duplicate the currently selected ViewSheetSet under a new name."""
@@ -2204,42 +2208,46 @@ class ExportManagerForm(forms.WPFWindow):
                 settings["view_sets"] = {}
             settings["view_sets"][new_name] = source_nums
             save_settings(settings)
-        except:
+        except Exception:
             pass
 
         # 2. Duplicate in Revit DB.ViewSheetSet if possible
+        t = DB.Transaction(doc, "Export Manager - Duplicate ViewSheetSet")
         try:
-            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
-            target_vss = None
-            for s in existing_sets:
-                if s.Name == selected_name:
-                    target_vss = s
-                    break
-
-            t = DB.Transaction(doc, "Export Manager - Duplicate ViewSheetSet")
             t.Start()
             print_mgr = doc.PrintManager
             vss = print_mgr.ViewSheetSetting
+            vss.CurrentViewSheetSet = vss.InSession
 
             copy_views = DB.ViewSet()
-            if target_vss:
-                for v in target_vss.Views:
-                    copy_views.Insert(v)
-            else:
-                for sv in self.sheets:
-                    if sv.SheetNumber in source_nums:
-                        copy_views.Insert(sv.Sheet)
+            for sv in self.current_items:
+                if sv.SheetNumber in source_nums and hasattr(sv, "Sheet") and sv.Sheet:
+                    copy_views.Insert(sv.Sheet)
 
             vss.CurrentViewSheetSet.Views = copy_views
+
+            # Delete any existing set with new_name if present
+            existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            for s in existing_sets:
+                if s.Name.lower() == new_name.lower():
+                    try:
+                        doc.Delete(s.Id)
+                        doc.Regenerate()
+                    except Exception:
+                        pass
+                    break
+
             vss.SaveAs(new_name)
             t.Commit()
-        except:
-            pass
+        except Exception:
+            try:
+                if t.HasStarted() and not t.HasEnded():
+                    t.RollBack()
+            except Exception:
+                pass
 
         show_alert("Set '{}' duplicated as '{}'.".format(selected_name, new_name))
-        self.load_viewsets()
-        if new_name in self.CmbFilterSets.ItemsSource:
-            self.CmbFilterSets.SelectedItem = new_name
+        self.load_viewsets(target_name=new_name)
 
     def _action_rename_set(self):
         """Rename the currently selected ViewSheetSet."""
@@ -2289,9 +2297,7 @@ class ExportManagerForm(forms.WPFWindow):
             pass
 
         show_alert("Set renamed from '{}' to '{}'.".format(selected_name, new_name))
-        self.load_viewsets()
-        if new_name in self.CmbFilterSets.ItemsSource:
-            self.CmbFilterSets.SelectedItem = new_name
+        self.load_viewsets(target_name=new_name)
 
     def _action_delete_set(self):
         """Delete the currently selected ViewSheetSet."""
