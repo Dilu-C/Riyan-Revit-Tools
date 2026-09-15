@@ -2856,7 +2856,7 @@ class BatchExportForm(forms.WPFWindow):
     def BtnExport_Click(self, sender, e):
         if not self.rows: return
         
-        selected_rows = [r for r in self.rows if getattr(r, 'chk_all', None) and r.chk_all.IsChecked != False]
+        selected_rows = [r for r in self.rows if getattr(r, 'chk_all', None) and r.chk_all.IsChecked == True]
         if not selected_rows:
             forms.alert("No files selected for export. Please select at least one file.", title="None Selected")
             return
@@ -2892,7 +2892,8 @@ class BatchExportForm(forms.WPFWindow):
                 self.log("Export canceled by user.")
                 break
             
-            if getattr(row, 'chk_all', None) and row.chk_all.IsChecked == False:
+            # STRICT CHECK: Only export if row is explicitly checked (IsChecked == True)
+            if not (getattr(row, 'chk_all', None) and row.chk_all.IsChecked == True):
                 row.set_status("Skipped")
                 continue
 
