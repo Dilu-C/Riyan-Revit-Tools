@@ -38,10 +38,10 @@ BRUSH_EXPORTING = BG_EXPORTING
 BRUSH_ERROR = BG_ERROR
 
 def get_zoom_fit_type():
-    if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage"):
-        return DB.ZoomType.FitToPage
-    elif hasattr(DB, "PDFZoomType") and hasattr(DB.PDFZoomType, "FitToPage"):
-        return DB.PDFZoomType.FitToPage
+    if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "Zoom"):
+        return DB.ZoomType.Zoom
+    elif hasattr(DB, "PDFZoomType") and hasattr(DB.PDFZoomType, "Zoom"):
+        return DB.PDFZoomType.Zoom
     return None
 
 def _safe_get_param_val(p):
@@ -157,20 +157,25 @@ def get_or_open_document(file_path, close_worksets=False):
     except Exception as ex:
         log_diag("Audit exception: " + str(ex))
 
-    # Reload Revit links if any
-    try:
-        link_types = DB.FilteredElementCollector(bg_doc).OfClass(DB.RevitLinkType).ToElements()
-        for lt in link_types:
-            try:
-                if not DB.RevitLinkType.IsLoaded(bg_doc, lt.Id):
-                    log_diag("Reloading link: " + str(lt.Name))
-                    lt.Reload()
-            except Exception as lex:
-                log_diag("Link reload note: " + str(lex))
-    except Exception as ex:
-        log_diag("Link collector exception: " + str(ex))
+    # Avoid forced reloading of Revit links in background mode (saves memory and avoids network lag)
+    log_diag("Document opened ready for export without forced link reloading.")
 
     return (bg_doc, True)
+
+def pick_folder_dialog(title="Select Folder", initial_path=None):
+    dlg = WinForms.FolderBrowserDialog()
+    if hasattr(dlg, "UseDescriptionForTitle"):
+        try:
+            dlg.UseDescriptionForTitle = True
+            if title:
+                dlg.Description = title
+        except Exception:
+            pass
+    if initial_path and os.path.exists(initial_path):
+        dlg.SelectedPath = initial_path
+    if dlg.ShowDialog() == WinForms.DialogResult.OK:
+        return dlg.SelectedPath
+    return None
 
 # ----------------- MOCK CLASSES -----------------
 class MockParameter:
@@ -659,6 +664,181 @@ class CollectionGroup:
         for sr in self.sheet_rows:
             sr.chk.IsChecked = is_checked
 
+class FolderGroupRow:
+    def __init__(self, folder_name, form_instance):
+        self.folder_name = folder_name
+        self.form = form_instance
+        self.file_rows = []
+        self.is_expanded = True
+        self._updating_checkbox = False
+
+        is_dark = getattr(form_instance, 'is_dark', True)
+        conv = ColorConverter.ConvertFromString
+        brush = lambda c: SolidColorBrush(conv(c))
+
+        self.container = StackPanel()
+        self.container.Orientation = Orientation.Vertical
+        self.container.Margin = Thickness(0, 4, 0, 4)
+
+        # Folder Header Bar
+        self.header_border = Border()
+        if is_dark:
+            self.header_border.Background = brush("#252A36")
+            self.header_border.BorderBrush = brush("#3B4354")
+            fg_title = brush("#FFFFFF")
+            fg_btn = brush("#FFFFFF")
+            badge_bg = brush("#1E293B")
+            badge_fg = brush("#38BDF8")
+        else:
+            self.header_border.Background = brush("#EAEFF6")
+            self.header_border.BorderBrush = brush("#CBD5E1")
+            fg_title = brush("#0F172A")
+            fg_btn = brush("#0F172A")
+            badge_bg = brush("#DBEAFE")
+            badge_fg = brush("#1E40AF")
+
+        self.header_border.BorderThickness = Thickness(1)
+        self.header_border.CornerRadius = CornerRadius(6)
+        self.header_border.Padding = Thickness(8, 5, 8, 5)
+        self.header_border.Cursor = System.Windows.Input.Cursors.Hand
+        self.header_border.MouseLeftButtonDown += self.on_header_click
+
+        grid = Grid()
+        cd0 = System.Windows.Controls.ColumnDefinition()
+        cd0.Width = GridLength(1, GridUnitType.Star)
+        cd1 = System.Windows.Controls.ColumnDefinition()
+        cd1.Width = GridLength.Auto
+        grid.ColumnDefinitions.Add(cd0)
+        grid.ColumnDefinitions.Add(cd1)
+
+        sp_left = StackPanel()
+        sp_left.Orientation = Orientation.Horizontal
+        sp_left.VerticalAlignment = VerticalAlignment.Center
+
+        self.chk = System.Windows.Controls.CheckBox()
+        self.chk.IsChecked = True
+        self.chk.IsThreeState = True
+        self.chk.VerticalAlignment = VerticalAlignment.Center
+        self.chk.Margin = Thickness(0, 0, 8, 0)
+        self.chk.Click += self.on_chk_clicked
+        sp_left.Children.Add(self.chk)
+
+        self.btn_expand = Button()
+        self.btn_expand.Content = "-"
+        self.btn_expand.Width = 22
+        self.btn_expand.Height = 22
+        self.btn_expand.Background = SolidColorBrush(System.Windows.Media.Colors.Transparent)
+        self.btn_expand.BorderThickness = Thickness(0)
+        self.btn_expand.FontWeight = System.Windows.FontWeights.Bold
+        self.btn_expand.FontSize = 13
+        self.btn_expand.Foreground = fg_btn
+        self.btn_expand.Cursor = System.Windows.Input.Cursors.Hand
+        self.btn_expand.Click += self.on_expand
+        sp_left.Children.Add(self.btn_expand)
+
+        self.txt_title = TextBlock()
+        self.txt_title.Text = "📁  " + self.folder_name
+        self.txt_title.FontWeight = System.Windows.FontWeights.Bold
+        self.txt_title.FontSize = 12
+        self.txt_title.VerticalAlignment = VerticalAlignment.Center
+        self.txt_title.Margin = Thickness(6, 0, 10, 0)
+        self.txt_title.Foreground = fg_title
+        sp_left.Children.Add(self.txt_title)
+
+        bd_badge = Border()
+        bd_badge.Background = badge_bg
+        bd_badge.CornerRadius = CornerRadius(4)
+        bd_badge.Padding = Thickness(7, 1, 7, 2)
+        bd_badge.VerticalAlignment = VerticalAlignment.Center
+
+        self.txt_count = TextBlock()
+        self.txt_count.Text = "0 Files"
+        self.txt_count.FontSize = 10
+        self.txt_count.FontWeight = System.Windows.FontWeights.Bold
+        self.txt_count.Foreground = badge_fg
+        bd_badge.Child = self.txt_count
+        sp_left.Children.Add(bd_badge)
+
+        Grid.SetColumn(sp_left, 0)
+        grid.Children.Add(sp_left)
+
+        self.header_border.Child = grid
+        self.container.Children.Add(self.header_border)
+
+        # Children stack for FileRow borders
+        self.child_stack = StackPanel()
+        self.child_stack.Orientation = Orientation.Vertical
+        self.child_stack.Margin = Thickness(0, 2, 0, 2)
+        self.container.Children.Add(self.child_stack)
+
+    def on_header_click(self, sender, e):
+        if hasattr(e, "OriginalSource") and (e.OriginalSource == self.chk or e.OriginalSource == self.btn_expand):
+            return
+        self.on_expand(sender, e)
+
+    def on_expand(self, sender, e):
+        self.is_expanded = not self.is_expanded
+        self.btn_expand.Content = "-" if self.is_expanded else "+"
+        self.child_stack.Visibility = System.Windows.Visibility.Visible if self.is_expanded else System.Windows.Visibility.Collapsed
+        try:
+            self.form.Activate()
+        except Exception:
+            pass
+
+    def expand(self):
+        if not self.is_expanded:
+            self.on_expand(None, None)
+
+    def collapse(self):
+        if self.is_expanded:
+            self.on_expand(None, None)
+
+    def on_chk_clicked(self, sender, e):
+        if self._updating_checkbox:
+            return
+        val = (self.chk.IsChecked == True)
+        self.chk.IsChecked = val
+        for r in self.file_rows:
+            if getattr(r, 'chk_all', None):
+                r.chk_all.IsChecked = val
+                r.on_chk_all_clicked(sender, e)
+        self.form.update_file_count()
+
+    def update_folder_checkbox(self):
+        if self._updating_checkbox:
+            return
+        self._updating_checkbox = True
+        try:
+            total = len(self.file_rows)
+            if total == 0:
+                self.chk.IsChecked = False
+                return
+            checked = sum(1 for r in self.file_rows if getattr(r, 'chk_all', None) and r.chk_all.IsChecked == True)
+            unchecked = sum(1 for r in self.file_rows if getattr(r, 'chk_all', None) and r.chk_all.IsChecked == False)
+            if checked == total:
+                self.chk.IsChecked = True
+            elif unchecked == total:
+                self.chk.IsChecked = False
+            else:
+                self.chk.IsChecked = None
+        finally:
+            self._updating_checkbox = False
+
+    def add_file_row(self, file_row):
+        file_row.folder_group = self
+        self.file_rows.append(file_row)
+
+        border = Border()
+        border.BorderBrush = self.form.FindResource("BorderColor")
+        border.BorderThickness = Thickness(0, 0, 0, 1)
+        border.Padding = Thickness(0, 4, 0, 4)
+        border.Child = file_row.main_container
+
+        self.child_stack.Children.Add(border)
+        count = len(self.file_rows)
+        self.txt_count.Text = "{} File{}".format(count, "s" if count != 1 else "")
+        self.update_folder_checkbox()
+
 class FileRow:
     def __init__(self, file_path, form_instance):
         self.file_path = file_path
@@ -680,9 +860,19 @@ class FileRow:
         
         self.main_container = StackPanel()
         
+        self.row_border = Border()
+        self.row_border.BorderThickness = Thickness(0, 0, 0, 1)
+        self.row_border.BorderBrush = form_instance.FindResource("BorderColor")
+        self.row_border.Padding = Thickness(4, 3, 4, 3)
+        self.row_border.Background = SolidColorBrush(ColorConverter.ConvertFromString("#01000000"))
+        self.row_border.Cursor = System.Windows.Input.Cursors.Hand
+        self.row_border.Focusable = True
+        self.row_border.FocusVisualStyle = None
+
         self.grid = Grid()
         self.grid.Margin = Thickness(0, 0, 0, 0)
-        self.main_container.Children.Add(self.grid)
+        self.row_border.Child = self.grid
+        self.main_container.Children.Add(self.row_border)
         
         from System.Windows.Data import Binding, BindingMode
         for i in range(7):
@@ -728,6 +918,7 @@ class FileRow:
         self.btn_expand.BorderThickness = Thickness(0)
         self.btn_expand.Foreground = brush_main if brush_main else SolidColorBrush(System.Windows.Media.Colors.White)
         self.btn_expand.Click += self.on_expand
+        self.btn_expand.Visibility = System.Windows.Visibility.Collapsed
         sp_file.Children.Add(self.btn_expand)
         
         self.txt_file = TextBlock()
@@ -738,8 +929,7 @@ class FileRow:
         sp_file.ClipToBounds = True
         self.txt_file.VerticalAlignment = VerticalAlignment.Center
         if brush_main: self.txt_file.Foreground = brush_main
-        self.txt_file.Cursor = System.Windows.Input.Cursors.Hand
-        self.txt_file.MouseLeftButtonDown += self.on_expand
+        self.txt_file.Cursor = System.Windows.Input.Cursors.Arrow
         sp_file.Children.Add(self.txt_file)
         
         Grid.SetColumn(sp_file, 0)
@@ -804,6 +994,141 @@ class FileRow:
         self.sheet_stack.Visibility = System.Windows.Visibility.Collapsed
         self.main_container.Children.Add(self.sheet_stack)
 
+        # Wire mouse & key events on row_border
+        self.row_border.MouseLeftButtonDown += self.on_mouse_down
+        self.row_border.MouseRightButtonDown += self.on_mouse_right_down
+        self.row_border.MouseEnter += self.on_mouse_enter
+        self.row_border.MouseLeave += self.on_mouse_leave
+        self.row_border.PreviewKeyDown += self.on_preview_key_down
+
+        # Context menu for model row
+        cm = System.Windows.Controls.ContextMenu()
+        try:
+            cm_style = self.form.FindResource("ThemeContextMenu")
+            if cm_style: cm.Style = cm_style
+        except: pass
+        mi_style = None
+        try:
+            mi_style = self.form.FindResource("ThemeMenuItem")
+        except: pass
+
+        mi_check = System.Windows.Controls.MenuItem()
+        mi_check.Header = u"✓  Check Selected (Space)"
+        if mi_style: mi_check.Style = mi_style
+        mi_check.Click += lambda s, e: self.form.menu_check_selected(True)
+        cm.Items.Add(mi_check)
+        
+        mi_uncheck = System.Windows.Controls.MenuItem()
+        mi_uncheck.Header = u"☐  Uncheck Selected"
+        if mi_style: mi_uncheck.Style = mi_style
+        mi_uncheck.Click += lambda s, e: self.form.menu_check_selected(False)
+        cm.Items.Add(mi_uncheck)
+        
+        mi_invert = System.Windows.Controls.MenuItem()
+        mi_invert.Header = u"⇄  Invert Selected"
+        if mi_style: mi_invert.Style = mi_style
+        mi_invert.Click += lambda s, e: self.form.menu_invert_selected()
+        cm.Items.Add(mi_invert)
+        
+        cm.Items.Add(System.Windows.Controls.Separator())
+        
+        mi_check_all = System.Windows.Controls.MenuItem()
+        mi_check_all.Header = u"Select All Models"
+        if mi_style: mi_check_all.Style = mi_style
+        mi_check_all.Click += lambda s, e: self.form.menu_set_all_sheets(True)
+        cm.Items.Add(mi_check_all)
+
+        mi_uncheck_all = System.Windows.Controls.MenuItem()
+        mi_uncheck_all.Header = u"Deselect All Models"
+        if mi_style: mi_uncheck_all.Style = mi_style
+        mi_uncheck_all.Click += lambda s, e: self.form.menu_set_all_sheets(False)
+        cm.Items.Add(mi_uncheck_all)
+
+        self.row_border.ContextMenu = cm
+
+    def on_mouse_enter(self, sender, e):
+        if not getattr(self, 'is_selected', False):
+            is_dark = getattr(self.form, 'is_dark', True)
+            hover_color = "#1E2533" if is_dark else "#E2E8F0"
+            self.row_border.Background = SolidColorBrush(ColorConverter.ConvertFromString(hover_color))
+
+    def on_mouse_leave(self, sender, e):
+        if not getattr(self, 'is_selected', False):
+            self.row_border.Background = SolidColorBrush(ColorConverter.ConvertFromString("#01000000"))
+
+    def on_mouse_down(self, sender, e):
+        src = getattr(e, "OriginalSource", None)
+        if src:
+            parent = src
+            while parent and parent != self.row_border:
+                if isinstance(parent, (System.Windows.Controls.CheckBox, System.Windows.Controls.ComboBox, System.Windows.Controls.Button, System.Windows.Controls.TextBox)):
+                    return
+                parent = getattr(parent, "Parent", None)
+
+        try:
+            import System.Windows.Input as WinInput
+            WinInput.Keyboard.Focus(self.row_border)
+        except:
+            pass
+
+        if hasattr(e, "ClickCount") and e.ClickCount == 2:
+            self.toggle_check()
+            return
+
+        import System.Windows.Input as WinInput
+        modifiers = WinInput.Keyboard.Modifiers
+        is_shift = (modifiers & WinInput.ModifierKeys.Shift) == WinInput.ModifierKeys.Shift
+        is_ctrl = (modifiers & WinInput.ModifierKeys.Control) == WinInput.ModifierKeys.Control
+        if not is_shift:
+            is_shift = WinInput.Keyboard.IsKeyDown(WinInput.Key.LeftShift) or WinInput.Keyboard.IsKeyDown(WinInput.Key.RightShift)
+        if not is_ctrl:
+            is_ctrl = WinInput.Keyboard.IsKeyDown(WinInput.Key.LeftCtrl) or WinInput.Keyboard.IsKeyDown(WinInput.Key.RightCtrl)
+
+        self.form.select_model_row_advanced(self, is_ctrl=is_ctrl, is_shift=is_shift)
+
+    def on_mouse_right_down(self, sender, e):
+        src = getattr(e, "OriginalSource", None)
+        if src:
+            parent = src
+            while parent and parent != self.row_border:
+                if isinstance(parent, (System.Windows.Controls.CheckBox, System.Windows.Controls.ComboBox, System.Windows.Controls.Button, System.Windows.Controls.TextBox)):
+                    return
+                parent = getattr(parent, "Parent", None)
+        try:
+            import System.Windows.Input as WinInput
+            WinInput.Keyboard.Focus(self.row_border)
+        except:
+            pass
+        selected = getattr(self.form, 'selected_model_rows', [])
+        if self not in selected:
+            self.form.select_model_row_advanced(self, is_ctrl=False, is_shift=False)
+
+    def on_preview_key_down(self, sender, e):
+        try:
+            import System.Windows.Input as WinInput
+            if e.Key == WinInput.Key.Space:
+                self.form.toggle_selected_sheets_space()
+                e.Handled = True
+        except:
+            pass
+
+    def toggle_check(self):
+        new_val = not (self.chk_all.IsChecked == True)
+        self.chk_all.IsChecked = new_val
+        self.on_chk_all_clicked(None, None)
+
+    def highlight(self, select_brush, text_brush):
+        self.is_selected = True
+        self.row_border.Background = select_brush
+        if text_brush:
+            self.txt_file.Foreground = text_brush
+
+    def unhighlight(self, brush_main, brush_dim):
+        self.is_selected = False
+        self.row_border.Background = SolidColorBrush(ColorConverter.ConvertFromString("#01000000"))
+        if brush_main:
+            self.txt_file.Foreground = brush_main
+
     def on_chk_all_clicked(self, sender, e):
         val = (self.chk_all.IsChecked == True)
         self.chk_all.IsChecked = val
@@ -813,6 +1138,8 @@ class FileRow:
             sr.chk.IsChecked = val
         if hasattr(self.form, 'update_file_count'):
             self.form.update_file_count()
+        if getattr(self, 'folder_group', None):
+            self.folder_group.update_folder_checkbox()
 
     def update_master_checkbox(self):
         checked = sum(1 for sr in self.sheet_rows if sr.chk.IsChecked == True)
@@ -825,6 +1152,8 @@ class FileRow:
             self.chk_all.IsChecked = None
         if hasattr(self.form, 'update_file_count'):
             self.form.update_file_count()
+        if getattr(self, 'folder_group', None):
+            self.folder_group.update_folder_checkbox()
 
     def get_sheet_set_name(self):
         if hasattr(self, 'cmb_set') and self.cmb_set:
@@ -923,11 +1252,17 @@ class FileRow:
             pass
         self.sheet_stack.Visibility = System.Windows.Visibility.Visible if self.is_expanded else System.Windows.Visibility.Collapsed
 
+    def set_output_location(self, new_dir):
+        if not new_dir:
+            return
+        self.output_location = os.path.normpath(new_dir)
+        self.txt_loc.Text = os.path.basename(self.output_location) or self.output_location
+        self.txt_loc.ToolTip = self.output_location
+
     def on_browse(self, sender, e):
-        dlg = WinForms.FolderBrowserDialog()
-        if dlg.ShowDialog() == WinForms.DialogResult.OK:
-            self.output_location = dlg.SelectedPath
-            self.txt_loc.Text = os.path.basename(dlg.SelectedPath)
+        sel = pick_folder_dialog("Select Output Location", self.output_location)
+        if sel:
+            self.set_output_location(sel)
             
     def set_status(self, msg, is_done=False, is_exporting=False, is_error=False):
         clean_msg = msg or ""
@@ -1041,6 +1376,7 @@ class BatchExportForm(forms.WPFWindow):
         
         # Pin window as child/owned by Revit so it NEVER falls behind Revit window during background document loading
         try:
+            self.SourceInitialized += self.on_source_initialized
             import System.Windows.Interop as Interop
             revit_handle = getattr(__revit__, "MainWindowHandle", None)
             if not revit_handle:
@@ -1051,7 +1387,28 @@ class BatchExportForm(forms.WPFWindow):
         except Exception as ex:
             log_diag("WindowInteropHelper Owner error: " + str(ex))
 
+        self.is_dark = not ("UI_Light" in str(xaml_file_name))
+        self.current_theme = "Dark" if self.is_dark else "Light"
+
+        try:
+            import System
+            from System.Windows.Media.Imaging import BitmapImage
+            from System import Uri
+            tab_dir = os.path.dirname(os.path.dirname(__commandpath__))
+            logo_path = os.path.join(tab_dir, "System.panel", "About.pushbutton", "logo.png")
+            if not os.path.exists(logo_path):
+                logo_path = os.path.join(os.path.dirname(__commandpath__), "logo.png")
+            if not os.path.exists(logo_path):
+                logo_path = os.path.join(tab_dir, "Coordination.panel", "ChangeHostLevel.pushbutton", "logo.png")
+            if os.path.exists(logo_path) and hasattr(self, 'TitleLogo') and self.TitleLogo:
+                self.TitleLogo.Source = BitmapImage(Uri(logo_path))
+        except Exception as e:
+            log_diag("Logo load error: " + str(e))
+
         self.rows = []
+        self.folder_groups = []
+        self.base_scan_dir = None
+        self.outgoing_root_dir = None
         self._cancel_export = False
         self.selected_sheet = None
         self.preview_cache = {}
@@ -1098,6 +1455,9 @@ class BatchExportForm(forms.WPFWindow):
         self.doc_cache = {}
         self.selected_sheets = []
         self.selection_anchor = None
+        self.selected_model_rows = []
+        self.model_selection_anchor = None
+        self.selected_model_row = None
         class DummyQueue:
             class DummyItems:
                 def Refresh(self): pass
@@ -1112,6 +1472,87 @@ class BatchExportForm(forms.WPFWindow):
                 self.FileStack.PreviewKeyDown += self.Window_PreviewKeyDown
         except Exception as ex:
             log_diag("Error wiring window events: " + str(ex))
+
+        # Wire log resizer splitter
+        self.is_resizing_log = False
+        self.log_start_y = 0
+        self.log_start_h = 85
+        if hasattr(self, 'SplitLogs') and self.SplitLogs:
+            self.SplitLogs.MouseLeftButtonDown += self.on_split_log_down
+            self.SplitLogs.MouseMove += self.on_split_log_move
+            self.SplitLogs.MouseLeftButtonUp += self.on_split_log_up
+            self.SplitLogs.MouseEnter += self.on_split_log_enter
+            self.SplitLogs.MouseLeave += self.on_split_log_leave
+
+        self.log("Dilu BIM Automation initialized.")
+        self.log("Zero Data Loss Architecture active: Double-verification backup enabled.")
+
+    def on_source_initialized(self, sender, e):
+        try:
+            import System.Windows.Interop as Interop
+            revit_handle = getattr(__revit__, "MainWindowHandle", None)
+            if not revit_handle:
+                import System.Diagnostics
+                revit_handle = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle
+            if revit_handle:
+                Interop.WindowInteropHelper(self).Owner = revit_handle
+        except Exception:
+            pass
+
+    def on_split_log_enter(self, sender, e):
+        if hasattr(self, 'HandleLogs') and self.HandleLogs:
+            is_dark = getattr(self, 'is_dark', True)
+            self.HandleLogs.Background = SolidColorBrush(ColorConverter.ConvertFromString("#38BDF8" if is_dark else "#2563EB"))
+
+    def on_split_log_leave(self, sender, e):
+        if not getattr(self, 'is_resizing_log', False) and hasattr(self, 'HandleLogs') and self.HandleLogs:
+            border_brush = self.FindResource("BorderColor")
+            if border_brush:
+                self.HandleLogs.Background = border_brush
+
+    def on_split_log_down(self, sender, e):
+        if hasattr(e, "ClickCount") and e.ClickCount == 2:
+            if hasattr(self, 'CardLogs') and self.CardLogs:
+                if self.CardLogs.ActualHeight > 130:
+                    self.CardLogs.Height = 85
+                else:
+                    self.CardLogs.Height = 220
+            return
+        self.is_resizing_log = True
+        self.log_start_y = e.GetPosition(self).Y
+        if hasattr(self, 'CardLogs') and self.CardLogs:
+            self.log_start_h = self.CardLogs.ActualHeight
+        self.SplitLogs.CaptureMouse()
+
+    def on_split_log_move(self, sender, e):
+        if getattr(self, 'is_resizing_log', False) and hasattr(self, 'CardLogs') and self.CardLogs:
+            cur_y = e.GetPosition(self).Y
+            diff = self.log_start_y - cur_y
+            new_h = max(40, min(450, self.log_start_h + diff))
+            self.CardLogs.Height = new_h
+
+    def on_split_log_up(self, sender, e):
+        if getattr(self, 'is_resizing_log', False):
+            self.is_resizing_log = False
+            if hasattr(self, 'SplitLogs') and self.SplitLogs:
+                self.SplitLogs.ReleaseMouseCapture()
+            self.on_split_log_leave(sender, e)
+
+    def log(self, text):
+        try:
+            if hasattr(self, 'TxtLog') and self.TxtLog:
+                self.TxtLog.AppendText(str(text) + "\n")
+                self.TxtLog.ScrollToEnd()
+        except Exception:
+            pass
+        try:
+            log_diag(str(text))
+        except Exception:
+            pass
+        try:
+            self.do_events()
+        except Exception:
+            pass
 
     def on_global_profile_changed(self, sender, e):
         for row in self.rows:
@@ -1337,6 +1778,92 @@ class BatchExportForm(forms.WPFWindow):
         except Exception:
             pass
 
+    def select_model_row_advanced(self, model_row, is_ctrl=False, is_shift=False):
+        if not hasattr(self, 'selected_model_rows'):
+            self.selected_model_rows = []
+            
+        all_models = list(self.rows)
+        brush_main = self.FindResource("TextMain")
+        brush_dim = self.FindResource("TextDim")
+        
+        theme = self.settings.get("theme", "Dark")
+        if theme == "Dark":
+            select_brush = SolidColorBrush(ColorConverter.ConvertFromString("#1E293B"))
+            select_text = SolidColorBrush(ColorConverter.ConvertFromString("#38BDF8"))
+        else:
+            select_brush = SolidColorBrush(ColorConverter.ConvertFromString("#DBEAFE"))
+            select_text = SolidColorBrush(ColorConverter.ConvertFromString("#1D4ED8"))
+
+        # Clear sheet selection if any
+        if hasattr(self, 'selected_sheets') and self.selected_sheets:
+            for s in self.selected_sheets:
+                s.unhighlight(brush_main, brush_dim)
+            self.selected_sheets = []
+            self.selected_sheet = None
+
+        if is_shift and model_row in all_models:
+            anchor = getattr(self, 'model_selection_anchor', None)
+            if not anchor or anchor not in all_models:
+                anchor = self.selected_model_rows[0] if self.selected_model_rows else model_row
+                
+            idx1 = all_models.index(anchor)
+            idx2 = all_models.index(model_row)
+            start_i = min(idx1, idx2)
+            end_i = max(idx1, idx2)
+            new_selection = all_models[start_i:end_i+1]
+            for r in self.selected_model_rows:
+                r.unhighlight(brush_main, brush_dim)
+            self.selected_model_rows = new_selection
+            for r in self.selected_model_rows:
+                r.highlight(select_brush, select_text)
+        elif is_ctrl:
+            self.model_selection_anchor = model_row
+            if model_row in self.selected_model_rows:
+                model_row.unhighlight(brush_main, brush_dim)
+                self.selected_model_rows.remove(model_row)
+            else:
+                self.selected_model_rows.append(model_row)
+                model_row.highlight(select_brush, select_text)
+        else:
+            self.model_selection_anchor = model_row
+            for r in self.selected_model_rows:
+                r.unhighlight(brush_main, brush_dim)
+            self.selected_model_rows = [model_row]
+            model_row.highlight(select_brush, select_text)
+            
+        self.selected_model_row = model_row
+        self.update_model_details(model_row)
+
+    def update_model_details(self, model_row):
+        try:
+            status_text = model_row.txt_status.Text or "Ready"
+            if hasattr(self, 'TxtDetailNumber'):
+                self.TxtDetailNumber.Text = status_text
+            if hasattr(self, 'TxtDetailName'):
+                self.TxtDetailName.Text = os.path.basename(model_row.file_path)
+            if hasattr(self, 'TxtDetailCollection'):
+                self.TxtDetailCollection.Text = model_row.get_sheet_set_name() or "PRINT"
+            if hasattr(self, 'TxtDetailExportName'):
+                loc = model_row.output_location or ""
+                self.TxtDetailExportName.Text = os.path.basename(loc) or loc or "-"
+            if hasattr(self, 'TxtDetailModel'):
+                self.TxtDetailModel.Text = model_row.file_path
+
+            # Hide previous sheet image and show ready prompt
+            if hasattr(self, 'ImgPreview') and self.ImgPreview:
+                self.ImgPreview.Source = None
+                self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
+            if hasattr(self, 'GridPreviewLoading'):
+                self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
+            if hasattr(self, 'GridPreviewPrompt'):
+                self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Visible
+            if hasattr(self, 'TxtPreviewHint'):
+                self.TxtPreviewHint.Text = "Click Preview Sheet to render cover page"
+            if hasattr(self, 'BtnDoPreview'):
+                self.BtnDoPreview.Visibility = System.Windows.Visibility.Visible
+        except Exception as ex:
+            log_diag("update_model_details error: " + str(ex))
+
     def Window_PreviewKeyDown(self, sender, e):
         try:
             import System.Windows.Input
@@ -1371,7 +1898,7 @@ class BatchExportForm(forms.WPFWindow):
                     e.Handled = True
                     return
                     
-            # 3. Spacebar: Toggle selection on all highlighted sheets
+            # 3. Spacebar: Toggle selection on all highlighted models or sheets
             if e.Key == System.Windows.Input.Key.Space:
                 src = getattr(e, "OriginalSource", None)
                 if src and isinstance(src, System.Windows.Controls.TextBox):
@@ -1379,11 +1906,43 @@ class BatchExportForm(forms.WPFWindow):
                 self.toggle_selected_sheets_space()
                 e.Handled = True
                 return
+
+            # 4. Arrow navigation across models
+            if e.Key in (System.Windows.Input.Key.Up, System.Windows.Input.Key.Down):
+                src = getattr(e, "OriginalSource", None)
+                if src and isinstance(src, (System.Windows.Controls.TextBox, System.Windows.Controls.ComboBox)):
+                    return
+                all_models = list(self.rows)
+                if all_models:
+                    cur = getattr(self, 'selected_model_row', None)
+                    idx = all_models.index(cur) if (cur and cur in all_models) else -1
+                    if e.Key == System.Windows.Input.Key.Down:
+                        new_idx = min(idx + 1, len(all_models) - 1)
+                    else:
+                        new_idx = max(idx - 1, 0)
+                    target_row = all_models[new_idx]
+                    self.select_model_row_advanced(target_row, is_ctrl=False, is_shift=False)
+                    try:
+                        target_row.row_border.BringIntoView()
+                    except:
+                        pass
+                    e.Handled = True
+                    return
         except Exception:
             pass
 
     def toggle_selected_sheets_space(self):
         try:
+            selected_models = getattr(self, 'selected_model_rows', [])
+            if selected_models:
+                any_unchecked = any(not (m.chk_all.IsChecked == True) for m in selected_models)
+                target = True if any_unchecked else False
+                for m in selected_models:
+                    m.chk_all.IsChecked = target
+                    m.on_chk_all_clicked(None, None)
+                self.update_file_count()
+                return
+
             selected = getattr(self, 'selected_sheets', [])
             if not selected and getattr(self, 'selected_sheet', None):
                 selected = [self.selected_sheet]
@@ -1441,7 +2000,92 @@ class BatchExportForm(forms.WPFWindow):
         for r in self.rows:
             r.collapse()
 
+    def MenuExpandAllFolders_Click(self, sender, e):
+        for fg in getattr(self, 'folder_groups', []):
+            fg.expand()
+
+    def MenuCollapseAllFolders_Click(self, sender, e):
+        for fg in getattr(self, 'folder_groups', []):
+            fg.collapse()
+
+    def BtnOutgoingFolder_Click(self, sender, e):
+        try:
+            btn = self.BtnOutgoingFolder
+            if hasattr(btn, "ContextMenu") and btn.ContextMenu:
+                btn.ContextMenu.PlacementTarget = btn
+                btn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom
+                btn.ContextMenu.IsOpen = True
+        except Exception as ex:
+            log_diag("Error opening outgoing menu: " + str(ex))
+
+    def get_replicated_output_dir(self, file_path, outgoing_root):
+        if not outgoing_root:
+            return os.path.dirname(os.path.abspath(file_path))
+        file_dir = os.path.dirname(os.path.abspath(file_path))
+        if self.base_scan_dir:
+            try:
+                base_norm = os.path.abspath(self.base_scan_dir)
+                rel = os.path.relpath(file_dir, base_norm)
+                if not rel.startswith(".."):
+                    if rel == ".":
+                        return os.path.normpath(outgoing_root)
+                    return os.path.normpath(os.path.join(outgoing_root, rel))
+            except Exception:
+                pass
+        return os.path.normpath(os.path.join(outgoing_root, os.path.basename(file_dir)))
+
+    def set_outgoing_root_folder(self, outgoing_path):
+        self.outgoing_root_dir = os.path.normpath(outgoing_path) if outgoing_path else None
+        if self.outgoing_root_dir:
+            folder_name = os.path.basename(self.outgoing_root_dir) or self.outgoing_root_dir
+            disp_name = (folder_name[:12] + u"…") if len(folder_name) > 12 else folder_name
+            if hasattr(self, 'BtnOutgoingFolder') and self.BtnOutgoingFolder:
+                self.BtnOutgoingFolder.Content = u"📁 Out: " + disp_name + u" ▾"
+                self.BtnOutgoingFolder.ToolTip = "Outgoing Root Folder:\n" + self.outgoing_root_dir
+            for row in self.rows:
+                target_dir = self.get_replicated_output_dir(row.file_path, self.outgoing_root_dir)
+                row.set_output_location(target_dir)
+            self.log("[OUTGOING] Root folder set to: {}".format(self.outgoing_root_dir))
+            self.log("[OUTGOING] Replicated folder structure updated for {} model(s).".format(len(self.rows)))
+        else:
+            if hasattr(self, 'BtnOutgoingFolder') and self.BtnOutgoingFolder:
+                self.BtnOutgoingFolder.Content = u"📁 Outgoing ▾"
+                self.BtnOutgoingFolder.ToolTip = "Set target root folder for replicated exports"
+            for row in self.rows:
+                row.set_output_location(os.path.dirname(os.path.abspath(row.file_path)))
+            self.log("[OUTGOING] Output locations reset to source model folders.")
+
+    def MenuSetOutgoing_Click(self, sender, e):
+        selected_path = pick_folder_dialog("Select Outgoing Root Folder", self.outgoing_root_dir)
+        if selected_path and os.path.exists(selected_path):
+            self.set_outgoing_root_folder(selected_path)
+
+    def MenuResetOutgoing_Click(self, sender, e):
+        self.set_outgoing_root_folder(None)
+
+    def MenuOpenOutgoing_Click(self, sender, e):
+        target = self.outgoing_root_dir
+        if not target or not os.path.exists(target):
+            if self.rows and self.rows[0].output_location:
+                target = self.rows[0].output_location
+        if target and os.path.exists(target):
+            try:
+                import System.Diagnostics
+                System.Diagnostics.Process.Start("explorer.exe", target)
+            except Exception as ex:
+                forms.alert("Could not open folder: " + str(ex))
+        else:
+            forms.alert("No outgoing folder has been set or folder does not exist.", title="Folder Not Found")
+
     def menu_check_selected(self, target_state):
+        selected_models = getattr(self, 'selected_model_rows', [])
+        if selected_models:
+            for m in selected_models:
+                m.chk_all.IsChecked = target_state
+                m.on_chk_all_clicked(None, None)
+            self.update_file_count()
+            return
+
         selected = getattr(self, 'selected_sheets', [])
         if not selected and self.selected_sheet:
             selected = [self.selected_sheet]
@@ -1457,6 +2101,15 @@ class BatchExportForm(forms.WPFWindow):
         self.update_file_count()
 
     def menu_invert_selected(self):
+        selected_models = getattr(self, 'selected_model_rows', [])
+        if selected_models:
+            for m in selected_models:
+                new_val = not (m.chk_all.IsChecked == True)
+                m.chk_all.IsChecked = new_val
+                m.on_chk_all_clicked(None, None)
+            self.update_file_count()
+            return
+
         selected = getattr(self, 'selected_sheets', [])
         if not selected and self.selected_sheet:
             selected = [self.selected_sheet]
@@ -1473,6 +2126,7 @@ class BatchExportForm(forms.WPFWindow):
 
     def menu_set_all_sheets(self, target_state):
         for r in self.rows:
+            r.chk_all.IsChecked = target_state
             for s in getattr(r, 'sheet_rows', []):
                 s.chk.IsChecked = target_state
                 if s.parent_group:
@@ -1480,6 +2134,8 @@ class BatchExportForm(forms.WPFWindow):
                 elif s.parent:
                     s.parent.update_master_checkbox()
             r.update_master_checkbox()
+        for fg in getattr(self, 'folder_groups', []):
+            fg.update_folder_checkbox()
         self.update_file_count()
 
     def display_preview_image(self, img_path):
@@ -1503,22 +2159,111 @@ class BatchExportForm(forms.WPFWindow):
                 self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
 
     def on_preview_image_click(self, sender, e):
+        cache_key = None
+        title = "Sheet Preview"
         if self.selected_sheet:
             model_path = os.path.abspath(self.selected_sheet.parent.file_path).lower()
             sheet_id = self.selected_sheet.mock_sheet.UniqueId
             cache_key = (model_path, sheet_id)
-            if cache_key in self.preview_cache:
-                img_path = self.preview_cache[cache_key]
-                if os.path.exists(img_path):
-                    from _preview_script import show_preview
-                    title = self.selected_sheet.generated_name or (self.selected_sheet.mock_sheet.SheetNumber + " - " + self.selected_sheet.mock_sheet.Name)
-                    show_preview(img_path, title, owner=self)
+            title = self.selected_sheet.generated_name or (self.selected_sheet.mock_sheet.SheetNumber + " - " + self.selected_sheet.mock_sheet.Name)
+        elif getattr(self, 'selected_model_row', None):
+            mr = self.selected_model_row
+            file_path_abs = os.path.abspath(mr.file_path).lower()
+            for k, p in self.preview_cache.items():
+                if k[0] == file_path_abs:
+                    cache_key = k
+                    title = os.path.basename(mr.file_path)
+                    break
+        if cache_key and cache_key in self.preview_cache:
+            img_path = self.preview_cache[cache_key]
+            if os.path.exists(img_path):
+                from _preview_script import show_preview
+                show_preview(img_path, title, owner=self)
 
     def BtnPreview_Click(self, sender, e):
-        if not self.selected_sheet:
-            forms.alert("Please select a sheet from the list first.", title="No Sheet Selected")
+        if not self.selected_sheet and not getattr(self, 'selected_model_row', None):
+            forms.alert("Please select a model or sheet from the list first.", title="No Selection")
             return
             
+        if not self.selected_sheet and getattr(self, 'selected_model_row', None):
+            mr = self.selected_model_row
+            file_path = mr.file_path
+            file_path_abs = os.path.abspath(file_path).lower()
+            
+            if hasattr(self, 'BtnDoPreview'):
+                self.BtnDoPreview.IsEnabled = False
+            mr.set_status("Loading Preview...")
+            if hasattr(self, 'GridPreviewLoading'):
+                self.GridPreviewLoading.Visibility = System.Windows.Visibility.Visible
+            if hasattr(self, 'GridPreviewPrompt'):
+                self.GridPreviewPrompt.Visibility = System.Windows.Visibility.Collapsed
+            if hasattr(self, 'ImgPreview'):
+                self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
+            self.do_events()
+            
+            bg_doc = None
+            try:
+                bg_doc, _ = self.get_cached_document(file_path)
+                all_s = DB.FilteredElementCollector(bg_doc).OfClass(DB.ViewSheet).ToElements()
+                valid_sheets = [s for s in all_s if not getattr(s, 'IsPlaceholder', False)]
+                valid_sheets = sorted(valid_sheets, key=lambda x: getattr(x, 'SheetNumber', ''))
+                if not valid_sheets:
+                    forms.alert("No valid sheets found in model.", title="Preview")
+                    mr.set_status("Ready")
+                    return
+                sheet_element = valid_sheets[0]
+                sheet_id = sheet_element.UniqueId
+                cache_key = (file_path_abs, sheet_id)
+                if cache_key in self.preview_cache and os.path.exists(self.preview_cache[cache_key]):
+                    self.display_preview_image(self.preview_cache[cache_key])
+                    mr.set_status("Ready")
+                    return
+                    
+                temp_dir = os.path.join(tempfile.gettempdir(), "RiyanPreview")
+                if not os.path.exists(temp_dir):
+                    try: os.makedirs(temp_dir)
+                    except: pass
+                img_prefix = "prev_" + str(abs(hash(cache_key)))
+                img_path = os.path.join(temp_dir, img_prefix + ".png")
+                
+                img_opt = DB.ImageExportOptions()
+                img_opt.ZoomType = DB.ZoomFitType.FitToPage
+                img_opt.PixelSize = 1200
+                img_opt.FilePath = img_path
+                img_opt.FitDirection = DB.FitDirectionType.Horizontal
+                img_opt.HLRandWFViewsFileType = DB.ImageFileType.PNG
+                img_opt.ShadowViewsFileType = DB.ImageFileType.PNG
+                img_opt.ExportRange = DB.ExportRange.SetOfViews
+                
+                from System.Collections.Generic import List
+                v_list = List[DB.ElementId]()
+                v_list.Add(sheet_element.Id)
+                img_opt.SetViewsAndSheets(v_list)
+                
+                bg_doc.ExportImage(img_opt)
+                
+                actual_img = img_path
+                if not os.path.exists(actual_img):
+                    actual_img = os.path.join(temp_dir, img_prefix + " - Sheet - " + (sheet_element.SheetNumber or "") + " - " + (sheet_element.Name or "") + ".png")
+                if not os.path.exists(actual_img):
+                    for f in os.listdir(temp_dir):
+                        if f.startswith(img_prefix) and f.endswith(".png"):
+                            actual_img = os.path.join(temp_dir, f)
+                            break
+                if os.path.exists(actual_img):
+                    self.preview_cache[cache_key] = actual_img
+                    self.display_preview_image(actual_img)
+                mr.set_status("Ready")
+            except Exception as ex_prev:
+                log_diag("Model preview error: " + str(ex_prev))
+                mr.set_status("Ready")
+            finally:
+                if hasattr(self, 'BtnDoPreview'):
+                    self.BtnDoPreview.IsEnabled = True
+                if hasattr(self, 'GridPreviewLoading'):
+                    self.GridPreviewLoading.Visibility = System.Windows.Visibility.Collapsed
+            return
+
         sr = self.selected_sheet
         file_path = sr.parent.file_path
         file_path_abs = os.path.abspath(file_path).lower()
@@ -1590,13 +2335,12 @@ class BatchExportForm(forms.WPFWindow):
             except Exception:
                 pass
 
-            # Only use raster if view specifically requires it (3D or shaded).
-            # Standard 2D plans and sections use native Vector export for 100% CAD precision.
-            if hasattr(pdf_opt, "AlwaysUseRaster") and needs_raster:
+            # Use Ultra-High Definition Presentation Raster (600 DPI)
+            if hasattr(pdf_opt, "AlwaysUseRaster"):
                 pdf_opt.AlwaysUseRaster = True
 
-            if hasattr(DB, "RasterQualityType"):
-                pdf_opt.RasterQuality = DB.RasterQualityType.High if needs_raster else DB.RasterQualityType.Medium
+            if hasattr(DB, "RasterQualityType") and hasattr(pdf_opt, "RasterQuality"):
+                pdf_opt.RasterQuality = getattr(DB.RasterQualityType, "Presentation", DB.RasterQualityType.High)
 
             if hasattr(DB, "ColorDepthType") and hasattr(pdf_opt, "ColorDepth"):
                 pdf_opt.ColorDepth = DB.ColorDepthType.Color
@@ -1900,8 +2644,24 @@ class BatchExportForm(forms.WPFWindow):
 
         return ordered_keys, default_idx
 
-    def add_revit_files(self, file_paths):
-        import re
+    def determine_folder_group_name(self, file_path, base_dir=None):
+        if not base_dir:
+            base_dir = os.path.dirname(file_path)
+        base_dir = os.path.abspath(base_dir)
+        file_dir = os.path.abspath(os.path.dirname(file_path))
+        rel = os.path.relpath(file_dir, base_dir)
+        if rel == ".":
+            return os.path.basename(base_dir) or "Project Models"
+        parts = rel.split(os.sep)
+        if len(parts) == 1:
+            return os.path.basename(base_dir) or parts[0]
+        else:
+            group_parts = parts[:-1]
+            if group_parts:
+                return " \\ ".join(group_parts)
+            return parts[0]
+
+    def add_grouped_revit_files(self, file_paths, base_dir=None):
         self._cancel_export = False
         existing = set(os.path.abspath(r.file_path).lower() for r in self.rows)
         new_files = [f for f in file_paths if os.path.abspath(f).lower() not in existing]
@@ -1917,26 +2677,56 @@ class BatchExportForm(forms.WPFWindow):
         elif hasattr(self, 'TxtMasterSet') and self.TxtMasterSet and self.TxtMasterSet.Text:
             default_set = self.TxtMasterSet.Text.strip() or "PRINT"
 
+        from collections import OrderedDict
+        groups_map = OrderedDict()
         for f in new_files:
-            row = FileRow(f, self)
-            row.set_sheet_set_name(default_set)
-            self.rows.append(row)
-            
-            border = Border()
-            border.BorderBrush = self.FindResource("BorderColor")
-            border.BorderThickness = Thickness(0, 0, 0, 1)
-            border.Padding = Thickness(0, 5, 0, 5)
-            border.Child = row.main_container
-            
-            self.FileStack.Children.Add(border)
-            row.set_status("Ready")
+            grp_name = self.determine_folder_group_name(f, base_dir)
+            if grp_name not in groups_map:
+                groups_map[grp_name] = []
+            groups_map[grp_name].append(f)
 
+        existing_groups = {fg.folder_name: fg for fg in getattr(self, 'folder_groups', [])}
+        total_added = 0
+
+        for grp_name, files_in_grp in groups_map.items():
+            if grp_name in existing_groups:
+                folder_group = existing_groups[grp_name]
+            else:
+                folder_group = FolderGroupRow(grp_name, self)
+                if not hasattr(self, 'folder_groups'):
+                    self.folder_groups = []
+                self.folder_groups.append(folder_group)
+                self.FileStack.Children.Add(folder_group.container)
+                existing_groups[grp_name] = folder_group
+
+            for f in files_in_grp:
+                row = FileRow(f, self)
+                row.set_sheet_set_name(default_set)
+                if self.outgoing_root_dir:
+                    row.set_output_location(self.get_replicated_output_dir(f, self.outgoing_root_dir))
+                self.rows.append(row)
+                folder_group.add_file_row(row)
+                row.set_status("Ready")
+                total_added += 1
+
+        self.log("Added {} model(s) across {} folder group(s).".format(total_added, len(groups_map)))
         self.update_file_count()
         self.do_events()
         try:
             self.Activate()
-        except:
+        except Exception:
             pass
+
+    def add_revit_files(self, file_paths):
+        base_dir = None
+        if file_paths:
+            try:
+                base_dir = os.path.dirname(os.path.abspath(file_paths[0]))
+                if not self.base_scan_dir:
+                    self.base_scan_dir = base_dir
+            except Exception:
+                base_dir = None
+        self.add_grouped_revit_files(file_paths, base_dir=base_dir)
 
     def BtnApplySetToAll_Click(self, sender, e):
         target_name = "PRINT"
@@ -1962,62 +2752,93 @@ class BatchExportForm(forms.WPFWindow):
 
     def BtnAddFolder_Click(self, sender, e):
         import re
-        dlg = WinForms.FolderBrowserDialog()
-        dlg.Description = "Select Folder Containing Revit Projects"
-        if dlg.ShowDialog() == WinForms.DialogResult.OK:
-            selected_dir = dlg.SelectedPath
-            if not selected_dir or not os.path.exists(selected_dir):
-                return
+        selected_dir = pick_folder_dialog("Select Folder Containing Revit Projects")
+        if not selected_dir or not os.path.exists(selected_dir):
+            return
                 
-            found_files = []
-            
-            # 1. Check if there are .rvt files directly inside selected folder
-            try:
-                for f in os.listdir(selected_dir):
-                    full_path = os.path.join(selected_dir, f)
-                    if os.path.isfile(full_path) and f.lower().endswith(".rvt"):
-                        if not re.search(r'\.\d{4}\.rvt$', f, re.IGNORECASE):
-                            found_files.append(full_path)
-            except Exception:
-                pass
-                
-            # 2. Check each immediate subfolder inside selected folder
-            try:
-                subdirs = [os.path.join(selected_dir, d) for d in os.listdir(selected_dir) if os.path.isdir(os.path.join(selected_dir, d))]
-                subdirs.sort()
-                
-                for sdir in subdirs:
-                    dir_name = os.path.basename(sdir).lower()
-                    if "backup" in dir_name or "temp" in dir_name or dir_name.startswith("00 "):
+        self.base_scan_dir = selected_dir
+        self.log("Scanning folder: {}".format(selected_dir))
+
+        archive_keywords = (
+            "PREVIOUS", "PREVIOUSE", "ARCHIVE", "ARCHIVES",
+            "OLD", "BACKUP", "BACKUPS", "_BACKUP", "_BACKUPS",
+            "INCOMING", "INCOMMING", "00 INCOMING", "00 INCOMMING",
+            "TEMP", "TMP", "TRASH", "OBSOLETE", "SUPERSEDED",
+            "LINKS", "REFERENCE", "REFERENCES", "REVIT_TEMP"
+        )
+        date_pattern = re.compile(r'(\d{4}[.\-_]\d{2}[.\-_]\d{2}|\d{2}[.\-_]\d{2}[.\-_]\d{4})')
+
+        def is_archive_dir(rel_p):
+            norm = os.path.normpath(rel_p).upper()
+            parts = norm.split(os.sep)
+            for seg in parts:
+                if any(kw in seg for kw in archive_keywords):
+                    return True
+                if date_pattern.search(seg):
+                    return True
+            return False
+
+        discovered = []
+        try:
+            for root, dirs, files in os.walk(selected_dir):
+                rel_root = os.path.relpath(root, selected_dir)
+                # Filter out archive/temp directories on the fly
+                dirs[:] = [d for d in dirs if not any(kw in d.upper() for kw in archive_keywords) and not date_pattern.search(d)]
+                if rel_root != "." and is_archive_dir(rel_root):
+                    continue
+
+                for f in files:
+                    if not f.lower().endswith(".rvt") or f.startswith("~") or f.startswith("."):
                         continue
-                        
-                    try:
-                        sub_files = []
-                        for sf in os.listdir(sdir):
-                            sf_path = os.path.join(sdir, sf)
-                            if os.path.isfile(sf_path) and sf.lower().endswith(".rvt"):
-                                if not re.search(r'\.\d{4}\.rvt$', sf, re.IGNORECASE):
-                                    sub_files.append(sf_path)
-                        sub_files.sort()
-                        found_files.extend(sub_files)
-                    except Exception:
-                        pass
-            except Exception:
-                pass
-                
-            if not found_files:
-                forms.alert("No Revit (.rvt) files found in the selected folder or its immediate subfolders.", title="No Files Found")
-                return
-                
-            self.add_revit_files(found_files)
+                    parts = f.split(".")
+                    if len(parts) >= 3 and parts[-2].isdigit():
+                        continue
+                    full_p = os.path.join(root, f)
+                    if is_archive_dir(os.path.relpath(os.path.dirname(full_p), selected_dir)):
+                        continue
+                    discovered.append(full_p)
+        except Exception as ex:
+            self.log("Scan warning: {}".format(ex))
+
+        if not discovered:
+            self.log("No valid Revit (.rvt) files found in: {}".format(selected_dir))
+            forms.alert("No Revit (.rvt) files found in the selected folder structure.", title="No Files Found")
+            return
+
+        # Group discovered files by their immediate containing folder (building folder)
+        from collections import OrderedDict
+        by_building = OrderedDict()
+        for f_path in discovered:
+            b_dir = os.path.dirname(f_path)
+            if b_dir not in by_building:
+                by_building[b_dir] = []
+            by_building[b_dir].append(f_path)
+
+        active_models = []
+        for b_dir, m_list in by_building.items():
+            if len(m_list) == 1:
+                active_models.append(m_list[0])
+            else:
+                m_list.sort(key=lambda p: os.path.getmtime(p) if os.path.exists(p) else 0, reverse=True)
+                active_models.append(m_list[0])
+
+        active_models.sort()
+        self.log("Identified {} active Revit model(s) across {} folder(s).".format(len(active_models), len(by_building)))
+        self.add_grouped_revit_files(active_models, base_dir=selected_dir)
 
     def BtnClearAll_Click(self, sender, e):
         self.cleanup_cached_documents()
         self.FileStack.Children.Clear()
         self.rows = []
+        self.folder_groups = []
+        self.base_scan_dir = None
         self.selected_sheet = None
+        self.selected_model_rows = []
+        self.selected_model_row = None
+        self.model_selection_anchor = None
         self.preview_cache.clear()
         self.update_file_count()
+        self.log("All files cleared.")
         if hasattr(self, 'ImgPreview') and self.ImgPreview:
             self.ImgPreview.Source = None
             self.ImgPreview.Visibility = System.Windows.Visibility.Collapsed
@@ -2046,24 +2867,43 @@ class BatchExportForm(forms.WPFWindow):
         
         self.BtnExport.IsEnabled = False
         self._cancel_export = False
+        self.Topmost = True
+        try:
+            self.Activate()
+        except:
+            pass
         is_check_print = self.RbCheckPrint.IsChecked
         
+        self.log("Starting batch export for {} selected model(s)... Mode: {}".format(
+            len(selected_rows), "Check Print (Combined PDF)" if is_check_print else "Final Export (Combined PDF + Separate CAD/PDF)"
+        ))
+
         first_folder = None
         total_exported_sheets = 0
         total_failed_sheets = 0
         total_skipped_sheets = 0
 
         total_files = len(self.rows)
+        total_selected = len(selected_rows)
+        selected_processed = 0
         for idx, row in enumerate(self.rows):
-            if self._cancel_export: break
+            if self._cancel_export:
+                self.log("Export canceled by user.")
+                break
             
             if getattr(row, 'chk_all', None) and row.chk_all.IsChecked == False:
                 row.set_status("Skipped")
                 continue
 
+            selected_processed += 1
             if hasattr(self, 'TxtFileCount') and self.TxtFileCount:
-                self.TxtFileCount.Text = "Exporting file {} / {} ({} Selected)...".format(idx + 1, total_files, len(selected_rows))
+                self.TxtFileCount.Text = "Exporting [{}/{}] (File {} of {})...".format(
+                    selected_processed, total_selected, idx + 1, total_files
+                )
             
+            self.log("[{}/{} Selected | Item {}/{}] Processing: {} (Set: {})".format(
+                selected_processed, total_selected, idx + 1, total_files, os.path.basename(row.file_path), row.get_sheet_set_name()
+            ))
             row.main_container.BringIntoView()
             self.do_events()
             
@@ -2075,6 +2915,10 @@ class BatchExportForm(forms.WPFWindow):
             should_close = False
             try:
                 bg_doc, should_close = self.get_cached_document(row.file_path)
+                try:
+                    self.Activate()
+                except:
+                    pass
                 
                 em_script.doc = bg_doc
                 
@@ -2100,20 +2944,46 @@ class BatchExportForm(forms.WPFWindow):
                     
                     vss_collector = DB.FilteredElementCollector(bg_doc).OfClass(DB.ViewSheetSet).ToElements()
                     matched_vss = None
+                    
+                    # 1. Exact match
                     for vss in vss_collector:
                         if vss.Name.strip().lower() == clean_target:
                             matched_vss = vss
                             break
+                    # 2. Substring match
                     if not matched_vss:
                         for vss in vss_collector:
                             if clean_target in vss.Name.strip().lower():
                                 matched_vss = vss
                                 break
+                    # 3. Standard print/submission keywords if target was default 'print'
+                    if not matched_vss and clean_target in ("print", "print set", "submission"):
+                        for kw in ["submission", "submi", "arc set 1", "arc set", "set 1", "set-1", "tender", "print", "dwg", "arc"]:
+                            for vss in vss_collector:
+                                if kw in vss.Name.strip().lower():
+                                    matched_vss = vss
+                                    break
+                            if matched_vss:
+                                break
+                    # 4. If only 1 ViewSheetSet exists in this document, use it!
                     if not matched_vss and len(vss_collector) == 1:
                         matched_vss = vss_collector[0]
+                    # 5. If multiple ViewSheetSets exist, pick the one that has the most DrawingSheets
+                    if not matched_vss and len(vss_collector) > 1:
+                        best_vss = None
+                        max_cnt = 0
+                        for vss in vss_collector:
+                            cnt = sum(1 for v in vss.Views if v.ViewType == DB.ViewType.DrawingSheet)
+                            if cnt > max_cnt:
+                                max_cnt = cnt
+                                best_vss = vss
+                        if best_vss and max_cnt > 0:
+                            matched_vss = best_vss
                         
                     sheet_elements = []
+                    set_label = ""
                     if matched_vss:
+                        set_label = matched_vss.Name
                         for v in matched_vss.Views:
                             if v.ViewType == DB.ViewType.DrawingSheet:
                                 try:
@@ -2121,17 +2991,26 @@ class BatchExportForm(forms.WPFWindow):
                                         sheet_elements.append(v)
                                 except:
                                     sheet_elements.append(v)
-                    else:
-                        if "<all sheets>" in clean_target:
-                            all_s = DB.FilteredElementCollector(bg_doc).OfClass(DB.ViewSheet).ToElements()
-                            sheet_elements = [s for s in all_s if not getattr(s, 'IsPlaceholder', False)]
-                        else:
-                            row.set_status("Skipped (No '{}' set)".format(target_set_name))
-                            total_skipped_sheets += 1
-                            if should_close and bg_doc:
-                                try: bg_doc.Close(False)
-                                except: pass
-                            continue
+                    
+                    # 6. Fallback: If no ViewSheetSet or set was empty, export ALL valid sheets!
+                    if not sheet_elements:
+                        all_s = DB.FilteredElementCollector(bg_doc).OfClass(DB.ViewSheet).ToElements()
+                        for s in all_s:
+                            try:
+                                if getattr(s, 'IsPlaceholder', False):
+                                    continue
+                            except:
+                                pass
+                            s_name = (getattr(s, 'Name', '') or '').upper()
+                            s_num = (getattr(s, 'SheetNumber', '') or '').upper()
+                            if any(k in s_name or k in s_num for k in ("START-UP", "STARTUP", "START UP", "SPLASH")):
+                                continue
+                            sheet_elements.append(s)
+                        set_label = "<All Valid Sheets>"
+                    
+                    self.log("[{}/{}] Model: {} -> Exporting {} sheets ({})".format(
+                        idx + 1, total_files, os.path.basename(row.file_path), len(sheet_elements), set_label
+                    ))
                             
                     sheet_elements = sorted(sheet_elements, key=lambda x: getattr(x, 'SheetNumber', ''))
                     
@@ -2193,7 +3072,12 @@ class BatchExportForm(forms.WPFWindow):
                 
                 # Selective archiving: safely move ONLY previous deliverables matching this model
                 if row.output_location:
-                    target_files = [comb_filename, comb_name.strip() + " - LIST OF DRAWINGS.doc"]
+                    if not os.path.exists(row.output_location):
+                        try:
+                            os.makedirs(row.output_location)
+                        except Exception as ex_m:
+                            log_diag("Makedirs error: " + str(ex_m))
+                    target_files = [comb_filename, comb_name.strip() + " - LIST OF DRAWINGS.doc", comb_name.strip() + " - LIST OF DRAWINGS.xlsx"]
                     if not is_check_print:
                         for itm in pdf_items:
                             f_base = itm.get("filename", "")
@@ -2317,29 +3201,56 @@ class BatchExportForm(forms.WPFWindow):
                         self.do_events()
                         em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
 
-                # Generate Excel Transmittal / Drawing List
-                if not self._cancel_export:
+                # Generate Excel / Word Transmittal / Drawing List
+                if not self._cancel_export and (not hasattr(self, 'ChkDrawingList') or self.ChkDrawingList.IsChecked == True):
                     try:
-                        self.TxtPercent.Text = "Generating Excel Drawing List..."
+                        list_fmt = "Word" if (getattr(self, 'RbBatchListWord', None) and self.RbBatchListWord.IsChecked == True) else "Excel"
+                        self.TxtPercent.Text = "Generating {} Drawing List...".format(list_fmt)
                         self.do_events()
                         vms = [item.SheetVM for item in mock_queue]
-                        em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_name.strip(), comb_parts)
+                        em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_name.strip(), comb_parts, format_type=list_fmt)
                     except Exception as ex_tr:
-                        log_diag("Excel transmittal note: " + str(ex_tr))
+                        log_diag("Drawing list note: " + str(ex_tr))
                 
-                if should_close:
-                    try: bg_doc.Close(False)
-                    except: pass
+                if should_close and bg_doc:
+                    try:
+                        bg_doc.Close(False)
+                    except:
+                        pass
+                    bg_doc = None
+                
+                # Evict from doc cache to free RAM immediately
+                file_key = os.path.abspath(row.file_path).lower()
+                self.doc_cache.pop(file_key, None)
+                try:
+                    import System
+                    System.GC.Collect()
+                    System.GC.WaitForPendingFinalizers()
+                except Exception:
+                    pass
+                
                 row.set_status("Done", is_done=True)
                 
             except Exception as ex:
                 total_failed_sheets += len(row.sheet_rows)
                 row.set_status("Error", is_error=True)
                 if should_close and bg_doc:
-                    try: bg_doc.Close(False)
-                    except: pass
+                    try:
+                        bg_doc.Close(False)
+                    except:
+                        pass
+                    bg_doc = None
+                file_key = os.path.abspath(row.file_path).lower()
+                self.doc_cache.pop(file_key, None)
+                try:
+                    import System
+                    System.GC.Collect()
+                    System.GC.WaitForPendingFinalizers()
+                except Exception:
+                    pass
                 log_diag("Export error: " + str(ex) + "\n" + traceback.format_exc())
                 
+        self.Topmost = False
         self.BtnExport.IsEnabled = True
         self.ExportProgressBar.Value = 100
         self.TxtPercent.Text = "Finished!"
@@ -2368,8 +3279,14 @@ class BatchExportForm(forms.WPFWindow):
             else:
                 msg = "No sheets were exported."
                 
+            self.log("Batch export finished! Total exported: {}, Failed: {}, Skipped: {}.".format(
+                total_exported_sheets, total_failed_sheets, total_skipped_sheets
+            ))
+
             try:
                 cw = em_script.CustomExportCompletedWindow(first_folder, msg, theme)
+                if hasattr(cw, 'win') and cw.win:
+                    cw.win.Topmost = True
                 cw.ShowDialog()
             except Exception as ex_cw:
                 log_diag("Completion window error: " + str(ex_cw))

@@ -10,10 +10,13 @@
         <!-- Dark Theme Colors -->
         <SolidColorBrush x:Key="WindowBg" Color="#2D2D30"/>
         <SolidColorBrush x:Key="TitleBarBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="CardBg" Color="#1E1E1E"/>
         <SolidColorBrush x:Key="TextMain" Color="#F5F5F5"/>
         <SolidColorBrush x:Key="TextDim" Color="#A0A0A0"/>
         <SolidColorBrush x:Key="BorderColor" Color="#3F3F46"/>
         <SolidColorBrush x:Key="PrimaryColor" Color="#802F2D"/>
+        <SolidColorBrush x:Key="AccentCyan" Color="#38BDF8"/>
+        <SolidColorBrush x:Key="AccentGold" Color="#C8922A"/>
         
         <!-- Primary Button -->
         <Style x:Key="PrimaryBtn" TargetType="Button">
@@ -45,11 +48,14 @@
             <Setter Property="Foreground" Value="#F5F5F5"/>
             <Setter Property="BorderBrush" Value="#3F3F46"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -61,7 +67,89 @@
                 </Setter.Value>
             </Setter>
         </Style>
-            <Style x:Key="CloseBtnStyle" TargetType="Button">
+
+        <!-- Outgoing Accent Button Style -->
+        <Style x:Key="OutgoingBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="#38BDF8"/>
+            <Setter Property="BorderBrush" Value="#0284C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#0F172A"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#38BDF8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Selection Accent Button Style -->
+        <Style x:Key="SelectionBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#292113"/>
+            <Setter Property="Foreground" Value="#FBBF24"/>
+            <Setter Property="BorderBrush" Value="#B45309"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#1F190B"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#FBBF24"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Apply Accent Button Style -->
+        <Style x:Key="ApplyBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="#38BDF8"/>
+            <Setter Property="BorderBrush" Value="#0284C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#0F172A"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#38BDF8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CloseBtnStyle" TargetType="Button">
             <Setter Property="Background" Value="#802F2D"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -109,7 +197,10 @@
             <!-- Title Bar -->
             <Border Grid.Row="0" Background="{StaticResource TitleBarBg}" CornerRadius="10,10,0,0" MouseDown="TitleBar_MouseDown">
                 <Grid Grid.IsSharedSizeScope="True">
-                    <TextBlock Text="Riyan Batch Export Manager" Foreground="{StaticResource TextMain}" VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="Bold" FontSize="14"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+                        <Image x:Name="TitleLogo" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="Riyan Batch Export Manager" Foreground="#802F2D" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
                         <Button x:Name="BtnTheme" Content="&#x2600;" FontFamily="Segoe UI Symbol" Width="30" Height="30" Background="Transparent" BorderThickness="0" Click="BtnTheme_Click" ToolTip="Switch Theme"/>
                         <Button x:Name="BtnMinimize" Content="-" Width="30" Height="30" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="{StaticResource TextMain}" Click="MinimizeBtn_Click"/>
@@ -134,39 +225,78 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <WrapPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10" VerticalAlignment="Center">
-                        <Button x:Name="BtnAddFolder" Style="{StaticResource PrimaryBtn}" Content="+ Add Folder" Width="100" Height="32" Margin="0,0,5,0" Click="BtnAddFolder_Click"/>
-                        <Button x:Name="BtnAddFile" Style="{StaticResource SecondaryBtn}" Content="+ Add Files" Width="95" Height="32" Margin="0,0,5,0" Click="BtnAddFile_Click"/>
-                        <Button x:Name="BtnClearAll" Style="{StaticResource SecondaryBtn}" Content="Clear All" Width="65" Height="32" Margin="0,0,5,0" Click="BtnClearAll_Click"/>
-                        <Button x:Name="BtnSelectionOptions" Style="{StaticResource SecondaryBtn}" Content="Selection ▾" Height="32" Padding="8,0" Margin="0,0,10,0" Click="BtnSelectionOptions_Click">
-                            <Button.ContextMenu>
-                                <ContextMenu x:Name="MenuSelectionOptions" Style="{StaticResource ThemeContextMenu}">
-                                    <MenuItem Header="✓  Check Selected (Space)" Click="MenuCheckSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
-                                    <MenuItem Header="☐  Uncheck Selected" Click="MenuUncheckSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
-                                    <MenuItem Header="⇄  Invert Selected" Click="MenuInvertSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
-                                    <Separator/>
-                                    <MenuItem Header="Select All Sheets" Click="MenuCheckAll_Click" Style="{StaticResource ThemeMenuItem}"/>
-                                    <MenuItem Header="Unselect All Sheets" Click="MenuUncheckAll_Click" Style="{StaticResource ThemeMenuItem}"/>
-                                    <Separator/>
-                                    <MenuItem Header="➕  Expand All Files" Click="MenuExpandAll_Click" Style="{StaticResource ThemeMenuItem}"/>
-                                    <MenuItem Header="➖  Collapse All Files" Click="MenuCollapseAll_Click" Style="{StaticResource ThemeMenuItem}"/>
-                                </ContextMenu>
-                            </Button.ContextMenu>
-                        </Button>
-                        
-                        <Border Width="1" Height="22" Background="{StaticResource BorderColor}" Margin="0,0,10,0"/>
+                    <!-- Executive Toolbar & Batch Configuration Card -->
+                    <Border Grid.Row="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,10">
+                        <StackPanel Orientation="Vertical">
+                            <!-- Tier 1: File & Folder Actions -->
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button x:Name="BtnAddFolder" Style="{StaticResource PrimaryBtn}" Content="+ Add Folder" Width="105" Height="30" Margin="0,0,6,0" Click="BtnAddFolder_Click"/>
+                                    <Button x:Name="BtnAddFile" Style="{StaticResource SecondaryBtn}" Content="+ Add Files" Width="95" Height="30" Margin="0,0,6,0" Click="BtnAddFile_Click"/>
+                                    <Button x:Name="BtnClearAll" Style="{StaticResource SecondaryBtn}" Content="Clear All" Width="68" Height="30" Margin="0,0,6,0" Click="BtnClearAll_Click"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Button x:Name="BtnSelectionOptions" Style="{StaticResource SelectionBtnStyle}" Content="Selection ▾" Width="100" Height="30" Margin="0,0,6,0" Click="BtnSelectionOptions_Click">
+                                        <Button.ContextMenu>
+                                             <ContextMenu x:Name="MenuSelectionOptions" Style="{StaticResource ThemeContextMenu}">
+                                                 <MenuItem Header="✓  Check Selected (Space)" Click="MenuCheckSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                 <MenuItem Header="☐  Uncheck Selected" Click="MenuUncheckSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                 <MenuItem Header="⇄  Invert Selected" Click="MenuInvertSelected_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                 <Separator/>
+                                                 <MenuItem Header="Select All Sheets" Click="MenuCheckAll_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                 <MenuItem Header="Unselect All Sheets" Click="MenuUncheckAll_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                 <Separator/>
+                                                 <MenuItem Header="➕  Expand All Files" Click="MenuExpandAll_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                 <MenuItem Header="➖  Collapse All Files" Click="MenuCollapseAll_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                 <Separator/>
+                                                 <MenuItem Header="📂  Expand All Folders" Click="MenuExpandAllFolders_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                 <MenuItem Header="📁  Collapse All Folders" Click="MenuCollapseAllFolders_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                             </ContextMenu>
+                                        </Button.ContextMenu>
+                                    </Button>
+                                    <Button x:Name="BtnOutgoingFolder" Style="{StaticResource OutgoingBtnStyle}" Content="📁 Outgoing ▾" MinWidth="115" Height="30" Padding="10,0" Click="BtnOutgoingFolder_Click" ToolTip="Set target root folder for replicated exports">
+                                        <Button.ContextMenu>
+                                            <ContextMenu x:Name="MenuOutgoingOptions" Style="{StaticResource ThemeContextMenu}">
+                                                <MenuItem Header="📁 Select Outgoing Root Folder (Replicate Structure)..." Click="MenuSetOutgoing_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                <MenuItem Header="↺  Reset to Source Model Folders" Click="MenuResetOutgoing_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                                <Separator/>
+                                                <MenuItem Header="📂 Open Outgoing Folder" Click="MenuOpenOutgoing_Click" Style="{StaticResource ThemeMenuItem}"/>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
 
-                        <TextBlock Text="Sheet Set:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource TextDim}" FontWeight="SemiBold"/>
-                        <ComboBox x:Name="CmbMasterSet" Width="110" Height="28" IsEditable="True" Text="PRINT" VerticalContentAlignment="Center" Margin="0,0,5,0"/>
-                        <Button x:Name="BtnApplySetToAll" Style="{StaticResource SecondaryBtn}" Content="Apply" Width="60" Height="28" Margin="0,0,10,0" Click="BtnApplySetToAll_Click"/>
+                            <!-- Signature Color Mix Divider Line (Maroon -> Cyan -> Amber) -->
+                            <Border Height="1" Margin="0,8" Opacity="0.85">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#802F2D" Offset="0.0"/>
+                                        <GradientStop Color="#38BDF8" Offset="0.5"/>
+                                        <GradientStop Color="#C8922A" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
 
-                        <Border Width="1" Height="22" Background="{StaticResource BorderColor}" Margin="0,0,10,0"/>
-
-                        <TextBlock Text="Naming Profile:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource TextDim}" FontWeight="SemiBold"/>
-                        <ComboBox x:Name="CmbGlobalProfile" Width="110" Height="28" VerticalContentAlignment="Center"/>
-                    </WrapPanel>
+                            <!-- Tier 2: Batch Setup & Naming Options -->
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Sheet Set:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{StaticResource TextDim}" FontWeight="SemiBold" FontSize="11.5"/>
+                                    <ComboBox x:Name="CmbMasterSet" Width="130" Height="26" IsEditable="True" Text="PRINT" VerticalContentAlignment="Center" Margin="0,0,6,0" FontSize="11.5"/>
+                                    <Button x:Name="BtnApplySetToAll" Style="{StaticResource ApplyBtnStyle}" Content="Apply to All" Height="26" Padding="10,0" Margin="0,0,10,0" Click="BtnApplySetToAll_Click" ToolTip="Apply selected Sheet Set to all files in the list"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Border Width="1" Height="16" Background="{StaticResource BorderColor}" Margin="0,0,10,0" Opacity="0.7"/>
+                                    <TextBlock Text="Naming Profile:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{StaticResource TextDim}" FontWeight="SemiBold" FontSize="11.5"/>
+                                    <ComboBox x:Name="CmbGlobalProfile" Width="130" Height="26" VerticalContentAlignment="Center" FontSize="11.5"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
 
                     <Grid Grid.Row="1" Margin="0,0,0,8" Background="Transparent">
                         <Grid.ColumnDefinitions>
@@ -203,11 +333,32 @@
                     </ScrollViewer>
 
                     <!-- Options -->
-                    <StackPanel Grid.Row="3" Margin="0,15,0,0" Orientation="Horizontal">
-                        <TextBlock Text="Export Mode:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextMain}" Margin="0,0,10,0"/>
-                        <RadioButton x:Name="RbCheckPrint" Content="Check Print (Combined PDF Only)" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                        <RadioButton x:Name="RbFinalExport" Content="Final Export (Combined PDF + Separate CAD/PDF)" Foreground="{StaticResource TextMain}" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <Grid Grid.Row="3" Margin="0,10,0,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Export Mode:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextMain}" Margin="0,0,10,0"/>
+                            <RadioButton x:Name="RbCheckPrint" Content="Check Print (Combined PDF Only)" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                            <RadioButton x:Name="RbFinalExport" Content="Final Export (Combined PDF + Separate CAD/PDF)" Foreground="{StaticResource TextMain}" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Border Width="1" Height="14" Background="{StaticResource BorderColor}" Margin="0,0,14,0" Opacity="0.7"/>
+                            <CheckBox x:Name="ChkDrawingList" Content="Drawing List:" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold" FontSize="11"/>
+                            <RadioButton x:Name="RbBatchListExcel" GroupName="BatchListFormat" Content="Excel (.xlsx)" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="11"/>
+                            <RadioButton x:Name="RbBatchListWord" GroupName="BatchListFormat" Content="Word (.doc)" Foreground="{StaticResource TextMain}" VerticalAlignment="Center" FontSize="11"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Log Resize Splitter Bar -->
+                    <Border x:Name="SplitLogs" Grid.Row="4" Height="10" Background="Transparent" Cursor="SizeNS" Margin="0,4,0,2" VerticalAlignment="Center" ToolTip="Drag up/down to resize log terminal (Double-click to expand/collapse)">
+                        <Border x:Name="HandleLogs" Height="4" Width="60" CornerRadius="2" Background="{StaticResource BorderColor}" HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <!-- Real-time Process Log Terminal -->
+                    <Border x:Name="CardLogs" Grid.Row="5" Height="85" MinHeight="40" MaxHeight="450" Background="#0F0F0F" CornerRadius="6" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" Margin="0,0,0,0">
+                        <TextBox x:Name="TxtLog" Background="#0F0F0F" Foreground="#22C55E" FontFamily="Consolas" FontSize="11"
+                                 IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                 TextWrapping="Wrap" BorderThickness="0" Padding="8,6"/>
+                    </Border>
                 </Grid>
 
                 <!-- Right Column: Sheet Preview & Details Sidebar -->
@@ -273,13 +424,18 @@
             <!-- Footer -->
             <Border Grid.Row="2" Background="{StaticResource TitleBarBg}" CornerRadius="0,0,10,10" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,1,0,0">
                 <Grid Margin="15,0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <TextBlock x:Name="TxtFileCount" Text="0 Files Loaded" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                        <ProgressBar x:Name="ExportProgressBar" Width="260" Height="8" Foreground="{StaticResource PrimaryColor}" Background="#3F3F46" BorderThickness="0" Maximum="100" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="TxtPercent" Text="Ready" Margin="12,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextDim}" FontSize="11"/>
-                    </StackPanel>
-                    
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" x:Name="TxtFileCount" Text="0 Files Loaded" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                    <ProgressBar Grid.Column="1" x:Name="ExportProgressBar" Height="8" Foreground="{StaticResource PrimaryColor}" Background="#3F3F46" BorderThickness="0" Maximum="100" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                    <TextBlock Grid.Column="2" x:Name="TxtPercent" Text="Ready" VerticalAlignment="Center" Foreground="{StaticResource TextDim}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,0,15,0" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
                         <Button x:Name="BtnCancel" Style="{StaticResource SecondaryBtn}" Content="Cancel" Width="90" Height="32" Margin="0,0,10,0" Click="CloseBtn_Click"/>
                         <Button x:Name="BtnExport" Style="{StaticResource PrimaryBtn}" Content="Run Batch Export" Width="140" Height="32" Click="BtnExport_Click"/>
                     </StackPanel>

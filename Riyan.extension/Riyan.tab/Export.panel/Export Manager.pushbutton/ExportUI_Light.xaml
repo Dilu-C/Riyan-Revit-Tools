@@ -52,7 +52,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -915,10 +915,13 @@
                             <!-- LEFT PANEL: Formats -->
                             <StackPanel Grid.Column="0" Margin="0,0,24,0">
                                 <TextBlock Text="EXPORT FORMATS" Foreground="#555555" FontSize="9" FontWeight="Bold" Margin="0,0,0,8"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                                    <CheckBox x:Name="CbPDF" Content="PDF" Style="{StaticResource DarkCheckBox}" Margin="0,0,24,0" IsChecked="True" Click="CbFormat_Click"/>
-                                    <CheckBox x:Name="CbDWG" Content="DWG" Style="{StaticResource DarkCheckBox}" Margin="0,0,24,0" IsChecked="True" Click="CbFormat_Click"/>
-                                    <CheckBox x:Name="CbExcelTransmittal" Content="Drawing List" Style="{StaticResource DarkCheckBox}" IsChecked="False"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,24" VerticalAlignment="Center">
+                                    <CheckBox x:Name="CbPDF" Content="PDF" Style="{StaticResource DarkCheckBox}" Margin="0,0,20,0" IsChecked="True" Click="CbFormat_Click" VerticalAlignment="Center"/>
+                                    <CheckBox x:Name="CbDWG" Content="DWG" Style="{StaticResource DarkCheckBox}" Margin="0,0,20,0" IsChecked="True" Click="CbFormat_Click" VerticalAlignment="Center"/>
+                                    <Border Width="1" Height="14" Background="#D1D5DB" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                    <CheckBox x:Name="CbExcelTransmittal" Content="Drawing List:" Style="{StaticResource DarkCheckBox}" IsChecked="False" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <RadioButton x:Name="RbListExcel" GroupName="EmListFormat" Content="Excel (.xlsx)" Foreground="#333333" FontSize="11" IsChecked="True" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <RadioButton x:Name="RbListWord" GroupName="EmListFormat" Content="Word (.doc)" Foreground="#333333" FontSize="11" Margin="0,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 
                                 <TextBlock Text="FILE" Foreground="#555555" FontSize="9" FontWeight="Bold" Margin="0,0,0,8"/>

@@ -3047,10 +3047,11 @@ class ExportManagerForm(forms.WPFWindow):
             except Exception:
                 pass
 
-            if hasattr(pdf_opt, "AlwaysUseRaster") and needs_raster:
+            # Use Ultra-High Definition Presentation Raster (600 DPI)
+            if hasattr(pdf_opt, "AlwaysUseRaster"):
                 pdf_opt.AlwaysUseRaster = True
             if hasattr(DB, "RasterQualityType") and hasattr(pdf_opt, "RasterQuality"):
-                pdf_opt.RasterQuality = DB.RasterQualityType.High
+                pdf_opt.RasterQuality = getattr(DB.RasterQualityType, "Presentation", DB.RasterQualityType.High)
             if hasattr(DB, "ColorDepthType") and hasattr(pdf_opt, "ColorDepth"):
                 pdf_opt.ColorDepth = DB.ColorDepthType.Color
             if hasattr(DB, "ZoomType") and hasattr(DB.ZoomType, "FitToPage") and hasattr(pdf_opt, "ZoomType"):
@@ -3233,7 +3234,12 @@ class ExportManagerForm(forms.WPFWindow):
     def BtnCombineBrowse_Click(self, sender, e):
         from System.Windows.Forms import FolderBrowserDialog, DialogResult
         dlg = FolderBrowserDialog()
-        dlg.Description = "Select folder to save combined PDF"
+        if hasattr(dlg, "UseDescriptionForTitle"):
+            try:
+                dlg.UseDescriptionForTitle = True
+                dlg.Description = "Select Folder to Save Combined PDF"
+            except Exception:
+                pass
         if dlg.ShowDialog() == DialogResult.OK:
             self.TxtCombineFolder.Text = dlg.SelectedPath
 
@@ -3557,9 +3563,18 @@ class ExportManagerForm(forms.WPFWindow):
 
     # Tab 3: Create Logic
     def BtnBrowse_Click(self, sender, e):
-        selected_folder = forms.pick_folder(title="Select Export Destination")
-        if selected_folder:
-            self.export_path = selected_folder
+        from System.Windows.Forms import FolderBrowserDialog, DialogResult
+        dlg = FolderBrowserDialog()
+        if hasattr(dlg, "UseDescriptionForTitle"):
+            try:
+                dlg.UseDescriptionForTitle = True
+                dlg.Description = "Select Export Destination"
+            except Exception:
+                pass
+        if self.export_path and os.path.exists(self.export_path):
+            dlg.SelectedPath = self.export_path
+        if dlg.ShowDialog() == DialogResult.OK:
+            self.export_path = dlg.SelectedPath
             self.TxtExportPath.Text = self.export_path
 
     def generate_queue(self):
@@ -3745,8 +3760,8 @@ class ExportManagerForm(forms.WPFWindow):
         pdf_idx = self.CmbPdfSetup.SelectedIndex
         selected_pdf_setting = self.print_settings[pdf_idx - 1] if pdf_idx > 0 else None
         
-        pdf_zoom_type = None
-        pdf_zoom_pct = None
+        pdf_zoom_type = getattr(DB.ZoomType, "Zoom", None) if hasattr(DB, "ZoomType") else None
+        pdf_zoom_pct = 100
         if selected_pdf_setting:
             from pyrevit import revit
             from Autodesk.Revit.UI.Events import TaskDialogShowingEventArgs
@@ -3799,6 +3814,7 @@ class ExportManagerForm(forms.WPFWindow):
                     c_name = self.TxtCombinedFileName.Text.strip() if hasattr(self, 'TxtCombinedFileName') and self.TxtCombinedFileName.Text.strip() else "Combined_PDF"
                     em_target_files.append(c_name + ".pdf")
                     em_target_files.append(c_name + " - LIST OF DRAWINGS.doc")
+                    em_target_files.append(c_name + " - LIST OF DRAWINGS.xlsx")
                 for itm in self.queue_items:
                     fname = getattr(itm, 'TargetFileName', None) or getattr(itm, 'Filename', None)
                     if fname:
@@ -3938,9 +3954,10 @@ class ExportManagerForm(forms.WPFWindow):
                     self.GridQueue.Items.Refresh()
                     self.do_events()
 
-            # --- EXCEL TRANSMITTAL EXPORT ---
+            # --- EXCEL / WORD TRANSMITTAL EXPORT ---
             if getattr(self, 'CbExcelTransmittal', None) and self.CbExcelTransmittal.IsChecked == True and not self._cancel_export:
-                self.TxtPercent.Text = "Generating Excel Drawing List..."
+                format_type = "Word" if (getattr(self, 'RbListWord', None) and self.RbListWord.IsChecked == True) else "Excel"
+                self.TxtPercent.Text = "Generating {} Drawing List...".format(format_type)
                 self.do_events()
                 selected_vms = [sv for sv in self.sheets if sv.IsSelected]
                 if selected_vms:
@@ -3953,7 +3970,7 @@ class ExportManagerForm(forms.WPFWindow):
                         if not combined_name or combined_name == 'Combined_PDF': combined_name = None
                     except:
                         combined_name = None
-                    generate_excel_transmittal(folder, selected_vms, doc, combined_name, self.active_combined_scheme_parts)
+                    generate_excel_transmittal(folder, selected_vms, doc, combined_name, self.active_combined_scheme_parts, format_type=format_type)
 
             if not self._cancel_export:
                 theme = load_settings().get("theme", "Dark")
@@ -4217,12 +4234,31 @@ def export_dwg(folder, sheet, filename, dwg_setting):
 def export_pdf_2022(folder, sheet, filename, zoom_type, zoom_pct):
     try:
         opt = DB.PDFExportOptions()
-        opt.FileName = filename
+        clean_name = os.path.splitext(filename)[0] if filename.lower().endswith(".pdf") else filename
+        opt.FileName = clean_name
 
         if zoom_type is not None:
             opt.ZoomType = zoom_type
         if zoom_pct is not None:
             opt.ZoomPercentage = zoom_pct
+
+        if hasattr(opt, "PaperPlacement") and hasattr(DB, "PaperPlacementType"):
+            opt.PaperPlacement = DB.PaperPlacementType.Center
+        if hasattr(opt, "ColorDepth") and hasattr(DB, "ColorDepthType"):
+            opt.ColorDepth = DB.ColorDepthType.Color
+        if hasattr(opt, "HideCropBoundaries"):
+            opt.HideCropBoundaries = True
+        if hasattr(opt, "HideScopeBoxes"):
+            opt.HideScopeBoxes = True
+        if hasattr(opt, "HideUnreferencedViewTags"):
+            opt.HideUnreferencedViewTags = True
+        if hasattr(opt, "MaskCoincidentLines"):
+            opt.MaskCoincidentLines = True
+        # Standard crisp vector processing (lines stay razor sharp and dark, not washed out)
+        if hasattr(opt, "AlwaysUseRaster"):
+            opt.AlwaysUseRaster = False
+        if hasattr(DB, "RasterQualityType") and hasattr(opt, "RasterQuality"):
+            opt.RasterQuality = getattr(DB.RasterQualityType, "Presentation", DB.RasterQualityType.High)
 
         from System.Collections.Generic import List
         views = List[DB.ElementId]()
@@ -4273,7 +4309,9 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
                 current_idx[0] = matched_idx
                 
                 if window_instance:
-                    window_instance.TxtPercent.Text = caption
+                    curr_item = pdf_items[matched_idx]
+                    sh_display = "{} - {}".format(getattr(curr_item, 'SheetNumber', ''), getattr(curr_item, 'SheetName', '')).strip(" -")
+                    window_instance.TxtPercent.Text = "Exporting Sheet: {}".format(sh_display) if sh_display else "Exporting Sheet..."
                     if args.UpperRange > 0:
                         pct = int((float(args.Position) / args.UpperRange) * 100)
                         window_instance.ExportProgressBar.Value = pct
@@ -4285,8 +4323,13 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
                     pct = int((float(args.Position) / args.UpperRange) * 100)
                     if pct > window_instance.ExportProgressBar.Value:
                         window_instance.ExportProgressBar.Value = pct
-                        window_instance.TxtPercent.Text = caption
-                        window_instance.do_events()
+                if current_idx[0] != -1 and current_idx[0] < len(pdf_items):
+                    curr_item = pdf_items[current_idx[0]]
+                    sh_display = "{} - {}".format(getattr(curr_item, 'SheetNumber', ''), getattr(curr_item, 'SheetName', '')).strip(" -")
+                    window_instance.TxtPercent.Text = "Exporting Sheet: {}".format(sh_display) if sh_display else "Exporting Combined PDF..."
+                else:
+                    window_instance.TxtPercent.Text = "Exporting Combined PDF..."
+                window_instance.do_events()
         except Exception:
             pass
 
@@ -4297,13 +4340,32 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
             pass
 
         opt = DB.PDFExportOptions()
-        opt.FileName = filename
+        clean_name = os.path.splitext(filename)[0] if filename.lower().endswith(".pdf") else filename
+        opt.FileName = clean_name
         opt.Combine = True
 
         if zoom_type is not None:
             opt.ZoomType = zoom_type
         if zoom_pct is not None:
             opt.ZoomPercentage = zoom_pct
+
+        if hasattr(opt, "PaperPlacement") and hasattr(DB, "PaperPlacementType"):
+            opt.PaperPlacement = DB.PaperPlacementType.Center
+        if hasattr(opt, "ColorDepth") and hasattr(DB, "ColorDepthType"):
+            opt.ColorDepth = DB.ColorDepthType.Color
+        if hasattr(opt, "HideCropBoundaries"):
+            opt.HideCropBoundaries = True
+        if hasattr(opt, "HideScopeBoxes"):
+            opt.HideScopeBoxes = True
+        if hasattr(opt, "HideUnreferencedViewTags"):
+            opt.HideUnreferencedViewTags = True
+        if hasattr(opt, "MaskCoincidentLines"):
+            opt.MaskCoincidentLines = True
+        # Standard crisp vector processing (lines stay razor sharp and dark, not washed out)
+        if hasattr(opt, "AlwaysUseRaster"):
+            opt.AlwaysUseRaster = False
+        if hasattr(DB, "RasterQualityType") and hasattr(opt, "RasterQuality"):
+            opt.RasterQuality = getattr(DB.RasterQualityType, "Presentation", DB.RasterQualityType.High)
 
         from System.Collections.Generic import List
         views = List[DB.ElementId]()
@@ -4363,7 +4425,191 @@ def main():
             break
         saved_state = getattr(form, "saved_state", None)
 
-def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, combined_parts=None):
+def create_drawing_list_xlsx(filepath, project_info, groups_data):
+    import zipfile
+    import xml.sax.saxutils as saxutils
+
+    def escape(s):
+        if s is None: return ""
+        return saxutils.escape(str(s))
+
+    content_types = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>"""
+
+    rels = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>"""
+
+    wb_rels = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>"""
+
+    workbook = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    <sheet name="List of Drawings" sheetId="1" r:id="rId1"/>
+  </sheets>
+</workbook>"""
+
+    styles = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="4">
+    <font><name val="Calibri"/><sz val="10"/><color theme="1"/></font>
+    <font><b/><name val="Calibri"/><sz val="16"/><color rgb="FF802F2D"/></font>
+    <font><b/><name val="Calibri"/><sz val="10"/><color theme="1"/></font>
+    <font><b/><name val="Calibri"/><sz val="10"/><color rgb="FFFFFFFF"/></font>
+  </fonts>
+  <fills count="5">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FF802F2D"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFE5E7EB"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFF3F4F6"/></patternFill></fill>
+  </fills>
+  <borders count="2">
+    <border><left/><right/><top/><bottom/><diagonal/></border>
+    <border>
+      <left style="thin"><color rgb="FFD1D5DB"/></left>
+      <right style="thin"><color rgb="FFD1D5DB"/></right>
+      <top style="thin"><color rgb="FFD1D5DB"/></top>
+      <bottom style="thin"><color rgb="FFD1D5DB"/></bottom>
+    </border>
+  </borders>
+  <cellStyleXfs count="1">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
+  </cellStyleXfs>
+  <cellXfs count="10">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+    <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+    <xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1"/>
+    <xf numFmtId="0" fontId="2" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>
+    <xf numFmtId="0" fontId="3" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="3" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="2" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment vertical="center"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"><alignment vertical="center"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+  </cellXfs>
+</styleSheet>"""
+
+    rows_xml = []
+    r_idx = 1
+
+    def add_cell(col_letter, r, val, style_id=0):
+        if val is None or val == "":
+            return '<c r="{}{}" s="{}"/>'.format(col_letter, r, style_id)
+        return '<c r="{}{}" s="{}" t="inlineStr"><is><t>{}</t></is></c>'.format(col_letter, r, style_id, escape(val))
+
+    # 1. Header
+    rows_xml.append('<row r="{}" ht="30" customHeight="1">'.format(r_idx))
+    rows_xml.append(add_cell("A", r_idx, "RIYAN PRIVATE LIMITED", 1))
+    rows_xml.append('</row>')
+    r_idx += 1
+
+    # 2. Project No
+    proj_no = project_info.get("proj_number", "")
+    rows_xml.append('<row r="{}" ht="20" customHeight="1">'.format(r_idx))
+    rows_xml.append(add_cell("A", r_idx, "CONSULTANT PROJECT NO: " + str(proj_no), 2))
+    rows_xml.append('</row>')
+    r_idx += 2
+
+    # 3. Project Info
+    info_fields = [
+        ("PROJECT NAME", project_info.get("proj_name", "")),
+        ("BUILDING NAME", project_info.get("building_name", "")),
+        ("CLIENT", project_info.get("client", "")),
+        ("DEVELOPER", project_info.get("developer", "")),
+        ("ATOLL / ISLAND", "{} / {}".format(project_info.get("atoll", ""), project_info.get("island", "")).strip(" /")),
+        ("ISSUED FOR", project_info.get("issued_for", "")),
+        ("ISSUED DATE", project_info.get("issued_date", "")),
+    ]
+
+    for label, val in info_fields:
+        if val:
+            rows_xml.append('<row r="{}">'.format(r_idx))
+            rows_xml.append(add_cell("A", r_idx, label, 3))
+            rows_xml.append(add_cell("B", r_idx, val, 4))
+            rows_xml.append('</row>')
+            r_idx += 1
+
+    r_idx += 1
+
+    # 4. Table Header
+    headers = [
+        ("A", "SHEET NUMBER", 6),
+        ("B", "SHEET NAME", 6),
+        ("C", "REVISION", 5),
+        ("D", "REV. DATE", 5),
+        ("E", "ISSUE DATE", 5),
+        ("F", "SIZE", 5),
+    ]
+    rows_xml.append('<row r="{}" ht="24" customHeight="1">'.format(r_idx))
+    for col, title, sid in headers:
+        rows_xml.append(add_cell(col, r_idx, title, sid))
+    rows_xml.append('</row>')
+    r_idx += 1
+
+    # 5. Data Groups & Sheets
+    for grp_name, sheets in groups_data:
+        rows_xml.append('<row r="{}" ht="20" customHeight="1">'.format(r_idx))
+        rows_xml.append(add_cell("A", r_idx, grp_name, 7))
+        for col in ["B", "C", "D", "E", "F"]:
+            rows_xml.append(add_cell(col, r_idx, "", 7))
+        rows_xml.append('</row>')
+        r_idx += 1
+
+        for s in sheets:
+            rows_xml.append('<row r="{}">'.format(r_idx))
+            rows_xml.append(add_cell("A", r_idx, s.get("num", "").upper(), 8))
+            rows_xml.append(add_cell("B", r_idx, s.get("name", ""), 8))
+            rows_xml.append(add_cell("C", r_idx, s.get("rev", ""), 9))
+            rows_xml.append(add_cell("D", r_idx, s.get("rev_date", ""), 9))
+            rows_xml.append(add_cell("E", r_idx, s.get("issue_date", ""), 9))
+            rows_xml.append(add_cell("F", r_idx, s.get("size", "A1"), 9))
+            rows_xml.append('</row>')
+            r_idx += 1
+
+    cols_xml = """  <cols>
+    <col min="1" max="1" width="22" customWidth="1"/>
+    <col min="2" max="2" width="48" customWidth="1"/>
+    <col min="3" max="3" width="12" customWidth="1"/>
+    <col min="4" max="4" width="14" customWidth="1"/>
+    <col min="5" max="5" width="14" customWidth="1"/>
+    <col min="6" max="6" width="10" customWidth="1"/>
+  </cols>"""
+
+    sheet1_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+{}
+  <sheetData>
+{}
+  </sheetData>
+</worksheet>""".format(cols_xml, "\n".join(rows_xml))
+
+    if os.path.exists(filepath):
+        try: os.remove(filepath)
+        except: pass
+
+    with zipfile.ZipFile(filepath, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("[Content_Types].xml", content_types)
+        zf.writestr("_rels/.rels", rels)
+        zf.writestr("xl/_rels/workbook.xml.rels", wb_rels)
+        zf.writestr("xl/workbook.xml", workbook)
+        zf.writestr("xl/styles.xml", styles)
+        zf.writestr("xl/worksheets/sheet1.xml", sheet1_xml)
+
+    return True
+
+def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, combined_parts=None, format_type="Excel"):
     import os
     import re
     import time
@@ -4380,23 +4626,28 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
         # Find a valid sheet that is not the cover page
         first_sheet = None
         for vm in selected_vms:
-            if vm.Sheet:
-                name_lower = vm.Sheet.Name.lower() if vm.Sheet.Name else ""
-                num_lower = vm.Sheet.SheetNumber.lower() if vm.Sheet.SheetNumber else ""
+            sh = getattr(vm, 'Sheet', None) or getattr(vm, 'sheet', None) or vm
+            if sh:
+                name_lower = (getattr(sh, 'Name', '') or '').lower()
+                num_lower = (getattr(sh, 'SheetNumber', '') or '').lower()
                 if "cover" not in name_lower and "cover" not in num_lower:
-                    first_sheet = vm.Sheet
+                    first_sheet = sh
                     break
         
         # Fallback to first sheet if only cover page is selected
         if not first_sheet and selected_vms:
-            first_sheet = selected_vms[0].Sheet
+            first_vm = selected_vms[0]
+            first_sheet = getattr(first_vm, 'Sheet', None) or getattr(first_vm, 'sheet', None) or first_vm
 
         pi = doc.ProjectInformation
         tb = None
-        if first_sheet:
-            from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory
-            tbs = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_TitleBlocks).OwnedByView(first_sheet.Id).ToElements()
-            if tbs: tb = tbs[0]
+        if first_sheet and hasattr(first_sheet, 'Id'):
+            try:
+                from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory
+                tbs = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_TitleBlocks).OwnedByView(first_sheet.Id).ToElements()
+                if tbs: tb = tbs[0]
+            except Exception:
+                pass
             
         def get_best_param(param_name, fallback_name=None):
             val = get_param_value(first_sheet, param_name)
@@ -4435,15 +4686,6 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
         proj_name      = p_name_scheme if p_name_scheme else get_best_param("RYN_PrInfo_ProjectName", "Project Name")
         building_name  = b_name_scheme if b_name_scheme else (get_best_param("RYN_PrInfo_BuildingName", "Building Name") or proj_name)
         building_code  = get_best_param("RYN_PrInfo_BuildingCode", "Building Code")
-        architect      = get_best_param("RYN_PrInfo_Architect", "Architect")
-        civil_eng      = get_best_param("RYN_PrInfo_CivilEngineer", "Civil Engineer")
-        mep_eng        = get_best_param("RYN_PrInfo_MepEngineer", "MEP Engineer")
-        int_designer   = get_best_param("RYN_PrInfo_Int.Designer", "Int. Designer")
-        infra_designer = get_best_param("RYN_PrInfo_Infra.Designer", "Infra. Designer")
-        drawn_by       = get_best_param("RYN_PrInfo_DrawnBy", "Drawn By")
-        checked_by     = get_best_param("RYN_PrInfo_CheckedBy", "Checked By")
-        approved_by    = get_best_param("RYN_PrInfo_ApprovedBy", "Approved By")
-        
         client         = get_best_param("RYN_PrInfo_Client", "Client")
         developer      = get_best_param("RYN_PrInfo_Developer", "Developer")
         atoll          = get_best_param("RYN_PrInfo_Atoll", "Atoll")
@@ -4465,15 +4707,104 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
             if building_code: name_parts.append(building_code + "-")
             if discipline: name_parts.append(discipline + "-")
             if building_name: name_parts.append(building_name)
-            
             base_name = "".join(name_parts)
             if not base_name:
                 base_name = "Export"
             
         safe_base = re.sub(r'[\\/*?:"<>|]', '_', base_name)
+
+        # Collect sheets by group
+        groups = {}
+        for vm in selected_vms:
+            sheet = getattr(vm, 'Sheet', None) or getattr(vm, 'sheet', None) or vm
+            grp = get_param_value(sheet, "Sheet Collection")
+            if not grp: grp = "General"
+            if grp not in groups:
+                groups[grp] = []
+            groups[grp].append(sheet)
+
+        # Build structured sheet data for both Excel and Word
+        groups_data = []
+        for grp in sorted(groups.keys()):
+            sorted_sheets = sorted(groups[grp], key=lambda x: getattr(x, 'SheetNumber', ''))
+            s_list = []
+            for sheet in sorted_sheets:
+                rev_num = ""
+                rev_date = ""
+                try:
+                    rev_id = sheet.GetCurrentRevision()
+                    if rev_id != DB.ElementId.InvalidElementId:
+                        rev_el = doc.GetElement(rev_id)
+                        if rev_el:
+                            p_num = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_SEQUENCE_NUM)
+                            p_date = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_REVISION_DATE)
+                            if p_num and p_num.HasValue: rev_num = p_num.AsString() or ""
+                            if p_date and p_date.HasValue: rev_date = p_date.AsString() or ""
+                except:
+                    pass
+                if not rev_num:
+                    try:
+                        p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
+                        if p and p.HasValue: rev_num = p.AsString() or ""
+                    except:
+                        pass
+                if not rev_date:
+                    try:
+                        p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION_DATE)
+                        if p and p.HasValue: rev_date = p.AsString() or ""
+                    except:
+                        pass
+
+                issue_date = issued_date
+                if not issue_date:
+                    try:
+                        p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_ISSUE_DATE)
+                        if p and p.HasValue: issue_date = p.AsString() or ""
+                    except:
+                        pass
+                
+                s_list.append({
+                    "num": getattr(sheet, 'SheetNumber', '') or '',
+                    "name": getattr(sheet, 'Name', '') or '',
+                    "rev": rev_num,
+                    "rev_date": rev_date,
+                    "issue_date": issue_date,
+                    "size": "A1"
+                })
+            groups_data.append((grp, s_list))
+
+        # --- OPTION 1: EXCEL (.XLSX) ---
+        if str(format_type).lower() in ("excel", "xlsx", ".xlsx"):
+            filename = u"{} - LIST OF DRAWINGS.xlsx".format(safe_base)
+            full_path = os.path.join(folder, filename)
+            if os.path.exists(full_path):
+                try:
+                    os.remove(full_path)
+                except:
+                    filename = u"{}_{} - LIST OF DRAWINGS.xlsx".format(safe_base, int(time.time()))
+                    full_path = os.path.join(folder, filename)
+
+            first_date = ""
+            if groups_data and groups_data[0][1]:
+                first_date = groups_data[0][1][0].get("issue_date", "")
+
+            p_info = {
+                "proj_number": proj_number,
+                "proj_name": proj_name,
+                "building_name": building_name,
+                "client": client,
+                "developer": developer,
+                "atoll": atoll,
+                "island": island,
+                "issued_for": issued_for,
+                "issued_date": issued_date or first_date
+            }
+            create_drawing_list_xlsx(full_path, p_info, groups_data)
+            return True
+
+        # --- OPTION 2: WORD (.DOC) ---
         filename = u"{} - LIST OF DRAWINGS.doc".format(safe_base)
         full_path = os.path.join(folder, filename)
-
         if os.path.exists(full_path):
             try:
                 os.remove(full_path)
@@ -4481,17 +4812,7 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
                 filename = u"{}_{} - LIST OF DRAWINGS.doc".format(safe_base, int(time.time()))
                 full_path = os.path.join(folder, filename)
 
-        # Collect sheets by group
-        groups = {}
-        for vm in selected_vms:
-            sheet = vm.Sheet
-            grp = get_param_value(sheet, "Sheet Collection")
-            if not grp: grp = "General"
-            if grp not in groups:
-                groups[grp] = []
-            groups[grp].append(sheet)
-
-        # Build HTML Content
+        # Build HTML Content for Word
         html = [
             u'<html xmlns:o="urn:schemas-microsoft-com:office:office"',
             u'xmlns:w="urn:schemas-microsoft-com:office:word"',
@@ -4515,7 +4836,6 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
             u'<table width="100%">\n        '
         ]
 
-        # Get logo path dynamically
         try:
             import inspect
             script_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -4534,7 +4854,6 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
             logo_path = ""
             logo_uri = ""
         
-        # General Project Info Block - all from RYN_PrInfo_ parameters
         html.append(u'<tr>')
         html.append(u'<td colspan="2" style="text-align: center; padding: 15px; border: none;">')
         html.append(u'<table style="margin: 0 auto; border: none; width: auto;"><tr>')
@@ -4561,9 +4880,8 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
         
         html.append(u'<tr><td colspan="2" style="border: none; height: 12px;"></td></tr>')
         html.append(u'<tr><td class="info-label">ISSUED FOR</td><td style="font-size: 13pt; font-weight: bold;">{}</td></tr>'.format(issued_for))
-        
         html.append(u'<tr><td colspan="2" style="border: none; height: 12px;"></td></tr>')
-        html.append(u'<tr><td colspan="2" class="section-title">BUILDING NAME</td></tr>')
+        html.append(u'<tr><td class="info-label">BUILDING NAME</td></tr>')
         html.append(u'<tr><td colspan="2" style="font-size: 14pt; font-weight: bold; padding: 8px;">{}</td></tr>'.format(building_name))
         html.append(u'<tr><td colspan="2" style="border: none; height: 12px;"></td></tr>')
         html.append(u'</table>\n')
@@ -4578,59 +4896,17 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
         html.append(u'<td class="col-header col-size">Size</td>')
         html.append(u'</tr>')
 
-        for grp in sorted(groups.keys()):
-            html.append(u'<tr><td colspan="6" style="background-color: #e6e6e6; font-weight: bold; padding-top: 6px;">{}</td></tr>'.format(grp))
-            
-            sorted_sheets = sorted(groups[grp], key=lambda x: x.SheetNumber)
-            row_num = 1
-            for sheet in sorted_sheets:
-                rev_num = ""
-                rev_date = ""
-                try:
-                    rev_id = sheet.GetCurrentRevision()
-                    if rev_id != DB.ElementId.InvalidElementId:
-                        rev_el = doc.GetElement(rev_id)
-                        if rev_el:
-                            p_num = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_SEQUENCE_NUM)
-                            p_date = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_REVISION_DATE)
-                            if p_num and p_num.HasValue: rev_num = p_num.AsString() or ""
-                            if p_date and p_date.HasValue: rev_date = p_date.AsString() or ""
-                except:
-                    pass
-                if not rev_num:
-                    try:
-                        p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
-                        if p and p.HasValue:
-                            rev_num = p.AsString() or ""
-                    except:
-                        pass
-                if not rev_date:
-                    try:
-                        p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION_DATE)
-                        if p and p.HasValue:
-                            rev_date = p.AsString() or ""
-                    except:
-                        pass
-
-                issue_date = issued_date
-                if not issue_date:
-                    try:
-                        p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_ISSUE_DATE)
-                        if p and p.HasValue:
-                            issue_date = p.AsString() or ""
-                    except:
-                        pass
-                
+        for grp_name, sheets in groups_data:
+            html.append(u'<tr><td colspan="6" style="background-color: #e6e6e6; font-weight: bold; padding-top: 6px;">{}</td></tr>'.format(grp_name))
+            for s in sheets:
                 html.append(u'<tr>')
-                html.append(u'<td class="col-num">{}</td>'.format(sheet.SheetNumber.upper()))
-                html.append(u'<td class="col-name">{}</td>'.format(sheet.Name))
-                html.append(u'<td class="col-rev">{}</td>'.format(rev_num))
-                html.append(u'<td class="col-date">{}</td>'.format(rev_date))
-                html.append(u'<td class="col-date">{}</td>'.format(issue_date))
-                html.append(u'<td class="col-size">A1</td>')
+                html.append(u'<td class="col-num">{}</td>'.format(s.get("num", "").upper()))
+                html.append(u'<td class="col-name">{}</td>'.format(s.get("name", "")))
+                html.append(u'<td class="col-rev">{}</td>'.format(s.get("rev", "")))
+                html.append(u'<td class="col-date">{}</td>'.format(s.get("rev_date", "")))
+                html.append(u'<td class="col-date">{}</td>'.format(s.get("issue_date", "")))
+                html.append(u'<td class="col-size">{}</td>'.format(s.get("size", "A1")))
                 html.append(u'</tr>')
-                row_num += 1
-                
             html.append(u'<tr><td colspan="6" style="border: none; height: 12px;"></td></tr>')
             
         html.append(u'</table></div></body></html>')
@@ -4642,7 +4918,7 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
 
     except Exception as ex:
         import traceback
-        err_msg = "Error generating Excel Transmittal:\n{}".format(traceback.format_exc())
+        err_msg = "Error generating Drawing List transmittal:\n{}".format(traceback.format_exc())
         raise Exception(err_msg)
 
 if __name__ == '__main__':
