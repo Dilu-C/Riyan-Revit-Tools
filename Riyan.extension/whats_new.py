@@ -98,7 +98,7 @@ XAML_STRING = """
                                 <TextBlock Text="V2.2.8 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Batch Modal Auto-Dismiss, ViewSheetSet Duplicate &amp; Strict Model Selection" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
+                        <TextBlock Text="Smart Daily Archive, Batch Modal Auto-Dismiss &amp; Strict Model Selection" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
                         <TextBlock Text="Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -171,7 +171,7 @@ XAML_STRING = """
                     </Grid>
                 </Border>
 
-                <!-- Card 3: Strict Model Selection -->
+                <!-- Card 3: Smart Daily Archive & Overwrite Guardrail -->
                 <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -179,16 +179,16 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#311F3B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[Z]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[A]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Strict Model Selection Guardrail" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Smart Daily Archive Guardrail" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#311F3B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Clean Output" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Date-Filtered" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Batch Export strictly exports only explicitly checked models. Unselected models are completely bypassed, guaranteeing no empty DWG, PDF, or archive folders are created."
+                            <TextBlock Text="00 PREVIOUS folders are created ONLY when archiving older files from previous days (yesterday or earlier). Same-day repeated exports cleanly update in-place without duplicate previous folders."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>

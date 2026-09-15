@@ -3712,43 +3712,21 @@ class ExportManagerForm(forms.WPFWindow):
             )
             if res == "Try Again":
                 return self.check_and_resolve_filename(folder, filename, ext, show_apply_all)
-        else:
-            try:
-                conflict_window = CustomConflictWindow(filename, ext, show_apply_all)
-                res, apply_all = conflict_window.show_dialog()
-            except Exception as e:
-                import traceback
-                forms.alert("Error in CustomConflictWindow:\n" + str(e) + "\n\n" + traceback.format_exc())
-                return None
-            
-            if apply_all:
-                if res == "Replace":
-                    self.replace_all = True
-                elif res == "Skip":
-                    self.skip_all = True
-            
-        
-        if res == "Replace" and not locked:
-            return filename
-        elif res == "Replace All" and not locked:
-            self.replace_all = True
-            return filename
-        elif res == "Skip All":
-            self.skip_all = True
-            return None
-        elif res == "Rename":
-            new_name = forms.ask_for_string(
-                default=filename,
-                prompt="Enter a new file name (without extension):",
-                title="Rename File"
-            )
-            
-            if new_name:
-                return self.check_and_resolve_filename(folder, new_name, ext, show_apply_all)
+            elif res == "Rename":
+                new_name = forms.ask_for_string(
+                    default=filename,
+                    prompt="Enter a new file name (without extension):",
+                    title="Rename File"
+                )
+                if new_name:
+                    return self.check_and_resolve_filename(folder, new_name, ext, show_apply_all)
+                else:
+                    return None
             else:
                 return None
         else:
-            return None
+            # File exists and is unlocked: seamlessly allow overwrite when re-exporting on the same day
+            return filename
 
     # Export Process
     def run_export(self):
@@ -4021,13 +3999,15 @@ class ExportManagerForm(forms.WPFWindow):
 # ------------------------------------------------------------------------------
 # Export Execution Logic & Automatic Archiving
 # ------------------------------------------------------------------------------
-VALID_DELIVERABLE_EXTS = {".PDF", ".DWG", ".DOC", ".DOCX"}
+VALID_DELIVERABLE_EXTS = {".PDF", ".DWG", ".DOC", ".DOCX", ".XLS", ".XLSX"}
 
 def archive_previous_exports(destination_folder, target_filenames=None):
     """
     Safely archives existing files in destination_folder, PDF/, or DWG/
     that match the specified target filenames into:
     <destination_folder>/00 PREVIOUS/<YYYY-MM-DD>/<01, 02...>/
+    Only archives files if their modification date is older than today (from yesterday or earlier).
+    Files created/modified today are preserved in-place for seamless overwriting without duplicate previous folders.
     Never touches active working .rvt files, 00 PREVIOUS folder, or unrelated files.
     """
     if not destination_folder or not os.path.exists(destination_folder):
@@ -4057,6 +4037,7 @@ def archive_previous_exports(destination_folder, target_filenames=None):
     if not target_names and not target_stems:
         return None
 
+    today_date = datetime.now().date()
     items_to_archive = []
     latest_mtime = 0
 
@@ -4074,13 +4055,16 @@ def archive_previous_exports(destination_folder, target_filenames=None):
             stem, ext = os.path.splitext(entry_upper)
             if ext in VALID_DELIVERABLE_EXTS:
                 if entry_upper in target_names or stem in target_stems:
-                    items_to_archive.append((full_path, entry, ""))
                     try:
                         t = os.path.getmtime(full_path)
+                        f_date = datetime.fromtimestamp(t).date()
+                    except Exception:
+                        t = 0
+                        f_date = today_date
+                    if f_date < today_date:
+                        items_to_archive.append((full_path, entry, ""))
                         if t > latest_mtime:
                             latest_mtime = t
-                    except Exception:
-                        pass
 
         elif os.path.isdir(full_path) and entry_upper == "PDF":
             try:
@@ -4093,13 +4077,16 @@ def archive_previous_exports(destination_folder, target_filenames=None):
                         s_stem, s_ext = os.path.splitext(sub_upper)
                         if s_ext in VALID_DELIVERABLE_EXTS:
                             if sub_upper in target_names or s_stem in target_stems:
-                                items_to_archive.append((sub_path, sub, "PDF"))
                                 try:
                                     t = os.path.getmtime(sub_path)
+                                    s_date = datetime.fromtimestamp(t).date()
+                                except Exception:
+                                    t = 0
+                                    s_date = today_date
+                                if s_date < today_date:
+                                    items_to_archive.append((sub_path, sub, "PDF"))
                                     if t > latest_mtime:
                                         latest_mtime = t
-                                except Exception:
-                                    pass
             except Exception:
                 pass
 
@@ -4114,13 +4101,16 @@ def archive_previous_exports(destination_folder, target_filenames=None):
                         s_stem, s_ext = os.path.splitext(sub_upper)
                         if s_ext in VALID_DELIVERABLE_EXTS:
                             if sub_upper in target_names or s_stem in target_stems:
-                                items_to_archive.append((sub_path, sub, "DWG"))
                                 try:
                                     t = os.path.getmtime(sub_path)
+                                    s_date = datetime.fromtimestamp(t).date()
+                                except Exception:
+                                    t = 0
+                                    s_date = today_date
+                                if s_date < today_date:
+                                    items_to_archive.append((sub_path, sub, "DWG"))
                                     if t > latest_mtime:
                                         latest_mtime = t
-                                except Exception:
-                                    pass
             except Exception:
                 pass
 
