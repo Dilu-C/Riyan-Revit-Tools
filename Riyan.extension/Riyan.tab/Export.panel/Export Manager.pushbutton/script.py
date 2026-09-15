@@ -3837,14 +3837,6 @@ class ExportManagerForm(forms.WPFWindow):
                         combined_filename = "Combined_PDF"
                         
                     combine_folder = folder
-                    if self.RbSplitByFormat.IsChecked:
-                        combine_folder = os.path.join(folder, "PDF")
-                        if not os.path.exists(combine_folder):
-                            try:
-                                os.makedirs(combine_folder)
-                            except:
-                                pass
-                    
                     resolved_combined = self.check_and_resolve_filename(combine_folder, combined_filename, ".pdf", show_apply_all=False)
                     if not resolved_combined:
                         for item in pdf_items:
@@ -3930,9 +3922,6 @@ class ExportManagerForm(forms.WPFWindow):
                 pdf_items = [item for item in self.queue_items if item.Format == "PDF" and item.Status != "Skipped"]
                 if pdf_items:
                     combine_folder = folder
-                    if self.RbSplitByFormat.IsChecked:
-                        combine_folder = os.path.join(folder, "PDF")
-                        
                     for item in pdf_items:
                         item.Status = "Pending"
                     self.GridQueue.Items.Refresh()
@@ -4205,16 +4194,6 @@ def archive_previous_exports(destination_folder, target_filenames=None):
             shutil.move(src_path, dest_path)
         except Exception:
             pass
-
-    # 5. Ensure fresh empty DWG and PDF folders exist for new export
-    dwg_dir = os.path.join(destination_folder, "DWG")
-    pdf_dir = os.path.join(destination_folder, "PDF")
-    if not os.path.exists(dwg_dir):
-        try: os.makedirs(dwg_dir)
-        except Exception: pass
-    if not os.path.exists(pdf_dir):
-        try: os.makedirs(pdf_dir)
-        except Exception: pass
 
     return os.path.join(date_str, ver_str)
 

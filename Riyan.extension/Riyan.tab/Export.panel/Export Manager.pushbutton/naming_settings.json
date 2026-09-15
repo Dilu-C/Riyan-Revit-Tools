@@ -1,10 +1,11 @@
 {
     "profile_settings": {
-        "RYN_Hurasveli_Combined": {
-            "dwg_setting": "Export CAD", 
+        "RYN_Bobo_Combined": {
+            "pdf_setting": "Bluebeam PDF_A1", 
+            "is_combined": true, 
             "is_dwg_checked": false, 
-            "is_pdf_checked": true, 
-            "pdf_setting": "Bluebeam PDF_A1"
+            "dwg_setting": "RYN_CadExport_Standard", 
+            "is_pdf_checked": true
         }, 
         "RYN_Ehdhuffaru_Combined": {
             "dwg_setting": "ISO Colour", 
@@ -12,12 +13,11 @@
             "is_pdf_checked": true, 
             "pdf_setting": "Default"
         }, 
-        "RYN_Bobo_Combined": {
-            "pdf_setting": "Bluebeam PDF_A1", 
-            "is_combined": true, 
+        "RYN_Hurasveli_Combined": {
+            "dwg_setting": "Export CAD", 
             "is_dwg_checked": false, 
-            "dwg_setting": "RYN_CadExport_Standard", 
-            "is_pdf_checked": true
+            "is_pdf_checked": true, 
+            "pdf_setting": "Bluebeam PDF_A1"
         }, 
         "RYN_Bobo_Sheetwise": {
             "dwg_setting": "RYN_CadExport_Standard", 
@@ -40,33 +40,77 @@
         ]
     }, 
     "schemes": {
-        "RYN_Ehdhuffaru_Sheetwise": [
+        "RYN_Export_Combined": [
             {
-                "Separator": "-", 
-                "ParameterName": "Building Code", 
-                "Suffix": "-ST-DWG", 
-                "Prefix": "2231-RIY-"
-            }, 
-            {
-                "Separator": "-", 
-                "ParameterName": "View Sub Type", 
-                "Suffix": "", 
+                "Separator": "", 
+                "ParameterName": "RYN_PrInfo_ProjectNumber", 
+                "Suffix": "-RYN-", 
                 "Prefix": ""
             }, 
             {
-                "Separator": "-", 
+                "Separator": "", 
+                "ParameterName": "RYN_PrInfo_BuildingNumber", 
+                "Suffix": "-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "RYN_PrInfo_BuildingCode", 
+                "Suffix": "-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "RYN_PrInfo_Discipline", 
+                "Suffix": "-DWG-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
                 "ParameterName": "Sheet Number", 
-                "Suffix": "", 
+                "Suffix": "-", 
                 "Prefix": ""
             }, 
             {
                 "Separator": "", 
                 "ParameterName": "Current Revision", 
-                "Suffix": ")", 
-                "Prefix": "("
+                "Suffix": "", 
+                "Prefix": ""
             }
         ], 
         "RYN_Hurasveli_Sheetwise": [
+            {
+                "Separator": "", 
+                "ParameterName": "Project Number", 
+                "Suffix": "-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Discipline", 
+                "Suffix": "-DWG-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Building Number", 
+                "Suffix": "-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Current Revision", 
+                "Suffix": "", 
+                "Prefix": ""
+            }
+        ], 
+        "RYN_Hurasveli_Combined": [
             {
                 "Separator": "", 
                 "ParameterName": "Project Number", 
@@ -122,38 +166,6 @@
                 "ParameterName": "Current Revision", 
                 "Suffix": ")", 
                 "Prefix": "("
-            }
-        ], 
-        "RYN_Hurasveli_Combined": [
-            {
-                "Separator": "", 
-                "ParameterName": "Project Number", 
-                "Suffix": "-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Discipline", 
-                "Suffix": "-DWG-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Building Number", 
-                "Suffix": "-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Sheet Number", 
-                "Suffix": "-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Current Revision", 
-                "Suffix": "", 
-                "Prefix": ""
             }
         ], 
         "RYN_Export_Sheetwise": [
@@ -208,73 +220,7 @@
                 "Prefix": ""
             }
         ], 
-        "RYN_Export_Combined": [
-            {
-                "Separator": "", 
-                "ParameterName": "RYN_PrInfo_ProjectNumber", 
-                "Suffix": "-RYN-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "RYN_PrInfo_BuildingNumber", 
-                "Suffix": "-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "RYN_PrInfo_BuildingCode", 
-                "Suffix": "-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "RYN_PrInfo_Discipline", 
-                "Suffix": "-DWG-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Sheet Number", 
-                "Suffix": "-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Current Revision", 
-                "Suffix": "", 
-                "Prefix": ""
-            }
-        ]
-    }, 
-    "combined_schemes": {
-        "RYN_Hurasveli_Combined": [
-            {
-                "Separator": "", 
-                "ParameterName": "Project Number", 
-                "Suffix": "-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Discipline", 
-                "Suffix": "-DWG-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Building Number", 
-                "Suffix": "-", 
-                "Prefix": ""
-            }, 
-            {
-                "Separator": "", 
-                "ParameterName": "Building Name", 
-                "Suffix": "", 
-                "Prefix": ""
-            }
-        ], 
-        "RYN_Ehdhuffaru_Combined": [
+        "RYN_Ehdhuffaru_Sheetwise": [
             {
                 "Separator": "-", 
                 "ParameterName": "Building Code", 
@@ -282,12 +228,26 @@
                 "Prefix": "2231-RIY-"
             }, 
             {
-                "Separator": "", 
-                "ParameterName": "Building Name", 
+                "Separator": "-", 
+                "ParameterName": "View Sub Type", 
                 "Suffix": "", 
                 "Prefix": ""
+            }, 
+            {
+                "Separator": "-", 
+                "ParameterName": "Sheet Number", 
+                "Suffix": "", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Current Revision", 
+                "Suffix": ")", 
+                "Prefix": "("
             }
-        ], 
+        ]
+    }, 
+    "combined_schemes": {
         "RYN_Bobo_Combined": [
             {
                 "Separator": "", 
@@ -316,6 +276,46 @@
             {
                 "Separator": "", 
                 "ParameterName": "RYN_PrInfo_BuildingName", 
+                "Suffix": "", 
+                "Prefix": ""
+            }
+        ], 
+        "RYN_Ehdhuffaru_Combined": [
+            {
+                "Separator": "-", 
+                "ParameterName": "Building Code", 
+                "Suffix": "-ST-DWG", 
+                "Prefix": "2231-RIY-"
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Building Name", 
+                "Suffix": "", 
+                "Prefix": ""
+            }
+        ], 
+        "RYN_Hurasveli_Combined": [
+            {
+                "Separator": "", 
+                "ParameterName": "Project Number", 
+                "Suffix": "-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Discipline", 
+                "Suffix": "-DWG-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Building Number", 
+                "Suffix": "-", 
+                "Prefix": ""
+            }, 
+            {
+                "Separator": "", 
+                "ParameterName": "Building Name", 
                 "Suffix": "", 
                 "Prefix": ""
             }
@@ -392,8 +392,8 @@
         "temp_hide_off": true, 
         "worksharing_off": true
     }, 
-    "split_by_format": true, 
-    "active_scheme": "RYN_Export_Sheetwise", 
+    "split_by_format": false, 
+    "active_scheme": "RYN_Export_Combined", 
     "active_combined_scheme": "RYN_Hurasveli_Combined", 
     "theme": "Light"
 }
