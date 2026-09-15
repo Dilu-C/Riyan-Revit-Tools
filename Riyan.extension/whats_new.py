@@ -15,7 +15,7 @@ import System
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riyan Revit Tools - V2.2.7 Release" Height="580" Width="820"
+        Title="Riyan Revit Tools - V2.2.8 Release" Height="580" Width="820"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize" FontFamily="Segoe UI">
@@ -95,10 +95,10 @@ XAML_STRING = """
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
                             <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="V2.2.7 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="V2.2.8 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Standard 1:1 Vector PDFs, Dual Excel &amp; Word Drawing Lists, Batch Branding" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
+                        <TextBlock Text="Batch Modal Auto-Dismiss, ViewSheetSet Duplicate &amp; Strict Model Selection" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
                         <TextBlock Text="Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -125,7 +125,7 @@ XAML_STRING = """
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Card 1: Smart Sheet Set Flow -->
+                <!-- Card 1: Modal Warning Auto-Dismiss -->
                 <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -133,22 +133,22 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#1E293B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[S]" Foreground="#60A5FA" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[M]" Foreground="#60A5FA" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Smart Sheet Set Selection Flow" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Modal Warning Auto-Dismiss" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#1E293B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Productivity" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Auto-Dismiss" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Export Manager automatically selects the next sheet set below when deleting a set. Features Spacebar toggle, Selection Options toolbar, and right-click context menu."
+                            <TextBlock Text="Batch Export automatically detects and dismisses blocking Revit modal warning dialogs in the background, preventing unattended batch export routines from freezing."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 2: Live MOT Schedule Auto-Sync -->
+                <!-- Card 2: ViewSheetSet Save & Duplicate -->
                 <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -156,22 +156,22 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#1E3A2F" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[M]" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[V]" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Live MOT Schedule Auto-Sync" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="ViewSheetSet Save &amp; Duplicate" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#1E3A2F" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="BIM Auto" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Reliability" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Update MOT Areas dynamically cleans and formats schedule title and headers matching the active level name, with precision metric unit conversions."
+                            <TextBlock Text="Export Manager features robust ViewSheetSet saving, renaming, and duplication with automatic fallback to local naming schemes if document transactions are restricted."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 3: Revit Parent Window Pinning -->
+                <!-- Card 3: Strict Model Selection -->
                 <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -179,22 +179,22 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#311F3B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[P]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[Z]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Revit Parent Window Pinning" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Strict Model Selection Guardrail" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#311F3B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Rock Solid" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Clean Output" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Export Manager and all dialogs are permanently pinned to Revit's Win32 main window handle, ensuring background document processing never pushes tool windows behind."
+                            <TextBlock Text="Batch Export strictly exports only explicitly checked models. Unselected models are completely bypassed, guaranteeing no empty DWG, PDF, or archive folders are created."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 4: 4K Ultra-Res Sheet Preview -->
+                <!-- Card 4: On-Demand Sheet Expansion -->
                 <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -202,16 +202,16 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#3B311B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[4K]" Foreground="#FBBF24" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[+]" Foreground="#FBBF24" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="4K Ultra-Res Sheet Preview" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Fast On-Demand Tree Expansion" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#3B311B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Ultra High-Res" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Ultra Fast" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Interactive 4K preview with smooth Left-Click Pan, Centered Mouse Wheel Zoom, Fit Page, 100% buttons, and isolated Escape key closing."
+                            <TextBlock Text="Large projects load instantly with collapsed sheet hierarchies. Click the (+) button to expand and preview sheets on-demand without memory bottlenecks."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
