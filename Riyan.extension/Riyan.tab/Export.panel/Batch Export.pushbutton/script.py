@@ -918,7 +918,8 @@ class FileRow:
         self.btn_expand.BorderThickness = Thickness(0)
         self.btn_expand.Foreground = brush_main if brush_main else SolidColorBrush(System.Windows.Media.Colors.White)
         self.btn_expand.Click += self.on_expand
-        self.btn_expand.Visibility = System.Windows.Visibility.Collapsed
+        self.btn_expand.Visibility = System.Windows.Visibility.Visible
+        self.btn_expand.Cursor = System.Windows.Input.Cursors.Hand
         sp_file.Children.Add(self.btn_expand)
         
         self.txt_file = TextBlock()
