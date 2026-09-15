@@ -2079,44 +2079,51 @@ class ExportManagerForm(forms.WPFWindow):
         except Exception:
             pass
 
-        # 2. Update Revit DB.ViewSheetSet if present
+        # 2. Update Revit DB.ViewSheetSet
         t = DB.Transaction(doc, "Export Manager - Update ViewSheetSet")
+        revit_error = None
         try:
             t.Start()
             print_mgr = doc.PrintManager
+            print_mgr.PrintRange = DB.PrintRange.Select
             vss = print_mgr.ViewSheetSetting
-
-            # Always switch to InSession first so .Views can be modified
-            vss.CurrentViewSheetSet = vss.InSession
 
             view_set = DB.ViewSet()
             for sv in selected_vms:
                 if hasattr(sv, "Sheet") and sv.Sheet:
                     view_set.Insert(sv.Sheet)
 
-            vss.CurrentViewSheetSet.Views = view_set
-
-            # Delete any existing set with same name so SaveAs updates cleanly
+            # Check if set already exists in Revit
             existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
             for s in existing_sets:
                 if s.Name.lower() == selected_name.lower():
-                    try:
-                        doc.Delete(s.Id)
-                        doc.Regenerate()
-                    except Exception:
-                        pass
+                    target_vss = s
                     break
 
-            vss.SaveAs(selected_name)
+            if target_vss:
+                vss.CurrentViewSheetSet = target_vss
+                vss.CurrentViewSheetSet.Views = view_set
+                vss.Save()
+            else:
+                vss.CurrentViewSheetSet = vss.InSession
+                vss.CurrentViewSheetSet.Views = view_set
+                vss.SaveAs(selected_name)
+
             t.Commit()
-        except Exception:
+        except Exception as ex:
+            revit_error = str(ex)
             try:
                 if t.HasStarted() and not t.HasEnded():
                     t.RollBack()
             except Exception:
                 pass
 
-        show_alert("Set '{}' successfully updated ({} items).".format(selected_name, len(selected_vms)))
+        if revit_error:
+            show_alert("Failed to update ViewSheetSet in Revit document:\n{}\n\nChanges saved to local settings only.".format(revit_error), is_error=True)
+        else:
+            show_alert("Set '{}' successfully updated ({} items).".format(selected_name, len(selected_vms)))
+
         self.load_viewsets(target_name=selected_name)
         if hasattr(self, "GridSheets"):
             self.GridSheets.Items.Refresh()
@@ -2147,42 +2154,49 @@ class ExportManagerForm(forms.WPFWindow):
 
         # 2. ALSO save to Revit DB.ViewSheetSet inside Transaction
         t = DB.Transaction(doc, "Export Manager - Create ViewSheetSet")
+        revit_error = None
         try:
             t.Start()
             print_mgr = doc.PrintManager
+            print_mgr.PrintRange = DB.PrintRange.Select
             vss = print_mgr.ViewSheetSetting
-
-            # CRITICAL: Always switch to InSession first so .Views can be modified!
-            vss.CurrentViewSheetSet = vss.InSession
 
             view_set = DB.ViewSet()
             for sv in selected_vms:
                 if hasattr(sv, "Sheet") and sv.Sheet:
                     view_set.Insert(sv.Sheet)
 
-            vss.CurrentViewSheetSet.Views = view_set
-
-            # Delete any existing set with the same name so SaveAs does not collide
+            # Check if set with same name already exists in Revit
             existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
             for s in existing_sets:
                 if s.Name.lower() == set_name.lower():
-                    try:
-                        doc.Delete(s.Id)
-                        doc.Regenerate()
-                    except Exception:
-                        pass
+                    target_vss = s
                     break
 
-            vss.SaveAs(set_name)
+            if target_vss:
+                vss.CurrentViewSheetSet = target_vss
+                vss.CurrentViewSheetSet.Views = view_set
+                vss.Save()
+            else:
+                vss.CurrentViewSheetSet = vss.InSession
+                vss.CurrentViewSheetSet.Views = view_set
+                vss.SaveAs(set_name)
+
             t.Commit()
-        except Exception:
+        except Exception as ex:
+            revit_error = str(ex)
             try:
                 if t.HasStarted() and not t.HasEnded():
                     t.RollBack()
             except Exception:
                 pass
 
-        show_alert("Set '{}' saved successfully.".format(set_name))
+        if revit_error:
+            show_alert("Set '{}' saved to local settings, but Revit document update failed:\n{}".format(set_name, revit_error), is_warning=True)
+        else:
+            show_alert("Set '{}' saved successfully.".format(set_name))
+
         self.load_viewsets(target_name=set_name)
 
     def _action_duplicate_set(self):
@@ -2213,41 +2227,49 @@ class ExportManagerForm(forms.WPFWindow):
 
         # 2. Duplicate in Revit DB.ViewSheetSet if possible
         t = DB.Transaction(doc, "Export Manager - Duplicate ViewSheetSet")
+        revit_error = None
         try:
             t.Start()
             print_mgr = doc.PrintManager
+            print_mgr.PrintRange = DB.PrintRange.Select
             vss = print_mgr.ViewSheetSetting
-            vss.CurrentViewSheetSet = vss.InSession
 
             copy_views = DB.ViewSet()
             for sv in self.current_items:
                 if sv.SheetNumber in source_nums and hasattr(sv, "Sheet") and sv.Sheet:
                     copy_views.Insert(sv.Sheet)
 
-            vss.CurrentViewSheetSet.Views = copy_views
-
-            # Delete any existing set with new_name if present
             existing_sets = DB.FilteredElementCollector(doc).OfClass(DB.ViewSheetSet).ToElements()
+            target_vss = None
             for s in existing_sets:
                 if s.Name.lower() == new_name.lower():
-                    try:
-                        doc.Delete(s.Id)
-                        doc.Regenerate()
-                    except Exception:
-                        pass
+                    target_vss = s
                     break
 
-            vss.SaveAs(new_name)
+            if target_vss:
+                vss.CurrentViewSheetSet = target_vss
+                vss.CurrentViewSheetSet.Views = copy_views
+                vss.Save()
+            else:
+                vss.CurrentViewSheetSet = vss.InSession
+                vss.CurrentViewSheetSet.Views = copy_views
+                vss.SaveAs(new_name)
+
             t.Commit()
-        except Exception:
+        except Exception as ex:
+            revit_error = str(ex)
             try:
                 if t.HasStarted() and not t.HasEnded():
                     t.RollBack()
             except Exception:
                 pass
 
-        show_alert("Set '{}' duplicated as '{}'.".format(selected_name, new_name))
+        if revit_error:
+            show_alert("Set '{}' duplicated as '{}' in local settings, but Revit update failed:\n{}".format(selected_name, new_name, revit_error), is_warning=True)
+        else:
+            show_alert("Set '{}' duplicated as '{}'.".format(selected_name, new_name))
         self.load_viewsets(target_name=new_name)
+
 
     def _action_rename_set(self):
         """Rename the currently selected ViewSheetSet."""
@@ -2401,6 +2423,7 @@ class ExportManagerForm(forms.WPFWindow):
                 t = DB.Transaction(doc, "Export Manager - Add to ViewSheetSet")
                 t.Start()
                 print_mgr = doc.PrintManager
+                print_mgr.PrintRange = DB.PrintRange.Select
                 vss = print_mgr.ViewSheetSetting
                 vss.CurrentViewSheetSet = target_vss
 
@@ -2408,24 +2431,18 @@ class ExportManagerForm(forms.WPFWindow):
                 existing_ids = set()
                 for v in target_vss.Views:
                     merged_views.Insert(v)
-                    existing_ids.add(v.Id.IntegerValue)
+                    existing_ids.add(v.Id)
 
                 for sv in selected_vms:
-                    if hasattr(sv, "Sheet") and sv.Sheet and sv.Sheet.Id.IntegerValue not in existing_ids:
+                    if hasattr(sv, "Sheet") and sv.Sheet and sv.Sheet.Id not in existing_ids:
                         merged_views.Insert(sv.Sheet)
-                        existing_ids.add(sv.Sheet.Id.IntegerValue)
+                        existing_ids.add(sv.Sheet.Id)
 
                 vss.CurrentViewSheetSet.Views = merged_views
-                try:
-                    vss.Save()
-                except:
-                    doc.Delete(target_vss.Id)
-                    vss.CurrentViewSheetSet = vss.InSession
-                    vss.CurrentViewSheetSet.Views = merged_views
-                    vss.SaveAs(target_vss.Name)
+                vss.Save()
                 t.Commit()
-        except:
-            pass
+        except Exception as ex:
+            log_diag("Warning: failed adding to Revit ViewSheetSet: " + str(ex))
 
         show_alert("Added {} item(s) to set '{}'.".format(len(new_numbers), set_name))
         self.load_viewsets()

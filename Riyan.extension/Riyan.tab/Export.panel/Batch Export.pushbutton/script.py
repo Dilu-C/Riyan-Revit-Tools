@@ -2884,6 +2884,20 @@ class BatchExportForm(forms.WPFWindow):
         total_failed_sheets = 0
         total_skipped_sheets = 0
 
+        # Auto-dismiss modal warnings (e.g. Coordination Review, Missing Links) during batch operations
+        def _on_batch_dialog_showing(sender, args):
+            try:
+                args.OverrideResult(1)
+            except Exception:
+                pass
+
+        dialog_hooked = False
+        try:
+            __revit__.DialogBoxShowing += _on_batch_dialog_showing
+            dialog_hooked = True
+        except Exception:
+            pass
+
         total_files = len(self.rows)
         total_selected = len(selected_rows)
         selected_processed = 0
@@ -3252,6 +3266,12 @@ class BatchExportForm(forms.WPFWindow):
                     pass
                 log_diag("Export error: " + str(ex) + "\n" + traceback.format_exc())
                 
+        if dialog_hooked:
+            try:
+                __revit__.DialogBoxShowing -= _on_batch_dialog_showing
+            except Exception:
+                pass
+
         self.Topmost = False
         self.BtnExport.IsEnabled = True
         self.ExportProgressBar.Value = 100
