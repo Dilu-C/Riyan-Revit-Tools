@@ -4108,15 +4108,6 @@ def archive_previous_exports(destination_folder, target_filenames=None):
                 pass
 
     if not items_to_archive:
-        # No matching files to archive; ensure fresh folders exist
-        dwg_dir = os.path.join(destination_folder, "DWG")
-        pdf_dir = os.path.join(destination_folder, "PDF")
-        if not os.path.exists(dwg_dir):
-            try: os.makedirs(dwg_dir)
-            except Exception: pass
-        if not os.path.exists(pdf_dir):
-            try: os.makedirs(pdf_dir)
-            except Exception: pass
         return None
 
     # 1. Locate or create 00 PREVIOUS
