@@ -336,8 +336,8 @@
                     <Grid Grid.Row="3" Margin="0,10,0,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Export Mode:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextMain}" Margin="0,0,10,0"/>
-                            <RadioButton x:Name="RbCheckPrint" Content="Check Print (Combined PDF Only)" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                            <RadioButton x:Name="RbFinalExport" Content="Final Export (Combined PDF + Separate CAD/PDF)" Foreground="{StaticResource TextMain}" VerticalAlignment="Center"/>
+                            <RadioButton x:Name="RbCheckPrint" Content="Combined PDF" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                            <RadioButton x:Name="RbFinalExport" Content="Separate CAD/PDF" Foreground="{StaticResource TextMain}" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">

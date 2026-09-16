@@ -1371,6 +1371,172 @@ class FileRow:
             import traceback
             forms.alert(str(ex) + '\n\n' + traceback.format_exc(), title='Options Error')
 
+class FileConflictWindow(object):
+    def __init__(self, filename, folder, is_light=False):
+        self.result = "cancel"
+        bg = "#FFFFFF" if is_light else "#161616"
+        tb_bg = "#F2F4F7" if is_light else "#1E1E1E"
+        footer_bg = "#F8F9FA" if is_light else "#121212"
+        border = "#D0D5DD" if is_light else "#3A3A3A"
+        footer_border = "#EAECF0" if is_light else "#222222"
+        fg_title = "#1D2939" if is_light else "#E0E0E0"
+        fg_msg = "#101828" if is_light else "#FFFFFF"
+        fg_dim = "#475467" if is_light else "#A0A0A0"
+        close_fg = "#667085" if is_light else "#888888"
+        btn_primary = "#802F2D"
+        btn_hover = "#661F1D" if is_light else "#9E3A38"
+        btn_sec_bg = "#FFFFFF" if is_light else "#222222"
+        btn_sec_border = "#D0D5DD" if is_light else "#444444"
+        btn_sec_fg = "#344054" if is_light else "#E0E0E0"
+        btn_sec_hover = "#F2F4F7" if is_light else "#333333"
+
+        xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="File Already Exists" Width="480" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        Background="{bg}" WindowStyle="None" AllowsTransparency="False"
+        ResizeMode="NoResize">
+    <Border BorderBrush="{border}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="52"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom Drag Title Bar -->
+            <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="⚠️" Foreground="#F59E0B" FontSize="15" Margin="12,0,8,0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="File Already Exists" Foreground="{fg_title}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Button x:Name="CloseBtn" Grid.Column="2" Content="✕" Foreground="{close_fg}" FontSize="13" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- Content Area -->
+            <StackPanel Grid.Row="1" Margin="20,16,20,16">
+                <TextBlock Text="The following file already exists in the target folder:" Foreground="{fg_dim}" FontSize="11" Margin="0,0,0,6"/>
+                <Border Background="{tb_bg}" BorderBrush="{border}" BorderThickness="1" CornerRadius="4" Padding="10,8" Margin="0,0,0,10">
+                    <TextBlock Text="{filename}" Foreground="{fg_msg}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                </Border>
+                <TextBlock Text="Location:" Foreground="{fg_dim}" FontSize="10.5" Margin="0,0,0,2"/>
+                <TextBlock Text="{folder}" Foreground="{fg_dim}" FontSize="10.5" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                <TextBlock Text="Do you want to overwrite this file?" Foreground="{fg_msg}" FontSize="12" FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <!-- Footer Buttons -->
+            <Border Grid.Row="2" Background="{footer_bg}" BorderBrush="{footer_border}" BorderThickness="0,1,0,0" Padding="14,0">
+                <Grid VerticalAlignment="Center">
+                    <Button x:Name="BtnCancel" Content="Cancel" HorizontalAlignment="Left" Width="85" Height="28" 
+                            Background="{btn_sec_bg}" BorderBrush="{btn_sec_border}" BorderThickness="1" Foreground="{btn_sec_fg}"
+                            FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{btn_sec_hover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="BtnReplaceAll" Content="Replace All (All OK)" Width="145" Height="28" Margin="0,0,8,0"
+                                Background="{btn_sec_bg}" BorderBrush="{btn_sec_border}" BorderThickness="1" Foreground="{btn_sec_fg}"
+                                FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{btn_sec_hover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button x:Name="BtnReplace" Content="Replace (OK)" Width="105" Height="28"
+                                Background="{btn_primary}" BorderThickness="0" Foreground="White"
+                                FontSize="11.5" FontWeight="Bold" Cursor="Hand" IsDefault="True">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{btn_hover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
+""".replace("{bg}", bg).replace("{tb_bg}", tb_bg).replace("{footer_bg}", footer_bg)\
+   .replace("{border}", border).replace("{footer_border}", footer_border)\
+   .replace("{fg_title}", fg_title).replace("{fg_msg}", fg_msg).replace("{fg_dim}", fg_dim)\
+   .replace("{close_fg}", close_fg).replace("{btn_primary}", btn_primary).replace("{btn_hover}", btn_hover)\
+   .replace("{btn_sec_bg}", btn_sec_bg).replace("{btn_sec_border}", btn_sec_border)\
+   .replace("{btn_sec_fg}", btn_sec_fg).replace("{btn_sec_hover}", btn_sec_hover)\
+   .replace("{filename}", filename).replace("{folder}", folder)
+
+        import System.IO
+        import System.Xml
+        import System.Windows.Markup
+        r = System.Xml.XmlReader.Create(System.IO.StringReader(xaml_code))
+        self.win = System.Windows.Markup.XamlReader.Load(r)
+
+        self.TitleBar = self.win.FindName("TitleBar")
+        if self.TitleBar:
+            self.TitleBar.MouseLeftButtonDown += lambda s, e: self.win.DragMove()
+        self.CloseBtn = self.win.FindName("CloseBtn")
+        if self.CloseBtn:
+            self.CloseBtn.Click += lambda s, e: self._finish("cancel")
+        self.BtnCancel = self.win.FindName("BtnCancel")
+        if self.BtnCancel:
+            self.BtnCancel.Click += lambda s, e: self._finish("cancel")
+        self.BtnReplace = self.win.FindName("BtnReplace")
+        if self.BtnReplace:
+            self.BtnReplace.Click += lambda s, e: self._finish("replace")
+        self.BtnReplaceAll = self.win.FindName("BtnReplaceAll")
+        if self.BtnReplaceAll:
+            self.BtnReplaceAll.Click += lambda s, e: self._finish("replace_all")
+
+    def _finish(self, res):
+        self.result = res
+        self.win.Close()
+
+    def ShowDialog(self):
+        self.win.ShowDialog()
+        return self.result
+
 class BatchExportForm(forms.WPFWindow):
     def __init__(self, xaml_file_name):
         forms.WPFWindow.__init__(self, xaml_file_name)
@@ -1426,9 +1592,16 @@ class BatchExportForm(forms.WPFWindow):
         # Wire Global Naming Profile
         if hasattr(self, 'CmbGlobalProfile') and self.CmbGlobalProfile:
             self.CmbGlobalProfile.ItemsSource = self.profiles
-            if self.profiles:
-                self.CmbGlobalProfile.SelectedIndex = 0
             self.CmbGlobalProfile.SelectionChanged += self.on_global_profile_changed
+
+        # Wire Export Mode Radio Buttons
+        if hasattr(self, 'RbCheckPrint') and self.RbCheckPrint:
+            self.RbCheckPrint.Checked += self.on_export_mode_changed
+        if hasattr(self, 'RbFinalExport') and self.RbFinalExport:
+            self.RbFinalExport.Checked += self.on_export_mode_changed
+
+        self._conflict_replace_all = False
+        self.auto_select_profile()
 
         # Wire Master Sheet Set from Active Revit Document (Instant, 0.001s, no background open)
         active_sets = ["<All Sheets>", "PRINT"]
@@ -1554,6 +1727,97 @@ class BatchExportForm(forms.WPFWindow):
             self.do_events()
         except Exception:
             pass
+
+    def get_detected_project(self):
+        candidates = []
+        if getattr(self, 'base_scan_dir', None):
+            candidates.append(self.base_scan_dir)
+        for r in getattr(self, 'rows', []):
+            if getattr(r, 'file_path', None):
+                candidates.append(r.file_path)
+        try:
+            active_doc = getattr(revit, 'doc', None)
+            if active_doc:
+                if getattr(active_doc, 'PathName', None):
+                    candidates.append(active_doc.PathName)
+                if getattr(active_doc, 'Title', None):
+                    candidates.append(active_doc.Title)
+        except Exception:
+            pass
+
+        for text in candidates:
+            if not text: continue
+            t_lower = text.lower()
+            if "ehdhuf" in t_lower:
+                return "ehdhuffaru"
+            if "hurasveli" in t_lower:
+                return "hurasveli"
+        return "default"
+
+    def auto_select_profile(self):
+        if not hasattr(self, 'CmbGlobalProfile') or not self.CmbGlobalProfile:
+            return
+        if not getattr(self, 'profiles', None):
+            return
+            
+        proj = self.get_detected_project()
+        is_combined = (getattr(self, 'RbCheckPrint', None) and self.RbCheckPrint.IsChecked == True)
+        
+        target_profile = None
+        if is_combined:
+            if proj == "ehdhuffaru":
+                target_profile = "RYN_Ehdhuffaru_Combined"
+            elif proj == "hurasveli":
+                target_profile = "RYN_Hurasveli_Combined"
+            else:
+                target_profile = "RYN_Export_Combined"
+                
+            if target_profile not in self.profiles:
+                for p in self.profiles:
+                    if "combined" in p.lower():
+                        target_profile = p
+                        break
+        else:
+            if proj == "ehdhuffaru":
+                target_profile = "RYN_Ehdhuffaru_Sheetwise"
+            elif proj == "hurasveli":
+                target_profile = "RYN_Hurasveli_Sheetwise"
+            else:
+                target_profile = "RYN_Export_Sheetwise"
+                
+            if target_profile not in self.profiles:
+                for p in self.profiles:
+                    if "sheetwise" in p.lower():
+                        target_profile = p
+                        break
+
+        if target_profile and target_profile in self.profiles:
+            if self.CmbGlobalProfile.SelectedItem != target_profile:
+                self.CmbGlobalProfile.SelectedItem = target_profile
+        elif self.profiles and not self.CmbGlobalProfile.SelectedItem:
+            self.CmbGlobalProfile.SelectedIndex = 0
+
+    def on_export_mode_changed(self, sender, e):
+        self.auto_select_profile()
+
+    def check_file_overwrite(self, folder, filename):
+        full_path = os.path.join(folder, filename)
+        if not os.path.exists(full_path):
+            return True
+        if getattr(self, '_conflict_replace_all', False):
+            return True
+
+        is_light = (getattr(self, 'current_theme', '') == 'Light' or (hasattr(self, 'settings') and self.settings.get('theme') == 'Light'))
+        dlg = FileConflictWindow(filename, folder, is_light=is_light)
+        ans = dlg.ShowDialog()
+        if ans == "replace_all":
+            self._conflict_replace_all = True
+            return True
+        elif ans == "replace":
+            return True
+        else:
+            self._cancel_export = True
+            return False
 
     def on_global_profile_changed(self, sender, e):
         for row in self.rows:
@@ -2868,15 +3132,16 @@ class BatchExportForm(forms.WPFWindow):
         
         self.BtnExport.IsEnabled = False
         self._cancel_export = False
+        self._conflict_replace_all = False
         self.Topmost = True
         try:
             self.Activate()
         except:
             pass
-        is_check_print = self.RbCheckPrint.IsChecked
+        is_check_print = (getattr(self, 'RbCheckPrint', None) and self.RbCheckPrint.IsChecked == True)
         
         self.log("Starting batch export for {} selected model(s)... Mode: {}".format(
-            len(selected_rows), "Check Print (Combined PDF)" if is_check_print else "Final Export (Combined PDF + Separate CAD/PDF)"
+            len(selected_rows), "Combined PDF" if is_check_print else "Separate CAD/PDF"
         ))
 
         first_folder = None
@@ -3086,24 +3351,13 @@ class BatchExportForm(forms.WPFWindow):
                 
                 comb_filename = comb_name.strip() + ".pdf"
                 
-                # Selective archiving: safely move ONLY previous deliverables matching this model
+                # Ensure output location exists (Archiving removed per user request)
                 if row.output_location:
                     if not os.path.exists(row.output_location):
                         try:
                             os.makedirs(row.output_location)
                         except Exception as ex_m:
                             log_diag("Makedirs error: " + str(ex_m))
-                    target_files = [comb_filename, comb_name.strip() + " - LIST OF DRAWINGS.doc", comb_name.strip() + " - LIST OF DRAWINGS.xlsx"]
-                    if not is_check_print:
-                        for itm in pdf_items:
-                            f_base = itm.get("filename", "")
-                            if f_base:
-                                target_files.append(f_base + ".pdf")
-                                target_files.append(f_base + ".dwg")
-                    try:
-                        em_script.archive_previous_exports(row.output_location, target_files)
-                    except Exception as ex_arch:
-                        log_diag("Selective archive error: " + str(ex_arch))
                 
                 # Auto-sync Cover Page Sheet Issue Date with standard sheet issue date
                 try:
@@ -3153,7 +3407,11 @@ class BatchExportForm(forms.WPFWindow):
                 self.do_events()
 
                 if is_check_print:
-                    # Check Print Mode: Combined PDF only
+                    # Combined PDF Mode: Combined PDF only directly in output_location (No CAD/PDF subfolders!)
+                    if not self.check_file_overwrite(row.output_location, comb_filename):
+                        self.log("Export canceled by user during overwrite check.")
+                        break
+
                     self.TxtPercent.Text = "Exporting Combined PDF..."
                     self.ExportProgressBar.Value = 0
                     self.do_events()
@@ -3165,8 +3423,7 @@ class BatchExportForm(forms.WPFWindow):
                             item["ui_row"].set_status("Done", is_done=True)
                     total_exported_sheets += len(pdf_items)
                 else:
-                    # Final Export Mode: Individual Single PDFs and DWGs first!
-                    # Each sheet transitions Pending -> Exporting... -> Done individually
+                    # Separate CAD/PDF Mode: Individual Single PDFs and DWGs
                     pdf_out_dir = os.path.join(row.output_location, "PDF")
                     dwg_out_dir = os.path.join(row.output_location, "DWG")
                     if not os.path.exists(pdf_out_dir):
@@ -3183,10 +3440,19 @@ class BatchExportForm(forms.WPFWindow):
                         sheet = item["sheet"]
                         fname = item["filename"]
                         
+                        pdf_file = (fname if fname.lower().endswith(".pdf") else fname + ".pdf")
+                        dwg_file = (fname if fname.lower().endswith(".dwg") else fname + ".dwg")
+                        if not self.check_file_overwrite(pdf_out_dir, pdf_file):
+                            self.log("Export canceled by user during overwrite check.")
+                            break
+                        if not self.check_file_overwrite(dwg_out_dir, dwg_file):
+                            self.log("Export canceled by user during overwrite check.")
+                            break
+
                         # Active sheet is Exporting... (all previous are Done, all upcoming are Pending!)
                         if s_row:
                             s_row.set_status("Exporting...", is_exporting=True)
-                        pct = int((float(idx) / total_single) * 90)
+                        pct = int((float(idx) / max(1, total_single)) * 100)
                         self.ExportProgressBar.Value = pct
                         self.TxtPercent.Text = "Exporting [{}/{}]: {} (PDF)".format(idx + 1, total_single, fname)
                         self.do_events()
@@ -3210,21 +3476,17 @@ class BatchExportForm(forms.WPFWindow):
                         total_exported_sheets += 1
                         self.do_events()
 
-                    # Now that all individual sheets are Done, generate Combined PDF
-                    if not self._cancel_export:
-                        self.TxtPercent.Text = "Generating Combined PDF ({} sheets)...".format(len(pdf_items))
-                        self.ExportProgressBar.Value = 95
-                        self.do_events()
-                        em_script.export_combined_pdf_2022(row.output_location, mock_queue, comb_filename, get_zoom_fit_type(), 100, window_instance=self)
-
                 # Generate Excel / Word Transmittal / Drawing List
                 if not self._cancel_export and (not hasattr(self, 'ChkDrawingList') or self.ChkDrawingList.IsChecked == True):
                     try:
                         list_fmt = "Word" if (getattr(self, 'RbBatchListWord', None) and self.RbBatchListWord.IsChecked == True) else "Excel"
-                        self.TxtPercent.Text = "Generating {} Drawing List...".format(list_fmt)
-                        self.do_events()
-                        vms = [item.SheetVM for item in mock_queue]
-                        em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_name.strip(), comb_parts, format_type=list_fmt)
+                        list_ext = ".doc" if list_fmt == "Word" else ".xlsx"
+                        list_fname = comb_name.strip() + " - LIST OF DRAWINGS" + list_ext
+                        if self.check_file_overwrite(row.output_location, list_fname):
+                            self.TxtPercent.Text = "Generating {} Drawing List...".format(list_fmt)
+                            self.do_events()
+                            vms = [item.SheetVM for item in mock_queue]
+                            em_script.generate_excel_transmittal(row.output_location, vms, bg_doc, comb_name.strip(), comb_parts, format_type=list_fmt)
                     except Exception as ex_tr:
                         log_diag("Drawing list note: " + str(ex_tr))
                 

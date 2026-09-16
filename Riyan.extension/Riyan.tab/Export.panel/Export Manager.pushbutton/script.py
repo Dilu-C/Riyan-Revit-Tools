@@ -620,6 +620,163 @@ class CustomTextInputWindow(object):
         return self.result
 
 # ------------------------------------------------------------------------------
+# Custom Warning Confirmation Dialog
+# ------------------------------------------------------------------------------
+class CustomConfirmWindow(object):
+    def __init__(self, message, title="Confirm Action", confirm_btn="Delete", is_danger=True):
+        self.confirmed = False
+        theme = load_settings().get("theme", "Dark")
+        is_light = (theme == "Light")
+
+        bg = "#FFFFFF" if is_light else "#161616"
+        tb_bg = "#F2F4F7" if is_light else "#1E1E1E"
+        footer_bg = "#F8F9FA" if is_light else "#121212"
+        border = "#D0D5DD" if is_light else "#3A3A3A"
+        footer_border = "#EAECF0" if is_light else "#222222"
+        fg_title = "#1D2939" if is_light else "#E0E0E0"
+        fg_msg = "#101828" if is_light else "#FFFFFF"
+        close_fg = "#667085" if is_light else "#888888"
+        icon_color = "#D92D20" if is_light else "#EF5350"
+        btn_bg = "#802F2D"
+        btn_hover = "#661F1D" if is_light else "#9E3A38"
+        cancel_bg = "#FFFFFF" if is_light else "#222222"
+        cancel_border = "#D0D5DD" if is_light else "#444444"
+        cancel_fg = "#344054" if is_light else "#E0E0E0"
+        cancel_hover = "#F2F4F7" if is_light else "#333333"
+
+        xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{title}" Width="430" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        Background="{bg}" WindowStyle="None" AllowsTransparency="False"
+        ResizeMode="NoResize">
+    <Border BorderBrush="{border}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar -->
+            <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="⚠" Foreground="{icon_color}" FontSize="15" Margin="12,0,8,0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{title}" Foreground="{fg_title}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Button x:Name="CloseBtn" Grid.Column="2" Content="✕" Foreground="{close_fg}" FontSize="13" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- Content -->
+            <Grid Grid.Row="1" Margin="20,18,20,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="🗑" Foreground="{icon_color}" FontSize="24" VerticalAlignment="Top" Margin="0,2,14,0"/>
+                <TextBlock Grid.Column="1" Text="{message}" Foreground="{fg_msg}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" LineHeight="18"/>
+            </Grid>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="{footer_bg}" BorderBrush="{footer_border}" BorderThickness="0,1,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0">
+                    <Button x:Name="CancelBtn" Content="Cancel" Width="80" Height="28" Margin="0,0,8,0"
+                            Background="{cancel_bg}" BorderBrush="{cancel_border}" BorderThickness="1" Foreground="{cancel_fg}"
+                            FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{cancel_hover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="ConfirmBtn" Content="{confirm_btn}" Width="85" Height="28"
+                            Background="{btn_bg}" Foreground="White" BorderThickness="0"
+                            FontSize="11.5" FontWeight="Bold" Cursor="Hand" IsDefault="True">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{btn_hover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
+""".replace("{bg}", bg).replace("{tb_bg}", tb_bg).replace("{footer_bg}", footer_bg)\
+   .replace("{border}", border).replace("{footer_border}", footer_border)\
+   .replace("{fg_title}", fg_title).replace("{fg_msg}", fg_msg).replace("{close_fg}", close_fg)\
+   .replace("{icon_color}", icon_color).replace("{btn_bg}", btn_bg).replace("{btn_hover}", btn_hover)\
+   .replace("{cancel_bg}", cancel_bg).replace("{cancel_border}", cancel_border)\
+   .replace("{cancel_fg}", cancel_fg).replace("{cancel_hover}", cancel_hover)\
+   .replace("{title}", title).replace("{message}", message).replace("{confirm_btn}", confirm_btn)
+
+        import System.IO
+        import System.Xml
+        import System.Windows.Markup
+        r = System.Xml.XmlReader.Create(System.IO.StringReader(xaml_code))
+        self.win = System.Windows.Markup.XamlReader.Load(r)
+
+        self.TitleBar = self.win.FindName("TitleBar")
+        if self.TitleBar:
+            self.TitleBar.MouseLeftButtonDown += lambda s, e: self.win.DragMove()
+        self.CloseBtn = self.win.FindName("CloseBtn")
+        if self.CloseBtn:
+            self.CloseBtn.Click += lambda s, e: self.win.Close()
+        self.CancelBtn = self.win.FindName("CancelBtn")
+        if self.CancelBtn:
+            self.CancelBtn.Click += lambda s, e: self.win.Close()
+        self.ConfirmBtn = self.win.FindName("ConfirmBtn")
+        if self.ConfirmBtn:
+            self.ConfirmBtn.Click += self._on_confirm
+
+    def _on_confirm(self, sender, e):
+        self.confirmed = True
+        self.win.Close()
+
+    def ShowDialog(self):
+        self.win.ShowDialog()
+        return self.confirmed
+
+def show_confirm(message, title="Confirm Delete", confirm_btn="Delete"):
+    try:
+        dlg = CustomConfirmWindow(message, title=title, confirm_btn=confirm_btn)
+        return dlg.ShowDialog()
+    except Exception:
+        return forms.alert(message, title=title, ok=True, cancel=True)
+
+# ------------------------------------------------------------------------------
 # Custom Profile Save Dialog
 # ------------------------------------------------------------------------------
 class CustomProfileSaveWindow(object):
@@ -1512,35 +1669,130 @@ class CreateProfileDialog(object):
         self._settings = settings
 
         theme = settings.get("theme", "Dark")
-        bg = "#1E1E1E" if theme == "Dark" else "#F5F5F5"
-        fg = "#FFFFFF" if theme == "Dark" else "#111111"
-        border_color = "#333333" if theme == "Dark" else "#CCCCCC"
-        input_bg = "#2A2A2A" if theme == "Dark" else "#FFFFFF"
-        btn_bg = "#C0272D"
+        is_light = (theme == "Light")
 
-        xaml_str = (
-            u'<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"'
-            u' xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"'
-            u' Title="Create Profile" Width="340" SizeToContent="Height"'
-            u' WindowStartupLocation="CenterScreen" ResizeMode="NoResize"'
-            u' Background="' + bg + u'">'
-            u'<StackPanel Margin="20,16,20,20">'
-            u'<TextBlock Text="Profile name" Foreground="' + fg + u'" FontSize="11" Margin="0,0,0,4" FontWeight="SemiBold"/>'
-            u'<TextBox x:Name="TxtName" Background="' + input_bg + u'" Foreground="' + fg + u'"'
-            u'  BorderBrush="' + border_color + u'" BorderThickness="1" Padding="8,5"'
-            u'  FontSize="12" Margin="0,0,0,14"/>'
-            u'<RadioButton x:Name="RbCopy" Content="Copy from current settings"'
-            u'  Foreground="' + fg + u'" FontSize="12" Margin="0,0,0,6" IsChecked="True"/>'
-            u'<RadioButton x:Name="RbDefault" Content="Use default settings"'
-            u'  Foreground="' + fg + u'" FontSize="12" Margin="0,0,0,6"/>'
-            u'<RadioButton x:Name="RbImport" Content="Import from a file"'
-            u'  Foreground="' + fg + u'" FontSize="12" Margin="0,0,0,16"/>'
-            u'<Button x:Name="BtnCreate" Content="Create"'
-            u'  Background="' + btn_bg + u'" Foreground="White"'
-            u'  BorderThickness="0" Padding="0,8" FontSize="13" FontWeight="SemiBold" Cursor="Hand"/>'
-            u'</StackPanel>'
-            u'</Window>'
-        )
+        bg = "#FFFFFF" if is_light else "#161616"
+        tb_bg = "#F2F4F7" if is_light else "#1E1E1E"
+        footer_bg = "#F8F9FA" if is_light else "#121212"
+        border = "#D0D5DD" if is_light else "#3A3A3A"
+        footer_border = "#EAECF0" if is_light else "#222222"
+        fg_title = "#1D2939" if is_light else "#E0E0E0"
+        fg_lbl = "#344054" if is_light else "#A0A0A0"
+        fg_text = "#101828" if is_light else "#FFFFFF"
+        input_bg = "#FFFFFF" if is_light else "#1E1E1E"
+        input_border = "#D0D5DD" if is_light else "#3A3A3A"
+        input_fg = "#101828" if is_light else "#FFFFFF"
+        close_fg = "#667085" if is_light else "#888888"
+        btn_bg = "#802F2D"
+        btn_hover = "#661F1D" if is_light else "#9E3A38"
+        cancel_bg = "#FFFFFF" if is_light else "#222222"
+        cancel_border = "#D0D5DD" if is_light else "#444444"
+        cancel_fg = "#344054" if is_light else "#E0E0E0"
+        cancel_hover = "#F2F4F7" if is_light else "#333333"
+
+        xaml_str = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Create Profile" Width="380" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        Background="{bg}" WindowStyle="None" AllowsTransparency="False"
+        ResizeMode="NoResize">
+    <Border BorderBrush="{border}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar -->
+            <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="✦" Foreground="{btn_bg}" FontSize="13" Margin="12,0,8,0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="Create New Profile" Foreground="{fg_title}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Button x:Name="CloseBtn" Grid.Column="2" Content="✕" Foreground="{close_fg}" FontSize="13" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- Content Body -->
+            <StackPanel Grid.Row="1" Margin="20,16,20,16">
+                <TextBlock Text="Profile Name" Foreground="{fg_lbl}" FontSize="11" Margin="0,0,0,5" FontWeight="SemiBold"/>
+                <TextBox x:Name="TxtName" Background="{input_bg}" Foreground="{input_fg}"
+                         BorderBrush="{input_border}" BorderThickness="1" Padding="8,6"
+                         FontSize="12" Margin="0,0,0,16"/>
+
+                <TextBlock Text="Initial Configuration" Foreground="{fg_lbl}" FontSize="11" Margin="0,0,0,8" FontWeight="SemiBold"/>
+                <RadioButton x:Name="RbCopy" Content="Copy from current settings"
+                             Foreground="{fg_text}" FontSize="12" Margin="0,0,0,8" IsChecked="True"/>
+                <RadioButton x:Name="RbDefault" Content="Use default settings"
+                             Foreground="{fg_text}" FontSize="12" Margin="0,0,0,8"/>
+                <RadioButton x:Name="RbImport" Content="Import from a file (.json / .xml)"
+                             Foreground="{fg_text}" FontSize="12" Margin="0,0,0,6"/>
+            </StackPanel>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="{footer_bg}" BorderBrush="{footer_border}" BorderThickness="0,1,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0">
+                    <Button x:Name="CancelBtn" Content="Cancel" Width="80" Height="28" Margin="0,0,8,0"
+                            Background="{cancel_bg}" BorderBrush="{cancel_border}" BorderThickness="1" Foreground="{cancel_fg}"
+                            FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{cancel_hover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="BtnCreate" Content="Create" Width="90" Height="28"
+                            Background="{btn_bg}" Foreground="White" BorderThickness="0"
+                            FontSize="11.5" FontWeight="Bold" Cursor="Hand" IsDefault="True">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{btn_hover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
+""".replace("{bg}", bg).replace("{tb_bg}", tb_bg).replace("{footer_bg}", footer_bg)\
+   .replace("{border}", border).replace("{footer_border}", footer_border)\
+   .replace("{fg_title}", fg_title).replace("{fg_lbl}", fg_lbl).replace("{fg_text}", fg_text)\
+   .replace("{input_bg}", input_bg).replace("{input_border}", input_border).replace("{input_fg}", input_fg)\
+   .replace("{close_fg}", close_fg).replace("{btn_bg}", btn_bg).replace("{btn_hover}", btn_hover)\
+   .replace("{cancel_bg}", cancel_bg).replace("{cancel_border}", cancel_border)\
+   .replace("{cancel_fg}", cancel_fg).replace("{cancel_hover}", cancel_hover)
 
         try:
             from System.IO import StringReader
@@ -1549,10 +1801,36 @@ class CreateProfileDialog(object):
 
             reader = XmlReader.Create(StringReader(xaml_str))
             self._win = WpfXamlReader.Load(reader)
+            
+            title_bar = self._win.FindName("TitleBar")
+            if title_bar:
+                title_bar.MouseLeftButtonDown += lambda s, e: self._win.DragMove()
+            close_btn = self._win.FindName("CloseBtn")
+            if close_btn:
+                close_btn.Click += lambda s, e: self._win.Close()
+            cancel_btn = self._win.FindName("CancelBtn")
+            if cancel_btn:
+                cancel_btn.Click += lambda s, e: self._win.Close()
+                
             self._win.FindName("BtnCreate").Click += self._on_create
+            
+            txt_name = self._win.FindName("TxtName")
+            if txt_name:
+                txt_name.Focus()
+                txt_name.KeyDown += self._on_txt_keydown
+                
             self._win.ShowDialog()
         except Exception as ex:
             show_alert("Could not open Create Profile dialog: " + str(ex), is_error=True)
+
+    def _on_txt_keydown(self, sender, e):
+        import System.Windows.Input
+        if e.Key == System.Windows.Input.Key.Enter:
+            self._on_create(sender, e)
+            e.Handled = True
+        elif e.Key == System.Windows.Input.Key.Escape:
+            self._win.Close()
+            e.Handled = True
 
     def _on_create(self, sender, e):
         name = self._win.FindName("TxtName").Text.strip()
@@ -3356,9 +3634,23 @@ class ExportManagerForm(forms.WPFWindow):
             show_alert("Cannot delete Default profile.", is_warning=True)
             return
 
+        msg = "Are you sure you want to permanently delete profile '{}'?\n\nThis action cannot be undone.".format(active)
+        if not show_confirm(msg, title="Delete Profile", confirm_btn="Delete"):
+            return
+
         settings = load_settings()
-        if active in settings["schemes"]:
+        deleted = False
+        if "schemes" in settings and active in settings["schemes"]:
             del settings["schemes"][active]
+            deleted = True
+        if "combined_schemes" in settings and active in settings["combined_schemes"]:
+            del settings["combined_schemes"][active]
+            deleted = True
+        if "profile_settings" in settings and active in settings["profile_settings"]:
+            del settings["profile_settings"][active]
+            deleted = True
+
+        if deleted:
             settings["active_scheme"] = "Default"
             save_settings(settings)
             self.reload_schemes()
