@@ -67,7 +67,7 @@ XAML_STRING = """
             <Grid Grid.Row="0" x:Name="TitleBar" Background="#161619">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
                     <Border Width="10" Height="10" CornerRadius="5" Background="#10B981" Margin="0,0,8,0"/>
-                    <TextBlock Text="SYSTEM NOTIFICATION - RELEASE HIGHLIGHTS" Foreground="#9CA3AF" FontSize="11" FontWeight="Bold" LetterSpacing="0.5"/>
+                    <TextBlock Text="SYSTEM NOTIFICATION - RELEASE HIGHLIGHTS" Foreground="#9CA3AF" FontSize="11" FontWeight="Bold"/>
                 </StackPanel>
                 <Button x:Name="BtnClose" Content="&#x2715;" Foreground="#9CA3AF" FontSize="14" FontWeight="Bold"
                         HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"
