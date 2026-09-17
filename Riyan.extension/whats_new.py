@@ -15,7 +15,7 @@ import System
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riyan Revit Tools - V2.2.8 Release" Height="580" Width="820"
+        Title="Riyan Revit Tools - V2.2.9 Release" Height="580" Width="820"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize" FontFamily="Segoe UI">
@@ -28,26 +28,24 @@ XAML_STRING = """
         <SolidColorBrush x:Key="PrimaryHover" Color="#A13B38"/>
         <SolidColorBrush x:Key="EmeraldText" Color="#34D399"/>
         <SolidColorBrush x:Key="EmeraldBg" Color="#152E24"/>
-        <SolidColorBrush x:Key="TextWhite" Color="#F3F4F6"/>
+        <SolidColorBrush x:Key="TextWhite" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="TextMuted" Color="#9CA3AF"/>
-        
+
         <Style x:Key="PrimaryBtn" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource PrimaryMaroon}"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="24,8"/>
-            <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="20,10">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="{StaticResource PrimaryHover}"/>
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -56,37 +54,37 @@ XAML_STRING = """
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource WindowBg}" CornerRadius="14" BorderBrush="{StaticResource PrimaryMaroon}" BorderThickness="2">
+    <Border Background="{StaticResource WindowBg}" CornerRadius="12" BorderBrush="#4B5563" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="45"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="90"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="65"/>
             </Grid.RowDefinitions>
 
-            <!-- Title Bar -->
-            <Border x:Name="TitleBar" Grid.Row="0" Background="#161619" CornerRadius="12,12,0,0" Padding="18,0,10,0">
-                <Grid>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Riyan BIM Automation System" Foreground="{StaticResource TextMuted}" FontSize="12" FontWeight="SemiBold"/>
-                    </StackPanel>
-                    <Button x:Name="BtnClose" Content="X" Width="36" Height="32" Background="Transparent" Foreground="{StaticResource TextMuted}" 
-                            BorderThickness="0" FontSize="14" Cursor="Hand" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
+            <!-- Custom Drag Title Bar -->
+            <Grid Grid.Row="0" x:Name="TitleBar" Background="#161619">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                    <Border Width="10" Height="10" CornerRadius="5" Background="#10B981" Margin="0,0,8,0"/>
+                    <TextBlock Text="SYSTEM NOTIFICATION - RELEASE HIGHLIGHTS" Foreground="#9CA3AF" FontSize="11" FontWeight="Bold" LetterSpacing="0.5"/>
+                </StackPanel>
+                <Button x:Name="BtnClose" Content="&#x2715;" Foreground="#9CA3AF" FontSize="14" FontWeight="Bold"
+                        HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"
+                        Background="Transparent" BorderThickness="0" Cursor="Hand"/>
+            </Grid>
 
-            <!-- Header Section -->
-            <Border Grid.Row="1" Padding="25,20,25,15" BorderBrush="#2D2D35" BorderThickness="0,0,0,1">
-                <Grid>
+            <!-- Hero Header -->
+            <Border Grid.Row="1" Background="#1A1A1E" BorderBrush="#2D2D35" BorderThickness="0,0,0,1" Padding="25,0">
+                <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="60"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Logo Box -->
-                    <Border Grid.Column="0" Width="48" Height="48" CornerRadius="12" Background="{StaticResource PrimaryMaroon}" Margin="0,0,16,0">
+                    <!-- Icon / Brand Badge -->
+                    <Border Grid.Column="0" Width="48" Height="48" CornerRadius="10" Background="{StaticResource PrimaryMaroon}" Margin="0,0,12,0">
                         <TextBlock Text="R" Foreground="White" FontSize="26" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
 
@@ -95,10 +93,10 @@ XAML_STRING = """
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
                             <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="V2.2.8 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="V2.2.9 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Smart Daily Archive, Batch Modal Auto-Dismiss &amp; Strict Model Selection" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
+                        <TextBlock Text="Clean Export Modes, Overwrite Conflict Guardrail &amp; Background Multitasking" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
                         <TextBlock Text="Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -125,7 +123,7 @@ XAML_STRING = """
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Card 1: Modal Warning Auto-Dismiss -->
+                <!-- Card 1: Combined PDF & Separate CAD/PDF Modes -->
                 <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -133,22 +131,22 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#1E293B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[M]" Foreground="#60A5FA" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[E]" Foreground="#60A5FA" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Modal Warning Auto-Dismiss" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Clean Export Modes" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#1E293B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Auto-Dismiss" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Streamlined" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Batch Export automatically detects and dismisses blocking Revit modal warning dialogs in the background, preventing unattended batch export routines from freezing."
+                            <TextBlock Text="Direct Combined PDF mode exports straight to output location without extra subfolders. Separate CAD/PDF mode creates dedicated PDF &amp; DWG folders for single sheets."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 2: ViewSheetSet Save & Duplicate -->
+                <!-- Card 2: Overwrite Conflict Guardrail -->
                 <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -156,22 +154,22 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#1E3A2F" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[V]" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[C]" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="ViewSheetSet Save &amp; Duplicate" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Overwrite Conflict Guardrail" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#1E3A2F" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Reliability" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Protection" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Export Manager features robust ViewSheetSet saving, renaming, and duplication with automatic fallback to local naming schemes if document transactions are restricted."
+                            <TextBlock Text="Intelligent prompt checks before files are replaced. Choose Replace (OK), Replace All (All OK), or Cancel anytime to prevent unintended overwrites."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 3: Smart Daily Archive & Overwrite Guardrail -->
+                <!-- Card 3: Delete Warning & Theme Adaptive UI -->
                 <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -179,22 +177,22 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#311F3B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[A]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[W]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Smart Daily Archive Guardrail" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Delete Warning &amp; Theme UI" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#311F3B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Date-Filtered" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Polished" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="00 PREVIOUS folders are created ONLY when archiving older files from previous days (yesterday or earlier). Same-day repeated exports cleanly update in-place without duplicate previous folders."
+                            <TextBlock Text="Export Manager alerts with an Amber warning modal before deleting profiles. Create Profile dialog features full theme-adaptive high contrast for Dark and Light modes."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 4: On-Demand Sheet Expansion -->
+                <!-- Card 4: Background Multitasking Focus Protection -->
                 <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -202,16 +200,16 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#3B311B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[+]" Foreground="#FBBF24" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[B]" Foreground="#FBBF24" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Fast On-Demand Tree Expansion" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Background Multitasking Safety" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#3B311B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Ultra Fast" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Non-Blocking" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Large projects load instantly with collapsed sheet hierarchies. Click the (+) button to expand and preview sheets on-demand without memory bottlenecks."
+                            <TextBlock Text="Batch Export stays pinned to Revit without falling behind, while allowing full multitasking across Chrome, Excel, Word, or other applications without focus hijacking."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
