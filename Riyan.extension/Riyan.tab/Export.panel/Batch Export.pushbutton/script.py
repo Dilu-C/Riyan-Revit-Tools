@@ -3133,11 +3133,11 @@ class BatchExportForm(forms.WPFWindow):
         self.BtnExport.IsEnabled = False
         self._cancel_export = False
         self._conflict_replace_all = False
-        self.Topmost = True
-        try:
-            self.Activate()
-        except:
-            pass
+        # Window is already owned by Revit (MainWindowHandle) via WindowInteropHelper,
+        # which guarantees it will never drop behind Revit.
+        # We explicitly keep Topmost = False and do not call Activate() so that
+        # it does not block other OS applications (Chrome, Word, Excel) or steal focus.
+        self.Topmost = False
         is_check_print = (getattr(self, 'RbCheckPrint', None) and self.RbCheckPrint.IsChecked == True)
         
         self.log("Starting batch export for {} selected model(s)... Mode: {}".format(
@@ -3196,11 +3196,6 @@ class BatchExportForm(forms.WPFWindow):
             should_close = False
             try:
                 bg_doc, should_close = self.get_cached_document(row.file_path)
-                try:
-                    self.Activate()
-                except:
-                    pass
-                
                 em_script.doc = bg_doc
                 
                 pdf_items = []
