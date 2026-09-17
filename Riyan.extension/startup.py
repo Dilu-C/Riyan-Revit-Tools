@@ -237,6 +237,30 @@ def cleanup_legacy_files():
                                     pass
             except Exception:
                 pass
+
+        # Zero-Touch Self-Healing: Clean duplicate / conflicting root extensions
+        duplicate_ext = os.path.join(ext_folder, "Riyan.extension")
+        if os.path.exists(duplicate_ext) and os.path.abspath(duplicate_ext).lower() != os.path.abspath(current_dir).lower():
+            try:
+                shutil.rmtree(duplicate_ext, ignore_errors=True)
+            except Exception:
+                pass
+        
+        duplicate_main = os.path.join(ext_folder, "Riyan-Revit-Tools-main")
+        if os.path.exists(duplicate_main):
+            try:
+                shutil.rmtree(duplicate_main, ignore_errors=True)
+            except Exception:
+                pass
+
+        # Purge any ancient About.panel that lacks script file
+        for folder in target_folders:
+            ancient_about = os.path.join(folder, "Riyan.tab", "About.panel")
+            if os.path.exists(ancient_about):
+                try:
+                    shutil.rmtree(ancient_about, ignore_errors=True)
+                except Exception:
+                    pass
     except Exception:
         pass
 

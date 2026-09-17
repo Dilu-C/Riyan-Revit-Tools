@@ -255,6 +255,30 @@ def update_tools():
                                             pass
                     except Exception:
                         pass
+
+                # Zero-Touch Self-Healing: Clean duplicate / conflicting root extensions
+                duplicate_ext = os.path.join(ext_root, "Riyan.extension")
+                if os.path.exists(duplicate_ext) and os.path.abspath(duplicate_ext).lower() != os.path.abspath(extension_dir).lower():
+                    try:
+                        shutil.rmtree(duplicate_ext, ignore_errors=True)
+                    except Exception:
+                        pass
+
+                duplicate_main = os.path.join(ext_root, "Riyan-Revit-Tools-main")
+                if os.path.exists(duplicate_main):
+                    try:
+                        shutil.rmtree(duplicate_main, ignore_errors=True)
+                    except Exception:
+                        pass
+
+                # Clean pyRevit cache to force fresh ribbon recompile
+                pyrevit_root = os.path.dirname(ext_root)
+                cache_dir = os.path.join(pyrevit_root, "Cache")
+                if os.path.exists(cache_dir):
+                    try:
+                        shutil.rmtree(cache_dir, ignore_errors=True)
+                    except Exception:
+                        pass
                 
                 pb.update_progress(100, 100)
                 

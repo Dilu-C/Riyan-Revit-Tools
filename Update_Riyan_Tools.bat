@@ -59,6 +59,17 @@ try {
         }
     }
 
+    # Check Program Files and ProgramData for legacy Riyan extensions
+    @("$env:ProgramFiles\pyRevit-Master\extensions\Riyan.extension",
+      "$env:ProgramFiles\pyRevit-Master\extensions\Riyan.extension\Riyan.extension",
+      "$env:ProgramData\pyRevit\Extensions\Riyan.extension",
+      "$env:ProgramData\pyRevit\Extensions\Riyan-Revit-Tools") | ForEach-Object {
+        if (Test-Path $_) {
+            Write-Host "  Removing legacy system extension: $_" -ForegroundColor DarkGray
+            Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+
     # Wipe pyRevit UI Cache and compiled binaries
     $cacheDir = Join-Path $pyrevitRoot 'Cache'
     if (Test-Path $cacheDir) {
