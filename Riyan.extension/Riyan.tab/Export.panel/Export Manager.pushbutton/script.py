@@ -4884,12 +4884,98 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
     import time
     from Autodesk.Revit import DB
 
+    def clean_val(val):
+        if not val:
+            return ""
+        s = str(val).strip()
+        if s in ("", "-", "--", "---", "- -", "N/A", "n/a", "NA", "TBC", "TBD", "None", "none", "?", "xx/xx/xxxx", "00/00/0000", "YYYY-MM-DD", "DD/MM/YYYY"):
+            return ""
+        if not any(c.isalnum() for c in s):
+            return ""
+        return s
+
+    def extract_element_param_val(elem, *candidate_names):
+        if not elem:
+            return ""
+        # 1. Direct lookup for exact names
+        for name in candidate_names:
+            try:
+                p = elem.LookupParameter(name)
+                if p and p.HasValue:
+                    v = p.AsString() or p.AsValueString() or ""
+                    c = clean_val(v)
+                    if c: return c
+            except Exception:
+                pass
+        # 2. Case-insensitive search across all parameters on elem
+        cand_lower = set(str(c).lower().strip() for c in candidate_names if c)
+        try:
+            for p in elem.Parameters:
+                if p and p.Definition and p.Definition.Name:
+                    if p.Definition.Name.lower().strip() in cand_lower:
+                        if p.HasValue:
+                            v = p.AsString() or p.AsValueString() or ""
+                            c = clean_val(v)
+                            if c: return c
+        except Exception:
+            pass
+        return ""
+
+    def get_sheet_titleblocks(sheet, s_doc):
+        try:
+            return list(DB.FilteredElementCollector(s_doc, sheet.Id).OfCategory(DB.BuiltInCategory.OST_TitleBlocks).ToElements())
+        except Exception:
+            return []
+
+    DATE_CANDIDATE_NAMES = (
+        "Sheet Issue Date", "Issued Date", "Issue Date", "Date", 
+        "Drawing Date", "Date/Time Stamp", "RYN_ShtInfo_IssueDate", 
+        "RYN_Sht_IssueDate", "RYN_PrInfo_IssuedDate", "RYN_PrInfo_Date",
+        "Submission Date", "Sub Date", "Release Date", "Project Issue Date", "Project Date"
+    )
+
+    def resolve_sheet_date(sheet, s_doc, rev_date=None, fallback_project_date=None):
+        # 1. BuiltInParameter SHEET_ISSUE_DATE on sheet
+        try:
+            p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_ISSUE_DATE)
+            if p and p.HasValue:
+                v = clean_val(p.AsString() or p.AsValueString())
+                if v: return v
+        except Exception:
+            pass
+
+        # 2. Any instance parameter on sheet matching date candidates (case-insensitive)
+        val = extract_element_param_val(sheet, *DATE_CANDIDATE_NAMES)
+        if val: return val
+
+        # 3. Check all Title Block(s) placed on this sheet (both Instance and Type parameters)
+        tbs = get_sheet_titleblocks(sheet, s_doc)
+        for tb_elem in tbs:
+            # 3a. Instance parameter on Title Block
+            tb_val = extract_element_param_val(tb_elem, *DATE_CANDIDATE_NAMES)
+            if tb_val: return tb_val
+            # 3b. Type/Symbol parameter on Title Block
+            if hasattr(tb_elem, 'Symbol') and tb_elem.Symbol:
+                tb_type_val = extract_element_param_val(tb_elem.Symbol, *DATE_CANDIDATE_NAMES)
+                if tb_type_val: return tb_type_val
+
+        # 4. Revision date of this sheet (if assigned in Sheet Issues/Revisions)
+        if rev_date:
+            c_rev = clean_val(rev_date)
+            if c_rev: return c_rev
+
+        # 5. Fallback project date if available
+        if fallback_project_date:
+            c_proj = clean_val(fallback_project_date)
+            if c_proj: return c_proj
+
+        # 6. Fallback to today's date
+        import time
+        return time.strftime("%d/%m/%Y")
+
     def get_param_value(elem, param_name):
         if not elem: return ""
-        p = elem.LookupParameter(param_name)
-        if p and p.HasValue:
-            return p.AsString() or p.AsValueString() or ""
-        return ""
+        return extract_element_param_val(elem, param_name)
 
     try:
         # Find a valid sheet that is not the cover page
@@ -4908,33 +4994,28 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
             first_vm = selected_vms[0]
             first_sheet = getattr(first_vm, 'Sheet', None) or getattr(first_vm, 'sheet', None) or first_vm
 
+        first_sheet_doc = getattr(first_sheet, 'Document', None) or doc if first_sheet else doc
         pi = doc.ProjectInformation
-        tb = None
-        if first_sheet and hasattr(first_sheet, 'Id'):
-            try:
-                from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory
-                tbs = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_TitleBlocks).OwnedByView(first_sheet.Id).ToElements()
-                if tbs: tb = tbs[0]
-            except Exception:
-                pass
+        first_sheet_tbs = get_sheet_titleblocks(first_sheet, first_sheet_doc) if first_sheet else []
             
         def get_best_param(param_name, fallback_name=None):
-            val = get_param_value(first_sheet, param_name)
-            if val: return val
+            candidates = [param_name]
             if fallback_name:
-                val = get_param_value(first_sheet, fallback_name)
-                if val: return val
-                
-            val = get_param_value(tb, param_name)
-            if val: return val
-            if fallback_name:
-                val = get_param_value(tb, fallback_name)
-                if val: return val
-                
-            val = get_param_value(pi, param_name)
-            if val: return val
-            if fallback_name:
-                return get_param_value(pi, fallback_name)
+                candidates.append(fallback_name)
+            # 1. From sheet
+            v = extract_element_param_val(first_sheet, *candidates)
+            if v: return v
+            # 2. From title block on first sheet (instance & type)
+            for tb_elem in first_sheet_tbs:
+                v = extract_element_param_val(tb_elem, *candidates)
+                if v: return v
+                if hasattr(tb_elem, 'Symbol') and tb_elem.Symbol:
+                    v = extract_element_param_val(tb_elem.Symbol, *candidates)
+                    if v: return v
+            # 3. From project info
+            if pi:
+                v = extract_element_param_val(pi, *candidates)
+                if v: return v
             return ""
 
         def get_val_from_scheme(target_name):
@@ -4961,7 +5042,22 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
         island         = get_best_param("RYN_PrInfo_Island", "Island")
         lagoon         = get_best_param("RYN_PrInfo_Lagoon(GPSCOORD)", "Lagoon") or get_best_param("Lagoon (GPS Coordinates)")
         issued_for     = get_best_param("RYN_PrInfo_IssuedFor", "Issued For")
-        issued_date    = get_best_param("RYN_PrInfo_IssuedDate", "Issued Date") or get_best_param("Project Issue Date")
+        raw_issued_date = get_best_param("RYN_PrInfo_IssuedDate", "Issued Date") or get_best_param("Project Issue Date", "Date")
+        if not raw_issued_date and pi:
+            try:
+                p_pi = pi.get_Parameter(DB.BuiltInParameter.PROJECT_ISSUE_DATE)
+                if p_pi and p_pi.HasValue:
+                    raw_issued_date = clean_val(p_pi.AsString() or p_pi.AsValueString())
+            except Exception:
+                pass
+            if not raw_issued_date:
+                try:
+                    p_pi = pi.get_Parameter(DB.BuiltInParameter.PROJECT_DATE)
+                    if p_pi and p_pi.HasValue:
+                        raw_issued_date = clean_val(p_pi.AsString() or p_pi.AsValueString())
+                except Exception:
+                    pass
+        issued_date    = clean_val(raw_issued_date)
         b_num          = get_best_param("RYN_PrInfo_BuildingNumber", "Building Number")
         discipline     = get_best_param("RYN_PrInfo_Discipline", "Discipline")
         
@@ -4998,49 +5094,74 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
             sorted_sheets = sorted(groups[grp], key=lambda x: getattr(x, 'SheetNumber', ''))
             s_list = []
             for sheet in sorted_sheets:
+                sheet_doc = getattr(sheet, 'Document', None) or doc
                 rev_num = ""
                 rev_date = ""
                 try:
                     rev_id = sheet.GetCurrentRevision()
                     if rev_id != DB.ElementId.InvalidElementId:
-                        rev_el = doc.GetElement(rev_id)
+                        rev_el = sheet_doc.GetElement(rev_id)
                         if rev_el:
                             p_num = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_SEQUENCE_NUM)
                             p_date = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_REVISION_DATE)
-                            if p_num and p_num.HasValue: rev_num = p_num.AsString() or ""
-                            if p_date and p_date.HasValue: rev_date = p_date.AsString() or ""
+                            if p_num and p_num.HasValue: rev_num = clean_val(p_num.AsString() or p_num.AsValueString())
+                            if p_date and p_date.HasValue: rev_date = clean_val(p_date.AsString() or p_date.AsValueString())
                 except:
                     pass
                 if not rev_num:
                     try:
                         p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
-                        if p and p.HasValue: rev_num = p.AsString() or ""
+                        if p and p.HasValue: rev_num = clean_val(p.AsString() or p.AsValueString())
                     except:
                         pass
                 if not rev_date:
                     try:
                         p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION_DATE)
-                        if p and p.HasValue: rev_date = p.AsString() or ""
+                        if p and p.HasValue: rev_date = clean_val(p.AsString() or p.AsValueString())
                     except:
                         pass
 
-                issue_date = issued_date
-                if not issue_date:
-                    try:
-                        p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_ISSUE_DATE)
-                        if p and p.HasValue: issue_date = p.AsString() or ""
-                    except:
-                        pass
+                # Resolve sheet issue date using our deep universal extractor!
+                sheet_issue_date = resolve_sheet_date(sheet, sheet_doc, rev_date=rev_date, fallback_project_date=issued_date)
                 
                 s_list.append({
                     "num": getattr(sheet, 'SheetNumber', '') or '',
                     "name": getattr(sheet, 'Name', '') or '',
                     "rev": rev_num,
                     "rev_date": rev_date,
-                    "issue_date": issue_date,
+                    "issue_date": sheet_issue_date,
                     "size": "A1"
                 })
             groups_data.append((grp, s_list))
+
+        # Resolve project header issued date (Row 10 in Excel & Header in Word)
+        final_proj_issued_date = clean_val(issued_date)
+        if not final_proj_issued_date:
+            # Pick from the first sheet that has a valid issue_date or rev_date
+            for g_name, s_items in groups_data:
+                for s_item in s_items:
+                    cand = clean_val(s_item.get("issue_date", "")) or clean_val(s_item.get("rev_date", ""))
+                    if cand:
+                        final_proj_issued_date = cand
+                        break
+                if final_proj_issued_date:
+                    break
+
+        if not final_proj_issued_date:
+            import time
+            final_proj_issued_date = time.strftime("%d/%m/%Y")
+
+        p_info = {
+            "proj_number": proj_number,
+            "proj_name": proj_name,
+            "building_name": building_name,
+            "client": client,
+            "developer": developer,
+            "atoll": atoll,
+            "island": island,
+            "issued_for": issued_for,
+            "issued_date": final_proj_issued_date
+        }
 
         # --- OPTION 1: EXCEL (.XLSX) ---
         if str(format_type).lower() in ("excel", "xlsx", ".xlsx"):
@@ -5053,21 +5174,6 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
                     filename = u"{}_{} - LIST OF DRAWINGS.xlsx".format(safe_base, int(time.time()))
                     full_path = os.path.join(folder, filename)
 
-            first_date = ""
-            if groups_data and groups_data[0][1]:
-                first_date = groups_data[0][1][0].get("issue_date", "")
-
-            p_info = {
-                "proj_number": proj_number,
-                "proj_name": proj_name,
-                "building_name": building_name,
-                "client": client,
-                "developer": developer,
-                "atoll": atoll,
-                "island": island,
-                "issued_for": issued_for,
-                "issued_date": issued_date or first_date
-            }
             create_drawing_list_xlsx(full_path, p_info, groups_data)
             return True
 
@@ -5149,6 +5255,7 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
         
         html.append(u'<tr><td colspan="2" style="border: none; height: 12px;"></td></tr>')
         html.append(u'<tr><td class="info-label">ISSUED FOR</td><td style="font-size: 13pt; font-weight: bold;">{}</td></tr>'.format(issued_for))
+        html.append(u'<tr><td class="info-label">ISSUED DATE</td><td style="font-size: 11pt; font-weight: bold;">{}</td></tr>'.format(final_proj_issued_date))
         html.append(u'<tr><td colspan="2" style="border: none; height: 12px;"></td></tr>')
         html.append(u'<tr><td class="info-label">BUILDING NAME</td></tr>')
         html.append(u'<tr><td colspan="2" style="font-size: 14pt; font-weight: bold; padding: 8px;">{}</td></tr>'.format(building_name))

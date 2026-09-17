@@ -70,11 +70,15 @@ try {
         }
     }
 
-    # Wipe pyRevit UI Cache and compiled binaries
+    # Wipe pyRevit UI Cache and compiled binaries across all Revit versions (2020-2027+)
     $cacheDir = Join-Path $pyrevitRoot 'Cache'
     if (Test-Path $cacheDir) {
         Write-Host "  Clearing pyRevit UI cache..." -ForegroundColor DarkGray
         Remove-Item -Path $cacheDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    Get-ChildItem -Path $pyrevitRoot -Directory -Filter '20*' -ErrorAction SilentlyContinue | ForEach-Object {
+        Write-Host "  Clearing Revit cache: $($_.Name)..." -ForegroundColor DarkGray
+        Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
     }
     Get-ChildItem -Path $pyrevitRoot -Include '__pycache__', '*.pyc' -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 

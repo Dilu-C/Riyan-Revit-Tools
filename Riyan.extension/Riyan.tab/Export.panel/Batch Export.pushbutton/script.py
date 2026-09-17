@@ -3356,18 +3356,57 @@ class BatchExportForm(forms.WPFWindow):
                 
                 # Auto-sync Cover Page Sheet Issue Date with standard sheet issue date
                 try:
+                    def _clean_date_val(s):
+                        if not s:
+                            return ""
+                        s = str(s).strip()
+                        if s in ("", "-", "--", "---", "- -", "N/A", "n/a", "NA", "TBC", "TBD", "None", "none", "?", "xx/xx/xxxx", "00/00/0000"):
+                            return ""
+                        return s
+
                     std_issue_date = None
                     for itm in pdf_items:
                         sh = itm.get("sheet")
                         sn = (sh.Name or "").upper().strip()
                         snum = (sh.SheetNumber or "").upper().strip()
-                        if "COVER" not in sn and "COVER" not in snum and "00-000-000-00" not in snum and "000-000-00" not in snum and not any(k in sn or k in snum for k in ("START-UP", "STARTUP", "START UP", "SPLASH")):
+                        if "COVER" not in sn and "COVER" not in snum and "00-000-000-00" not in snum and "000-000-00" not in snum and not any(k in sn or k in sn for k in ("START-UP", "STARTUP", "START UP", "SPLASH")):
                             p_d = sh.get_Parameter(DB.BuiltInParameter.SHEET_ISSUE_DATE)
-                            if p_d and p_d.HasValue and p_d.AsString():
-                                val = p_d.AsString().strip()
+                            if p_d and p_d.HasValue:
+                                val = _clean_date_val(p_d.AsString() or p_d.AsValueString())
                                 if val:
                                     std_issue_date = val
                                     break
+                            # Fallback to titleblocks on sheet
+                            try:
+                                tbs = DB.FilteredElementCollector(bg_doc, sh.Id).OfCategory(DB.BuiltInCategory.OST_TitleBlocks).ToElements()
+                                for tb in tbs:
+                                    for d_name in ("Sheet Issue Date", "Issued Date", "Issue Date", "Date", "Drawing Date", "Date/Time Stamp"):
+                                        p_tb = tb.LookupParameter(d_name)
+                                        if p_tb and p_tb.HasValue:
+                                            tb_v = _clean_date_val(p_tb.AsString() or p_tb.AsValueString())
+                                            if tb_v:
+                                                std_issue_date = tb_v
+                                                break
+                                    if std_issue_date:
+                                        break
+                                if std_issue_date:
+                                    break
+                            except Exception:
+                                pass
+                            # Fallback to sheet revision date if issue date is "-" or empty
+                            try:
+                                rev_id = sh.GetCurrentRevision()
+                                if rev_id != DB.ElementId.InvalidElementId:
+                                    rev_el = bg_doc.GetElement(rev_id)
+                                    if rev_el:
+                                        p_date = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_REVISION_DATE)
+                                        if p_date and p_date.HasValue:
+                                            r_val = _clean_date_val(p_date.AsString() or p_date.AsValueString())
+                                            if r_val:
+                                                std_issue_date = r_val
+                                                break
+                            except Exception:
+                                pass
                     if std_issue_date:
                         for itm in pdf_items:
                             sh = itm.get("sheet")
