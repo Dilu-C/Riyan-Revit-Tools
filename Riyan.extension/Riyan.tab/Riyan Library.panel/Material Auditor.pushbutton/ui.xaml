@@ -1,0 +1,245 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Riyan Family Material Auditor"
+        Height="700" Width="880"
+        MinHeight="550" MinWidth="750"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="WindowBg" Color="#121316"/>
+        <SolidColorBrush x:Key="SurfaceBg" Color="#1A1C20"/>
+        <SolidColorBrush x:Key="CardBg" Color="#22252A"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#2E333D"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#F4F4F5"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#94A3B8"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#64748B"/>
+        <SolidColorBrush x:Key="RiyanMaroon" Color="#802F2D"/>
+        <SolidColorBrush x:Key="RiyanMaroonHover" Color="#9B3836"/>
+        <SolidColorBrush x:Key="RiyanRose" Color="#C05652"/>
+        <SolidColorBrush x:Key="SuccessGreen" Color="#10B981"/>
+        <SolidColorBrush x:Key="WarningAmber" Color="#F59E0B"/>
+
+        <!-- Custom ScrollBar -->
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Track x:Name="PART_Track" IsDirectionReversed="true">
+                            <Track.Thumb>
+                                <Thumb>
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="{x:Type Thumb}">
+                                            <Border CornerRadius="4" Background="{DynamicResource BorderColor}" />
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="{DynamicResource WindowBg}" CornerRadius="12" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+        <Grid Margin="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>   <!-- Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- Stats Bar -->
+                <RowDefinition Height="*"/>    <!-- Data View & Tabs -->
+                <RowDefinition Height="65"/>   <!-- Footer Actions -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Title Bar -->
+            <Border Grid.Row="0" Background="{DynamicResource SurfaceBg}" CornerRadius="11,11,0,0" 
+                    MouseDown="OnTitleBarMouseDown" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
+                <Grid Margin="18,0,14,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="{DynamicResource RiyanMaroon}" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
+                            <TextBlock Text="M" Foreground="White" FontWeight="Bold" FontSize="13" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Material Auditor" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"/>
+                        <Border Background="#20802F2D" CornerRadius="4" Margin="10,0,0,0" Padding="6,2" VerticalAlignment="Center">
+                            <TextBlock Text="RYN_MAT Standard" Foreground="{DynamicResource RiyanRose}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <!-- Theme Toggle Button -->
+                        <Button x:Name="BtnTheme" Content="☀️ Light" Click="OnToggleTheme" Margin="0,0,12,0" Padding="8,4"
+                                Background="{DynamicResource CardBg}" Foreground="{DynamicResource TextPrimary}" 
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Click="OnCloseClicked" Content="✕" Width="28" Height="28" Background="Transparent" 
+                                Foreground="{DynamicResource TextSecondary}" BorderThickness="0" FontSize="14" Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 2. Summary Stats Bar -->
+            <Border Grid.Row="1" Background="{DynamicResource SurfaceBg}" Padding="18,12" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Stat 1: Total Families -->
+                    <Border Grid.Column="0" Background="{DynamicResource CardBg}" CornerRadius="8" Padding="12,8" Margin="0,0,6,0" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="TOTAL FAMILIES" Foreground="{DynamicResource TextMuted}" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock x:Name="TxtTotalCount" Text="0" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Stat 2: Compliant -->
+                    <Border Grid.Column="1" Background="{DynamicResource CardBg}" CornerRadius="8" Padding="12,8" Margin="6,0,6,0" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="RYN_MAT COMPLIANT" Foreground="{DynamicResource SuccessGreen}" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock x:Name="TxtCompliantCount" Text="0" Foreground="{DynamicResource SuccessGreen}" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Stat 3: Inconsistent -->
+                    <Border Grid.Column="2" Background="{DynamicResource CardBg}" CornerRadius="8" Padding="12,8" Margin="6,0,6,0" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="INCONSISTENT MATERIALS" Foreground="{DynamicResource WarningAmber}" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock x:Name="TxtInconsistentCount" Text="0" Foreground="{DynamicResource WarningAmber}" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Stat 4: Missing Parameters -->
+                    <Border Grid.Column="3" Background="{DynamicResource CardBg}" CornerRadius="8" Padding="12,8" Margin="6,0,0,0" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="MISSING PARAMETERS" Foreground="{DynamicResource RiyanRose}" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock x:Name="TxtMissingParamsCount" Text="0" Foreground="{DynamicResource RiyanRose}" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- 3. Main Data Tabs -->
+            <Grid Grid.Row="2" Margin="18,12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Filter / Tab Bar -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                    <RadioButton x:Name="TabInconsistent" Content="Inconsistent Materials" IsChecked="True" 
+                                 Checked="OnTabChanged" Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                    <RadioButton x:Name="TabMissing" Content="Missing Parameters" 
+                                 Checked="OnTabChanged" Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                    <RadioButton x:Name="TabCompliant" Content="Fully Compliant" 
+                                 Checked="OnTabChanged" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <!-- List / Grid View -->
+                <Border Grid.Row="1" Background="{DynamicResource CardBg}" CornerRadius="8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="ItemsList" Margin="8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource SurfaceBg}" CornerRadius="6" Padding="12,10" Margin="0,0,0,6" 
+                                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Category Icon/Badge -->
+                                            <Border Grid.Column="0" Background="#20802F2D" CornerRadius="4" Width="65" Height="30" Margin="0,0,12,0">
+                                                <TextBlock Text="{Binding Category}" Foreground="{DynamicResource RiyanRose}" 
+                                                           FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+
+                                            <!-- Family & Material Info -->
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding FamilyName}" Foreground="{DynamicResource TextPrimary}" 
+                                                           FontSize="13" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Details}" Foreground="{DynamicResource TextSecondary}" 
+                                                           FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                            </StackPanel>
+
+                                            <!-- Action / Status Badge -->
+                                            <Border Grid.Column="2" CornerRadius="4" Padding="8,4" Background="{Binding BadgeBg}" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding BadgeText}" Foreground="{Binding BadgeFg}" FontSize="11" FontWeight="Bold"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+
+            <!-- 4. Footer Actions -->
+            <Border Grid.Row="3" Background="{DynamicResource SurfaceBg}" CornerRadius="0,0,11,11" 
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Padding="18,10">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtDocName" Text="Document: Active Project" Foreground="{DynamicResource TextMuted}" FontSize="12" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <!-- Export Button -->
+                        <Button Content="📄 Export Report" Click="OnExportReport" Margin="0,0,10,0" Padding="14,0" Height="36"
+                                Background="{DynamicResource CardBg}" Foreground="{DynamicResource TextPrimary}" 
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="12">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Standardize Button -->
+                        <Button x:Name="BtnStandardize" Content="✨ Apply Standardization (RYN_MAT)" Click="OnApplyStandardization" 
+                                Padding="16,0" Height="36" Background="{DynamicResource RiyanMaroon}" Foreground="White" 
+                                BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="12">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
