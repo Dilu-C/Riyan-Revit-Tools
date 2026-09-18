@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Riyan Family Library Browser (Load.pushbutton)
 Seamless visual family content browser for Riyan BIM Standards.
@@ -182,6 +182,17 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.BtnLoadTypeOnly.Click += self.on_load_type_only
         self.BtnFooterLoad.Click += self.on_load_family
         self.BtnEdit2025.Click += self.on_edit_2025
+
+        # Admin Protection Guardrail: Hide Edit and Sync buttons for standard users
+        try:
+            uname = System.Environment.UserName.lower()
+            ADMIN_USERS = ["user", "dilupa", "dilupa.chathuranga", "dilupac", "dilupa1990"]
+            self.is_admin = uname in ADMIN_USERS
+            if not self.is_admin:
+                self.BtnEdit2025.Visibility = Visibility.Collapsed
+                self.BtnAdminSync.Visibility = Visibility.Collapsed
+        except Exception:
+            pass
 
         # Discipline Tabs
         self.TabAll.Checked += lambda s, e: self.set_discipline("ALL")
