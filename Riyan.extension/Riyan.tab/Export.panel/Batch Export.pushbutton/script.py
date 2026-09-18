@@ -1658,6 +1658,19 @@ class BatchExportForm(forms.WPFWindow):
             self.SplitLogs.MouseEnter += self.on_split_log_enter
             self.SplitLogs.MouseLeave += self.on_split_log_leave
 
+        # Auto-dismiss modal warnings (e.g. Printer Mismatch, Coordination Review, Missing Links)
+        def _on_window_dialog_showing(sender, args):
+            try:
+                args.OverrideResult(1)
+            except Exception:
+                pass
+
+        self._dialog_handler = _on_window_dialog_showing
+        try:
+            __revit__.DialogBoxShowing += self._dialog_handler
+        except Exception:
+            pass
+
         self.log("Dilu BIM Automation initialized.")
         self.log("Zero Data Loss Architecture active: Double-verification backup enabled.")
 
@@ -1898,6 +1911,11 @@ class BatchExportForm(forms.WPFWindow):
         self.cleanup_cached_documents()
 
     def on_window_closed(self, sender, e):
+        if hasattr(self, '_dialog_handler') and self._dialog_handler:
+            try:
+                __revit__.DialogBoxShowing -= self._dialog_handler
+            except Exception:
+                pass
         self.cleanup_cached_documents()
         
     def do_events(self):

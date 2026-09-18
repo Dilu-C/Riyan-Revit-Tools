@@ -186,9 +186,10 @@ def cleanup_legacy_files():
         target_folders = set(filter(None, [ext_folder, parent_dir, current_dir]))
         bad_files = [
             "GEMINI.md", "GEMINI", "test_compile.py", "test_msg.py",
-            "Install_Riyan_Tools.bat", "Install_Riyan_Tools.zip"
+            "Install_Riyan_Tools.bat", "Install_Riyan_Tools.zip",
+            "README.md", "extension.json.txt"
         ]
-        bad_dirs = [".agents"]
+        bad_dirs = [".agents", ".idea", "Other"]
         
         legacy_panel_items = ["Update.pushbutton", "Update.stack", "WhatsNew.pushbutton"]
         
@@ -202,6 +203,17 @@ def cleanup_legacy_files():
                         os.remove(p)
                     except Exception:
                         pass
+            # Remove any *.md or extension.json.txt inside folder
+            try:
+                for root, dirs, files in os.walk(folder):
+                    for file_name in files:
+                        if file_name.lower().endswith(".md") or file_name.lower() == "extension.json.txt":
+                            try:
+                                os.remove(os.path.join(root, file_name))
+                            except Exception:
+                                pass
+            except Exception:
+                pass
             for d in bad_dirs:
                 p = os.path.join(folder, d)
                 if os.path.isdir(p):
@@ -253,7 +265,7 @@ def cleanup_legacy_files():
             except Exception:
                 pass
 
-        # Purge any ancient About.panel that lacks script file
+        # Purge any ancient About.panel that lacks script file or duplicates System.panel
         for folder in target_folders:
             ancient_about = os.path.join(folder, "Riyan.tab", "About.panel")
             if os.path.exists(ancient_about):
@@ -261,6 +273,24 @@ def cleanup_legacy_files():
                     shutil.rmtree(ancient_about, ignore_errors=True)
                 except Exception:
                     pass
+
+        # Self-heal pyRevit_config.ini from invalid ghost network drives (e.g. \\RGLK-Drive)
+        pyrevit_root = os.path.expandvars(r"%APPDATA%\pyRevit")
+        cfg_file = os.path.join(pyrevit_root, "pyRevit_config.ini")
+        if os.path.exists(cfg_file):
+            try:
+                with open(cfg_file, "r") as cf:
+                    cfg_data = cf.read()
+                if "RGLK-Drive" in cfg_data or "Riyan.extension" in cfg_data:
+                    import re
+                    # Strip any non-existent RGLK-Drive references
+                    cleaned_cfg = re.sub(r'[\'"][^\'"]*RGLK-Drive[^\'"]*[\'"]\s*,?', '', cfg_data)
+                    cleaned_cfg = cleaned_cfg.replace(', ]', ']').replace('[, ', '[').replace(',,', ',')
+                    if cleaned_cfg != cfg_data:
+                        with open(cfg_file, "w") as cf:
+                            cf.write(cleaned_cfg)
+            except Exception:
+                pass
     except Exception:
         pass
 

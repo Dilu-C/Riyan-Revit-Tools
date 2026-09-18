@@ -15,7 +15,7 @@ import System
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riyan Revit Tools - V2.2.9 Release" Height="580" Width="820"
+        Title="Riyan Revit Tools - V2.3.1 Release" Height="580" Width="820"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize" FontFamily="Segoe UI">
@@ -58,25 +58,27 @@ XAML_STRING = """
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="45"/>
-                <RowDefinition Height="90"/>
+                <RowDefinition Height="75"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="65"/>
             </Grid.RowDefinitions>
 
-            <!-- Custom Drag Title Bar -->
-            <Grid Grid.Row="0" x:Name="TitleBar" Background="#161619">
+            <!-- Custom Draggable Title Bar -->
+            <Grid x:Name="TitleBar" Grid.Row="0" Background="#161619">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="40"/>
+                </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                    <Border Width="10" Height="10" CornerRadius="5" Background="#10B981" Margin="0,0,8,0"/>
-                    <TextBlock Text="SYSTEM NOTIFICATION - RELEASE HIGHLIGHTS" Foreground="#9CA3AF" FontSize="11" FontWeight="Bold"/>
+                    <TextBlock Text="🌟" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="What's New in Riyan Tools - V2.3.1" Foreground="#D1D5DB" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </StackPanel>
-                <Button x:Name="BtnClose" Content="&#x2715;" Foreground="#9CA3AF" FontSize="14" FontWeight="Bold"
-                        HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"
-                        Background="Transparent" BorderThickness="0" Cursor="Hand"/>
+                <Button x:Name="BtnCloseX" Grid.Column="1" Content="✕" Foreground="#9CA3AF" Background="Transparent" BorderThickness="0" FontSize="14" Cursor="Hand"/>
             </Grid>
 
-            <!-- Hero Header -->
-            <Border Grid.Row="1" Background="#1A1A1E" BorderBrush="#2D2D35" BorderThickness="0,0,0,1" Padding="25,0">
-                <Grid VerticalAlignment="Center">
+            <!-- Header Section -->
+            <Border Grid.Row="1" Background="#242429" BorderBrush="#374151" BorderThickness="0,0,0,1" Padding="25,12">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="60"/>
                         <ColumnDefinition Width="*"/>
@@ -93,10 +95,10 @@ XAML_STRING = """
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
                             <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="V2.2.9 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="V2.3.1 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Clean Export Modes, Overwrite Conflict Guardrail &amp; Background Multitasking" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
+                        <TextBlock Text="Universal Self-Healing, Clean Parity &amp; Silent Dialog Suppression" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
                         <TextBlock Text="Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -237,6 +239,8 @@ class WhatsNewWindow(forms.WPFWindow):
         
         if hasattr(self, 'BtnClose') and self.BtnClose:
             self.BtnClose.Click += self.CloseBtn_Click
+        if hasattr(self, 'BtnCloseX') and self.BtnCloseX:
+            self.BtnCloseX.Click += self.CloseBtn_Click
         if hasattr(self, 'BtnGotIt') and self.BtnGotIt:
             self.BtnGotIt.Click += self.CloseBtn_Click
         if hasattr(self, 'TitleBar') and self.TitleBar:

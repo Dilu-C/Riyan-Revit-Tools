@@ -113,22 +113,42 @@ try {
     Copy-Item -Path (Join-Path $sourceRoot '*') -Destination $targetTools -Recurse -Force
     Remove-Item -Path $extractFolder -Recurse -Force -ErrorAction SilentlyContinue
 
+    # Purge leftover md, txt, .idea, and duplicate files from target
+    Get-ChildItem -Path $targetTools -Recurse -Filter '*.md' -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+    @('extension.json.txt', '.idea', '.gitattributes', '.gitignore', 'Other', '__pycache__') | ForEach-Object {
+        $p = Join-Path (Join-Path $targetTools 'Riyan.extension') $_
+        if (Test-Path $p) { Remove-Item -Path $p -Recurse -Force -ErrorAction SilentlyContinue }
+    }
+    $ancientAbout = Join-Path $targetTools 'Riyan.extension\Riyan.tab\About.panel'
+    if (Test-Path $ancientAbout) { Remove-Item -Path $ancientAbout -Recurse -Force -ErrorAction SilentlyContinue }
+
     Write-Host "[4/4] Ensuring clean pyRevit configuration..." -ForegroundColor Cyan
     $cfg = Join-Path $pyrevitRoot 'pyRevit_config.ini'
     if (Test-Path $cfg) {
         $content = Get-Content $cfg -Raw
+        # Remove broken/non-existent RGLK-Drive references
+        $content = [regex]::Replace($content, '["''][^"'']*RGLK-Drive[^"'']*["'']\s*,?', '')
         $content = $content -replace '\[Riyan\.extension\]\s*[\r\n]+disabled\s*=\s*true', "[Riyan.extension]`ndisabled = false"
         $content = $content -replace '\[Riyan-Revit-Tools\.extension\][\s\S]*?(?=(\[|$))', ''
+        
+        # Clean userextensions to avoid duplicate loading
         $escaped = $targetTools.Replace('\', '\\')
-        if ($content -notmatch [regex]::Escape($targetTools)) {
-            if ($content -match 'userextensions\s*=\s*\[(.*?)\]') {
-                $existing = $matches[1].Trim()
-                if ($existing) { $newVal = "userextensions = [$existing, `"$escaped`"]" } else { $newVal = "userextensions = [`"$escaped`"]" }
-                $content = $content -replace 'userextensions\s*=\s*\[.*?\]', $newVal
-            } else {
-                $content = $content + "`nuserextensions = [`"$escaped`"]`n"
+        if ($content -match 'userextensions\s*=\s*\[(.*?)\]') {
+            $existingItems = $matches[1].Split(',') | ForEach-Object { $_.Trim().Trim('"').Trim('''') } | Where-Object { 
+                $_ -and (Test-Path $_) -and ($_ -notmatch 'RGLK-Drive')
             }
+            # Add targetTools if not already present
+            if ($existingItems -notcontains $targetTools -and $existingItems -notcontains $escaped) {
+                $existingItems += $targetTools
+            }
+            # Remove raw Extensions root if targetTools is also present to prevent dual-loading of Riyan
+            $uniqueExts = $existingItems | Select-Object -Unique | ForEach-Object { '\"' + $_.Replace('\', '\\') + '\"' }
+            $newVal = "userextensions = [" + ($uniqueExts -join ', ') + "]"
+            $content = $content -replace 'userextensions\s*=\s*\[.*?\]', $newVal
+        } else {
+            $content = $content + "`nuserextensions = [`"$escaped`"]`n"
         }
+        $content = $content -replace ',\s*\]', ']' -replace '\[\s*,', '['
         Set-Content $cfg $content -NoNewline
     }
 
