@@ -69,8 +69,22 @@ class FamilyLoadHandler(DB.IFamilyLoadOptions):
         overwriteParameterValues.Value = True
         return True
 
+def is_valid_3d_thumbnail(image_path):
+    if not image_path:
+        return False
+    try:
+        if not os.path.exists(image_path):
+            return False
+        # Strict Generic Revit Blue RFA Icon Rejection (8717 bytes or < 500 bytes)
+        size = os.path.getsize(image_path)
+        if size == 8717 or size < 500:
+            return False
+        return True
+    except Exception:
+        return False
+
 def load_bitmap(image_path):
-    if not image_path or not os.path.exists(image_path):
+    if not is_valid_3d_thumbnail(image_path):
         return None
     try:
         bi = BitmapImage()
@@ -316,31 +330,30 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                 with codecs.open(target_path, 'r', 'utf-8-sig') as f:
                     raw_items = json.load(f)
                     import re
-                    # Strict Zero-Backup Guardrail: Exclude .0001, .0002, etc.
+                    # Strict Zero-Backup & Mandatory 3D Thumbnail Guardrail
+                    cache_thumbs = os.path.join(LOCAL_CACHE_DIR, "Thumbnails")
                     self.catalog = []
                     for item in raw_items:
                         c = item.get("code", "")
                         r = item.get("rfa_path", "")
                         if re.search(r'\.\d{3,4}$', c) or re.search(r'\.\d{3,4}\.rfa$', r, re.IGNORECASE):
                             continue
+                        
+                        t = item.get("thumbnail")
+                        if not is_valid_3d_thumbnail(t):
+                            c1 = os.path.join(THUMBNAILS_DIR, c + ".png")
+                            c2 = os.path.join(cache_thumbs, c + ".png")
+                            if is_valid_3d_thumbnail(c1):
+                                item["thumbnail"] = c1
+                            elif is_valid_3d_thumbnail(c2):
+                                item["thumbnail"] = c2
+                            else:
+                                continue # Bypass unconditionally! Zero placeholder icons!
                         self.catalog.append(item)
             except Exception as ex:
                 self.build_live_catalog_from_folders()
         else:
             self.build_live_catalog_from_folders()
-
-        # Fix any missing thumbnails by searching THUMBNAILS_DIR and local cache
-        cache_thumbs = os.path.join(LOCAL_CACHE_DIR, "Thumbnails")
-        for item in self.catalog:
-            t = item.get("thumbnail")
-            if not t or not os.path.exists(t):
-                code = item.get("code", "")
-                c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
-                c2 = os.path.join(cache_thumbs, code + ".png")
-                if os.path.exists(c1):
-                    item["thumbnail"] = c1
-                elif os.path.exists(c2):
-                    item["thumbnail"] = c2
 
         self.refresh_categories()
         self.apply_filter()
@@ -498,19 +511,21 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             if re.search(r'\.\d{3,4}$', code) or re.search(r'\.\d{3,4}\.rfa$', rfa, re.IGNORECASE):
                 continue
 
-            # 2. Mandatory Valid 3D Preview: Strictly bypass any family without a real thumbnail
+            # 2. Mandatory Valid 3D Preview: Strictly bypass any family without a genuine 3D thumbnail
             thumb_path = item.get("thumbnail")
-            if not thumb_path or not os.path.exists(thumb_path):
+            if not is_valid_3d_thumbnail(thumb_path):
                 c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
                 c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
-                if os.path.exists(c1):
+                if is_valid_3d_thumbnail(c1):
                     thumb_path = c1
                     item["thumbnail"] = c1
-                elif os.path.exists(c2):
+                elif is_valid_3d_thumbnail(c2):
                     thumb_path = c2
                     item["thumbnail"] = c2
+                else:
+                    continue
 
-            if not thumb_path or not os.path.exists(thumb_path):
+            if not is_valid_3d_thumbnail(thumb_path):
                 continue
 
             if self.current_discipline != "ALL" and item.get("discipline") != self.current_discipline:
@@ -545,14 +560,16 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         border_brush = self.Resources["BorderColor"]
 
         thumb_path = fam.get("thumbnail")
-        if not thumb_path or not os.path.exists(thumb_path):
+        if not is_valid_3d_thumbnail(thumb_path):
             code = fam.get("code", "")
             c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
             c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
-            if os.path.exists(c1):
+            if is_valid_3d_thumbnail(c1):
                 thumb_path = c1
-            elif os.path.exists(c2):
+            elif is_valid_3d_thumbnail(c2):
                 thumb_path = c2
+            else:
+                thumb_path = None
 
         # ---------------- LIST VIEW MODE ----------------
         if self.view_mode == "List":
@@ -712,15 +729,17 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.TxtDetailCategory.Text = fam.get("category", "General")
 
         thumb_path = fam.get("thumbnail")
-        if not thumb_path or not os.path.exists(thumb_path):
+        if not is_valid_3d_thumbnail(thumb_path):
             code = fam.get("code", "")
             c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
             c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
-            if os.path.exists(c1):
+            if is_valid_3d_thumbnail(c1):
                 thumb_path = c1
-            elif os.path.exists(c2):
+            elif is_valid_3d_thumbnail(c2):
                 thumb_path = c2
-        if thumb_path and os.path.exists(thumb_path):
+            else:
+                thumb_path = None
+        if thumb_path and is_valid_3d_thumbnail(thumb_path):
             self.ImgDetailPreview.Source = load_bitmap(thumb_path)
         else:
             self.ImgDetailPreview.Source = None
