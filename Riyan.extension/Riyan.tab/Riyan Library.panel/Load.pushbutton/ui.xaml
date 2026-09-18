@@ -263,7 +263,6 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" Height="32" x:Name="SearchInputBorder">
@@ -273,15 +272,10 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Valid Preview Filter Checkbox -->
-                            <CheckBox Grid.Column="1" x:Name="ChkThumbsOnly" Content="🖼️ Valid 3D Preview" IsChecked="True" 
-                                      VerticalAlignment="Center" Margin="14,0,10,0" Foreground="{DynamicResource TextPrimary}" 
-                                      FontSize="11" FontWeight="SemiBold" Cursor="Hand"/>
-
-                            <TextBlock Grid.Column="2" x:Name="TxtResultsCount" Text="0 Families" Foreground="{DynamicResource TextSecondary}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="4,0,14,0"/>
+                            <TextBlock Grid.Column="1" x:Name="TxtResultsCount" Text="0 Families" Foreground="{DynamicResource TextSecondary}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="16,0,16,0"/>
 
                             <!-- View Mode Segmented Buttons (No white popup dropdown) -->
-                            <Border Grid.Column="3" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" 
+                            <Border Grid.Column="2" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" 
                                     BorderThickness="1" CornerRadius="6" Padding="2" Height="30" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton x:Name="BtnViewXL" Content="⊞ XL" ToolTip="Extra Large Icons" GroupName="ViewModeGroup" Tag="ExtraLarge" Style="{DynamicResource ViewSegmentBtn}"/>

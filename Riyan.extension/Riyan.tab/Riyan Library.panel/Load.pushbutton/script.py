@@ -214,10 +214,6 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                 def make_handler(m):
                     return lambda s, e: self.set_view_mode(m)
                 btn.Checked += make_handler(mode)
-
-        if hasattr(self, "ChkThumbsOnly") and self.ChkThumbsOnly:
-            self.ChkThumbsOnly.Checked += lambda s, e: self.apply_filter()
-            self.ChkThumbsOnly.Unchecked += lambda s, e: self.apply_filter()
         
         self.BtnLoadFamily.Click += self.on_load_family
         self.BtnLoadTypeOnly.Click += self.on_load_type_only
@@ -288,9 +284,6 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         for rb in [self.TabAll, self.TabArc, self.TabStr, self.TabPlumb, self.TabElec, self.TabFire, self.TabAcmv]:
             if rb and not rb.IsChecked:
                 rb.Foreground = self.Resources["TextSecondary"]
-
-        if hasattr(self, "ChkThumbsOnly") and self.ChkThumbsOnly:
-            self.ChkThumbsOnly.Foreground = self.Resources["TextPrimary"]
 
         # View Mode Segmented Buttons Contrast
         for b_name in ["BtnViewXL", "BtnViewL", "BtnViewM", "BtnViewS", "BtnViewList"]:
@@ -497,8 +490,6 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.LstFamilies.Items.Clear()
         import re
 
-        thumbs_only = (hasattr(self, "ChkThumbsOnly") and self.ChkThumbsOnly and self.ChkThumbsOnly.IsChecked == True)
-
         for item in self.catalog:
             code = item.get("code", "")
             rfa = item.get("rfa_path", "")
@@ -507,7 +498,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             if re.search(r'\.\d{3,4}$', code) or re.search(r'\.\d{3,4}\.rfa$', rfa, re.IGNORECASE):
                 continue
 
-            # 2. Thumbnail Presence Filter (User requested to not load placeholder/missing cards)
+            # 2. Mandatory Valid 3D Preview: Strictly bypass any family without a real thumbnail
             thumb_path = item.get("thumbnail")
             if not thumb_path or not os.path.exists(thumb_path):
                 c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
@@ -519,7 +510,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                     thumb_path = c2
                     item["thumbnail"] = c2
 
-            if thumbs_only and (not thumb_path or not os.path.exists(thumb_path)):
+            if not thumb_path or not os.path.exists(thumb_path):
                 continue
 
             if self.current_discipline != "ALL" and item.get("discipline") != self.current_discipline:
