@@ -267,13 +267,14 @@ def update_tools():
                                             pass
                     except Exception:
                         pass
-                    # Purge duplicate ancient About.panel
-                    ancient_about = os.path.join(folder, "Riyan.tab", "About.panel")
-                    if os.path.exists(ancient_about):
-                        try:
-                            shutil.rmtree(ancient_about, ignore_errors=True)
-                        except Exception:
-                            pass
+                    # Purge legacy Tool.panel and About.panel
+                    for legacy_p in ["Tool.panel", "About.panel"]:
+                        legacy_target = os.path.join(folder, "Riyan.tab", legacy_p)
+                        if os.path.exists(legacy_target):
+                            try:
+                                shutil.rmtree(legacy_target, ignore_errors=True)
+                            except Exception:
+                                pass
 
                 # Zero-Touch Self-Healing: Clean duplicate / conflicting root extensions
                 duplicate_ext = os.path.join(ext_root, "Riyan.extension")

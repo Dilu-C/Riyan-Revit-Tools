@@ -105,22 +105,30 @@ try {
         throw "Extracted archive does not contain 'Riyan-Revit-Tools-main'."
     }
 
+    # Atomic Clean-Slate Installation: Wipe old extension to eliminate ghost panels and orphaned buttons
+    $targetExt = Join-Path $targetTools 'Riyan.extension'
+    if (Test-Path $targetExt) {
+        Write-Host "  Performing clean-slate purge of previous extension..." -ForegroundColor DarkGray
+        Remove-Item -Path $targetExt -Recurse -Force -ErrorAction SilentlyContinue
+    }
     if (!(Test-Path $targetTools)) {
         New-Item -ItemType Directory -Path $targetTools -Force | Out-Null
     }
 
-    # Copy files
+    # Copy fresh files from source
     Copy-Item -Path (Join-Path $sourceRoot '*') -Destination $targetTools -Recurse -Force
     Remove-Item -Path $extractFolder -Recurse -Force -ErrorAction SilentlyContinue
 
-    # Purge leftover md, txt, .idea, and duplicate files from target
+    # Purge leftover md, txt, .idea, and deprecated Tool.panel & About.panel from target
     Get-ChildItem -Path $targetTools -Recurse -Filter '*.md' -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
     @('extension.json.txt', '.idea', '.gitattributes', '.gitignore', 'Other', '__pycache__') | ForEach-Object {
         $p = Join-Path (Join-Path $targetTools 'Riyan.extension') $_
         if (Test-Path $p) { Remove-Item -Path $p -Recurse -Force -ErrorAction SilentlyContinue }
     }
-    $ancientAbout = Join-Path $targetTools 'Riyan.extension\Riyan.tab\About.panel'
-    if (Test-Path $ancientAbout) { Remove-Item -Path $ancientAbout -Recurse -Force -ErrorAction SilentlyContinue }
+    @('Tool.panel', 'About.panel') | ForEach-Object {
+        $legacyPanel = Join-Path $targetTools "Riyan.extension\Riyan.tab\$_"
+        if (Test-Path $legacyPanel) { Remove-Item -Path $legacyPanel -Recurse -Force -ErrorAction SilentlyContinue }
+    }
 
     Write-Host "[4/4] Ensuring clean pyRevit configuration..." -ForegroundColor Cyan
     $cfg = Join-Path $pyrevitRoot 'pyRevit_config.ini'

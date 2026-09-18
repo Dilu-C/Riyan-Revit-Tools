@@ -247,6 +247,17 @@ def cleanup_legacy_files():
                                         os.remove(target)
                                 except Exception:
                                     pass
+                    elif bname == "Riyan.tab":
+                        for item in ["Tool.panel", "About.panel"]:
+                            target = os.path.join(root, item)
+                            if os.path.exists(target):
+                                try:
+                                    if os.path.isdir(target):
+                                        shutil.rmtree(target, ignore_errors=True)
+                                    else:
+                                        os.remove(target)
+                                except Exception:
+                                    pass
             except Exception:
                 pass
 
