@@ -67,7 +67,7 @@
                         </Border>
                         <TextBlock Text="Material Auditor" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"/>
                         <Border Background="#20802F2D" CornerRadius="4" Margin="10,0,0,0" Padding="6,2" VerticalAlignment="Center">
-                            <TextBlock Text="RYN_MAT Standard" Foreground="{DynamicResource RiyanRose}" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="RYN_MAT_ Standard" Foreground="{DynamicResource RiyanRose}" FontSize="11" FontWeight="SemiBold"/>
                         </Border>
                     </StackPanel>
 
@@ -120,7 +120,7 @@
                     <!-- Stat 2: Compliant -->
                     <Border Grid.Column="1" Background="{DynamicResource CardBg}" CornerRadius="8" Padding="12,8" Margin="6,0,6,0" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="RYN_MAT COMPLIANT" Foreground="{DynamicResource SuccessGreen}" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock Text="RYN_MAT_ COMPLIANT" Foreground="{DynamicResource SuccessGreen}" FontSize="10" FontWeight="Bold"/>
                             <TextBlock x:Name="TxtCompliantCount" Text="0" Foreground="{DynamicResource SuccessGreen}" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
                         </StackPanel>
                     </Border>
@@ -207,7 +207,7 @@
                         </Button>
 
                         <!-- Standardize Button -->
-                        <Button x:Name="BtnStandardize" Content="✨ Apply Standardization (RYN_MAT)" 
+                        <Button x:Name="BtnStandardize" Content="✨ Apply Standardization (RYN_MAT_)" 
                                 Padding="16,0" Height="36" Background="{DynamicResource RiyanMaroon}" Foreground="White" 
                                 BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="12">
                             <Button.Template>
