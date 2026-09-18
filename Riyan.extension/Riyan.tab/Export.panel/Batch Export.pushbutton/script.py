@@ -3158,6 +3158,15 @@ class BatchExportForm(forms.WPFWindow):
         self.Topmost = False
         is_check_print = (getattr(self, 'RbCheckPrint', None) and self.RbCheckPrint.IsChecked == True)
         
+        # Clear active user selection in Revit to prevent blue selection highlights on exported PDFs
+        try:
+            active_uidoc = getattr(__revit__, "ActiveUIDocument", None)
+            if active_uidoc and active_uidoc.Selection:
+                from System.Collections.Generic import List
+                active_uidoc.Selection.SetElementIds(List[DB.ElementId]())
+        except Exception:
+            pass
+
         self.log("Starting batch export for {} selected model(s)... Mode: {}".format(
             len(selected_rows), "Combined PDF" if is_check_print else "Separate CAD/PDF"
         ))

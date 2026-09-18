@@ -4502,6 +4502,15 @@ def export_dwg(folder, sheet, filename, dwg_setting):
 
 def export_pdf_2022(folder, sheet, filename, zoom_type, zoom_pct):
     try:
+        # Clear any active element selection in UI to prevent blue selection boxes on exported sheets
+        try:
+            active_ui = getattr(__revit__, "ActiveUIDocument", None)
+            if active_ui and active_ui.Selection:
+                from System.Collections.Generic import List
+                active_ui.Selection.SetElementIds(List[DB.ElementId]())
+        except Exception:
+            pass
+
         opt = DB.PDFExportOptions()
         clean_name = os.path.splitext(filename)[0] if filename.lower().endswith(".pdf") else filename
         opt.FileName = clean_name
@@ -4541,6 +4550,14 @@ def export_pdf_2022(folder, sheet, filename, zoom_type, zoom_pct):
         return False
 
 def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, window_instance=None):
+    # Clear any active element selection in UI to prevent blue selection boxes on exported sheets
+    try:
+        active_ui = getattr(__revit__, "ActiveUIDocument", None)
+        if active_ui and active_ui.Selection:
+            from System.Collections.Generic import List
+            active_ui.Selection.SetElementIds(List[DB.ElementId]())
+    except Exception:
+        pass
     app = __revit__.Application
     current_idx = [-1]
     
