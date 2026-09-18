@@ -5,8 +5,8 @@
         MinHeight="620" MinWidth="980"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        AllowsTransparency="False"
-        Background="{DynamicResource WindowBg}"
+        AllowsTransparency="True"
+        Background="Transparent"
         Foreground="{DynamicResource TextPrimary}"
         FontFamily="Segoe UI"
         x:Name="RootWindow">
@@ -171,7 +171,7 @@
         </Style>
     </Window.Resources>
 
-    <Border x:Name="MainOuterBorder" BorderThickness="0">
+    <Border x:Name="MainOuterBorder" Background="{DynamicResource WindowBg}" CornerRadius="10" BorderThickness="0">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>  <!-- Title bar -->
@@ -181,7 +181,7 @@
             </Grid.RowDefinitions>
 
             <!-- 1. Custom Title Bar -->
-            <Border Grid.Row="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" x:Name="TitleBar">
+            <Border Grid.Row="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" CornerRadius="10,10,0,0" x:Name="TitleBar">
                 <Grid Margin="16,0,12,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <!-- Riyan Logo Emblem -->
@@ -410,7 +410,7 @@
             </Grid>
 
             <!-- 4. Footer Bar -->
-            <Border Grid.Row="3" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Padding="16,0" x:Name="FooterBorder">
+            <Border Grid.Row="3" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" CornerRadius="0,0,10,10" Padding="16,0" x:Name="FooterBorder">
                 <Grid VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Ellipse Width="8" Height="8" Fill="{DynamicResource RiyanMaroon}" Margin="0,0,8,0"/>

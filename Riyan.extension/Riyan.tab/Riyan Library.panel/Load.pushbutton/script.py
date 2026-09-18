@@ -284,7 +284,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(113, 113, 122))
             self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(42, 42, 48))
             self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
-            self.Background = self.Resources["WindowBg"]
+            self.Background = Brushes.Transparent
             self.Foreground = self.Resources["TextPrimary"]
         else:
             self.BtnToggleTheme.Content = u"☀️ Light"
@@ -297,7 +297,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["TextPrimary"] = SolidColorBrush(Color.FromRgb(15, 23, 42))     # Deep Pitch Black/Slate
             self.Resources["TextSecondary"] = SolidColorBrush(Color.FromRgb(51, 65, 85))   # Dark Slate 700
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(100, 116, 139))   # Slate 500
-            self.Background = self.Resources["WindowBg"]
+            self.Background = Brushes.Transparent
             self.Foreground = self.Resources["TextPrimary"]
 
         # Controls text contrast - strictly enforce white on selected discipline tab!

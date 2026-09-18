@@ -176,8 +176,13 @@ class MaterialAuditorWindow(Window):
             if not symbols or symbols.Count == 0:
                 continue
 
-            sym = self.doc.GetElement(symbols[0])
-            param_names = [p.Definition.Name for p in sym.Parameters]
+            sym_list = list(symbols)
+            if not sym_list:
+                continue
+            sym = self.doc.GetElement(sym_list[0])
+            if not sym:
+                continue
+            param_names = [p.Definition.Name for p in sym.Parameters if p and p.Definition]
 
             missing = [ep for ep in expected_params if ep not in param_names]
             if missing:
@@ -193,6 +198,8 @@ class MaterialAuditorWindow(Window):
             has_inconsistent = False
             mat_info = []
             for p in sym.Parameters:
+                if not p or not p.Definition:
+                    continue
                 p_name = p.Definition.Name
                 if "Material" in p_name or "MAT" in p_name:
                     m_id = p.AsElementId()
@@ -332,7 +339,11 @@ class MaterialAuditorWindow(Window):
                     if f.Name == fam_name:
                         for sym_id in f.GetFamilySymbolIds():
                             sym = self.doc.GetElement(sym_id)
+                            if not sym:
+                                continue
                             for p in sym.Parameters:
+                                if not p or not p.Definition:
+                                    continue
                                 p_name = p.Definition.Name
                                 if "Material" in p_name or "MAT" in p_name:
                                     m_id = p.AsElementId()
