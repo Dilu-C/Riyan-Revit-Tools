@@ -203,9 +203,10 @@ def update_tools():
                 # Clean up legacy / unwanted files from pyRevit Extensions and user folders
                 unwanted_files = [
                     "GEMINI.md", "GEMINI", "test_compile.py", "test_msg.py",
-                    "Install_Riyan_Tools.bat", "Install_Riyan_Tools.zip"
+                    "Install_Riyan_Tools.bat", "Install_Riyan_Tools.zip",
+                    "README.md", "extension.json.txt"
                 ]
-                unwanted_dirs = [".agents"]
+                unwanted_dirs = [".agents", ".idea", "Other", "__pycache__"]
                 
                 ext_root = os.path.expandvars(r"%APPDATA%\pyRevit\Extensions")
                 clean_targets = set(filter(None, [extension_dir, parent_dir, ext_root]))
@@ -220,6 +221,17 @@ def update_tools():
                                 os.remove(target_f)
                             except Exception:
                                 pass
+                    # Unconditionally wipe all *.md files
+                    try:
+                        for root, dirs, files in os.walk(folder):
+                            for fn in files:
+                                if fn.lower().endswith(".md") or fn.lower() == "extension.json.txt":
+                                    try:
+                                        os.remove(os.path.join(root, fn))
+                                    except Exception:
+                                        pass
+                    except Exception:
+                        pass
                     for ud in unwanted_dirs:
                         target_d = os.path.join(folder, ud)
                         if os.path.isdir(target_d):
@@ -255,6 +267,13 @@ def update_tools():
                                             pass
                     except Exception:
                         pass
+                    # Purge duplicate ancient About.panel
+                    ancient_about = os.path.join(folder, "Riyan.tab", "About.panel")
+                    if os.path.exists(ancient_about):
+                        try:
+                            shutil.rmtree(ancient_about, ignore_errors=True)
+                        except Exception:
+                            pass
 
                 # Zero-Touch Self-Healing: Clean duplicate / conflicting root extensions
                 duplicate_ext = os.path.join(ext_root, "Riyan.extension")
@@ -268,6 +287,23 @@ def update_tools():
                 if os.path.exists(duplicate_main):
                     try:
                         shutil.rmtree(duplicate_main, ignore_errors=True)
+                    except Exception:
+                        pass
+
+                # Self-heal pyRevit_config.ini from invalid ghost network drives (e.g. \\RGLK-Drive)
+                pyrevit_root = os.path.dirname(ext_root)
+                cfg_file = os.path.join(pyrevit_root, "pyRevit_config.ini")
+                if os.path.exists(cfg_file):
+                    try:
+                        with open(cfg_file, "r") as cf:
+                            cfg_data = cf.read()
+                        if "RGLK-Drive" in cfg_data:
+                            import re
+                            cleaned_cfg = re.sub(r'[\'"][^\'"]*RGLK-Drive[^\'"]*[\'"]\s*,?', '', cfg_data)
+                            cleaned_cfg = cleaned_cfg.replace(', ]', ']').replace('[, ', '[').replace(',,', ',')
+                            if cleaned_cfg != cfg_data:
+                                with open(cfg_file, "w") as cf:
+                                    cf.write(cleaned_cfg)
                     except Exception:
                         pass
 
