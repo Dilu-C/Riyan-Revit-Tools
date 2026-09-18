@@ -200,9 +200,21 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         if hasattr(self, "LstFamilies") and self.LstFamilies:
             self.LstFamilies.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
 
-        # View Mode & Thumbnail Filter
-        if hasattr(self, "CmbViewMode") and self.CmbViewMode:
-            self.CmbViewMode.SelectionChanged += self.on_view_mode_changed
+        # View Mode Segmented Buttons
+        view_btns = [
+            ("BtnViewXL", "ExtraLarge"),
+            ("BtnViewL", "Large"),
+            ("BtnViewM", "Medium"),
+            ("BtnViewS", "Small"),
+            ("BtnViewList", "List")
+        ]
+        for b_name, mode in view_btns:
+            btn = getattr(self, b_name, None)
+            if btn:
+                def make_handler(m):
+                    return lambda s, e: self.set_view_mode(m)
+                btn.Checked += make_handler(mode)
+
         if hasattr(self, "ChkThumbsOnly") and self.ChkThumbsOnly:
             self.ChkThumbsOnly.Checked += lambda s, e: self.apply_filter()
             self.ChkThumbsOnly.Unchecked += lambda s, e: self.apply_filter()
@@ -278,11 +290,16 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                 rb.Foreground = self.Resources["TextSecondary"]
 
         if hasattr(self, "ChkThumbsOnly") and self.ChkThumbsOnly:
-            self.ChkThumbsOnly.Foreground = self.Resources["TextSecondary"]
-        if hasattr(self, "CmbViewMode") and self.CmbViewMode:
-            self.CmbViewMode.Background = self.Resources["SurfaceBg"]
-            self.CmbViewMode.Foreground = self.Resources["TextPrimary"]
-            self.CmbViewMode.BorderBrush = self.Resources["BorderColor"]
+            self.ChkThumbsOnly.Foreground = self.Resources["TextPrimary"]
+
+        # View Mode Segmented Buttons Contrast
+        for b_name in ["BtnViewXL", "BtnViewL", "BtnViewM", "BtnViewS", "BtnViewList"]:
+            b = getattr(self, b_name, None)
+            if b:
+                if b.IsChecked:
+                    b.Foreground = SolidColorBrush(Color.FromRgb(255, 255, 255))
+                else:
+                    b.Foreground = self.Resources["TextSecondary"]
 
         # Update and re-render
         self.refresh_categories()
@@ -456,12 +473,18 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         except Exception:
             pass
 
-    def on_view_mode_changed(self, sender, e):
+    def set_view_mode(self, mode):
         """Switches thumbnail view size: Extra Large, Large, Medium, Small, List."""
-        sel = self.CmbViewMode.SelectedItem
-        if sel and hasattr(sel, "Tag"):
-            self.view_mode = str(sel.Tag)
-            self.apply_filter()
+        self.view_mode = mode
+        # Update foreground highlights
+        for b_name in ["BtnViewXL", "BtnViewL", "BtnViewM", "BtnViewS", "BtnViewList"]:
+            b = getattr(self, b_name, None)
+            if b:
+                if b.IsChecked:
+                    b.Foreground = SolidColorBrush(Color.FromRgb(255, 255, 255))
+                else:
+                    b.Foreground = self.Resources["TextSecondary"]
+        self.apply_filter()
 
     def on_search_changed(self, sender, e):
         txt = self.TxtSearch.Text.strip()

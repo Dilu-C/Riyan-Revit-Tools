@@ -118,6 +118,34 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        <!-- View Mode Segment Button Style -->
+        <Style x:Key="ViewSegmentBtn" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="7,3"/>
+            <Setter Property="Margin" Value="1,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource CardBg}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -247,21 +275,22 @@
 
                             <!-- Valid Preview Filter Checkbox -->
                             <CheckBox Grid.Column="1" x:Name="ChkThumbsOnly" Content="🖼️ Valid 3D Preview" IsChecked="True" 
-                                      VerticalAlignment="Center" Margin="12,0,0,0" Foreground="{DynamicResource TextSecondary}" 
+                                      VerticalAlignment="Center" Margin="14,0,10,0" Foreground="{DynamicResource TextPrimary}" 
                                       FontSize="11" FontWeight="SemiBold" Cursor="Hand"/>
 
-                            <TextBlock Grid.Column="2" x:Name="TxtResultsCount" Text="0 Families" Foreground="{DynamicResource TextSecondary}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,12,0"/>
+                            <TextBlock Grid.Column="2" x:Name="TxtResultsCount" Text="0 Families" Foreground="{DynamicResource TextSecondary}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="4,0,14,0"/>
 
-                            <!-- View Mode Selector -->
-                            <ComboBox Grid.Column="3" x:Name="CmbViewMode" Width="125" Height="30" VerticalAlignment="Center"
-                                      Background="{DynamicResource SurfaceBg}" Foreground="{DynamicResource TextPrimary}"
-                                      BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontSize="11" FontWeight="SemiBold">
-                                <ComboBoxItem Content="⊞ Extra Large" Tag="ExtraLarge"/>
-                                <ComboBoxItem Content="⊞ Large" Tag="Large"/>
-                                <ComboBoxItem Content="▦ Medium" Tag="Medium" IsSelected="True"/>
-                                <ComboBoxItem Content="▤ Small" Tag="Small"/>
-                                <ComboBoxItem Content="☰ List View" Tag="List"/>
-                            </ComboBox>
+                            <!-- View Mode Segmented Buttons (No white popup dropdown) -->
+                            <Border Grid.Column="3" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" 
+                                    BorderThickness="1" CornerRadius="6" Padding="2" Height="30" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton x:Name="BtnViewXL" Content="⊞ XL" ToolTip="Extra Large Icons" GroupName="ViewModeGroup" Tag="ExtraLarge" Style="{DynamicResource ViewSegmentBtn}"/>
+                                    <RadioButton x:Name="BtnViewL" Content="⊞ L" ToolTip="Large Icons" GroupName="ViewModeGroup" Tag="Large" Style="{DynamicResource ViewSegmentBtn}"/>
+                                    <RadioButton x:Name="BtnViewM" Content="▦ M" ToolTip="Medium Icons" GroupName="ViewModeGroup" Tag="Medium" IsChecked="True" Style="{DynamicResource ViewSegmentBtn}"/>
+                                    <RadioButton x:Name="BtnViewS" Content="▤ S" ToolTip="Small Icons" GroupName="ViewModeGroup" Tag="Small" Style="{DynamicResource ViewSegmentBtn}"/>
+                                    <RadioButton x:Name="BtnViewList" Content="☰ List" ToolTip="List View" GroupName="ViewModeGroup" Tag="List" Style="{DynamicResource ViewSegmentBtn}"/>
+                                </StackPanel>
+                            </Border>
                         </Grid>
                     </Border>
 
