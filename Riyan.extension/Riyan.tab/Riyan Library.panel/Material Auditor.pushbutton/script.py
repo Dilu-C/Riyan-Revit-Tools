@@ -364,50 +364,8 @@ class MaterialAuditorWindow(Window):
     def show(self):
         self.window.ShowDialog()
 
-def force_refresh_ribbon_icons():
-    """Dynamically forces Revit's in-memory AdWindows Ribbon to display updated Riyan Maroon icons."""
-    try:
-        clr.AddReference("AdWindows")
-        import Autodesk.Windows as AW
-        from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
-        from System import Uri
-        
-        ribbon = AW.ComponentManager.Ribbon
-        if not ribbon:
-            return
-
-        base_dir = os.path.dirname(os.path.dirname(__file__)) # Riyan Library.panel
-        load_icon_path = os.path.join(base_dir, "Load.pushbutton", "icon.png")
-        mat_icon_path = os.path.join(base_dir, "Material Auditor.pushbutton", "icon.png")
-
-        for tab in ribbon.Tabs:
-            if tab.Id == "Riyan" or tab.Title == "Riyan":
-                for panel in tab.Panels:
-                    if panel.Source and "Library" in str(panel.Source.Title):
-                        for item in panel.Source.Items:
-                            if "Load" in str(item.Id) or item.Text == "Load":
-                                if os.path.exists(load_icon_path):
-                                    img = BitmapImage()
-                                    img.BeginInit()
-                                    img.UriSource = Uri(load_icon_path)
-                                    img.CacheOption = BitmapCacheOption.OnLoad
-                                    img.EndInit()
-                                    item.LargeImage = img
-                            if "Material" in str(item.Id) or "Auditor" in str(item.Text):
-                                item.Text = "Material\nAuditor"
-                                if os.path.exists(mat_icon_path):
-                                    img2 = BitmapImage()
-                                    img2.BeginInit()
-                                    img2.UriSource = Uri(mat_icon_path)
-                                    img2.CacheOption = BitmapCacheOption.OnLoad
-                                    img2.EndInit()
-                                    item.LargeImage = img2
-    except Exception:
-        pass
-
 # Revit Entry Point
 if __name__ == "__main__":
-    force_refresh_ribbon_icons()
     uiapp = __revit__
     app = uiapp.Application
     doc = uiapp.ActiveUIDocument.Document if uiapp.ActiveUIDocument else None
