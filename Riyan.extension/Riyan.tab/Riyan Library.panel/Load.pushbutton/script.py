@@ -174,6 +174,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.current_discipline = "ALL"
         self.current_category = "ALL"
         self.is_dark_theme = True
+        self.view_mode = "Medium"
 
         # Win32 HWND Ownership
         if UIDOC and hasattr(UIDOC, "Application"):
@@ -192,6 +193,19 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.TxtSearch.TextChanged += self.on_search_changed
         self.LstCategories.SelectionChanged += self.on_category_changed
         self.LstFamilies.SelectionChanged += self.on_family_selected
+
+        # Mouse Wheel Anywhere Scrolling Support
+        if hasattr(self, "CardsScrollViewer") and self.CardsScrollViewer:
+            self.CardsScrollViewer.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
+        if hasattr(self, "LstFamilies") and self.LstFamilies:
+            self.LstFamilies.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
+
+        # View Mode & Thumbnail Filter
+        if hasattr(self, "CmbViewMode") and self.CmbViewMode:
+            self.CmbViewMode.SelectionChanged += self.on_view_mode_changed
+        if hasattr(self, "ChkThumbsOnly") and self.ChkThumbsOnly:
+            self.ChkThumbsOnly.Checked += lambda s, e: self.apply_filter()
+            self.ChkThumbsOnly.Unchecked += lambda s, e: self.apply_filter()
         
         self.BtnLoadFamily.Click += self.on_load_family
         self.BtnLoadTypeOnly.Click += self.on_load_type_only
@@ -258,10 +272,17 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Background = self.Resources["WindowBg"]
             self.Foreground = self.Resources["TextPrimary"]
 
-        # RadioButtons text contrast
+        # Controls text contrast
         for rb in [self.TabAll, self.TabArc, self.TabStr, self.TabPlumb, self.TabElec, self.TabFire, self.TabAcmv]:
             if rb and not rb.IsChecked:
                 rb.Foreground = self.Resources["TextSecondary"]
+
+        if hasattr(self, "ChkThumbsOnly") and self.ChkThumbsOnly:
+            self.ChkThumbsOnly.Foreground = self.Resources["TextSecondary"]
+        if hasattr(self, "CmbViewMode") and self.CmbViewMode:
+            self.CmbViewMode.Background = self.Resources["SurfaceBg"]
+            self.CmbViewMode.Foreground = self.Resources["TextPrimary"]
+            self.CmbViewMode.BorderBrush = self.Resources["BorderColor"]
 
         # Update and re-render
         self.refresh_categories()
@@ -283,7 +304,16 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         if target_path:
             try:
                 with codecs.open(target_path, 'r', 'utf-8-sig') as f:
-                    self.catalog = json.load(f)
+                    raw_items = json.load(f)
+                    import re
+                    # Strict Zero-Backup Guardrail: Exclude .0001, .0002, etc.
+                    self.catalog = []
+                    for item in raw_items:
+                        c = item.get("code", "")
+                        r = item.get("rfa_path", "")
+                        if re.search(r'\.\d{3,4}$', c) or re.search(r'\.\d{3,4}\.rfa$', r, re.IGNORECASE):
+                            continue
+                        self.catalog.append(item)
             except Exception as ex:
                 self.build_live_catalog_from_folders()
         else:
@@ -415,6 +445,24 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.current_category = "ALL"
         self.apply_filter()
 
+    def on_cards_preview_mouse_wheel(self, sender, e):
+        """Allows smooth scrolling anywhere when cursor is over the family cards grid."""
+        try:
+            e.Handled = True
+            scroll_delta = e.Delta
+            current_offset = self.CardsScrollViewer.VerticalOffset
+            new_offset = current_offset - (scroll_delta * 0.8)
+            self.CardsScrollViewer.ScrollToVerticalOffset(new_offset)
+        except Exception:
+            pass
+
+    def on_view_mode_changed(self, sender, e):
+        """Switches thumbnail view size: Extra Large, Large, Medium, Small, List."""
+        sel = self.CmbViewMode.SelectedItem
+        if sel and hasattr(sel, "Tag"):
+            self.view_mode = str(sel.Tag)
+            self.apply_filter()
+
     def on_search_changed(self, sender, e):
         txt = self.TxtSearch.Text.strip()
         self.TxtSearchPlaceholder.Visibility = Visibility.Collapsed if txt else Visibility.Visible
@@ -424,8 +472,33 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         query = self.TxtSearch.Text.strip().lower()
         self.filtered_families = []
         self.LstFamilies.Items.Clear()
+        import re
+
+        thumbs_only = (hasattr(self, "ChkThumbsOnly") and self.ChkThumbsOnly and self.ChkThumbsOnly.IsChecked == True)
 
         for item in self.catalog:
+            code = item.get("code", "")
+            rfa = item.get("rfa_path", "")
+            
+            # 1. Zero-Backup Filter: Strictly bypass .0001, .0002 etc.
+            if re.search(r'\.\d{3,4}$', code) or re.search(r'\.\d{3,4}\.rfa$', rfa, re.IGNORECASE):
+                continue
+
+            # 2. Thumbnail Presence Filter (User requested to not load placeholder/missing cards)
+            thumb_path = item.get("thumbnail")
+            if not thumb_path or not os.path.exists(thumb_path):
+                c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
+                c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
+                if os.path.exists(c1):
+                    thumb_path = c1
+                    item["thumbnail"] = c1
+                elif os.path.exists(c2):
+                    thumb_path = c2
+                    item["thumbnail"] = c2
+
+            if thumbs_only and (not thumb_path or not os.path.exists(thumb_path)):
+                continue
+
             if self.current_discipline != "ALL" and item.get("discipline") != self.current_discipline:
                 continue
             if self.current_category != "ALL" and item.get("category") != self.current_category:
@@ -433,10 +506,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             
             if query:
                 title = item.get("title", "").lower()
-                code = item.get("code", "").lower()
+                code_lower = code.lower()
                 cat = item.get("category", "").lower()
                 types_str = " ".join(item.get("types", [])).lower()
-                if query not in title and query not in code and query not in cat and query not in types_str:
+                if query not in title and query not in code_lower and query not in cat and query not in types_str:
                     continue
 
             self.filtered_families.append(item)
@@ -451,24 +524,12 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         lbi = ListBoxItem()
         lbi.Tag = fam
 
-        sp = StackPanel()
-        sp.Margin = Thickness(8)
-
-        # Card container colors
         card_bg = SolidColorBrush(Color.FromRgb(32, 32, 36)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(255, 255, 255))
         img_bg = SolidColorBrush(Color.FromRgb(24, 24, 27)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(241, 245, 249))
         text_primary = SolidColorBrush(Color.FromRgb(244, 244, 245)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(15, 23, 42))
+        text_muted = SolidColorBrush(Color.FromRgb(140, 140, 145)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(100, 116, 139))
+        border_brush = self.Resources["BorderColor"]
 
-        # Thumbnail Image Container
-        img_border = Border()
-        img_border.Height = 120
-        img_border.CornerRadius = System.Windows.CornerRadius(6)
-        img_border.Background = img_bg
-        img_border.Margin = Thickness(0, 0, 0, 8)
-        img_border.ClipToBounds = True
-
-        img = WpfImage()
-        img.Stretch = System.Windows.Media.Stretch.Uniform
         thumb_path = fam.get("thumbnail")
         if not thumb_path or not os.path.exists(thumb_path):
             code = fam.get("code", "")
@@ -478,6 +539,117 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                 thumb_path = c1
             elif os.path.exists(c2):
                 thumb_path = c2
+
+        # ---------------- LIST VIEW MODE ----------------
+        if self.view_mode == "List":
+            card_border = Border()
+            card_border.Width = 680
+            card_border.Height = 44
+            card_border.Background = card_bg
+            card_border.BorderBrush = border_brush
+            card_border.BorderThickness = Thickness(1)
+            card_border.CornerRadius = System.Windows.CornerRadius(6)
+            card_border.Padding = Thickness(8, 4, 8, 4)
+
+            from System.Windows.Controls import Grid, ColumnDefinition
+            row_grid = Grid()
+            c0 = ColumnDefinition(); c0.Width = System.Windows.GridLength(40)
+            c1 = ColumnDefinition(); c1.Width = System.Windows.GridLength(1, System.Windows.GridUnitType.Star)
+            c2 = ColumnDefinition(); c2.Width = System.Windows.GridLength(140)
+            c3 = ColumnDefinition(); c3.Width = System.Windows.GridLength(110)
+            row_grid.ColumnDefinitions.Add(c0)
+            row_grid.ColumnDefinitions.Add(c1)
+            row_grid.ColumnDefinitions.Add(c2)
+            row_grid.ColumnDefinitions.Add(c3)
+
+            # Mini Thumbnail
+            img_b = Border()
+            img_b.Width = 32; img_b.Height = 32
+            img_b.CornerRadius = System.Windows.CornerRadius(4)
+            img_b.Background = img_bg
+            img_b.ClipToBounds = True
+            img = WpfImage()
+            img.Stretch = System.Windows.Media.Stretch.Uniform
+            if thumb_path and os.path.exists(thumb_path):
+                bi = load_bitmap(thumb_path)
+                if bi: img.Source = bi
+            img_b.Child = img
+            Grid.SetColumn(img_b, 0)
+            row_grid.Children.Add(img_b)
+
+            # Title & Code
+            title_sp = StackPanel()
+            title_sp.VerticalAlignment = System.Windows.VerticalAlignment.Center
+            title_sp.Margin = Thickness(10, 0, 0, 0)
+            txt_t = TextBlock()
+            txt_t.Text = fam.get("title", fam.get("code", "Family"))
+            txt_t.FontSize = 12; txt_t.FontWeight = System.Windows.FontWeights.Bold
+            txt_t.Foreground = text_primary
+            txt_t.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
+            title_sp.Children.Add(txt_t)
+            Grid.SetColumn(title_sp, 1)
+            row_grid.Children.Add(title_sp)
+
+            # Category
+            txt_cat = TextBlock()
+            txt_cat.Text = fam.get("category", "")
+            txt_cat.FontSize = 11; txt_cat.FontWeight = System.Windows.FontWeights.SemiBold
+            txt_cat.Foreground = SolidColorBrush(Color.FromRgb(128, 47, 45))
+            txt_cat.VerticalAlignment = System.Windows.VerticalAlignment.Center
+            txt_cat.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
+            Grid.SetColumn(txt_cat, 2)
+            row_grid.Children.Add(txt_cat)
+
+            # Discipline Pill
+            disc_b = Border()
+            disc_b.CornerRadius = System.Windows.CornerRadius(4)
+            disc_b.Background = SolidColorBrush(Color.FromRgb(24, 24, 27)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(241, 245, 249))
+            disc_b.Padding = Thickness(6, 2, 6, 2)
+            disc_b.VerticalAlignment = System.Windows.VerticalAlignment.Center
+            disc_b.HorizontalAlignment = System.Windows.HorizontalAlignment.Left
+            txt_disc = TextBlock()
+            txt_disc.Text = fam.get("discipline", "")
+            txt_disc.FontSize = 9.5; txt_disc.FontWeight = System.Windows.FontWeights.SemiBold
+            txt_disc.Foreground = text_muted
+            disc_b.Child = txt_disc
+            Grid.SetColumn(disc_b, 3)
+            row_grid.Children.Add(disc_b)
+
+            card_border.Child = row_grid
+            lbi.Content = card_border
+            return lbi
+
+        # ---------------- GRID VIEW MODES (ExtraLarge, Large, Medium, Small) ----------------
+        if self.view_mode == "ExtraLarge":
+            card_w = 230; card_h = 280; img_h = 175; font_title = 12; font_cat = 10
+        elif self.view_mode == "Large":
+            card_w = 185; card_h = 230; img_h = 135; font_title = 11.5; font_cat = 9.5
+        elif self.view_mode == "Small":
+            card_w = 120; card_h = 155; img_h = 75; font_title = 10; font_cat = 8.5
+        else: # Medium (Default)
+            card_w = 150; card_h = 190; img_h = 100; font_title = 11; font_cat = 9.5
+
+        card_border = Border()
+        card_border.Width = card_w
+        card_border.Height = card_h
+        card_border.Background = card_bg
+        card_border.BorderBrush = border_brush
+        card_border.BorderThickness = Thickness(1)
+        card_border.CornerRadius = System.Windows.CornerRadius(8)
+        card_border.Padding = Thickness(6)
+
+        sp = StackPanel()
+
+        # Thumbnail Container
+        img_border = Border()
+        img_border.Height = img_h
+        img_border.CornerRadius = System.Windows.CornerRadius(6)
+        img_border.Background = img_bg
+        img_border.Margin = Thickness(0, 0, 0, 6)
+        img_border.ClipToBounds = True
+
+        img = WpfImage()
+        img.Stretch = System.Windows.Media.Stretch.Uniform
         if thumb_path and os.path.exists(thumb_path):
             bi = load_bitmap(thumb_path)
             if bi:
@@ -488,24 +660,25 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         # Title
         txt_title = TextBlock()
         txt_title.Text = fam.get("title", fam.get("code", "Family"))
-        txt_title.FontSize = 11
+        txt_title.FontSize = font_title
         txt_title.FontWeight = System.Windows.FontWeights.Bold
         txt_title.Foreground = text_primary
         txt_title.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
-        txt_title.MaxHeight = 32
+        txt_title.MaxHeight = 30
         txt_title.TextWrapping = System.Windows.TextWrapping.Wrap
         sp.Children.Add(txt_title)
 
         # Category Badge
         txt_cat = TextBlock()
         txt_cat.Text = fam.get("category", "")
-        txt_cat.FontSize = 10
+        txt_cat.FontSize = font_cat
         txt_cat.Foreground = SolidColorBrush(Color.FromRgb(128, 47, 45)) # Riyan Maroon
         txt_cat.FontWeight = System.Windows.FontWeights.SemiBold
-        txt_cat.Margin = Thickness(0, 3, 0, 0)
+        txt_cat.Margin = Thickness(0, 2, 0, 0)
         sp.Children.Add(txt_cat)
 
-        lbi.Content = sp
+        card_border.Child = sp
+        lbi.Content = card_border
         return lbi
 
     def on_family_selected(self, sender, e):
