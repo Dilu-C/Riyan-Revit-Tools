@@ -1,25 +1,38 @@
 ﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Riyan Family Library"
-        Height="780" Width="1240"
-        MinHeight="600" MinWidth="960"
+        Height="800" Width="1280"
+        MinHeight="620" MinWidth="980"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="False"
-        Background="#18181B"
-        Foreground="#F4F4F5"
-        FontFamily="Segoe UI">
+        Background="{DynamicResource WindowBg}"
+        Foreground="{DynamicResource TextPrimary}"
+        FontFamily="Segoe UI"
+        x:Name="RootWindow">
 
     <Window.Resources>
+        <!-- Dynamic Theme Brushes (Default to Dark Theme) -->
+        <SolidColorBrush x:Key="WindowBg" Color="#18181B"/>
+        <SolidColorBrush x:Key="SurfaceBg" Color="#121215"/>
+        <SolidColorBrush x:Key="CardBg" Color="#202024"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#2E2E33"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#F4F4F5"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#A1A1AA"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#71717A"/>
+        <SolidColorBrush x:Key="RiyanMaroon" Color="#802F2D"/>
+        <SolidColorBrush x:Key="RiyanMaroonHover" Color="#9C3A38"/>
+        <SolidColorBrush x:Key="RiyanMaroonPressed" Color="#632321"/>
+
         <!-- Modern ScrollViewer Style -->
         <Style TargetType="{x:Type ScrollBar}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Width" Value="8"/>
         </Style>
 
-        <!-- Primary Accent Button -->
-        <Style x:Key="PrimaryBtn" TargetType="Button">
-            <Setter Property="Background" Value="#0284C7"/>
+        <!-- Riyan Signature Primary Maroon Button -->
+        <Style x:Key="RiyanPrimaryBtn" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource RiyanMaroon}"/>
             <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="12"/>
@@ -38,10 +51,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#0369A1"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroonHover}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#075985"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroonPressed}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="border" Property="Opacity" Value="0.4"/>
@@ -53,9 +66,9 @@
         </Style>
 
         <!-- Secondary Neutral Button -->
-        <Style x:Key="SecondaryBtn" TargetType="Button">
-            <Setter Property="Background" Value="#27272A"/>
-            <Setter Property="Foreground" Value="#E4E4E7"/>
+        <Style x:Key="RiyanSecondaryBtn" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Height" Value="34"/>
@@ -63,7 +76,7 @@
             <Setter Property="Padding" Value="12,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -74,14 +87,6 @@
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#3F3F46"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#52525B"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -89,7 +94,7 @@
 
         <!-- Discipline Tab Radio Button -->
         <Style x:Key="DisciplineTab" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#A1A1AA"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="12,6"/>
@@ -102,11 +107,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#27272A"/>
-                                <Setter Property="Foreground" Value="#F4F4F5"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource CardBg}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#0284C7"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -116,7 +121,7 @@
         </Style>
     </Window.Resources>
 
-    <Border BorderBrush="#27272A" BorderThickness="1">
+    <Border x:Name="MainOuterBorder" BorderBrush="{DynamicResource RiyanMaroon}" BorderThickness="1.5">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>  <!-- Title bar -->
@@ -126,27 +131,33 @@
             </Grid.RowDefinitions>
 
             <!-- 1. Custom Title Bar -->
-            <Border Grid.Row="0" Background="#121215" BorderBrush="#27272A" BorderThickness="0,0,0,1" x:Name="TitleBar">
+            <Border Grid.Row="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" x:Name="TitleBar">
                 <Grid Margin="16,0,12,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="RIYAN" FontWeight="Bold" FontSize="15" Foreground="#38BDF8" VerticalAlignment="Center"/>
-                        <TextBlock Text=" FAMILY LIBRARY" FontWeight="SemiBold" FontSize="14" Foreground="#F4F4F5" VerticalAlignment="Center"/>
-                        <Border Background="#27272A" CornerRadius="4" Padding="6,2" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="BIM SERVER" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                        <!-- Riyan Logo Emblem -->
+                        <Border Background="{DynamicResource RiyanMaroon}" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
+                            <TextBlock Text="RYN" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF"/>
+                        </Border>
+                        <TextBlock Text="RIYAN" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center" x:Name="TxtTitleRiyan"/>
+                        <TextBlock Text=" FAMILY LIBRARY" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" x:Name="TxtTitleLibrary"/>
+                        <Border Background="{DynamicResource CardBg}" CornerRadius="4" Padding="6,2" Margin="10,0,0,0" VerticalAlignment="Center" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                            <TextBlock Text="BIM SERVER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextMuted}"/>
                         </Border>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <!-- Admin Sync Gear Icon Button -->
-                        <Button x:Name="BtnAdminSync" Content="⚙ Sync / Settings" Style="{StaticResource SecondaryBtn}" Height="28" MinWidth="110" FontSize="11" Margin="0,0,10,0"/>
+                        <!-- Theme Switcher Toggle -->
+                        <Button x:Name="BtnToggleTheme" Content="🌓 Dark" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="80" FontSize="11" Margin="0,0,8,0"/>
+                        <!-- Admin Sync / Settings -->
+                        <Button x:Name="BtnAdminSync" Content="⚙ Sync / Settings" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="110" FontSize="11" Margin="0,0,10,0"/>
                         <!-- Close Window Button -->
-                        <Button x:Name="BtnClose" Content="✕" Width="30" Height="28" Background="Transparent" Foreground="#A1A1AA" FontSize="14" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
+                        <Button x:Name="BtnClose" Content="✕" Width="30" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="14" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- 2. Discipline Toolbar -->
-            <Border Grid.Row="1" Background="#18181B" BorderBrush="#27272A" BorderThickness="0,0,0,1" Padding="14,0">
+            <Border Grid.Row="1" Background="{DynamicResource WindowBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="14,0" x:Name="DisciplineBar">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <RadioButton x:Name="TabAll" Content="🌐 All Disciplines" Style="{StaticResource DisciplineTab}" IsChecked="True"/>
                     <RadioButton x:Name="TabArc" Content="🏛 Architectural" Style="{StaticResource DisciplineTab}"/>
@@ -161,40 +172,43 @@
             <!-- 3. Main Split View: Left (Categories), Center (Cards), Right (Detail Inspector) -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="230"/> <!-- Categories Sidebar -->
+                    <ColumnDefinition Width="240"/> <!-- Level-Based Categories Sidebar -->
                     <ColumnDefinition Width="*"/>   <!-- Family Cards Grid -->
-                    <ColumnDefinition Width="360"/> <!-- Right Detail Inspector -->
+                    <ColumnDefinition Width="380"/> <!-- Right Detail Inspector -->
                 </Grid.ColumnDefinitions>
 
-                <!-- Left Sidebar: Categories List -->
-                <Border Grid.Column="0" Background="#121215" BorderBrush="#27272A" BorderThickness="0,0,1,0" Padding="12">
+                <!-- Left Sidebar: Level-Based Categories List -->
+                <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0" Padding="12" x:Name="SidebarBorder">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="32"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Text="CATEGORIES" FontWeight="Bold" FontSize="11" Foreground="#71717A" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="LEVEL CATEGORIES" FontWeight="Bold" FontSize="11" Foreground="{DynamicResource RiyanMaroon}" VerticalAlignment="Center"/>
+                        </StackPanel>
 
                         <ListBox Grid.Row="1" x:Name="LstCategories" Background="Transparent" BorderThickness="0" 
-                                 Foreground="#E4E4E7" FontSize="12" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                 Foreground="{DynamicResource TextPrimary}" FontSize="12" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
                                     <Setter Property="Padding" Value="10,8"/>
-                                    <Setter Property="Margin" Value="0,1"/>
+                                    <Setter Property="Margin" Value="0,2"/>
                                     <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="ListBoxItem">
                                                 <Border x:Name="border" Background="Transparent" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter/>
+                                                    <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="border" Property="Background" Value="#27272A"/>
+                                                        <Setter TargetName="border" Property="Background" Value="{DynamicResource CardBg}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsSelected" Value="True">
-                                                        <Setter TargetName="border" Property="Background" Value="#0284C7"/>
+                                                        <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
                                                         <Setter Property="Foreground" Value="#FFFFFF"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
@@ -208,28 +222,28 @@
                 </Border>
 
                 <!-- Center Area: Search Bar + Family Cards Grid -->
-                <Grid Grid.Column="1" Background="#18181B">
+                <Grid Grid.Column="1" Background="{DynamicResource WindowBg}" x:Name="CenterGrid">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="46"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
                     <!-- Top Search Bar & Counter -->
-                    <Border Grid.Row="0" Background="#18181B" BorderBrush="#27272A" BorderThickness="0,0,0,1" Padding="14,6">
+                    <Border Grid.Row="0" Background="{DynamicResource WindowBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="14,6" x:Name="SearchBarBorder">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" Background="#121215" BorderBrush="#3F3F46" BorderThickness="1" CornerRadius="6" Height="32">
+                            <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" Height="32" x:Name="SearchInputBorder">
                                 <Grid Margin="10,0">
-                                    <TextBlock x:Name="TxtSearchPlaceholder" Text="🔍 Search content names, types, options..." Foreground="#71717A" VerticalAlignment="Center" IsHitTestVisible="False"/>
-                                    <TextBox x:Name="TxtSearch" Background="Transparent" Foreground="#F4F4F5" BorderThickness="0" VerticalAlignment="Center" FontSize="12"/>
+                                    <TextBlock x:Name="TxtSearchPlaceholder" Text="🔍 Search content names, types, options..." Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                    <TextBox x:Name="TxtSearch" Background="Transparent" Foreground="{DynamicResource TextPrimary}" BorderThickness="0" VerticalAlignment="Center" FontSize="12"/>
                                 </Grid>
                             </Border>
 
-                            <TextBlock Grid.Column="1" x:Name="TxtResultsCount" Text="0 Families" Foreground="#A1A1AA" FontSize="11" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                            <TextBlock Grid.Column="1" x:Name="TxtResultsCount" Text="0 Families" Foreground="{DynamicResource TextSecondary}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,0,0"/>
                         </Grid>
                     </Border>
 
@@ -250,17 +264,16 @@
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="ListBoxItem">
-                                                <Border x:Name="cardBorder" Background="#202024" BorderBrush="#2E2E33" BorderThickness="1" CornerRadius="8" Width="170" Height="205">
+                                                <Border x:Name="cardBorder" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="8" Width="175" Height="215">
                                                     <ContentPresenter/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="cardBorder" Property="BorderBrush" Value="#0284C7"/>
-                                                        <Setter TargetName="cardBorder" Property="Background" Value="#27272A"/>
+                                                        <Setter TargetName="cardBorder" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsSelected" Value="True">
-                                                        <Setter TargetName="cardBorder" Property="BorderBrush" Value="#38BDF8"/>
-                                                        <Setter TargetName="cardBorder" Property="Background" Value="#0F2B48"/>
+                                                        <Setter TargetName="cardBorder" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
+                                                        <Setter TargetName="cardBorder" Property="Background" Value="#2B1211"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -273,55 +286,55 @@
                 </Grid>
 
                 <!-- Right Sidebar: Family Inspector & Options -->
-                <Border Grid.Column="2" Background="#121215" BorderBrush="#27272A" BorderThickness="1,0,0,0" Padding="16">
+                <Border Grid.Column="2" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1,0,0,0" Padding="16" x:Name="InspectorBorder">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel x:Name="PanelDetail" Visibility="Collapsed">
                             <!-- Large High-Res Preview Image -->
-                            <Border Background="#1C1C20" CornerRadius="8" BorderBrush="#2E2E33" BorderThickness="1" Height="190" Margin="0,0,0,12" ClipToBounds="True">
+                            <Border Background="{DynamicResource WindowBg}" CornerRadius="8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Height="200" Margin="0,0,0,12" ClipToBounds="True" x:Name="DetailImgBorder">
                                 <Image x:Name="ImgDetailPreview" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
 
                             <!-- Family Titles -->
-                            <TextBlock x:Name="TxtDetailTitle" Text="Family Base Title" FontSize="15" FontWeight="Bold" Foreground="#FFFFFF" TextWrapping="Wrap" Margin="0,0,0,2"/>
-                            <TextBlock x:Name="TxtDetailCode" Text="RYN_CODE_Technical_Name" FontSize="10" Foreground="#71717A" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <TextBlock x:Name="TxtDetailTitle" Text="Family Base Title" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" TextWrapping="Wrap" Margin="0,0,0,2"/>
+                            <TextBlock x:Name="TxtDetailCode" Text="RYN_CODE_Technical_Name" FontSize="10" Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" Margin="0,0,0,10"/>
 
-                            <!-- Discipline & Category Chips -->
+                            <!-- Discipline & Level Category Chips -->
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                                <Border Background="#1E293B" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
-                                    <TextBlock x:Name="TxtDetailDiscipline" Text="ARCHITECTURAL" FontSize="10" FontWeight="Bold" Foreground="#38BDF8"/>
+                                <Border Background="{DynamicResource RiyanMaroon}" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
+                                    <TextBlock x:Name="TxtDetailDiscipline" Text="ARCHITECTURAL" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
                                 </Border>
-                                <Border Background="#27272A" CornerRadius="4" Padding="8,3">
-                                    <TextBlock x:Name="TxtDetailCategory" Text="Windows" FontSize="10" FontWeight="SemiBold" Foreground="#A1A1AA"/>
+                                <Border Background="{DynamicResource CardBg}" CornerRadius="4" Padding="8,3" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" x:Name="CategoryBadgeBorder">
+                                    <TextBlock x:Name="TxtDetailCategory" Text="Door-Sliding" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
                                 </Border>
                             </StackPanel>
 
                             <!-- Graphic Capability Badges (Icons) -->
-                            <Border Background="#18181B" CornerRadius="6" BorderBrush="#27272A" BorderThickness="1" Padding="10" Margin="0,0,0,14">
+                            <Border Background="{DynamicResource WindowBg}" CornerRadius="6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Padding="10" Margin="0,0,0,14" x:Name="BadgesContainerBorder">
                                 <StackPanel>
-                                    <TextBlock Text="CAPABILITIES &amp; OPTIONS" FontSize="10" FontWeight="Bold" Foreground="#71717A" Margin="0,0,0,8"/>
+                                    <TextBlock Text="CAPABILITIES &amp; OPTIONS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource RiyanMaroon}" Margin="0,0,0,8"/>
                                     <WrapPanel x:Name="PanelBadges" Orientation="Horizontal"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Available Types Dropdown -->
-                            <TextBlock Text="FAMILY TYPES" FontSize="10" FontWeight="Bold" Foreground="#71717A" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="CmbTypes" Height="32" Background="#18181B" Foreground="#FFFFFF" BorderBrush="#3F3F46" Margin="0,0,0,14"/>
+                            <TextBlock Text="FAMILY TYPES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="CmbTypes" Height="32" Background="{DynamicResource WindowBg}" Foreground="{DynamicResource TextPrimary}" BorderBrush="{DynamicResource BorderColor}" Margin="0,0,0,14"/>
 
-                            <!-- Type Parameters Summary -->
-                            <TextBlock Text="SPECIFICATIONS" FontSize="10" FontWeight="Bold" Foreground="#71717A" Margin="0,0,0,4"/>
-                            <Border Background="#18181B" CornerRadius="6" BorderBrush="#27272A" BorderThickness="1" Padding="10" Margin="0,0,0,16">
+                            <!-- Specifications Summary -->
+                            <TextBlock Text="SPECIFICATIONS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,4"/>
+                            <Border Background="{DynamicResource WindowBg}" CornerRadius="6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Padding="10" Margin="0,0,0,16" x:Name="ParamsContainerBorder">
                                 <StackPanel x:Name="PanelParams">
                                     <!-- Dynamic parameters rendered here -->
                                 </StackPanel>
                             </Border>
 
                             <!-- Action Buttons -->
-                            <Button x:Name="BtnLoadFamily" Content="⬇ Load into Project" Style="{StaticResource PrimaryBtn}" Height="36" Margin="0,0,0,8"/>
-                            <Button x:Name="BtnLoadTypeOnly" Content="Load Selected Type Only" Style="{StaticResource SecondaryBtn}" Height="32" Margin="0,0,0,12"/>
+                            <Button x:Name="BtnLoadFamily" Content="⬇ Load into Project" Style="{StaticResource RiyanPrimaryBtn}" Height="36" Margin="0,0,0,8"/>
+                            <Button x:Name="BtnLoadTypeOnly" Content="Load Selected Type Only" Style="{StaticResource RiyanSecondaryBtn}" Height="32" Margin="0,0,0,12"/>
 
                             <!-- Admin Edit in Revit 2025 Button -->
-                            <Button x:Name="BtnEdit2025" Content="🛠 Edit Master in Revit 2025" Style="{StaticResource SecondaryBtn}" 
-                                    Height="32" Background="#312E81" Foreground="#C7D2FE" BorderBrush="#4338CA" Margin="0,0,0,4"
+                            <Button x:Name="BtnEdit2025" Content="🛠 Edit Master in Revit 2025" Style="{StaticResource RiyanSecondaryBtn}" 
+                                    Height="32" Margin="0,0,0,4"
                                     ToolTip="Opens this family directly in Autodesk Revit 2025 to preserve company-wide backward compatibility."/>
                         </StackPanel>
                     </ScrollViewer>
@@ -329,16 +342,16 @@
             </Grid>
 
             <!-- 4. Footer Bar -->
-            <Border Grid.Row="3" Background="#121215" BorderBrush="#27272A" BorderThickness="0,1,0,0" Padding="16,0">
+            <Border Grid.Row="3" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Padding="16,0" x:Name="FooterBorder">
                 <Grid VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse Width="8" Height="8" Fill="#22C55E" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="TxtStatus" Text="SharePoint Library Connected" FontSize="11" Foreground="#71717A" VerticalAlignment="Center"/>
+                        <Ellipse Width="8" Height="8" Fill="{DynamicResource RiyanMaroon}" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="TxtStatus" Text="SharePoint Library Connected" FontSize="11" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="BtnFooterLoad" Content="Load Selected" Style="{StaticResource PrimaryBtn}" Margin="0,0,10,0"/>
-                        <Button x:Name="BtnFooterClose" Content="Close" Style="{StaticResource SecondaryBtn}"/>
+                        <Button x:Name="BtnFooterLoad" Content="Load Selected" Style="{StaticResource RiyanPrimaryBtn}" Margin="0,0,10,0"/>
+                        <Button x:Name="BtnFooterClose" Content="Close" Style="{StaticResource RiyanSecondaryBtn}"/>
                     </StackPanel>
                 </Grid>
             </Border>
