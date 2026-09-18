@@ -109,11 +109,29 @@ class MaterialAuditorWindow(Window):
         self.TabCompliant = self.window.FindName("TabCompliant")
 
         # Events
-        self.window.FindName("BtnTheme").Click += self.OnToggleTheme
-        self.window.FindName("BtnStandardize").Click += self.OnApplyStandardization
-        self.TabInconsistent.Checked += self.OnTabChanged
-        self.TabMissing.Checked += self.OnTabChanged
-        self.TabCompliant.Checked += self.OnTabChanged
+        self.TitleBar = self.window.FindName("TitleBar")
+        if self.TitleBar:
+            self.TitleBar.MouseDown += self.OnTitleBarMouseDown
+
+        self.BtnClose = self.window.FindName("BtnClose")
+        if self.BtnClose:
+            self.BtnClose.Click += self.OnCloseClicked
+
+        self.BtnExport = self.window.FindName("BtnExport")
+        if self.BtnExport:
+            self.BtnExport.Click += self.OnExportReport
+
+        if self.BtnTheme:
+            self.BtnTheme.Click += self.OnToggleTheme
+        if self.BtnStandardize:
+            self.BtnStandardize.Click += self.OnApplyStandardization
+
+        if self.TabInconsistent:
+            self.TabInconsistent.Checked += self.OnTabChanged
+        if self.TabMissing:
+            self.TabMissing.Checked += self.OnTabChanged
+        if self.TabCompliant:
+            self.TabCompliant.Checked += self.OnTabChanged
 
         # Win32 ownership
         try:
@@ -274,6 +292,17 @@ class MaterialAuditorWindow(Window):
         self.TabInconsistent.Foreground = res["TextPrimary"]
         self.TabMissing.Foreground = res["TextPrimary"]
         self.TabCompliant.Foreground = res["TextPrimary"]
+
+    def OnTitleBarMouseDown(self, sender, e):
+        try:
+            from System.Windows.Input import MouseButton
+            if e.ChangedButton == MouseButton.Left:
+                self.window.DragMove()
+        except Exception:
+            pass
+
+    def OnCloseClicked(self, sender, e):
+        self.window.Close()
 
     def OnToggleTheme(self, sender, e):
         self.is_dark_theme = not self.is_dark_theme

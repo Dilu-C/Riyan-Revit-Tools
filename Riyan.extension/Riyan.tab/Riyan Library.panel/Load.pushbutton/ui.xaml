@@ -118,6 +118,8 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
         <!-- View Mode Segment Button Style -->
         <Style x:Key="ViewSegmentBtn" TargetType="RadioButton">
             <Setter Property="Background" Value="Transparent"/>

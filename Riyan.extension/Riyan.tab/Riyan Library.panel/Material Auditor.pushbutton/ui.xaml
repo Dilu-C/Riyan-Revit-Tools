@@ -57,8 +57,8 @@
             </Grid.RowDefinitions>
 
             <!-- 1. Title Bar -->
-            <Border Grid.Row="0" Background="{DynamicResource SurfaceBg}" CornerRadius="11,11,0,0" 
-                    MouseDown="OnTitleBarMouseDown" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
+            <Border x:Name="TitleBar" Grid.Row="0" Background="{DynamicResource SurfaceBg}" CornerRadius="11,11,0,0" 
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
                 <Grid Margin="18,0,14,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Border Background="{DynamicResource RiyanMaroon}" CornerRadius="6" Width="26" Height="26" Margin="0,0,10,0">
@@ -73,7 +73,7 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <!-- Theme Toggle Button -->
-                        <Button x:Name="BtnTheme" Content="☀️ Light" Click="OnToggleTheme" Margin="0,0,12,0" Padding="8,4"
+                        <Button x:Name="BtnTheme" Content="☀️ Light" Margin="0,0,12,0" Padding="8,4"
                                 Background="{DynamicResource CardBg}" Foreground="{DynamicResource TextPrimary}" 
                                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11">
                             <Button.Template>
@@ -85,7 +85,7 @@
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
-                        <Button Click="OnCloseClicked" Content="✕" Width="28" Height="28" Background="Transparent" 
+                        <Button x:Name="BtnClose" Content="✕" Width="28" Height="28" Background="Transparent" 
                                 Foreground="{DynamicResource TextSecondary}" BorderThickness="0" FontSize="14" Cursor="Hand">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
@@ -153,11 +153,11 @@
                 <!-- Filter / Tab Bar -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
                     <RadioButton x:Name="TabInconsistent" Content="Inconsistent Materials" IsChecked="True" 
-                                 Checked="OnTabChanged" Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                                 Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
                     <RadioButton x:Name="TabMissing" Content="Missing Parameters" 
-                                 Checked="OnTabChanged" Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                                 Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
                     <RadioButton x:Name="TabCompliant" Content="Fully Compliant" 
-                                 Checked="OnTabChanged" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                                 Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
                 </StackPanel>
 
                 <!-- List / Grid View -->
@@ -212,7 +212,7 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <!-- Export Button -->
-                        <Button Content="📄 Export Report" Click="OnExportReport" Margin="0,0,10,0" Padding="14,0" Height="36"
+                        <Button x:Name="BtnExport" Content="📄 Export Report" Margin="0,0,10,0" Padding="14,0" Height="36"
                                 Background="{DynamicResource CardBg}" Foreground="{DynamicResource TextPrimary}" 
                                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="12">
                             <Button.Template>
@@ -226,7 +226,7 @@
                         </Button>
 
                         <!-- Standardize Button -->
-                        <Button x:Name="BtnStandardize" Content="✨ Apply Standardization (RYN_MAT)" Click="OnApplyStandardization" 
+                        <Button x:Name="BtnStandardize" Content="✨ Apply Standardization (RYN_MAT)" 
                                 Padding="16,0" Height="36" Background="{DynamicResource RiyanMaroon}" Foreground="White" 
                                 BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="12">
                             <Button.Template>
