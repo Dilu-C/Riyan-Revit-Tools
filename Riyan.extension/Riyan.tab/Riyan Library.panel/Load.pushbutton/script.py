@@ -254,6 +254,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.TabFire.Checked += lambda s, e: self.set_discipline("FIRE PROTECTION")
         self.TabAcmv.Checked += lambda s, e: self.set_discipline("ACMV")
 
+        self.update_discipline_tab_styles()
+
         # Load Catalog Data
         self.load_catalog_data()
 

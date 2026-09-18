@@ -171,7 +171,7 @@
         </Style>
     </Window.Resources>
 
-    <Border x:Name="MainOuterBorder" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+    <Border x:Name="MainOuterBorder" BorderThickness="0">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>  <!-- Title bar -->
