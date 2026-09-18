@@ -150,54 +150,35 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Filter / Tab Bar -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                    <RadioButton x:Name="TabInconsistent" Content="Inconsistent Materials" IsChecked="True" 
-                                 Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
-                    <RadioButton x:Name="TabMissing" Content="Missing Parameters" 
-                                 Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
-                    <RadioButton x:Name="TabCompliant" Content="Fully Compliant" 
-                                 Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
-                </StackPanel>
+                <!-- Filter / Tab Bar & Search -->
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <RadioButton x:Name="TabInconsistent" Content="Inconsistent Materials" IsChecked="True" 
+                                     Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                        <RadioButton x:Name="TabMissing" Content="Missing Parameters" 
+                                     Foreground="{DynamicResource TextPrimary}" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                        <RadioButton x:Name="TabCompliant" Content="Fully Compliant" 
+                                     Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <!-- Search Input -->
+                    <Border HorizontalAlignment="Right" Background="{DynamicResource SurfaceBg}" 
+                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" 
+                            Width="250" Height="30" Padding="8,2" VerticalAlignment="Center">
+                        <Grid>
+                            <TextBlock x:Name="TxtSearchPlaceholder" Text="🔍 Search families..." 
+                                       Foreground="{DynamicResource TextMuted}" FontSize="11" 
+                                       VerticalAlignment="Center" Margin="2,0,0,0" IsHitTestVisible="False"/>
+                            <TextBox x:Name="TxtSearch" Background="Transparent" Foreground="{DynamicResource TextPrimary}" 
+                                     BorderThickness="0" FontSize="11" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </Grid>
 
                 <!-- List / Grid View -->
                 <Border Grid.Row="1" Background="{DynamicResource CardBg}" CornerRadius="8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl x:Name="ItemsList" Margin="8">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{DynamicResource SurfaceBg}" CornerRadius="6" Padding="12,10" Margin="0,0,0,6" 
-                                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <!-- Category Icon/Badge -->
-                                            <Border Grid.Column="0" Background="#20802F2D" CornerRadius="4" Width="65" Height="30" Margin="0,0,12,0">
-                                                <TextBlock Text="{Binding Category}" Foreground="{DynamicResource RiyanRose}" 
-                                                           FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-
-                                            <!-- Family & Material Info -->
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding FamilyName}" Foreground="{DynamicResource TextPrimary}" 
-                                                           FontSize="13" FontWeight="Bold"/>
-                                                <TextBlock Text="{Binding Details}" Foreground="{DynamicResource TextSecondary}" 
-                                                           FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"/>
-                                            </StackPanel>
-
-                                            <!-- Action / Status Badge -->
-                                            <Border Grid.Column="2" CornerRadius="4" Padding="8,4" Background="{Binding BadgeBg}" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding BadgeText}" Foreground="{Binding BadgeFg}" FontSize="11" FontWeight="Bold"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <ItemsControl x:Name="ItemsList" Margin="8"/>
                     </ScrollViewer>
                 </Border>
             </Grid>

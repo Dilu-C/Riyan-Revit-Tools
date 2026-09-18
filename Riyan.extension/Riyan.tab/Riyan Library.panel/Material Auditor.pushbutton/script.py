@@ -20,7 +20,14 @@ clr.AddReference("RevitAPI")
 clr.AddReference("RevitAPIUI")
 
 import System
-from System.Windows import Window, Application, WindowStartupLocation, WindowStyle
+from System.Windows import (
+    Window, Application, WindowStartupLocation, WindowStyle,
+    Thickness, VerticalAlignment, HorizontalAlignment, FontWeights,
+    TextWrapping, Visibility, GridLength, GridUnitType
+)
+from System.Windows.Controls import (
+    Border, Grid, ColumnDefinition, TextBlock, StackPanel, TextBox
+)
 from System.Windows.Media import SolidColorBrush, Color, ColorConverter
 from System.Windows.Interop import WindowInteropHelper
 import Autodesk.Revit.DB as DB
@@ -130,6 +137,11 @@ class MaterialAuditorWindow(Window):
             self.TabMissing.Checked += self.OnTabChanged
         if self.TabCompliant:
             self.TabCompliant.Checked += self.OnTabChanged
+
+        self.TxtSearch = self.window.FindName("TxtSearch")
+        self.TxtSearchPlaceholder = self.window.FindName("TxtSearchPlaceholder")
+        if self.TxtSearch:
+            self.TxtSearch.TextChanged += self.OnSearchChanged
 
         # Win32 ownership
         try:
@@ -247,16 +259,155 @@ class MaterialAuditorWindow(Window):
 
         self.update_list_view()
 
+    def OnSearchChanged(self, sender, e):
+        if hasattr(self, "TxtSearchPlaceholder") and self.TxtSearchPlaceholder:
+            self.TxtSearchPlaceholder.Visibility = Visibility.Collapsed if self.TxtSearch.Text.strip() else Visibility.Visible
+        self.update_list_view()
+
     def update_list_view(self):
+        if not hasattr(self, "ItemsList") or not self.ItemsList:
+            return
+        self.ItemsList.Items.Clear()
         if not self.audit_data:
             return
 
         if self.current_tab == "Inconsistent":
-            self.ItemsList.ItemsSource = self.audit_data["inconsistent"]
+            items = self.audit_data.get("inconsistent", [])
         elif self.current_tab == "Missing":
-            self.ItemsList.ItemsSource = self.audit_data["missing"]
+            items = self.audit_data.get("missing", [])
         else:
-            self.ItemsList.ItemsSource = self.audit_data["compliant"]
+            items = self.audit_data.get("compliant", [])
+
+        search_query = self.TxtSearch.Text.strip().lower() if (hasattr(self, "TxtSearch") and self.TxtSearch) else ""
+
+        rendered_count = 0
+        for item in items:
+            if search_query:
+                fn = item.get("FamilyName", "").lower()
+                cn = item.get("Category", "").lower()
+                dt = item.get("Details", "").lower()
+                if search_query not in fn and search_query not in cn and search_query not in dt:
+                    continue
+
+            row = self.create_audit_row(item)
+            self.ItemsList.Items.Add(row)
+            rendered_count += 1
+
+        if rendered_count == 0:
+            empty_panel = StackPanel()
+            empty_panel.HorizontalAlignment = HorizontalAlignment.Center
+            empty_panel.VerticalAlignment = VerticalAlignment.Center
+            empty_panel.Margin = Thickness(0, 50, 0, 50)
+            
+            empty_txt = TextBlock()
+            empty_txt.Text = u"No families found matching current filter."
+            empty_txt.Foreground = self.window.Resources["TextMuted"]
+            empty_txt.FontSize = 13
+            empty_txt.FontWeight = FontWeights.SemiBold
+            empty_panel.Children.Add(empty_txt)
+            self.ItemsList.Items.Add(empty_panel)
+
+    def create_audit_row(self, item):
+        res = self.window.Resources
+        row_border = Border()
+        row_border.Background = res["SurfaceBg"]
+        row_border.BorderBrush = res["BorderColor"]
+        row_border.BorderThickness = Thickness(1)
+        row_border.CornerRadius = System.Windows.CornerRadius(6)
+        row_border.Padding = Thickness(14, 10, 14, 10)
+        row_border.Margin = Thickness(0, 0, 0, 6)
+
+        grid = Grid()
+        c0 = ColumnDefinition(); c0.Width = GridLength(1, GridUnitType.Auto)
+        c1 = ColumnDefinition(); c1.Width = GridLength(1, GridUnitType.Star)
+        c2 = ColumnDefinition(); c2.Width = GridLength(1, GridUnitType.Auto)
+        grid.ColumnDefinitions.Add(c0)
+        grid.ColumnDefinitions.Add(c1)
+        grid.ColumnDefinitions.Add(c2)
+
+        # 1. Category Badge
+        cat_badge = Border()
+        if self.is_dark_theme:
+            cat_badge.Background = SolidColorBrush(Color.FromArgb(50, 128, 47, 45))
+        else:
+            cat_badge.Background = SolidColorBrush(Color.FromArgb(25, 128, 47, 45))
+        cat_badge.CornerRadius = System.Windows.CornerRadius(4)
+        cat_badge.Padding = Thickness(8, 4, 8, 4)
+        cat_badge.Margin = Thickness(0, 0, 12, 0)
+        cat_badge.VerticalAlignment = VerticalAlignment.Center
+        
+        cat_text = TextBlock()
+        cat_text.Text = item.get("Category", "Unknown")
+        cat_text.Foreground = res["RiyanRose"]
+        cat_text.FontSize = 11
+        cat_text.FontWeight = FontWeights.Bold
+        cat_badge.Child = cat_text
+        Grid.SetColumn(cat_badge, 0)
+        grid.Children.Add(cat_badge)
+
+        # 2. Family Name & Details
+        info_stack = StackPanel()
+        info_stack.VerticalAlignment = VerticalAlignment.Center
+        
+        fam_text = TextBlock()
+        fam_text.Text = item.get("FamilyName", "")
+        fam_text.Foreground = res["TextPrimary"]
+        fam_text.FontSize = 13
+        fam_text.FontWeight = FontWeights.Bold
+        info_stack.Children.Add(fam_text)
+
+        det_text = TextBlock()
+        det_text.Text = item.get("Details", "")
+        det_text.Foreground = res["TextSecondary"]
+        det_text.FontSize = 11
+        det_text.TextWrapping = TextWrapping.Wrap
+        det_text.Margin = Thickness(0, 3, 0, 0)
+        info_stack.Children.Add(det_text)
+        
+        Grid.SetColumn(info_stack, 1)
+        grid.Children.Add(info_stack)
+
+        # 3. Status Badge (Theme-Adaptive High Contrast)
+        badge_type = item.get("BadgeText", "")
+        badge_border = Border()
+        badge_border.CornerRadius = System.Windows.CornerRadius(4)
+        badge_border.Padding = Thickness(10, 4, 10, 4)
+        badge_border.VerticalAlignment = VerticalAlignment.Center
+        badge_border.Margin = Thickness(12, 0, 0, 0)
+
+        badge_txt = TextBlock()
+        badge_txt.Text = badge_type
+        badge_txt.FontSize = 11
+        badge_txt.FontWeight = FontWeights.Bold
+
+        if "Missing" in badge_type:
+            if self.is_dark_theme:
+                badge_border.Background = SolidColorBrush(Color.FromRgb(69, 26, 26))
+                badge_txt.Foreground = SolidColorBrush(Color.FromRgb(252, 165, 165))
+            else:
+                badge_border.Background = SolidColorBrush(Color.FromRgb(254, 226, 226))
+                badge_txt.Foreground = SolidColorBrush(Color.FromRgb(220, 38, 38))
+        elif "Needs" in badge_type:
+            if self.is_dark_theme:
+                badge_border.Background = SolidColorBrush(Color.FromRgb(66, 32, 6))
+                badge_txt.Foreground = SolidColorBrush(Color.FromRgb(252, 211, 77))
+            else:
+                badge_border.Background = SolidColorBrush(Color.FromRgb(254, 243, 199))
+                badge_txt.Foreground = SolidColorBrush(Color.FromRgb(217, 119, 6))
+        else: # Compliant
+            if self.is_dark_theme:
+                badge_border.Background = SolidColorBrush(Color.FromRgb(6, 78, 59))
+                badge_txt.Foreground = SolidColorBrush(Color.FromRgb(110, 231, 183))
+            else:
+                badge_border.Background = SolidColorBrush(Color.FromRgb(209, 250, 229))
+                badge_txt.Foreground = SolidColorBrush(Color.FromRgb(5, 150, 105))
+
+        badge_border.Child = badge_txt
+        Grid.SetColumn(badge_border, 2)
+        grid.Children.Add(badge_border)
+
+        row_border.Child = grid
+        return row_border
 
     def OnTabChanged(self, sender, e):
         if self.TabInconsistent.IsChecked:
@@ -297,6 +448,9 @@ class MaterialAuditorWindow(Window):
         self.TabInconsistent.Foreground = res["TextPrimary"]
         self.TabMissing.Foreground = res["TextPrimary"]
         self.TabCompliant.Foreground = res["TextPrimary"]
+        if hasattr(self, "TxtSearch") and self.TxtSearch:
+            self.TxtSearch.Foreground = res["TextPrimary"]
+        self.update_list_view()
 
     def OnTitleBarMouseDown(self, sender, e):
         try:
