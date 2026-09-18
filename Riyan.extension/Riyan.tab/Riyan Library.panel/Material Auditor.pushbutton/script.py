@@ -15,6 +15,7 @@ clr.AddReference("System.Windows.Forms")
 clr.AddReference("PresentationFramework")
 clr.AddReference("PresentationCore")
 clr.AddReference("WindowsBase")
+clr.AddReference("System.Xml")
 clr.AddReference("RevitAPI")
 clr.AddReference("RevitAPIUI")
 
@@ -85,14 +86,11 @@ class MaterialAuditorWindow(Window):
         self.current_tab = "Inconsistent"
 
         xaml_path = os.path.join(os.path.dirname(__file__), "ui.xaml")
-        with open(xaml_path, "r") as f:
+        with codecs.open(xaml_path, "r", "utf-8") as f:
             xaml_content = f.read()
 
-        import System.IO as SIO
         from System.Windows.Markup import XamlReader
-        str_reader = SIO.StringReader(xaml_content)
-        xml_reader = System.Xml.XmlReader.Create(str_reader)
-        self.window = XamlReader.Load(xml_reader)
+        self.window = XamlReader.Parse(xaml_content)
 
         # Wire elements
         self.TxtDocName = self.window.FindName("TxtDocName")
