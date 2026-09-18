@@ -446,10 +446,13 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         total = sum(counts.values())
         # Add 'All' item
+        white_brush = SolidColorBrush(Color.FromRgb(255, 255, 255))
+        normal_brush = self.Resources["TextPrimary"]
+
         all_item = ListBoxItem()
         all_item.Content = u"All Categories ({})".format(total)
         all_item.Tag = "ALL"
-        all_item.Foreground = self.Resources["TextPrimary"]
+        all_item.Foreground = white_brush
         self.LstCategories.Items.Add(all_item)
         all_item.IsSelected = True
 
@@ -457,7 +460,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             lbi = ListBoxItem()
             lbi.Content = u"{} ({})".format(cat, counts[cat])
             lbi.Tag = cat
-            lbi.Foreground = self.Resources["TextPrimary"]
+            lbi.Foreground = normal_brush
             self.LstCategories.Items.Add(lbi)
 
     def on_category_changed(self, sender, e):
@@ -466,6 +469,17 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.current_category = sel.Tag
         else:
             self.current_category = "ALL"
+
+        # Strict Selection Contrast: Force white text on active category
+        white_brush = SolidColorBrush(Color.FromRgb(255, 255, 255))
+        normal_brush = self.Resources["TextPrimary"]
+        for i in range(self.LstCategories.Items.Count):
+            item = self.LstCategories.Items[i]
+            if item == sel or (hasattr(item, "IsSelected") and item.IsSelected):
+                item.Foreground = white_brush
+            else:
+                item.Foreground = normal_brush
+
         self.apply_filter()
 
     def on_cards_preview_mouse_wheel(self, sender, e):
@@ -613,7 +627,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             title_sp.VerticalAlignment = System.Windows.VerticalAlignment.Center
             title_sp.Margin = Thickness(10, 0, 0, 0)
             txt_t = TextBlock()
-            txt_t.Text = fam.get("title", fam.get("code", "Family"))
+            txt_t.Text = fam.get("code", fam.get("title", "Family"))
             txt_t.FontSize = 12; txt_t.FontWeight = System.Windows.FontWeights.Bold
             txt_t.Foreground = text_primary
             txt_t.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
@@ -688,9 +702,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         img_border.Child = img
         sp.Children.Add(img_border)
 
-        # Title
+        # Title (Strictly preserve user's actual family name / code)
         txt_title = TextBlock()
-        txt_title.Text = fam.get("title", fam.get("code", "Family"))
+        txt_title.Text = fam.get("code", fam.get("title", "Family"))
         txt_title.FontSize = font_title
         txt_title.FontWeight = System.Windows.FontWeights.Bold
         txt_title.Foreground = text_primary
@@ -723,8 +737,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.selected_family = fam
         self.PanelDetail.Visibility = Visibility.Visible
 
-        self.TxtDetailTitle.Text = fam.get("title", "")
-        self.TxtDetailCode.Text = fam.get("code", "")
+        fam_name = fam.get("code", fam.get("title", ""))
+        self.TxtDetailTitle.Text = fam_name
+        self.TxtDetailCode.Text = fam.get("category", "General")
         self.TxtDetailDiscipline.Text = fam.get("discipline", "ARCHITECTURAL")
         self.TxtDetailCategory.Text = fam.get("category", "General")
 
@@ -757,7 +772,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             badge_sp.Orientation = System.Windows.Controls.Orientation.Horizontal
 
             ico = TextBlock()
-            ico.Text = b.get("icon", "✔") + " "
+            raw_ico = b.get("icon", "")
+            if any(bad in raw_ico for bad in [u"Ã", u"Â", u"â", u"€"]):
+                raw_ico = u"•"
+            ico.Text = (raw_ico if raw_ico else u"•") + u" "
             ico.FontSize = 10
             ico.Foreground = SolidColorBrush(Color.FromRgb(128, 47, 45)) # Riyan Maroon
             badge_sp.Children.Add(ico)

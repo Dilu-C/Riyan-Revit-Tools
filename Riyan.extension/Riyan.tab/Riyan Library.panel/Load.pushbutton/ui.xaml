@@ -151,7 +151,7 @@
         </Style>
     </Window.Resources>
 
-    <Border x:Name="MainOuterBorder" BorderBrush="{DynamicResource RiyanMaroon}" BorderThickness="1.5">
+    <Border x:Name="MainOuterBorder" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>  <!-- Title bar -->
@@ -190,11 +190,11 @@
             <Border Grid.Row="1" Background="{DynamicResource WindowBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="14,0" x:Name="DisciplineBar">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <RadioButton x:Name="TabAll" Content="🌐 All Disciplines" Style="{StaticResource DisciplineTab}" IsChecked="True"/>
-                    <RadioButton x:Name="TabArc" Content="🏛 Architectural" Style="{StaticResource DisciplineTab}"/>
+                    <RadioButton x:Name="TabArc" Content="🏢 Architectural" Style="{StaticResource DisciplineTab}"/>
                     <RadioButton x:Name="TabStr" Content="🏗 Structural" Style="{StaticResource DisciplineTab}"/>
                     <RadioButton x:Name="TabPlumb" Content="🚰 Plumbing" Style="{StaticResource DisciplineTab}"/>
                     <RadioButton x:Name="TabElec" Content="⚡ Electrical" Style="{StaticResource DisciplineTab}"/>
-                    <RadioButton x:Name="TabFire" Content="🧯 Fire Protection" Style="{StaticResource DisciplineTab}"/>
+                    <RadioButton x:Name="TabFire" Content="🔥 Fire Protection" Style="{StaticResource DisciplineTab}"/>
                     <RadioButton x:Name="TabAcmv" Content="❄ ACMV" Style="{StaticResource DisciplineTab}"/>
                 </StackPanel>
             </Border>
@@ -240,6 +240,8 @@
                                                     <Trigger Property="IsSelected" Value="True">
                                                         <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
                                                         <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                        <Setter TargetName="border" Property="TextElement.Foreground" Value="#FFFFFF"/>
+                                                        <Setter TargetName="border" Property="TextElement.FontWeight" Value="Bold"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
