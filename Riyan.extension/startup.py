@@ -48,6 +48,21 @@ def get_versions():
 
     return local_version, online_version
 
+def parse_version(v_str):
+    if not v_str:
+        return (0, 0, 0)
+    import re
+    parts = re.findall(r'\d+', str(v_str))
+    if not parts:
+        return (0, 0, 0)
+    nums = [int(p) for p in parts]
+    while len(nums) < 3:
+        nums.append(0)
+    return tuple(nums)
+
+def is_newer_version(online_str, local_str):
+    return parse_version(online_str) > parse_version(local_str)
+
 def show_update_toast(online_version, local_version):
     try:
         import clr
@@ -81,8 +96,8 @@ def show_update_toast(online_version, local_version):
             border = Border()
             border.CornerRadius = System.Windows.CornerRadius(10)
             border.Background = SolidColorBrush(Color.FromRgb(32, 32, 35))
-            border.BorderBrush = SolidColorBrush(Color.FromRgb(128, 47, 45)) # Signature Riyan Maroon
-            border.BorderThickness = System.Windows.Thickness(2)
+            border.BorderBrush = SolidColorBrush(Color.FromRgb(60, 60, 65))
+            border.BorderThickness = System.Windows.Thickness(1)
             border.Padding = System.Windows.Thickness(14)
             
             grid = Grid()
@@ -105,7 +120,7 @@ def show_update_toast(online_version, local_version):
             
             # Message
             txt_msg = TextBlock()
-            txt_msg.Text = u"New Version V{} is available (Current: V{}).\nGo to Riyan tab > System > Update to install.".format(online_version, local_version)
+            txt_msg.Text = u"New Version V{} is available (Installed: V{}).\nGo to Riyan tab > System > Update to install.".format(online_version, local_version)
             txt_msg.Foreground = SolidColorBrush(Color.FromRgb(175, 175, 180))
             txt_msg.FontSize = 11
             txt_msg.Margin = System.Windows.Thickness(0, 4, 0, 10)
@@ -312,8 +327,8 @@ def check_for_updates():
         time.sleep(12)
         local_v, online_v = get_versions()
         
-        # If newer update available -> Show desktop side toast only
-        if online_v and online_v != local_v:
+        # Only alert if online version is STRICTLY NEWER than local installed version
+        if online_v and is_newer_version(online_v, local_v):
             show_update_toast(online_v, local_v)
             return
     except Exception:

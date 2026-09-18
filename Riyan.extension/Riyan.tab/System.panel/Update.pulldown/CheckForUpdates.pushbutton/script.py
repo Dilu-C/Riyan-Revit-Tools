@@ -22,7 +22,7 @@ class UpdateForm(forms.WPFWindow):
             self.BtnAction.Content = "OK"
         elif state == "UPDATE_AVAILABLE":
             self.TxtTitle.Text = "Update Available!"
-            self.TxtMessage.Text = "A new update (V{}) for the Riyan Revit Plugin Suite is available!\nCurrent version: V{}\n\nWould you like to download and install this update now?".format(version_info[0], version_info[1])
+            self.TxtMessage.Text = "A new update (V{}) for the Riyan Revit Plugin Suite is available!\nInstalled version: V{}\n\nWould you like to download and install this update now?".format(version_info[0], version_info[1])
             self.BtnAction.Content = "Update Now"
         elif state == "ERROR":
             self.TxtTitle.Text = "Update Error"
@@ -73,6 +73,21 @@ def show_dialog(state, info=None):
     w.ShowDialog()
     return w.result
 
+def parse_version(v_str):
+    if not v_str:
+        return (0, 0, 0)
+    import re
+    parts = re.findall(r'\d+', str(v_str))
+    if not parts:
+        return (0, 0, 0)
+    nums = [int(p) for p in parts]
+    while len(nums) < 3:
+        nums.append(0)
+    return tuple(nums)
+
+def is_newer_version(online_str, local_str):
+    return parse_version(online_str) > parse_version(local_str)
+
 def update_tools():
     try:
         # 1. Determine paths
@@ -119,12 +134,12 @@ def update_tools():
             show_dialog("ERROR", "Could not connect to GitHub to check for updates. Please check your internet connection.")
             return
             
-        # 4. Compare versions
-        if online_version == local_version:
+        # 4. Compare versions - strictly check if online version is newer
+        if not is_newer_version(online_version, local_version):
             show_dialog("UP_TO_DATE", local_version)
             return
             
-        # 5. Prompt for update
+        # 5. Prompt for update (online_version is strictly newer than local_version)
         if show_dialog("UPDATE_AVAILABLE", (online_version, local_version)):
             with forms.ProgressBar(title="Downloading Update...") as pb:
                 pb.update_progress(10, 100)
