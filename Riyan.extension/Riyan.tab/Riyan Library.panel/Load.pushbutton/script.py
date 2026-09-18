@@ -280,6 +280,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["TextPrimary"] = SolidColorBrush(Color.FromRgb(244, 244, 245))
             self.Resources["TextSecondary"] = SolidColorBrush(Color.FromRgb(161, 161, 170))
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(113, 113, 122))
+            self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(42, 42, 48))
+            self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
             self.Background = self.Resources["WindowBg"]
             self.Foreground = self.Resources["TextPrimary"]
         else:
@@ -288,16 +290,16 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["SurfaceBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
             self.Resources["CardBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
             self.Resources["BorderColor"] = SolidColorBrush(Color.FromRgb(203, 213, 225)) # Slate 300
+            self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(226, 232, 240))     # Slate 200 distinct hover
+            self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(203, 213, 225)) # Slate 300
             self.Resources["TextPrimary"] = SolidColorBrush(Color.FromRgb(15, 23, 42))     # Deep Pitch Black/Slate
             self.Resources["TextSecondary"] = SolidColorBrush(Color.FromRgb(51, 65, 85))   # Dark Slate 700
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(100, 116, 139))   # Slate 500
             self.Background = self.Resources["WindowBg"]
             self.Foreground = self.Resources["TextPrimary"]
 
-        # Controls text contrast
-        for rb in [self.TabAll, self.TabArc, self.TabStr, self.TabPlumb, self.TabElec, self.TabFire, self.TabAcmv]:
-            if rb and not rb.IsChecked:
-                rb.Foreground = self.Resources["TextSecondary"]
+        # Controls text contrast - strictly enforce white on selected discipline tab!
+        self.update_discipline_tab_styles()
 
         # View Mode Segmented Buttons Contrast
         for b_name in ["BtnViewXL", "BtnViewL", "BtnViewM", "BtnViewS", "BtnViewList"]:
@@ -311,6 +313,16 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         # Update and re-render
         self.refresh_categories()
         self.apply_filter()
+
+    def update_discipline_tab_styles(self):
+        white_brush = SolidColorBrush(Color.FromRgb(255, 255, 255))
+        unselected_brush = self.Resources["TextSecondary"]
+        for rb in [self.TabAll, self.TabArc, self.TabStr, self.TabPlumb, self.TabElec, self.TabFire, self.TabAcmv]:
+            if rb:
+                if rb.IsChecked:
+                    rb.Foreground = white_brush
+                else:
+                    rb.Foreground = unselected_brush
 
     def load_catalog_data(self):
         catalog_path = os.path.join(CENTRAL_REPOSITORY, "catalog.json")
@@ -431,6 +443,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
     def set_discipline(self, disc):
         self.current_discipline = disc
+        self.update_discipline_tab_styles()
         self.refresh_categories()
         self.apply_filter()
 

@@ -23,6 +23,8 @@
         <SolidColorBrush x:Key="RiyanMaroon" Color="#802F2D"/>
         <SolidColorBrush x:Key="RiyanMaroonHover" Color="#9C3A38"/>
         <SolidColorBrush x:Key="RiyanMaroonPressed" Color="#632321"/>
+        <SolidColorBrush x:Key="HoverBg" Color="#2A2A30"/>
+        <SolidColorBrush x:Key="HoverBorder" Color="#3F3F46"/>
 
         <!-- Modern ScrollViewer Style -->
         <Style TargetType="{x:Type ScrollBar}">
@@ -65,7 +67,7 @@
             </Setter>
         </Style>
 
-        <!-- Secondary Neutral Button -->
+        <!-- Secondary Neutral Button with Visible Hover Highlight -->
         <Style x:Key="RiyanSecondaryBtn" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
@@ -87,12 +89,22 @@
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource HoverBorder}"/>
+                                <Setter TargetName="border" Property="TextElement.Foreground" Value="{DynamicResource TextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource CardBg}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- Discipline Tab Radio Button -->
+        <!-- Discipline Tab Radio Button with Crisp High-Contrast Hover & Selection -->
         <Style x:Key="DisciplineTab" TargetType="RadioButton">
             <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
             <Setter Property="FontSize" Value="12"/>
@@ -102,17 +114,21 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="border" Background="Transparent" CornerRadius="6" Padding="{TemplateBinding Padding}" Margin="0,0,4,0">
+                        <Border x:Name="border" Background="Transparent" CornerRadius="6" Padding="{TemplateBinding Padding}" Margin="0,0,4,0"
+                                BorderThickness="1" BorderBrush="Transparent">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{DynamicResource CardBg}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource HoverBorder}"/>
+                                <Setter TargetName="border" Property="TextElement.Foreground" Value="{DynamicResource TextPrimary}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
+                                <Setter TargetName="border" Property="TextElement.Foreground" Value="#FFFFFF"/>
+                                <Setter TargetName="border" Property="TextElement.FontWeight" Value="Bold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -120,7 +136,7 @@
             </Setter>
         </Style>
 
-        <!-- View Mode Segment Button Style -->
+        <!-- View Mode Segment Button Style with Crisp Hover & Selection -->
         <Style x:Key="ViewSegmentBtn" TargetType="RadioButton">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
@@ -132,17 +148,21 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}"
+                                BorderThickness="1" BorderBrush="Transparent">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{DynamicResource CardBg}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource HoverBorder}"/>
+                                <Setter TargetName="border" Property="TextElement.Foreground" Value="{DynamicResource TextPrimary}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
+                                <Setter TargetName="border" Property="TextElement.Foreground" Value="#FFFFFF"/>
+                                <Setter TargetName="border" Property="TextElement.FontWeight" Value="Bold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -235,7 +255,8 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="border" Property="Background" Value="{DynamicResource CardBg}"/>
+                                                        <Setter TargetName="border" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                                        <Setter TargetName="border" Property="TextElement.Foreground" Value="{DynamicResource TextPrimary}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsSelected" Value="True">
                                                         <Setter TargetName="border" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
