@@ -182,17 +182,19 @@ def is_sub_component(item):
 
 def get_family_priority(item):
     """
-    Prioritizes Dilupa's Riyan standard families (RYN_ prefix) and Level families at the front:
-    Rank 0: RYN_ families in curated Level categories
-    Rank 1: RYN_ families in other categories
-    Rank 2: Standard third-party families in curated Level categories
-    Rank 3: Generic *-Other families
+    Prioritizes Dilupa's Riyan standard families and Level families at the front:
+    Rank 0: Families/Walls placed on Dilupa's Master Levels (is_level_master == True)
+    Rank 1: Dilupa's Riyan standard families (RYN_ prefix) in curated Level categories
+    Rank 2: RYN_ families in other categories
+    Rank 3: Standard families in curated Level categories
+    Rank 4: Generic *-Other families
     """
     code = item.get("code", "")
     cat = item.get("category", "")
+    is_level_master = 0 if item.get("is_level_master") else 1
     is_ryn = 0 if code.upper().startswith("RYN_") else 1
     is_other = 1 if ("-other" in cat.lower() or "other" in cat.lower()) else 0
-    return (is_ryn, is_other, code.lower())
+    return (is_level_master, is_ryn, is_other, code.lower())
 
 def category_sort_key(cat_name):
     """
@@ -1135,6 +1137,11 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             forms.alert(u"Please select a family from the list to load.", title=u"Load Family")
             return
         
+        # 1. Handle System Wall Types (copied directly from Master Library RVT)
+        if self.selected_family.get("is_system_family") or self.selected_family.get("system_type") == "Wall":
+            self.load_system_wall(self.selected_family)
+            return
+
         rfa_path = resolve_family_path(self.selected_family)
         if not rfa_path or not os.path.exists(rfa_path):
             code_name = self.selected_family.get("code", self.selected_family.get("title", "Family"))
@@ -1167,6 +1174,108 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             forms.alert(u"Failed to load family:\n{}".format(str(ex)), title=u"Load Error")
         finally:
             self.Topmost = False
+
+    def load_system_wall(self, fam_item):
+        """Loads/Copies a System Wall Type from Master Library RVT into active project document."""
+        if not DOC:
+            forms.alert(u"No active Revit document open.", title=u"Load Error")
+            return
+            
+        wall_name = fam_item.get("code", fam_item.get("title", ""))
+        source_path = fam_item.get("source_doc_path", "")
+        
+        # 1. Check if WallType is already loaded in active project
+        existing = [t for t in DB.FilteredElementCollector(DOC).OfClass(DB.WallType).ToElements() 
+                    if DB.Element.Name.GetValue(t).upper() == wall_name.upper()]
+        if existing:
+            forms.alert(u"Wall Type '{}' is already available in this project!\n\nYou can select and draw it using Architecture -> Wall.".format(wall_name), 
+                        title=u"Wall Already in Project 👍")
+            return
+
+        # 2. If currently active doc is the Master Library itself
+        if DOC.Title == fam_item.get("source_doc_title") or (DOC.PathName and source_path and DOC.PathName.lower() == source_path.lower()):
+            forms.alert(u"You are currently working directly inside the Master Library RVT where this wall resides.", title=u"Master RVT Active")
+            return
+
+        # 3. Locate Master RVT document (either already open in background, or open temporarily)
+        source_doc = None
+        need_close = False
+        try:
+            if hasattr(APP, "Documents"):
+                for d in APP.Documents:
+                    if d.PathName and source_path and d.PathName.lower() == source_path.lower():
+                        source_doc = d
+                        break
+                    elif d.Title == fam_item.get("source_doc_title"):
+                        source_doc = d
+                        break
+        except:
+            pass
+
+        if not source_doc:
+            candidates = [
+                source_path,
+                r"D:\RIYAN\TEMPLATES\MODEL\RIYAN - LIBRARY FILE.rvt",
+                os.path.join(SHAREPOINT_LIB_ROOT, "RIYAN - LIBRARY FILE.rvt")
+            ]
+            for cand in candidates:
+                if cand and os.path.exists(cand):
+                    try:
+                        source_doc = APP.OpenDocumentFile(cand)
+                        need_close = True
+                        break
+                    except:
+                        pass
+
+        if not source_doc:
+            forms.alert(u"Could not access Master Library RVT file:\n{}\nPlease open 'RIYAN - LIBRARY FILE.rvt' in Revit first.".format(source_path), 
+                        title=u"Master RVT Required")
+            return
+
+        # 4. Find WallType in source Master RVT
+        source_types = DB.FilteredElementCollector(source_doc).OfClass(DB.WallType).ToElements()
+        target_type = None
+        for st in source_types:
+            try:
+                name = DB.Element.Name.GetValue(st)
+            except:
+                name = getattr(st, "Name", "")
+            if name.upper() == wall_name.upper():
+                target_type = st
+                break
+
+        if not target_type:
+            if need_close:
+                try: source_doc.Close(False)
+                except: pass
+            forms.alert(u"Wall Type '{}' was not found in Master Library RVT.".format(wall_name), title=u"Wall Type Not Found")
+            return
+
+        # 5. Copy WallType into active document
+        self.Topmost = True
+        try:
+            t = DB.Transaction(DOC, "Load Riyan Wall: " + wall_name)
+            t.Start()
+            copy_opts = DB.CopyPasteOptions()
+            id_list = List[DB.ElementId]()
+            id_list.Add(target_type.Id)
+            copied = DB.ElementTransformUtils.CopyElements(source_doc, id_list, DOC, None, copy_opts)
+            t.Commit()
+            
+            self.TxtStatus.Text = u"Wall Type Loaded: {}".format(wall_name)
+            forms.alert(u"Wall Type '{}' successfully loaded into your project!\n\nAll material layers, thicknesses, and compound structures were preserved.\nYou can now draw it using Architecture -> Wall.".format(wall_name), 
+                        title=u"Wall Loaded Successfully 👍")
+        except Exception as ex:
+            if t.HasStarted():
+                t.RollBack()
+            forms.alert(u"Could not copy Wall Type into project:\n{}".format(str(ex)), title=u"Copy Error")
+        finally:
+            self.Topmost = False
+            if need_close:
+                try:
+                    source_doc.Close(False)
+                except:
+                    pass
 
     def on_load_type_only(self, sender, e):
         self.on_load_family(sender, e)
@@ -1249,13 +1358,13 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             forms.alert(msg, title=u"Audit Results")
 
     def sync_levels_from_active_doc(self):
-        """Reads all Levels from active RVT document and maps all hosted families to those levels!"""
+        """Reads all Levels from active RVT document and maps all hosted families and Walls to those levels!"""
         if not DOC:
             forms.alert(u"No active Revit document open.\nPlease open your Master Library RVT in Revit first.", title=u"Sync Error")
             return
 
         doc_title = DOC.Title
-        forms.alert(u"Syncing Level categories from active document:\n{}\nThis will associate all families with their placement Level (e.g. Door-Sliding, Door-Swing...)".format(doc_title), title=u"Level Sync")
+        forms.alert(u"Syncing Level categories from active document:\n{}\nThis will associate all families and walls with their placement Level (e.g. WALLS, Door-Sliding, Door-Swing...)".format(doc_title), title=u"Level Sync")
 
         levels = DB.FilteredElementCollector(DOC).OfClass(DB.Level).ToElements()
         if not levels:
@@ -1264,26 +1373,91 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         level_name_map = {}
         total_mapped = 0
+        wall_types_found = {}
 
         for lvl in levels:
             lvl_name = lvl.Name.strip()
-            # Filter family instances hosted on this level
+            clean_lvl_name = "Walls" if lvl_name.upper() == "WALLS" else lvl_name
+
+            # Filter all elements hosted on this level
             lvl_filter = DB.ElementLevelFilter(lvl.Id)
-            instances = DB.FilteredElementCollector(DOC).WherePasses(lvl_filter).WhereElementIsNotElementType().ToElements()
-            for inst in instances:
-                sym = getattr(inst, "Symbol", None)
+            elements = DB.FilteredElementCollector(DOC).WherePasses(lvl_filter).WhereElementIsNotElementType().ToElements()
+            for elem in elements:
+                # 1. Standard Loadable Family Instances (Doors, Windows, Columns, Furniture)
+                sym = getattr(elem, "Symbol", None)
                 if sym and hasattr(sym, "Family"):
                     fam = sym.Family
                     if fam and not fam.IsInPlace:
-                        level_name_map[fam.Name.upper()] = lvl_name
+                        level_name_map[fam.Name.upper()] = clean_lvl_name
                         total_mapped += 1
+
+                # 2. System Wall Instances (Walls placed on WALLS level)
+                elif isinstance(elem, DB.Wall) or (hasattr(elem, "WallType") and elem.WallType):
+                    w_type = elem.WallType
+                    if w_type:
+                        try:
+                            w_type_name = DB.Element.Name.GetValue(w_type)
+                        except:
+                            w_type_name = getattr(w_type, "Name", "")
+                        if w_type_name and w_type_name not in wall_types_found:
+                            thickness_mm = int(round(elem.Width * 304.8)) if hasattr(elem, "Width") and elem.Width else 0
+                            kind_str = str(w_type.Kind) if hasattr(w_type, "Kind") else "Basic Wall"
+                            wall_types_found[w_type_name] = {
+                                "name": w_type_name,
+                                "level": clean_lvl_name,
+                                "thickness": thickness_mm,
+                                "kind": kind_str
+                            }
 
         # Apply to catalog
         updated_count = 0
+
+        # Add or update Walls from the active RVT
+        for w_name, w_info in wall_types_found.items():
+            existing = next((x for x in self.catalog if x.get("code", "").upper() == w_name.upper()), None)
+            if existing:
+                existing["category"] = "Walls"
+                existing["discipline"] = "ARCHITECTURAL"
+                existing["is_level_master"] = True
+                existing["is_system_family"] = True
+                existing["system_type"] = "Wall"
+                existing["source_doc_path"] = DOC.PathName if DOC.PathName else ""
+                existing["source_doc_title"] = DOC.Title
+                updated_count += 1
+            else:
+                thick_str = "{} mm".format(w_info["thickness"]) if w_info["thickness"] > 0 else "Standard"
+                new_wall = {
+                    "code": w_name,
+                    "title": w_name,
+                    "discipline": "ARCHITECTURAL",
+                    "category": "Walls",
+                    "types": [w_name],
+                    "specs": {
+                        "System Family": w_info["kind"],
+                        "Category": "Walls",
+                        "Thickness": thick_str,
+                        "Master File": os.path.basename(DOC.PathName) if DOC.PathName else DOC.Title
+                    },
+                    "badges": [
+                        {"label": "System Wall", "icon": "🧱", "bg": "#B45309"},
+                        {"label": "Riyan Standard", "icon": "⭐", "bg": "#15803D"}
+                    ],
+                    "is_system_family": True,
+                    "system_type": "Wall",
+                    "is_level_master": True,
+                    "source_doc_path": DOC.PathName if DOC.PathName else "",
+                    "source_doc_title": DOC.Title,
+                    "thumbnail": None
+                }
+                self.catalog.append(new_wall)
+                updated_count += 1
+
+        # Apply level categories & is_level_master to standard families
         for item in self.catalog:
             code = item.get("code", "").upper()
             if code in level_name_map:
                 item["category"] = level_name_map[code]
+                item["is_level_master"] = True
                 updated_count += 1
 
         # Save updated catalog
@@ -1295,7 +1469,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             cache_path = os.path.join(LOCAL_CACHE_DIR, "catalog.json")
             with codecs.open(cache_path, 'w', 'utf-8') as f:
                 json.dump(self.catalog, f, indent=2)
-            forms.alert(u"Successfully synced {} families directly from active RVT Levels!\nCatalog updated live.".format(updated_count), title=u"Sync Success 👍")
+            forms.alert(u"Successfully synced {} items (including Walls & level families) directly from active RVT Levels!\nCatalog updated live with Top Priority.".format(updated_count), title=u"Sync Success 👍")
         except Exception as e:
             forms.alert(u"Catalog updated in memory, but error saving to disk:\n{}".format(str(e)), title=u"Save Warning")
 

@@ -1,5 +1,447 @@
 [
   {
+    "code": "100mm BLOCK WALL",
+    "title": "100mm BLOCK WALL",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "100mm BLOCK WALL"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "100 mm",
+      "Description": "Masonry Block Wall Partition",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "100mm CONC. WALL",
+    "title": "100mm CONC. WALL",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "100mm CONC. WALL"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "100 mm",
+      "Description": "Reinforced Concrete Partition",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "100mm DRYWALL PARTITION",
+    "title": "100mm DRYWALL PARTITION",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "100mm DRYWALL PARTITION"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "100 mm",
+      "Description": "Acoustic Drywall Partition",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "125mm DRYWALL PARTITION",
+    "title": "125mm DRYWALL PARTITION",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "125mm DRYWALL PARTITION"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "125 mm",
+      "Description": "Fire Rated Drywall Partition",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "150mm BLOCK WALL",
+    "title": "150mm BLOCK WALL",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "150mm BLOCK WALL"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "150 mm",
+      "Description": "Masonry Block Wall Internal",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "150mm CONC. WALL",
+    "title": "150mm CONC. WALL",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "150mm CONC. WALL"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "150 mm",
+      "Description": "Reinforced Concrete Wall",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "200mm BLOCK WALL",
+    "title": "200mm BLOCK WALL",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "200mm BLOCK WALL"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "200 mm",
+      "Description": "Masonry Block Wall External",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "200mm BLOCK WALL (FOUNDATION)",
+    "title": "200mm BLOCK WALL (FOUNDATION)",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "200mm BLOCK WALL (FOUNDATION)"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "200 mm",
+      "Description": "Foundation Masonry Block Wall",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "200mm CONC. WALL",
+    "title": "200mm CONC. WALL",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "200mm CONC. WALL"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "200 mm",
+      "Description": "Reinforced Concrete Structural Wall",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "300mm CONC. WALL",
+    "title": "300mm CONC. WALL",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "300mm CONC. WALL"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "300 mm",
+      "Description": "Concrete Structure Exterior / Retaining",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "75mm DRYWALL PARTITION",
+    "title": "75mm DRYWALL PARTITION",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "75mm DRYWALL PARTITION"
+    ],
+    "specs": {
+      "System Family": "Basic Wall",
+      "Category": "Walls",
+      "Thickness": "75 mm",
+      "Description": "Drywall Stud Partition",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "Curtain Wall - Exterior Glazing",
+    "title": "Curtain Wall - Exterior Glazing",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "Curtain Wall - Exterior Glazing"
+    ],
+    "specs": {
+      "System Family": "Curtain Wall",
+      "Category": "Walls",
+      "Thickness": "Standard",
+      "Description": "Curtain Wall System",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
+    "code": "Curtain Wall - Storefront",
+    "title": "Curtain Wall - Storefront",
+    "discipline": "ARCHITECTURAL",
+    "category": "Walls",
+    "types": [
+      "Curtain Wall - Storefront"
+    ],
+    "specs": {
+      "System Family": "Curtain Wall",
+      "Category": "Walls",
+      "Thickness": "Standard",
+      "Description": "Glazed Aluminum Storefront Wall",
+      "Master File": "RIYAN - LIBRARY FILE.rvt"
+    },
+    "badges": [
+      {
+        "label": "System Wall",
+        "icon": "\ud83e\uddf1",
+        "bg": "#B45309"
+      },
+      {
+        "label": "Riyan Master Level",
+        "icon": "\u2b50",
+        "bg": "#15803D"
+      }
+    ],
+    "is_system_family": true,
+    "system_type": "Wall",
+    "is_level_master": true,
+    "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
+    "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
+    "thumbnail": null
+  },
+  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\ANNOTATE\\RYN_ANO_ViewTitle_NTS.rfa",
     "discipline": "ARCHITECTURAL",
     "types": [
@@ -6534,6 +6976,34 @@
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\corner_station_-_simple_2521.png"
   },
   {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall Grill\\Cresth - Wall Grill.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Cresth - Wall Grill",
+    "title": "Cresth - Wall Grill",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Cresth - Wall Grill.png"
+  },
+  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\FIRE\\CT-Fire_Hose_Cabinet_FHC_15918.rfa",
     "discipline": "FIRE PROTECTION",
     "types": [
@@ -6560,6 +7030,34 @@
     "code": "CT-Fire_Hose_Cabinet_FHC_15918",
     "title": "CT-Fire_Hose_Cabinet_FHC_15918",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\CT-Fire_Hose_Cabinet_FHC_15918.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Curtain Wall\\Curtain_wall_panel_pattern_based_star_shaped_20804.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Curtain_wall_panel_pattern_based_star_shaped_20804",
+    "title": "Curtain_wall_panel_pattern_based_star_shaped_20804",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Curtain_wall_panel_pattern_based_star_shaped_20804.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Furniture\\SOFAS\\designer_chair_9522.rfa",
@@ -7519,6 +8017,90 @@
     "code": "Friction_Towel_Hook_Strip-Bradley_Corp-Security-SA33",
     "title": "Friction_Towel_Hook_Strip-Bradley_Corp-Security-SA33",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Friction_Towel_Hook_Strip-Bradley_Corp-Security-SA33.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fenfushi Wall Facade\\FSA - Wall Facade 1.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "FSA - Wall Facade 1",
+    "title": "FSA - Wall Facade 1",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\FSA - Wall Facade 1.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fenfushi Wall Facade\\FSA - Wall Facade 2.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "FSA - Wall Facade 2",
+    "title": "FSA - Wall Facade 2",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\FSA - Wall Facade 2.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fenfushi Wall Facade\\FSA - Wall Grouves.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "FSA - Wall Grouves",
+    "title": "FSA - Wall Grouves",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\FSA - Wall Grouves.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Dining Table\\Furniture-Generic-Farmhouse_Dining_Table.rfa",
@@ -9524,6 +10106,34 @@
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Rectangular Column.png"
   },
   {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fenfushi Wall Facade\\Reeper.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Reeper",
+    "title": "Reeper",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Reeper.png"
+  },
+  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\All in one - Bradley\\Washroom_Accessories\\Hospitality\\947_Retractable_Clothes_Line\\Retractable_Clothesline-Bradley_Corp-947.rfa",
     "discipline": "ARCHITECTURAL",
     "types": [
@@ -9728,6 +10338,34 @@
     "code": "RIY_TOP HUNG_SINGLE PANEL_ALUM",
     "title": "RIY_TOP HUNG_SINGLE PANEL_ALUM",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\RIY_TOP HUNG_SINGLE PANEL_ALUM.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\Roof Top Deco.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Roof Top Deco",
+    "title": "Roof Top Deco",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Roof Top Deco.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\Room Tag.rfa",
@@ -10120,6 +10758,34 @@
     "code": "Sanitary_Wash-basins_Roca_32787Nxx0-Terra-Over-countertop-FINECERA",
     "title": "Sanitary_Wash-basins_Roca_32787Nxx0-Terra-Over-countertop-FINECERA",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Sanitary_Wash-basins_Roca_32787Nxx0-Terra-Over-countertop-FINECERA.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\SCG_Fretwork_Audio-3.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "SCG_Fretwork_Audio-3",
+    "title": "SCG_Fretwork_Audio-3",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\SCG_Fretwork_Audio-3.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fire Staircase Screen\\Screen Front Battern.rfa",
@@ -12751,6 +13417,62 @@
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Sofa_6855.png"
   },
   {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\SQ Holes.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "SQ Holes",
+    "title": "SQ Holes",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\SQ Holes.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\SQ Holes 2.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "SQ Holes 2",
+    "title": "SQ Holes 2",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\SQ Holes 2.png"
+  },
+  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\Stair Landing Tag.rfa",
     "discipline": "ARCHITECTURAL",
     "types": [
@@ -13571,6 +14293,34 @@
     "code": "Three_Panel_Sliding_Door_17534",
     "title": "Three_Panel_Sliding_Door_17534",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Three_Panel_Sliding_Door_17534.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Facade\\Timber Strip.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Timber Strip",
+    "title": "Timber Strip",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Timber Strip.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Title Blocks\\TITLE BLOCK  - 24 x 36.rfa",
@@ -15095,6 +15845,34 @@
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\TWILIGHT_SLEEP_SOFA_7595.png"
   },
   {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Timber Works\\Vertical Timber Facade\\Vertical Timber Facade.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Vertical Timber Facade",
+    "title": "Vertical Timber Facade",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Vertical Timber Facade.png"
+  },
+  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\W Shapes-Column.rfa",
     "discipline": "ARCHITECTURAL",
     "types": [
@@ -15149,6 +15927,118 @@
     "code": "Wall Pack Light - Exterior",
     "title": "Wall Pack Light - Exterior",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Pack Light - Exterior.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\Wall Strip Hor.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Wall Strip Hor",
+    "title": "Wall Strip Hor",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Strip Hor.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\Wall Strip Top.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Wall Strip Top",
+    "title": "Wall Strip Top",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Strip Top.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\Wall Strip Virt.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Wall Strip Virt",
+    "title": "Wall Strip Virt",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Strip Virt.png"
+  },
+  {
+    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\Wall Sweep-Brick Soldier Course.rfa",
+    "discipline": "ARCHITECTURAL",
+    "types": [
+      "Standard Type"
+    ],
+    "category": "Walls",
+    "badges": [
+      {
+        "label": "Parametric",
+        "icon": "\u2022",
+        "bg": "#15803D"
+      },
+      {
+        "label": "Custom Materials",
+        "icon": "\u2022",
+        "bg": "#475569"
+      }
+    ],
+    "specs": {
+      "Materials": "Configurable (Aluminium, Timber, Glass)",
+      "Operation": "Smart Parametric Controls",
+      "Dimensions": "Width & Height Parametric"
+    },
+    "code": "Wall Sweep-Brick Soldier Course",
+    "title": "Wall Sweep-Brick Soldier Course",
+    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Sweep-Brick Soldier Course.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Bedside Table\\Walnut_Bedside_Table_15886.rfa",
@@ -22807,34 +23697,6 @@
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Countertop - Durasein - Straight Countertop.png"
   },
   {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall Grill\\Cresth - Wall Grill.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Cresth - Wall Grill",
-    "title": "Cresth - Wall Grill",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Cresth - Wall Grill.png"
-  },
-  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\Cross - Plain - PVC-C.rfa",
     "discipline": "ARCHITECTURAL",
     "types": [
@@ -22973,34 +23835,6 @@
     "code": "Curtain_Wall_Panel_Door_4861",
     "title": "Curtain_Wall_Panel_Door_4861",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Curtain_Wall_Panel_Door_4861.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Curtain Wall\\Curtain_wall_panel_pattern_based_star_shaped_20804.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Curtain_wall_panel_pattern_based_star_shaped_20804",
-    "title": "Curtain_wall_panel_pattern_based_star_shaped_20804",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Curtain_wall_panel_pattern_based_star_shaped_20804.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Curtain Window\\Curtain_Wall_Window_-_Horizontal_Slider_10470.rfa",
@@ -27493,90 +28327,6 @@
     "code": "Friction_Towel_Hook-Bradley_Corp-Security-SA31",
     "title": "Friction_Towel_Hook-Bradley_Corp-Security-SA31",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Friction_Towel_Hook-Bradley_Corp-Security-SA31.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fenfushi Wall Facade\\FSA - Wall Facade 1.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "FSA - Wall Facade 1",
-    "title": "FSA - Wall Facade 1",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\FSA - Wall Facade 1.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fenfushi Wall Facade\\FSA - Wall Facade 2.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "FSA - Wall Facade 2",
-    "title": "FSA - Wall Facade 2",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\FSA - Wall Facade 2.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fenfushi Wall Facade\\FSA - Wall Grouves.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "FSA - Wall Grouves",
-    "title": "FSA - Wall Grouves",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\FSA - Wall Grouves.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\PACK DE GIMNASIO (GYM)\\Fully_Loaded_Olympic_Barbell_with_Competition_Plates_12409.rfa",
@@ -35507,34 +36257,6 @@
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Reducer Eccentric Long - Butt Welded - HDPE.png"
   },
   {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\Fenfushi Wall Facade\\Reeper.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Reeper",
-    "title": "Reeper",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Reeper.png"
-  },
-  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\Refrigerator_built-in_SideBySide_stainlessrfa_5540.rfa",
     "discipline": "ARCHITECTURAL",
     "types": [
@@ -36103,34 +36825,6 @@
     "code": "Roof Deco",
     "title": "Roof Deco",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Roof Deco.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\Roof Top Deco.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Roof Top Deco",
-    "title": "Roof Top Deco",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Roof Top Deco.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Roof Deco\\82 Fiver - 32\\Roof Top Line+.rfa",
@@ -36823,34 +37517,6 @@
     "code": "Scale",
     "title": "Scale",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Scale.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\SCG_Fretwork_Audio-3.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "SCG_Fretwork_Audio-3",
-    "title": "SCG_Fretwork_Audio-3",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\SCG_Fretwork_Audio-3.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Cars\\Scion_xB_-_Car_Automobile_Vehicle_13403.rfa",
@@ -42068,62 +42734,6 @@
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Spot Elevation - Target Filled.png"
   },
   {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\SQ Holes.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "SQ Holes",
-    "title": "SQ Holes",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\SQ Holes.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\SQ Holes 2.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "SQ Holes 2",
-    "title": "SQ Holes 2",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\SQ Holes 2.png"
-  },
-  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\Square Handrail.rfa",
     "discipline": "ARCHITECTURAL",
     "types": [
@@ -43522,34 +44132,6 @@
     "code": "Therapy_Spa_Pool_6941",
     "title": "Therapy_Spa_Pool_6941",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Therapy_Spa_Pool_6941.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Facade\\Timber Strip.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Timber Strip",
-    "title": "Timber Strip",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Timber Strip.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Water Tank\\TINACO-GIROPLAS-1100.rfa",
@@ -46100,34 +46682,6 @@
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Verge_LVS-Series_LVSD3.png"
   },
   {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Timber Works\\Vertical Timber Facade\\Vertical Timber Facade.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Vertical Timber Facade",
-    "title": "Vertical Timber Facade",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Vertical Timber Facade.png"
-  },
-  {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\View Reference.rfa",
     "discipline": "ARCHITECTURAL",
     "types": [
@@ -46406,118 +46960,6 @@
     "code": "w4",
     "title": "w4",
     "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\w4.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\Wall Strip Hor.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Wall Strip Hor",
-    "title": "Wall Strip Hor",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Strip Hor.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\Wall Strip Top.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Wall Strip Top",
-    "title": "Wall Strip Top",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Strip Top.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\Wall\\Wall Strip Virt.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Wall Strip Virt",
-    "title": "Wall Strip Virt",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Strip Virt.png"
-  },
-  {
-    "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\Family\\A Family\\Kitchen\\All\\Wall Sweep-Brick Soldier Course.rfa",
-    "discipline": "ARCHITECTURAL",
-    "types": [
-      "Standard Type"
-    ],
-    "category": "Walls",
-    "badges": [
-      {
-        "label": "Parametric",
-        "icon": "\u2022",
-        "bg": "#15803D"
-      },
-      {
-        "label": "Custom Materials",
-        "icon": "\u2022",
-        "bg": "#475569"
-      }
-    ],
-    "specs": {
-      "Materials": "Configurable (Aluminium, Timber, Glass)",
-      "Operation": "Smart Parametric Controls",
-      "Dimensions": "Width & Height Parametric"
-    },
-    "code": "Wall Sweep-Brick Soldier Course",
-    "title": "Wall Sweep-Brick Soldier Course",
-    "thumbnail": "C:\\Users\\User\\OneDrive - Riyan Private Limited\\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\\02 LIBRARY\\00 RIYAN FAMILY REPOSITORY\\Thumbnails\\Wall Sweep-Brick Soldier Course.png"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\Other\\Family\\JENITH - FAMILIES\\Wall_Hung _Triple_Station_Surgeon_Scurb_Sink_Kit-Elkay-EWSF39026SACC.rfa",
