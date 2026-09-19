@@ -414,7 +414,7 @@
 
                     <!-- Cards Scroll Area -->
                     <ScrollViewer Grid.Row="1" x:Name="CardsScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="10,8,10,8">
-                        <ListBox x:Name="LstFamilies" Background="Transparent" BorderThickness="0" 
+                        <ListBox x:Name="LstFamilies" SelectionMode="Extended" Background="Transparent" BorderThickness="0" 
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                                  ScrollViewer.VerticalScrollBarVisibility="Disabled">
                             <ListBox.ItemsPanel>

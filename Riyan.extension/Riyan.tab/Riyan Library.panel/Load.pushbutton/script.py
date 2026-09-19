@@ -1133,6 +1133,19 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         return lbi
 
     def on_family_selected(self, sender, e):
+        # Update bulk selection counter on buttons
+        selected_count = self.LstFamilies.SelectedItems.Count if (hasattr(self, "LstFamilies") and self.LstFamilies and hasattr(self.LstFamilies, "SelectedItems")) else 1
+        if selected_count > 1:
+            if hasattr(self, "BtnFooterLoad") and self.BtnFooterLoad:
+                self.BtnFooterLoad.Content = u"Load Selected ({})".format(selected_count)
+            if hasattr(self, "BtnLoadFamily") and self.BtnLoadFamily:
+                self.BtnLoadFamily.Content = u"⬇ Load Selected ({})".format(selected_count)
+        else:
+            if hasattr(self, "BtnFooterLoad") and self.BtnFooterLoad:
+                self.BtnFooterLoad.Content = u"Load Selected"
+            if hasattr(self, "BtnLoadFamily") and self.BtnLoadFamily:
+                self.BtnLoadFamily.Content = u"⬇ Load into Project"
+
         sel = self.LstFamilies.SelectedItem
         if not sel or not hasattr(sel, "Tag") or not sel.Tag:
             self.PanelDetail.Visibility = Visibility.Collapsed
@@ -1276,23 +1289,38 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         return False
 
     def on_load_family(self, sender, e):
-        if not self.selected_family:
+        # Gather all selected items (supports both Single and Multi-Select Extended)
+        selected_items = []
+        if hasattr(self, "LstFamilies") and self.LstFamilies and hasattr(self.LstFamilies, "SelectedItems") and self.LstFamilies.SelectedItems.Count > 0:
+            for item in self.LstFamilies.SelectedItems:
+                if hasattr(item, "Tag") and item.Tag:
+                    selected_items.append(item.Tag)
+        elif self.selected_family:
+            selected_items.append(self.selected_family)
+
+        if not selected_items:
             show_alert(u"Please select a family from the list to load.", title=u"Load Family", is_warning=True)
             return
-        
+
+        if len(selected_items) == 1:
+            self.load_single_family(selected_items[0])
+        else:
+            self.load_bulk_families(selected_items)
+
+    def load_single_family(self, fam_item):
         # 1. Handle System Wall Types (copied directly from Master Library RVT)
-        if self.selected_family.get("is_system_family") or self.selected_family.get("system_type") == "Wall":
-            self.load_system_wall(self.selected_family)
+        if fam_item.get("is_system_family") or fam_item.get("system_type") == "Wall":
+            self.load_system_wall(fam_item)
             return
 
-        rfa_path = resolve_family_path(self.selected_family)
+        rfa_path = resolve_family_path(fam_item)
         if not rfa_path or not os.path.exists(rfa_path):
             # Try loading directly from Master RVT document!
-            loaded_from_master = self.load_family_from_master_rvt(self.selected_family)
+            loaded_from_master = self.load_family_from_master_rvt(fam_item)
             if loaded_from_master:
                 return
 
-            code_name = self.selected_family.get("code", self.selected_family.get("title", "Family"))
+            code_name = fam_item.get("code", fam_item.get("title", "Family"))
             msg = u"Family '{}' could not be found locally.\n\n".format(code_name)
             msg += u"Source Repository:\nOneDrive - Riyan Private Limited\\...\\02 LIBRARY\n\n"
             msg += u"To load this family on your laptop:\n"
@@ -1307,14 +1335,14 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         self.Topmost = True
         try:
-            t = DB.Transaction(DOC, "Load Riyan Family: " + self.selected_family.get("title", ""))
+            t = DB.Transaction(DOC, "Load Riyan Family: " + fam_item.get("title", ""))
             t.Start()
             handler = FamilyLoadHandler()
             loaded_family = clr.Reference[DB.Family]()
             success = DOC.LoadFamily(rfa_path, handler, loaded_family)
             t.Commit()
 
-            fam_name = self.selected_family.get('title')
+            fam_name = fam_item.get('title')
             self.TxtStatus.Text = u"Successfully Loaded: {}".format(fam_name)
             show_alert(u"Family '{}' was successfully loaded and overwritten into the active project!".format(fam_name), 
                        title=u"Family Loaded 👍", is_error=False)
@@ -1323,11 +1351,75 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         finally:
             self.Topmost = False
 
-    def load_system_wall(self, fam_item):
+    def load_bulk_families(self, items):
+        if not DOC:
+            show_alert(u"No active Revit document found.", title=u"Revit Document", is_error=True)
+            return
+
+        total = len(items)
+        success_count = 0
+        failed_names = []
+        handler = FamilyLoadHandler()
+
+        # Separate system walls and loadable families
+        walls = [it for it in items if (it.get("is_system_family") or it.get("system_type") == "Wall")]
+        loadables = [it for it in items if not (it.get("is_system_family") or it.get("system_type") == "Wall")]
+
+        self.Topmost = True
+        try:
+            # 1. Bulk Load Standard RFA Families in a single transaction
+            if loadables:
+                t = DB.Transaction(DOC, "Bulk Load {} Riyan Families".format(len(loadables)))
+                t.Start()
+                for fam_item in loadables:
+                    rfa_path = resolve_family_path(fam_item)
+                    f_name = fam_item.get("title", fam_item.get("code", "Family"))
+                    if rfa_path and os.path.exists(rfa_path):
+                        try:
+                            loaded_ref = clr.Reference[DB.Family]()
+                            DOC.LoadFamily(rfa_path, handler, loaded_ref)
+                            success_count += 1
+                        except Exception:
+                            failed_names.append(f_name)
+                    else:
+                        if self.load_family_from_master_rvt(fam_item):
+                            success_count += 1
+                        else:
+                            failed_names.append(f_name)
+                t.Commit()
+
+            # 2. Bulk Load System Walls
+            for w in walls:
+                try:
+                    res = self.load_system_wall(w, silent=True)
+                    if res:
+                        success_count += 1
+                    else:
+                        failed_names.append(w.get("title", "Wall"))
+                except Exception:
+                    failed_names.append(w.get("title", "Wall"))
+
+            # Report results
+            if failed_names:
+                msg = u"{} of {} items were loaded successfully into project.\n\n".format(success_count, total)
+                msg += u"The following could not be loaded:\n• " + u"\n• ".join(failed_names[:8])
+                if len(failed_names) > 8:
+                    msg += u"\n...and {} more.".format(len(failed_names) - 8)
+                show_alert(msg, title=u"Bulk Load Complete", is_warning=True)
+            else:
+                show_alert(u"All {} families were successfully loaded into your project!".format(total), 
+                           title=u"Bulk Load Success 👍", is_error=False)
+        except Exception as ex:
+            show_alert(u"Bulk load encountered an error:\n{}".format(str(ex)), title=u"Load Error", is_error=True)
+        finally:
+            self.Topmost = False
+
+    def load_system_wall(self, fam_item, silent=False):
         """Loads/Copies a System Wall Type from Master Library RVT into active project document with clean 100% overwrite."""
         if not DOC:
-            show_alert(u"No active Revit document open.", title=u"Load Error", is_error=True)
-            return
+            if not silent:
+                show_alert(u"No active Revit document open.", title=u"Load Error", is_error=True)
+            return False
             
         wall_name = fam_item.get("code", fam_item.get("title", ""))
         source_path = fam_item.get("source_doc_path", "")
@@ -1455,12 +1547,16 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             t.Commit()
             
             self.TxtStatus.Text = u"Wall Type Loaded: {}".format(target_code or wall_name)
-            show_alert(u"Wall Type '{}' ({})\nsuccessfully loaded and configured with Master compound structure!".format(target_title, target_code), 
-                       title=u"Wall Loaded Successfully 👍", is_error=False)
+            if not silent:
+                show_alert(u"Wall Type '{}' ({})\nsuccessfully loaded and configured with Master compound structure!".format(target_title, target_code), 
+                           title=u"Wall Loaded Successfully 👍", is_error=False)
+            return True
         except Exception as ex:
             if t.HasStarted():
                 t.RollBack()
-            show_alert(u"Could not copy Wall Type into project:\n{}".format(str(ex)), title=u"Copy Error", is_error=True)
+            if not silent:
+                show_alert(u"Could not copy Wall Type into project:\n{}".format(str(ex)), title=u"Copy Error", is_error=True)
+            return False
         finally:
             self.Topmost = False
             if need_close:
