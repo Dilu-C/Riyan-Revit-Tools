@@ -24,9 +24,9 @@ clr.AddReference("WindowsBase")
 import System
 from System.IO import Path, File, MemoryStream
 from System.Collections.Generic import List
-from System.Windows import Window, WindowStartupLocation, Application, Visibility, Thickness, WindowState
+from System.Windows import Window, WindowStartupLocation, Application, Visibility, Thickness, WindowState, Point
 from System.Windows.Controls import ListBoxItem, Border, TextBlock, StackPanel, Image as WpfImage, Grid, ColumnDefinition
-from System.Windows.Media import Brushes, Color, SolidColorBrush, ColorConverter
+from System.Windows.Media import Brushes, Color, SolidColorBrush, ColorConverter, LinearGradientBrush, GradientStop
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
 from System.Windows.Interop import WindowInteropHelper
 
@@ -562,6 +562,13 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(113, 113, 122))
             self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(42, 42, 48))
             self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
+            grad_dark = LinearGradientBrush()
+            grad_dark.StartPoint = Point(0, 0)
+            grad_dark.EndPoint = Point(1, 1)
+            grad_dark.GradientStops.Add(GradientStop(Color.FromRgb(37, 37, 42), 0.0))
+            grad_dark.GradientStops.Add(GradientStop(Color.FromRgb(22, 22, 25), 1.0))
+            self.Resources["ThumbnailBg"] = grad_dark
+            self.Resources["ThumbnailBorder"] = SolidColorBrush(Color.FromRgb(46, 46, 54))
             self.Background = Brushes.Transparent
             self.Foreground = self.Resources["TextPrimary"]
         else:
@@ -575,6 +582,13 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["TextPrimary"] = SolidColorBrush(Color.FromRgb(15, 23, 42))     # Deep Pitch Black/Slate
             self.Resources["TextSecondary"] = SolidColorBrush(Color.FromRgb(51, 65, 85))   # Dark Slate 700
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(100, 116, 139))   # Slate 500
+            grad_light = LinearGradientBrush()
+            grad_light.StartPoint = Point(0, 0)
+            grad_light.EndPoint = Point(1, 1)
+            grad_light.GradientStops.Add(GradientStop(Color.FromRgb(248, 250, 252), 0.0))
+            grad_light.GradientStops.Add(GradientStop(Color.FromRgb(235, 239, 245), 1.0))
+            self.Resources["ThumbnailBg"] = grad_light
+            self.Resources["ThumbnailBorder"] = SolidColorBrush(Color.FromRgb(215, 222, 232))
             self.Background = Brushes.Transparent
             self.Foreground = self.Resources["TextPrimary"]
 
@@ -906,7 +920,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             img_b = Border()
             img_b.Width = 32; img_b.Height = 32
             img_b.CornerRadius = System.Windows.CornerRadius(4)
-            img_b.Background = img_bg
+            img_b.Background = self.Resources["ThumbnailBg"]
+            img_b.BorderBrush = self.Resources["ThumbnailBorder"]
+            img_b.BorderThickness = Thickness(1)
             img_b.ClipToBounds = True
             
             bi = load_bitmap(thumb_path) if (thumb_path and os.path.exists(thumb_path)) else None
@@ -1005,7 +1021,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         img_border = Border()
         img_border.Height = img_h
         img_border.CornerRadius = System.Windows.CornerRadius(6)
-        img_border.Background = img_bg
+        img_border.Background = self.Resources["ThumbnailBg"]
+        img_border.BorderBrush = self.Resources["ThumbnailBorder"]
+        img_border.BorderThickness = Thickness(1)
         img_border.Margin = Thickness(0, 0, 0, 6)
         img_border.ClipToBounds = True
 
@@ -1013,6 +1031,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         if bi:
             img = WpfImage()
             img.Stretch = System.Windows.Media.Stretch.Uniform
+            img.Margin = Thickness(3)
             img.Source = bi
             img_border.Child = img
         else:

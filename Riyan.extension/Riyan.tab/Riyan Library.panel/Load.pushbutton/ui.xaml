@@ -27,6 +27,13 @@
         <SolidColorBrush x:Key="HoverBg" Color="#2A2A30"/>
         <SolidColorBrush x:Key="HoverBorder" Color="#3F3F46"/>
 
+        <!-- Modern Floating Acrylic Thumbnail Brushes -->
+        <LinearGradientBrush x:Key="ThumbnailBg" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#25252A" Offset="0.0"/>
+            <GradientStop Color="#161619" Offset="1.0"/>
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="ThumbnailBorder" Color="#2E2E36"/>
+
         <!-- Ultra-Sleek Modern Transparent ScrollBar Style (Zero OS Default Grey) -->
         <Style TargetType="{x:Type ScrollBar}">
             <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
@@ -434,9 +441,10 @@
                                                 <Border x:Name="cardBorder" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="8">
                                                     <ContentPresenter/>
                                                 </Border>
-                                                <ControlTemplate.Triggers>
+                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
                                                         <Setter TargetName="cardBorder" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
+                                                        <Setter TargetName="cardBorder" Property="Background" Value="{DynamicResource HoverBg}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsSelected" Value="True">
                                                         <Setter TargetName="cardBorder" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
@@ -461,8 +469,8 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
                         <StackPanel x:Name="PanelDetail" Visibility="Collapsed" Margin="16,14,10,14">
                             <!-- Large High-Res Preview Image -->
-                            <Border Background="{DynamicResource WindowBg}" CornerRadius="8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Height="185" Margin="0,0,0,12" ClipToBounds="True" x:Name="DetailImgBorder">
-                                <Image x:Name="ImgDetailPreview" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Background="{DynamicResource ThumbnailBg}" CornerRadius="8" BorderBrush="{DynamicResource ThumbnailBorder}" BorderThickness="1" Height="185" Margin="0,0,0,12" ClipToBounds="True" x:Name="DetailImgBorder">
+                                <Image x:Name="ImgDetailPreview" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6"/>
                             </Border>
 
                             <!-- Family Titles -->
