@@ -339,12 +339,7 @@ def categorize_by_level_rule(filename, directory_name=""):
     cat = "General"
     if disc == "ARCHITECTURAL":
         if "DOR" in name_upper or "DOOR" in dir_upper:
-            if "SLIDING" in name_upper or "BARN" in name_upper or "POCKET" in name_upper:
-                cat = "Door-Sliding"
-            elif "SWING" in name_upper or "PIVOT" in name_upper or "DOUBLE" in name_upper:
-                cat = "Door-Swing"
-            else:
-                cat = "Door-Other"
+            cat = "Doors"
         elif "WIN" in name_upper or "WINDOW" in dir_upper:
             cat = "Windows"
         elif "WALL" in name_upper or "WALL" in dir_upper or "FACADE" in name_upper or "FACADE" in dir_upper:
@@ -645,6 +640,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                         item["thumbnail"] = resolve_thumbnail_path(item)
                         if item.get("category", "").startswith("Window-"):
                             item["category"] = "Windows"
+                        if item.get("category", "").startswith("Door-"):
+                            item["category"] = "Doors"
                         self.catalog.append(item)
             except Exception as ex:
                 self.build_live_catalog_from_folders()
