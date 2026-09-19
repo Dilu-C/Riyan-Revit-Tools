@@ -183,6 +183,15 @@ def resolve_thumbnail_path(fam_item):
     if key in _THUMB_CACHE_CENTRAL:
         return _THUMB_CACHE_CENTRAL[key]
 
+    # Check title as well (for system walls or friendly-titled items)
+    title = fam_item.get("title", "")
+    if title:
+        title_key = (title + ".png").lower()
+        if title_key in _THUMB_CACHE_LOCAL:
+            return _THUMB_CACHE_LOCAL[title_key]
+        if title_key in _THUMB_CACHE_CENTRAL:
+            return _THUMB_CACHE_CENTRAL[title_key]
+
     # 3. Fallback to existing path if valid
     t = fam_item.get("thumbnail")
     if t and is_valid_3d_thumbnail(t):
@@ -1364,6 +1373,11 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             return
 
         # 3. Find WallType in source Master RVT
+        target_code = fam_item.get("code", "")
+        target_title = fam_item.get("title", "")
+        master_type = fam_item.get("master_type_name", "")
+        search_names = [n.upper() for n in [target_code, target_title, master_type, wall_name] if n]
+
         source_types = DB.FilteredElementCollector(source_doc).OfClass(DB.WallType).ToElements()
         target_type = None
         for st in source_types:
@@ -1371,7 +1385,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                 name = DB.Element.Name.GetValue(st)
             except:
                 name = getattr(st, "Name", "")
-            if name.upper() == wall_name.upper():
+            if name.upper() in search_names:
                 target_type = st
                 break
 
@@ -1379,22 +1393,23 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             if need_close:
                 try: source_doc.Close(False)
                 except: pass
-            show_alert(u"Wall Type '{}' was not found in Master Library RVT.".format(wall_name), title=u"Wall Type Not Found", is_error=True)
+            show_alert(u"Wall Type '{}' was not found in Master Library RVT.".format(target_title or wall_name), title=u"Wall Type Not Found", is_error=True)
             return
 
         # 4. Check if WallType is already loaded in active project for Clean Overwrite
+        match_active_names = [n.upper() for n in [target_code, target_title, wall_name] if n]
         existing_types = [t for t in DB.FilteredElementCollector(DOC).OfClass(DB.WallType).ToElements() 
-                          if DB.Element.Name.GetValue(t).upper() == wall_name.upper()]
+                          if DB.Element.Name.GetValue(t).upper() in match_active_names]
         old_type = existing_types[0] if existing_types else None
 
         # 5. Copy WallType into active document with 100% clean overwrite
         self.Topmost = True
         try:
-            t = DB.Transaction(DOC, "Load Riyan Wall: " + wall_name)
+            t = DB.Transaction(DOC, "Load Riyan Wall: " + (target_code or wall_name))
             t.Start()
 
             # Temporarily rename old type to avoid duplicate naming conflict during CopyElements
-            temp_old_name = wall_name + "_OLD_TEMP_" + str(System.Guid.NewGuid())[:8]
+            temp_old_name = (target_code or wall_name) + "_OLD_TEMP_" + str(System.Guid.NewGuid())[:8]
             if old_type:
                 try:
                     old_type.Name = temp_old_name
@@ -1415,9 +1430,16 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                     break
             if not new_type:
                 for wt in DB.FilteredElementCollector(DOC).OfClass(DB.WallType).ToElements():
-                    if wt.Name.upper() == wall_name.upper():
+                    if wt.Name.upper() in match_active_names:
                         new_type = wt
                         break
+
+            # Ensure the copied wall type in active project has the standard RYN_WAL_ code name
+            if new_type and target_code:
+                try:
+                    new_type.Name = target_code
+                except Exception:
+                    pass
 
             # If an old type was replaced, reassign all existing wall instances in project to new master type
             if old_type and new_type:
@@ -1432,8 +1454,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
             t.Commit()
             
-            self.TxtStatus.Text = u"Wall Type Loaded: {}".format(wall_name)
-            show_alert(u"Wall Type '{}' successfully updated to Master Library version!\n\nAll existing walls in this project were overwritten to the exact Master compound layers, materials, and thicknesses.".format(wall_name), 
+            self.TxtStatus.Text = u"Wall Type Loaded: {}".format(target_code or wall_name)
+            show_alert(u"Wall Type '{}' ({})\nsuccessfully loaded and configured with Master compound structure!".format(target_title, target_code), 
                        title=u"Wall Loaded Successfully 👍", is_error=False)
         except Exception as ex:
             if t.HasStarted():
