@@ -404,11 +404,13 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.LstCategories.SelectionChanged += self.on_category_changed
         self.LstFamilies.SelectionChanged += self.on_family_selected
 
-        # Mouse Wheel Anywhere Scrolling Support
+        # Mouse Wheel Anywhere Scrolling Support & Adaptive Grid Sizing
         if hasattr(self, "CardsScrollViewer") and self.CardsScrollViewer:
             self.CardsScrollViewer.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
+            self.CardsScrollViewer.SizeChanged += self.on_cards_scroll_viewer_size_changed
         if hasattr(self, "LstFamilies") and self.LstFamilies:
             self.LstFamilies.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
+        self.Loaded += self.on_window_loaded
 
         # View Mode Segmented Buttons
         view_btns = [
@@ -753,9 +755,90 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         except Exception:
             pass
 
+    def on_window_loaded(self, sender, e):
+        """Initial layout pass once the window is rendered on screen."""
+        try:
+            self.update_cards_dynamic_layout()
+        except Exception:
+            pass
+
+    def on_cards_scroll_viewer_size_changed(self, sender, e):
+        """Dynamically array cards from start to end whenever width changes."""
+        try:
+            self.update_cards_dynamic_layout()
+        except Exception:
+            pass
+
+    def get_adaptive_card_dimensions(self):
+        """Computes adaptive card width and height to array from start to end without trailing gaps."""
+        avail_w = 0
+        if hasattr(self, "CardsScrollViewer") and self.CardsScrollViewer:
+            if self.CardsScrollViewer.ActualWidth > 100:
+                # 24px padding (12 left + 12 right) + 6px scrollbar + 4px safety = 34px
+                avail_w = int(self.CardsScrollViewer.ActualWidth - 34)
+            elif hasattr(self, "ActualWidth") and self.ActualWidth > 100:
+                avail_w = int(self.ActualWidth - 570)
+
+        if avail_w <= 100:
+            avail_w = 550
+
+        if self.view_mode == "List":
+            return max(320, avail_w - 8), 44, 32, 12, 11
+
+        if self.view_mode == "ExtraLarge":
+            base_w = 230; h_ratio = 280.0 / 230.0; img_ratio = 175.0 / 230.0
+            font_title = 12; font_cat = 10
+        elif self.view_mode == "Large":
+            base_w = 185; h_ratio = 230.0 / 185.0; img_ratio = 135.0 / 185.0
+            font_title = 11.5; font_cat = 9.5
+        elif self.view_mode == "Small":
+            base_w = 120; h_ratio = 155.0 / 120.0; img_ratio = 75.0 / 120.0
+            font_title = 10; font_cat = 8.5
+        else: # Medium (Default)
+            base_w = 150; h_ratio = 190.0 / 150.0; img_ratio = 100.0 / 150.0
+            font_title = 11; font_cat = 9.5
+
+        item_margin = 8 # ListBoxItem Margin="4" on both sides
+        cols = max(1, int(avail_w // (base_w + item_margin)))
+        card_w = int((avail_w - (cols * item_margin)) / cols)
+        card_w = max(base_w - 20, card_w)
+        card_h = int(card_w * h_ratio)
+        img_h = int(card_w * img_ratio)
+
+        return card_w, card_h, img_h, font_title, font_cat
+
+    def update_cards_dynamic_layout(self):
+        """Dynamically adjusts all displayed cards so they stretch and array from start to end."""
+        if not hasattr(self, "LstFamilies") or not self.LstFamilies:
+            return
+
+        card_w, card_h, img_h, font_title, font_cat = self.get_adaptive_card_dimensions()
+
+        if getattr(self, "_current_applied_card_w", None) == card_w:
+            return
+        self._current_applied_card_w = card_w
+
+        for lbi in self.LstFamilies.Items:
+            if not lbi or not hasattr(lbi, "Content"):
+                continue
+            bd = lbi.Content
+            if not bd or not hasattr(bd, "Width"):
+                continue
+
+            bd.Width = card_w
+            bd.Height = card_h
+
+            if self.view_mode != "List":
+                sp = getattr(bd, "Child", None)
+                if sp and hasattr(sp, "Children") and sp.Children.Count > 0:
+                    img_b = sp.Children[0]
+                    if img_b and hasattr(img_b, "Height"):
+                        img_b.Height = img_h
+
     def set_view_mode(self, mode):
         """Switches thumbnail view size: Extra Large, Large, Medium, Small, List."""
         self.view_mode = mode
+        self._current_applied_card_w = None
         # Update foreground highlights
         for b_name in ["BtnViewXL", "BtnViewL", "BtnViewM", "BtnViewS", "BtnViewList"]:
             b = getattr(self, b_name, None)
@@ -830,10 +913,12 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             thumb_path = resolve_thumbnail_path(fam)
             fam["thumbnail"] = thumb_path
 
+        card_w, card_h, img_h, font_title, font_cat = self.get_adaptive_card_dimensions()
+
         # ---------------- LIST VIEW MODE ----------------
         if self.view_mode == "List":
             card_border = Border()
-            card_border.Width = 680
+            card_border.Width = card_w
             card_border.Height = 44
             card_border.Background = card_bg
             card_border.BorderBrush = border_brush
@@ -930,15 +1015,6 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             return lbi
 
         # ---------------- GRID VIEW MODES (ExtraLarge, Large, Medium, Small) ----------------
-        if self.view_mode == "ExtraLarge":
-            card_w = 230; card_h = 280; img_h = 175; font_title = 12; font_cat = 10
-        elif self.view_mode == "Large":
-            card_w = 185; card_h = 230; img_h = 135; font_title = 11.5; font_cat = 9.5
-        elif self.view_mode == "Small":
-            card_w = 120; card_h = 155; img_h = 75; font_title = 10; font_cat = 8.5
-        else: # Medium (Default)
-            card_w = 150; card_h = 190; img_h = 100; font_title = 11; font_cat = 9.5
-
         card_border = Border()
         card_border.Width = card_w
         card_border.Height = card_h
