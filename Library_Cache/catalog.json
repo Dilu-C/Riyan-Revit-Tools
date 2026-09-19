@@ -1,7 +1,7 @@
 [
   {
     "code": "RYN_WAL_BLC.100mm_ExF.25mm_InF.15mmTOTAL.140mm",
-    "title": "100mm BLOCK WALL",
+    "title": "RYN_WAL_BLC.100mm_ExF.25mm_InF.15mmTOTAL.140mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -31,12 +31,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\100mm BLOCK WALL.png",
-    "master_type_name": "100mm BLOCK WALL"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_BLC.100mm_ExF.25mm_InF.15mmTOTAL.140mm.png",
+    "master_type_name": "RYN_WAL_BLC.100mm_ExF.25mm_InF.15mmTOTAL.140mm"
   },
   {
     "code": "RYN_WAL_CNC.100mm_TOTAL.100mm",
-    "title": "100mm CONC. WALL",
+    "title": "RYN_WAL_CNC.100mm_TOTAL.100mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -66,12 +66,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\100mm CONC. WALL.png",
-    "master_type_name": "100mm CONC. WALL"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_CNC.100mm_TOTAL.100mm.png",
+    "master_type_name": "RYN_WAL_CNC.100mm_TOTAL.100mm"
   },
   {
     "code": "RYN_WAL_DRY.100mm_TOTAL.100mm",
-    "title": "100mm DRYWALL PARTITION",
+    "title": "RYN_WAL_DRY.100mm_TOTAL.100mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -101,12 +101,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\100mm DRYWALL PARTITION.png",
-    "master_type_name": "100mm DRYWALL PARTITION"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_DRY.100mm_TOTAL.100mm.png",
+    "master_type_name": "RYN_WAL_DRY.100mm_TOTAL.100mm"
   },
   {
     "code": "RYN_WAL_DRY.125mm_TOTAL.125mm",
-    "title": "125mm DRYWALL PARTITION",
+    "title": "RYN_WAL_DRY.125mm_TOTAL.125mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -136,12 +136,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\125mm DRYWALL PARTITION.png",
-    "master_type_name": "125mm DRYWALL PARTITION"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_DRY.125mm_TOTAL.125mm.png",
+    "master_type_name": "RYN_WAL_DRY.125mm_TOTAL.125mm"
   },
   {
     "code": "RYN_WAL_BLC.150mm_ExF.25mm_InF.15mmTOTAL.190mm",
-    "title": "150mm BLOCK WALL",
+    "title": "RYN_WAL_BLC.150mm_ExF.25mm_InF.15mmTOTAL.190mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -171,12 +171,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\150mm BLOCK WALL.png",
-    "master_type_name": "150mm BLOCK WALL"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_BLC.150mm_ExF.25mm_InF.15mmTOTAL.190mm.png",
+    "master_type_name": "RYN_WAL_BLC.150mm_ExF.25mm_InF.15mmTOTAL.190mm"
   },
   {
     "code": "RYN_WAL_CNC.150mm_TOTAL.150mm",
-    "title": "150mm CONC. WALL",
+    "title": "RYN_WAL_CNC.150mm_TOTAL.150mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -206,12 +206,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\150mm CONC. WALL.png",
-    "master_type_name": "150mm CONC. WALL"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_CNC.150mm_TOTAL.150mm.png",
+    "master_type_name": "RYN_WAL_CNC.150mm_TOTAL.150mm"
   },
   {
     "code": "RYN_WAL_BLC.200mm_ExF.25mm_InF.15mmTOTAL.240mm",
-    "title": "200mm BLOCK WALL",
+    "title": "RYN_WAL_BLC.200mm_ExF.25mm_InF.15mmTOTAL.240mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -241,12 +241,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\200mm BLOCK WALL.png",
-    "master_type_name": "200mm BLOCK WALL"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_BLC.200mm_ExF.25mm_InF.15mmTOTAL.240mm.png",
+    "master_type_name": "RYN_WAL_BLC.200mm_ExF.25mm_InF.15mmTOTAL.240mm"
   },
   {
     "code": "RYN_WAL_BLC.200mm_FND_TOTAL.200mm",
-    "title": "200mm BLOCK WALL (FOUNDATION)",
+    "title": "RYN_WAL_BLC.200mm_FND_TOTAL.200mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -276,12 +276,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\200mm BLOCK WALL (FOUNDATION).png",
-    "master_type_name": "200mm BLOCK WALL (FOUNDATION)"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_BLC.200mm_FND_TOTAL.200mm.png",
+    "master_type_name": "RYN_WAL_BLC.200mm_FND_TOTAL.200mm"
   },
   {
     "code": "RYN_WAL_CNC.200mm_TOTAL.200mm",
-    "title": "200mm CONC. WALL",
+    "title": "RYN_WAL_CNC.200mm_TOTAL.200mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -311,12 +311,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\200mm CONC. WALL.png",
-    "master_type_name": "200mm CONC. WALL"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_CNC.200mm_TOTAL.200mm.png",
+    "master_type_name": "RYN_WAL_CNC.200mm_TOTAL.200mm"
   },
   {
     "code": "RYN_WAL_CNC.300mm_TOTAL.300mm",
-    "title": "300mm CONC. WALL",
+    "title": "RYN_WAL_CNC.300mm_TOTAL.300mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -346,12 +346,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\300mm CONC. WALL.png",
-    "master_type_name": "300mm CONC. WALL"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_CNC.300mm_TOTAL.300mm.png",
+    "master_type_name": "RYN_WAL_CNC.300mm_TOTAL.300mm"
   },
   {
     "code": "RYN_WAL_DRY.75mm_TOTAL.75mm",
-    "title": "75mm DRYWALL PARTITION",
+    "title": "RYN_WAL_DRY.75mm_TOTAL.75mm",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -381,12 +381,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\75mm DRYWALL PARTITION.png",
-    "master_type_name": "75mm DRYWALL PARTITION"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_DRY.75mm_TOTAL.75mm.png",
+    "master_type_name": "RYN_WAL_DRY.75mm_TOTAL.75mm"
   },
   {
     "code": "RYN_WAL_CW_ExteriorGlazing",
-    "title": "Curtain Wall - Exterior Glazing",
+    "title": "RYN_WAL_CW_ExteriorGlazing",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -416,12 +416,12 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\Curtain Wall - Exterior Glazing.png",
-    "master_type_name": "Curtain Wall - Exterior Glazing"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_CW_ExteriorGlazing.png",
+    "master_type_name": "RYN_WAL_CW_ExteriorGlazing"
   },
   {
     "code": "RYN_WAL_CW_Storefront",
-    "title": "Curtain Wall - Storefront",
+    "title": "RYN_WAL_CW_Storefront",
     "discipline": "ARCHITECTURAL",
     "category": "Walls",
     "types": [
@@ -451,8 +451,8 @@
     "is_level_master": true,
     "source_doc_path": "D:\\RIYAN\\TEMPLATES\\MODEL\\RIYAN - LIBRARY FILE.rvt",
     "source_doc_title": "RIYAN - LIBRARY FILE.rvt",
-    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\Curtain Wall - Storefront.png",
-    "master_type_name": "Curtain Wall - Storefront"
+    "thumbnail": "C:\\Users\\Windows\\Documents\\GitHub\\Riyan-Revit-Tools\\Library_Cache\\Thumbnails\\\\RYN_WAL_CW_Storefront.png",
+    "master_type_name": "RYN_WAL_CW_Storefront"
   },
   {
     "rfa_path": "C:\\Users\\User\\Desktop\\RIYAN\\00 - RIYAN STANDARD\\FAMILY In\\ANNOTATE\\RYN_ANO_ViewTitle_NTS.rfa",

@@ -1108,15 +1108,14 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         sp.Children.Add(img_border)
 
-        # Title (Display friendly title, e.g. Model Text for walls, or family name)
+        # Title (Strictly preserve user's actual family name / technical code)
         txt_title = TextBlock()
-        txt_title.Text = fam.get("title", fam.get("code", "Family"))
+        txt_title.Text = fam.get("code", fam.get("title", "Family"))
         txt_title.FontSize = font_title
         txt_title.FontWeight = System.Windows.FontWeights.Bold
         txt_title.Foreground = text_primary
         txt_title.TextTrimming = System.Windows.TextTrimming.CharacterEllipsis
         txt_title.MaxHeight = 30
-        txt_title.TextWrapping = System.Windows.TextWrapping.Wrap
         sp.Children.Add(txt_title)
 
         # Category Badge
@@ -1132,7 +1131,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         lbi.Content = card_border
         return lbi
 
-    def on_family_selected(self, sender, e):
+    def on_family_selected(self, sender, args):
         # Update bulk selection counter on buttons
         selected_count = self.LstFamilies.SelectedItems.Count if (hasattr(self, "LstFamilies") and self.LstFamilies and hasattr(self.LstFamilies, "SelectedItems")) else 1
         if selected_count > 1:
@@ -1156,10 +1155,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.selected_family = fam
         self.PanelDetail.Visibility = Visibility.Visible
 
-        disp_title = fam.get("title", fam.get("code", "Family"))
-        code_name = fam.get("code", "")
-        self.TxtDetailTitle.Text = disp_title
-        self.TxtDetailCode.Text = code_name
+        full_name = fam.get("code", fam.get("title", "Family"))
+        self.TxtDetailTitle.Text = full_name
+        self.TxtDetailCode.Text = fam.get("category", "General")
         self.TxtDetailDiscipline.Text = fam.get("discipline", "ARCHITECTURAL")
         self.TxtDetailCategory.Text = fam.get("category", "General")
 
