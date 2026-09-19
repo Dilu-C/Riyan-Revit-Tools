@@ -148,6 +148,59 @@ def resolve_thumbnail_path(fam_item):
 
     return None
 
+def is_sub_component(item):
+    """
+    Identifies internal nested/sub-component families loaded inside other families
+    (such as hardware pull handles, hinges, door panels, window panels, profile .rfa files).
+    These are strictly filtered out so they do not clutter project family browser.
+    """
+    if not item:
+        return False
+    path = item.get("rfa_path", "").replace("/", "\\")
+    code = item.get("code", "")
+    
+    # 1. Check folder directory names
+    parts = [p.strip().lower() for p in path.split("\\")]
+    for p in parts[:-1]:
+        if p in ["profile", "profiles", "door panel", "glass panel", "awning panel", "support profile", "baluster profile"]:
+            return True
+            
+    # 2. Check profile naming patterns
+    if re.search(r'(_pro_|_profile_|profile$|^profile\b|^section profile|^architrave_profile|^c shapes-profile|^gutter profile)', code, re.IGNORECASE):
+        return True
+        
+    # 3. Check hardware / handles / hinges / brackets
+    if re.search(r'(hardware|handle[std0-9]*$|^hafele\b|^pivot hinge|^stair_hardware)', code, re.IGNORECASE):
+        if not any(k in code.lower() for k in ["cabinet", "table", "chair", "wardrobe"]):
+            return True
+            
+    # 4. Check standalone nested panel piece patterns
+    if re.match(r'^(door\s*panel|w\s*panel|top\s*panel|mid\s*panel|louver\s*panel|glass\s*panel|panel\s*2|panel\s*with\s*glass|sliding\s*front\s*panel|sliding_door_panel|st-door\s*panel|vv-w_fg\s*-\s*panel|top\s*window\s*panel)', code, re.IGNORECASE):
+        return True
+        
+    return False
+
+def get_family_priority(item):
+    """
+    Prioritizes Dilupa's Riyan standard families (RYN_ prefix) and Level families at the front:
+    Rank 0: RYN_ families in curated Level categories
+    Rank 1: RYN_ families in other categories
+    Rank 2: Standard third-party families in curated Level categories
+    Rank 3: Generic *-Other families
+    """
+    code = item.get("code", "")
+    cat = item.get("category", "")
+    is_ryn = 0 if code.upper().startswith("RYN_") else 1
+    is_other = 1 if ("-other" in cat.lower() or "other" in cat.lower()) else 0
+    return (is_ryn, is_other, code.lower())
+
+def category_sort_key(cat_name):
+    """
+    Sorts curated Level categories first, and puts generic '*-Other' categories at the bottom.
+    """
+    is_other = 1 if ("-other" in cat_name.lower() or "other" in cat_name.lower()) else 0
+    return (is_other, cat_name)
+
 def resolve_family_path(fam):
     if not fam:
         return None
@@ -524,6 +577,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                         if re.search(r'\.\d{3,4}$', c) or re.search(r'\.\d{3,4}\.rfa$', r, re.IGNORECASE):
                             continue
                         
+                        # Strict Filter: Exclude internal nested sub-components (hardware, profiles, loose panels)
+                        if is_sub_component(item):
+                            continue
+
                         # Resolve thumbnail across local, repo, or OneDrive
                         item["thumbnail"] = resolve_thumbnail_path(item)
                         self.catalog.append(item)
@@ -554,6 +611,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                         if fn_clean in seen:
                             continue
                         seen.add(fn_clean)
+                        
+                        # Strict Filter: Exclude internal nested sub-components
+                        if is_sub_component({"code": fn_clean, "rfa_path": p}):
+                            continue
                         
                         disc, cat = categorize_by_level_rule(fn_clean, os.path.basename(root))
                         
@@ -634,7 +695,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.LstCategories.Items.Add(all_item)
         all_item.IsSelected = True
 
-        for cat in sorted(counts.keys()):
+        for cat in sorted(counts.keys(), key=category_sort_key):
             lbi = ListBoxItem()
             lbi.Content = u"{} ({})".format(cat, counts[cat])
             lbi.Tag = cat
@@ -723,6 +784,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                     continue
 
             self.filtered_families.append(item)
+
+        # Smart Prioritization: Dilupa's RYN_ families & Level families at the front!
+        self.filtered_families.sort(key=get_family_priority)
 
         self.TxtResultsCount.Text = u"{} Families Found".format(len(self.filtered_families))
 

@@ -239,7 +239,7 @@
                         </Grid.RowDefinitions>
 
                         <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="LEVEL CATEGORIES" FontWeight="Bold" FontSize="11" Foreground="{DynamicResource RiyanMaroon}" VerticalAlignment="Center"/>
+                            <TextBlock Text="CATEGORIES" FontWeight="Bold" FontSize="11" Foreground="{DynamicResource RiyanMaroon}" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <ListBox Grid.Row="1" x:Name="LstCategories" Background="Transparent" BorderThickness="0" 
