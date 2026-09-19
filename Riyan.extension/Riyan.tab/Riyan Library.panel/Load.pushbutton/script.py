@@ -1108,9 +1108,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         sp.Children.Add(img_border)
 
-        # Title (Strictly preserve user's actual family name / code)
+        # Title (Display friendly title, e.g. Model Text for walls, or family name)
         txt_title = TextBlock()
-        txt_title.Text = fam.get("code", fam.get("title", "Family"))
+        txt_title.Text = fam.get("title", fam.get("code", "Family"))
         txt_title.FontSize = font_title
         txt_title.FontWeight = System.Windows.FontWeights.Bold
         txt_title.Foreground = text_primary
@@ -1156,9 +1156,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.selected_family = fam
         self.PanelDetail.Visibility = Visibility.Visible
 
-        fam_name = fam.get("code", fam.get("title", ""))
-        self.TxtDetailTitle.Text = fam_name
-        self.TxtDetailCode.Text = fam.get("category", "General")
+        disp_title = fam.get("title", fam.get("code", "Family"))
+        code_name = fam.get("code", "")
+        self.TxtDetailTitle.Text = disp_title
+        self.TxtDetailCode.Text = code_name
         self.TxtDetailDiscipline.Text = fam.get("discipline", "ARCHITECTURAL")
         self.TxtDetailCategory.Text = fam.get("category", "General")
 

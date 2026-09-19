@@ -272,6 +272,115 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Modern Styled ComboBox ToggleButton -->
+        <ControlTemplate x:Key="RiyanComboBoxToggle" TargetType="ToggleButton">
+            <Border x:Name="border" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="28"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0"/>
+                    <Path Grid.Column="1" Data="M0,0 L4.5,4.5 L9,0" Stroke="{DynamicResource TextSecondary}" StrokeThickness="1.5"
+                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
+                    <Setter TargetName="border" Property="Background" Value="{DynamicResource HoverBg}"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Modern Theme-Aware ComboBox Style -->
+        <Style x:Key="RiyanComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton"
+                                          Template="{StaticResource RiyanComboBoxToggle}"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <ContentPresenter x:Name="ContentSite"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              IsHitTestVisible="False"
+                                              Margin="10,0,30,0"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid x:Name="DropDown" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="220">
+                                    <Border Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" 
+                                            BorderThickness="1" CornerRadius="6" Margin="0,3,0,0" Padding="2">
+                                        <ScrollViewer SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Resources>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                    <Setter Property="Padding" Value="10,7"/>
+                    <Setter Property="FontSize" Value="11"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ComboBoxItem">
+                                <Border x:Name="itemBorder" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="4" Margin="2,1">
+                                    <ContentPresenter/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
+                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource RiyanMaroonPressed}"/>
+                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Style.Resources>
+        </Style>
+
+        <Style TargetType="ComboBox" BasedOn="{StaticResource RiyanComboBox}"/>
     </Window.Resources>
 
     <Border x:Name="MainOuterBorder" Background="{DynamicResource WindowBg}" CornerRadius="10" BorderThickness="1" BorderBrush="{DynamicResource BorderColor}" ClipToBounds="True">
@@ -490,7 +599,7 @@
 
                             <!-- Available Types Dropdown -->
                             <TextBlock Text="FAMILY TYPES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="CmbTypes" Height="32" Background="{DynamicResource WindowBg}" Foreground="{DynamicResource TextPrimary}" BorderBrush="{DynamicResource BorderColor}" Margin="0,0,0,14"/>
+                            <ComboBox x:Name="CmbTypes" Style="{StaticResource RiyanComboBox}" Height="32" Margin="0,0,0,14"/>
 
                             <!-- Specifications Summary -->
                             <TextBlock Text="SPECIFICATIONS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,4"/>
