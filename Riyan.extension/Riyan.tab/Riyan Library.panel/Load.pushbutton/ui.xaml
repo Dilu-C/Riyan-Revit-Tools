@@ -40,27 +40,39 @@
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ScrollBar}">
                                 <Grid x:Name="Bg" Background="Transparent" SnapsToDevicePixels="true">
-                                    <Track x:Name="PART_Track" IsDirectionReversed="true" HorizontalAlignment="Center">
+                                    <Track x:Name="PART_Track" IsDirectionReversed="true">
                                         <Track.DecreaseRepeatButton>
-                                            <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Opacity="0" Focusable="false"/>
+                                            <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Focusable="false" Opacity="0">
+                                                <RepeatButton.Template>
+                                                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                                                        <Border Background="Transparent"/>
+                                                    </ControlTemplate>
+                                                </RepeatButton.Template>
+                                            </RepeatButton>
                                         </Track.DecreaseRepeatButton>
                                         <Track.Thumb>
-                                            <Thumb x:Name="Thumb">
+                                            <Thumb x:Name="Thumb" Width="6">
                                                 <Thumb.Template>
                                                     <ControlTemplate TargetType="{x:Type Thumb}">
-                                                        <Border Background="#71717A" CornerRadius="3" Opacity="0.55"/>
+                                                        <Border Background="#8E8E98" CornerRadius="3" Width="6" Opacity="0.75"/>
                                                     </ControlTemplate>
                                                 </Thumb.Template>
                                             </Thumb>
                                         </Track.Thumb>
                                         <Track.IncreaseRepeatButton>
-                                            <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Opacity="0" Focusable="false"/>
+                                            <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Focusable="false" Opacity="0">
+                                                <RepeatButton.Template>
+                                                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                                                        <Border Background="Transparent"/>
+                                                    </ControlTemplate>
+                                                </RepeatButton.Template>
+                                            </RepeatButton>
                                         </Track.IncreaseRepeatButton>
                                     </Track>
                                 </Grid>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="true">
-                                        <Setter TargetName="Thumb" Property="Opacity" Value="0.95"/>
+                                        <Setter TargetName="Thumb" Property="Opacity" Value="1.0"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -74,27 +86,39 @@
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ScrollBar}">
                                 <Grid x:Name="Bg" Background="Transparent" SnapsToDevicePixels="true">
-                                    <Track x:Name="PART_Track" HorizontalAlignment="Center">
+                                    <Track x:Name="PART_Track">
                                         <Track.DecreaseRepeatButton>
-                                            <RepeatButton Command="{x:Static ScrollBar.PageLeftCommand}" Opacity="0" Focusable="false"/>
+                                            <RepeatButton Command="{x:Static ScrollBar.PageLeftCommand}" Focusable="false" Opacity="0">
+                                                <RepeatButton.Template>
+                                                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                                                        <Border Background="Transparent"/>
+                                                    </ControlTemplate>
+                                                </RepeatButton.Template>
+                                            </RepeatButton>
                                         </Track.DecreaseRepeatButton>
                                         <Track.Thumb>
-                                            <Thumb x:Name="Thumb">
+                                            <Thumb x:Name="Thumb" Height="6">
                                                 <Thumb.Template>
                                                     <ControlTemplate TargetType="{x:Type Thumb}">
-                                                        <Border Background="#71717A" CornerRadius="3" Opacity="0.55"/>
+                                                        <Border Background="#8E8E98" CornerRadius="3" Height="6" Opacity="0.75"/>
                                                     </ControlTemplate>
                                                 </Thumb.Template>
                                             </Thumb>
                                         </Track.Thumb>
                                         <Track.IncreaseRepeatButton>
-                                            <RepeatButton Command="{x:Static ScrollBar.PageRightCommand}" Opacity="0" Focusable="false"/>
+                                            <RepeatButton Command="{x:Static ScrollBar.PageRightCommand}" Focusable="false" Opacity="0">
+                                                <RepeatButton.Template>
+                                                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                                                        <Border Background="Transparent"/>
+                                                    </ControlTemplate>
+                                                </RepeatButton.Template>
+                                            </RepeatButton>
                                         </Track.IncreaseRepeatButton>
                                     </Track>
                                 </Grid>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="true">
-                                        <Setter TargetName="Thumb" Property="Opacity" Value="0.95"/>
+                                        <Setter TargetName="Thumb" Property="Opacity" Value="1.0"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
