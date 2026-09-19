@@ -40,10 +40,24 @@ try:
     DOC = revit.doc
     UIDOC = revit.uidoc
     APP = revit.app
+    try:
+        from riyan_alert import show_alert
+    except ImportError:
+        _lib_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib"))
+        if _lib_dir not in sys.path:
+            sys.path.append(_lib_dir)
+        from riyan_alert import show_alert
 except Exception:
     DOC = None
     UIDOC = None
     APP = None
+    try:
+        from riyan_alert import show_alert
+    except ImportError:
+        _lib_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib"))
+        if _lib_dir not in sys.path:
+            sys.path.append(_lib_dir)
+        from riyan_alert import show_alert
 
 # -------------------------------------------------------------
 # Configuration & Repository Locations
@@ -1132,9 +1146,67 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
             self.PanelParams.Children.Add(row)
 
+    def load_family_from_master_rvt(self, fam_item):
+        """Attempts to load and overwrite family directly from Master Library RVT."""
+        fam_name = fam_item.get("code", fam_item.get("title", ""))
+        source_path = fam_item.get("source_doc_path", r"D:\RIYAN\TEMPLATES\MODEL\RIYAN - LIBRARY FILE.rvt")
+        source_doc = None
+        need_close = False
+        try:
+            if hasattr(APP, "Documents"):
+                for d in APP.Documents:
+                    if (d.PathName and source_path and d.PathName.lower() == source_path.lower()) or d.Title == "RIYAN - LIBRARY FILE":
+                        source_doc = d
+                        break
+        except:
+            pass
+
+        if not source_doc and os.path.exists(source_path):
+            try:
+                source_doc = APP.OpenDocumentFile(source_path)
+                need_close = True
+            except:
+                pass
+
+        if not source_doc:
+            return False
+
+        try:
+            # Find Family in source_doc
+            target_fam = None
+            for f in DB.FilteredElementCollector(source_doc).OfClass(DB.Family):
+                if f.Name.upper() == fam_name.upper():
+                    target_fam = f
+                    break
+
+            if not target_fam:
+                return False
+
+            # Open in memory and load into DOC with overwrite
+            fam_doc = source_doc.EditFamily(target_fam)
+            if fam_doc:
+                handler = FamilyLoadHandler()
+                t = DB.Transaction(DOC, "Load Riyan Family from Master: " + fam_name)
+                t.Start()
+                success = fam_doc.LoadFamily(DOC, handler)
+                t.Commit()
+                fam_doc.Close(False)
+                if success:
+                    self.TxtStatus.Text = u"Loaded from Master RVT: {}".format(fam_name)
+                    show_alert(u"Family '{}' was successfully loaded and overwritten directly from the Master Library RVT!".format(fam_name), 
+                               title=u"Family Loaded from Master 👍", is_error=False)
+                    return True
+        except Exception as ex:
+            pass
+        finally:
+            if need_close and source_doc:
+                try: source_doc.Close(False)
+                except: pass
+        return False
+
     def on_load_family(self, sender, e):
         if not self.selected_family:
-            forms.alert(u"Please select a family from the list to load.", title=u"Load Family")
+            show_alert(u"Please select a family from the list to load.", title=u"Load Family", is_warning=True)
             return
         
         # 1. Handle System Wall Types (copied directly from Master Library RVT)
@@ -1144,17 +1216,22 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         rfa_path = resolve_family_path(self.selected_family)
         if not rfa_path or not os.path.exists(rfa_path):
+            # Try loading directly from Master RVT document!
+            loaded_from_master = self.load_family_from_master_rvt(self.selected_family)
+            if loaded_from_master:
+                return
+
             code_name = self.selected_family.get("code", self.selected_family.get("title", "Family"))
             msg = u"Family '{}' could not be found locally.\n\n".format(code_name)
             msg += u"Source Repository:\nOneDrive - Riyan Private Limited\\...\\02 LIBRARY\n\n"
             msg += u"To load this family on your laptop:\n"
             msg += u"1. Open OneDrive and ensure the '02 LIBRARY' folder is synced to your PC.\n"
             msg += u"2. Once synced, click 'Load' again to load directly into Revit."
-            forms.alert(msg, title=u"Riyan Family - OneDrive Sync Required")
+            show_alert(msg, title=u"Riyan Family - OneDrive Sync Required", is_warning=True)
             return
 
         if not DOC:
-            forms.alert(u"No active Revit document found.", title=u"Revit Document")
+            show_alert(u"No active Revit document found.", title=u"Revit Document", is_error=True)
             return
 
         self.Topmost = True
@@ -1168,36 +1245,28 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
             fam_name = self.selected_family.get('title')
             self.TxtStatus.Text = u"Successfully Loaded: {}".format(fam_name)
-            forms.alert(u"Family '{}' was successfully loaded into the active project!".format(fam_name), 
-                        title=u"Family Loaded 👍")
+            show_alert(u"Family '{}' was successfully loaded and overwritten into the active project!".format(fam_name), 
+                       title=u"Family Loaded 👍", is_error=False)
         except Exception as ex:
-            forms.alert(u"Failed to load family:\n{}".format(str(ex)), title=u"Load Error")
+            show_alert(u"Failed to load family:\n{}".format(str(ex)), title=u"Load Error", is_error=True)
         finally:
             self.Topmost = False
 
     def load_system_wall(self, fam_item):
-        """Loads/Copies a System Wall Type from Master Library RVT into active project document."""
+        """Loads/Copies a System Wall Type from Master Library RVT into active project document with clean 100% overwrite."""
         if not DOC:
-            forms.alert(u"No active Revit document open.", title=u"Load Error")
+            show_alert(u"No active Revit document open.", title=u"Load Error", is_error=True)
             return
             
         wall_name = fam_item.get("code", fam_item.get("title", ""))
         source_path = fam_item.get("source_doc_path", "")
         
-        # 1. Check if WallType is already loaded in active project
-        existing = [t for t in DB.FilteredElementCollector(DOC).OfClass(DB.WallType).ToElements() 
-                    if DB.Element.Name.GetValue(t).upper() == wall_name.upper()]
-        if existing:
-            forms.alert(u"Wall Type '{}' is already available in this project!\n\nYou can select and draw it using Architecture -> Wall.".format(wall_name), 
-                        title=u"Wall Already in Project 👍")
-            return
-
-        # 2. If currently active doc is the Master Library itself
+        # 1. If currently active doc is the Master Library itself
         if DOC.Title == fam_item.get("source_doc_title") or (DOC.PathName and source_path and DOC.PathName.lower() == source_path.lower()):
-            forms.alert(u"You are currently working directly inside the Master Library RVT where this wall resides.", title=u"Master RVT Active")
+            show_alert(u"You are currently working directly inside the Master Library RVT where this wall resides.", title=u"Master RVT Active", is_warning=True)
             return
 
-        # 3. Locate Master RVT document (either already open in background, or open temporarily)
+        # 2. Locate Master RVT document (either already open in background, or open temporarily)
         source_doc = None
         need_close = False
         try:
@@ -1228,11 +1297,11 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                         pass
 
         if not source_doc:
-            forms.alert(u"Could not access Master Library RVT file:\n{}\nPlease open 'RIYAN - LIBRARY FILE.rvt' in Revit first.".format(source_path), 
-                        title=u"Master RVT Required")
+            show_alert(u"Could not access Master Library RVT file:\n{}\nPlease ensure 'RIYAN - LIBRARY FILE.rvt' is available.".format(source_path), 
+                       title=u"Master RVT Required", is_error=True)
             return
 
-        # 4. Find WallType in source Master RVT
+        # 3. Find WallType in source Master RVT
         source_types = DB.FilteredElementCollector(source_doc).OfClass(DB.WallType).ToElements()
         target_type = None
         for st in source_types:
@@ -1248,27 +1317,66 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             if need_close:
                 try: source_doc.Close(False)
                 except: pass
-            forms.alert(u"Wall Type '{}' was not found in Master Library RVT.".format(wall_name), title=u"Wall Type Not Found")
+            show_alert(u"Wall Type '{}' was not found in Master Library RVT.".format(wall_name), title=u"Wall Type Not Found", is_error=True)
             return
 
-        # 5. Copy WallType into active document
+        # 4. Check if WallType is already loaded in active project for Clean Overwrite
+        existing_types = [t for t in DB.FilteredElementCollector(DOC).OfClass(DB.WallType).ToElements() 
+                          if DB.Element.Name.GetValue(t).upper() == wall_name.upper()]
+        old_type = existing_types[0] if existing_types else None
+
+        # 5. Copy WallType into active document with 100% clean overwrite
         self.Topmost = True
         try:
             t = DB.Transaction(DOC, "Load Riyan Wall: " + wall_name)
             t.Start()
+
+            # Temporarily rename old type to avoid duplicate naming conflict during CopyElements
+            temp_old_name = wall_name + "_OLD_TEMP_" + str(System.Guid.NewGuid())[:8]
+            if old_type:
+                try:
+                    old_type.Name = temp_old_name
+                except Exception:
+                    pass
+
             copy_opts = DB.CopyPasteOptions()
             id_list = List[DB.ElementId]()
             id_list.Add(target_type.Id)
-            copied = DB.ElementTransformUtils.CopyElements(source_doc, id_list, DOC, None, copy_opts)
+            copied_ids = DB.ElementTransformUtils.CopyElements(source_doc, id_list, DOC, None, copy_opts)
+
+            # Locate the newly copied master wall type
+            new_type = None
+            for nid in copied_ids:
+                elem = DOC.GetElement(nid)
+                if isinstance(elem, DB.WallType):
+                    new_type = elem
+                    break
+            if not new_type:
+                for wt in DB.FilteredElementCollector(DOC).OfClass(DB.WallType).ToElements():
+                    if wt.Name.upper() == wall_name.upper():
+                        new_type = wt
+                        break
+
+            # If an old type was replaced, reassign all existing wall instances in project to new master type
+            if old_type and new_type:
+                all_walls = DB.FilteredElementCollector(DOC).OfClass(DB.Wall).ToElements()
+                for w in all_walls:
+                    if w.WallType.Id == old_type.Id:
+                        w.WallType = new_type
+                try:
+                    DOC.Delete(old_type.Id)
+                except Exception:
+                    pass
+
             t.Commit()
             
             self.TxtStatus.Text = u"Wall Type Loaded: {}".format(wall_name)
-            forms.alert(u"Wall Type '{}' successfully loaded into your project!\n\nAll material layers, thicknesses, and compound structures were preserved.\nYou can now draw it using Architecture -> Wall.".format(wall_name), 
-                        title=u"Wall Loaded Successfully 👍")
+            show_alert(u"Wall Type '{}' successfully updated to Master Library version!\n\nAll existing walls in this project were overwritten to the exact Master compound layers, materials, and thicknesses.".format(wall_name), 
+                       title=u"Wall Loaded Successfully 👍", is_error=False)
         except Exception as ex:
             if t.HasStarted():
                 t.RollBack()
-            forms.alert(u"Could not copy Wall Type into project:\n{}".format(str(ex)), title=u"Copy Error")
+            show_alert(u"Could not copy Wall Type into project:\n{}".format(str(ex)), title=u"Copy Error", is_error=True)
         finally:
             self.Topmost = False
             if need_close:
@@ -1285,18 +1393,18 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             return
         rfa_path = resolve_family_path(self.selected_family)
         if not rfa_path or not os.path.exists(rfa_path):
-            forms.alert(u"Family file path does not exist on this computer.", title=u"Error")
+            show_alert(u"Family file path does not exist on this computer.", title=u"Error", is_error=True)
             return
 
         if not os.path.exists(REVIT_2025_EXE):
-            forms.alert(u"Autodesk Revit 2025 was not found at default location:\n{}\nPlease open manually in Revit 2025.".format(REVIT_2025_EXE), title=u"Revit 2025 Not Found")
+            show_alert(u"Autodesk Revit 2025 was not found at default location:\n{}\nPlease open manually in Revit 2025.".format(REVIT_2025_EXE), title=u"Revit 2025 Not Found", is_warning=True)
             return
 
         try:
             subprocess.Popen([REVIT_2025_EXE, rfa_path])
-            forms.alert(u"Launching family directly in Autodesk Revit 2025:\n\n{}\n\nThis ensures company-wide backward compatibility across Revit 2025, 2026, and 2027!".format(os.path.basename(rfa_path)), title=u"Opening in Revit 2025 🛠")
+            show_alert(u"Launching family directly in Autodesk Revit 2025:\n\n{}\n\nThis ensures company-wide backward compatibility across Revit 2025, 2026, and 2027!".format(os.path.basename(rfa_path)), title=u"Opening in Revit 2025 🛠", is_error=False)
         except Exception as ex:
-            forms.alert(u"Could not launch Revit 2025:\n{}".format(str(ex)), title=u"Launch Error")
+            show_alert(u"Could not launch Revit 2025:\n{}".format(str(ex)), title=u"Launch Error", is_error=True)
 
     def on_admin_sync(self, sender, e):
         """Admin sync / extract utility."""
@@ -1316,7 +1424,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.audit_materials_interactive()
         elif res.startswith("3."):
             self.load_catalog_data()
-            forms.alert(u"Catalog refreshed! Total: {} families.".format(len(self.catalog)), title=u"Catalog Refreshed")
+            show_alert(u"Catalog refreshed! Total: {} families.".format(len(self.catalog)), title=u"Catalog Refreshed", is_error=False)
         elif res.startswith("4."):
             try:
                 subprocess.Popen(["explorer.exe", SHAREPOINT_LIB_ROOT])
@@ -1325,7 +1433,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
     def audit_materials_interactive(self):
         if not DOC:
-            forms.alert(u"No active Revit document open.\nPlease open your Library RVT first.", title=u"Audit Error")
+            show_alert(u"No active Revit document open.\nPlease open your Library RVT first.", title=u"Audit Error", is_error=True)
             return
         
         import audit_materials
@@ -1349,26 +1457,19 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                 msg += u" - {}: missing {}\n".format(item["family"], ", ".join(item["missing"]))
             msg += u"\n"
             
-        if incons > 0:
-            msg += u"Would you like to auto-standardize the {} families to official RYN_MAT materials now?".format(incons)
-            if forms.alert(msg, yes=True, no=True):
-                updated = audit_materials.apply_material_standardization(DOC, res)
-                forms.alert(u"Standardization complete!\nUpdated {} material parameters to RYN_MAT standards.".format(updated), title=u"Standardized 👍")
-        else:
-            forms.alert(msg, title=u"Audit Results")
+        show_alert(msg, title=u"Material Audit Results", is_error=False)
 
     def sync_levels_from_active_doc(self):
         """Reads all Levels from active RVT document and maps all hosted families and Walls to those levels!"""
         if not DOC:
-            forms.alert(u"No active Revit document open.\nPlease open your Master Library RVT in Revit first.", title=u"Sync Error")
+            show_alert(u"No active Revit document open.\nPlease open your Master Library RVT in Revit first.", title=u"Sync Error", is_error=True)
             return
 
         doc_title = DOC.Title
-        forms.alert(u"Syncing Level categories from active document:\n{}\nThis will associate all families and walls with their placement Level (e.g. WALLS, Door-Sliding, Door-Swing...)".format(doc_title), title=u"Level Sync")
 
         levels = DB.FilteredElementCollector(DOC).OfClass(DB.Level).ToElements()
         if not levels:
-            forms.alert(u"No levels found in active document.", title=u"Sync Error")
+            show_alert(u"No levels found in active document '{}'.".format(doc_title), title=u"Sync Error", is_warning=True)
             return
 
         level_name_map = {}
@@ -1469,9 +1570,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             cache_path = os.path.join(LOCAL_CACHE_DIR, "catalog.json")
             with codecs.open(cache_path, 'w', 'utf-8') as f:
                 json.dump(self.catalog, f, indent=2)
-            forms.alert(u"Successfully synced {} items (including Walls & level families) directly from active RVT Levels!\nCatalog updated live with Top Priority.".format(updated_count), title=u"Sync Success 👍")
+            show_alert(u"Successfully synced {} items (including Walls & level families) directly from active RVT Levels!\nCatalog updated live with Top Priority.".format(updated_count), 
+                       title=u"Sync Success 👍", is_error=False)
         except Exception as e:
-            forms.alert(u"Catalog updated in memory, but error saving to disk:\n{}".format(str(e)), title=u"Save Warning")
+            show_alert(u"Catalog updated in memory, but error saving to disk:\n{}".format(str(e)), title=u"Save Warning", is_warning=True)
 
         self.refresh_categories()
         self.apply_filter()

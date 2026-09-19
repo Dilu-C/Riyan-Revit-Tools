@@ -31,7 +31,15 @@ from System.Windows.Controls import (
 from System.Windows.Media import SolidColorBrush, Color, ColorConverter
 from System.Windows.Interop import WindowInteropHelper
 import Autodesk.Revit.DB as DB
-from Autodesk.Revit.UI import TaskDialog
+from pyrevit import script
+try:
+    from riyan_alert import show_alert
+except ImportError:
+    _lib_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib"))
+    if _lib_dir not in sys.path:
+        sys.path.append(_lib_dir)
+    from riyan_alert import show_alert
+import System.Windows.Forms as WinForms
 
 # Riyan Standard Material Dictionary
 STANDARD_MATERIAL_MAP = {
@@ -550,91 +558,126 @@ class MaterialAuditorWindow(Window):
 
     def OnApplyStandardization(self, sender, e):
         if not self.doc:
-            TaskDialog.Show("Error", "No active document open to standardize.")
+            show_alert("No active document open to standardize.", title="Material Auditor", is_error=True)
             return
 
         inconsistent_list = self.audit_data.get("inconsistent", []) if self.audit_data else []
         if not inconsistent_list:
-            TaskDialog.Show("Material Auditor", "All families in this document are already RYN_MAT_ compliant!")
+            show_alert("All families in this document are already RYN_MAT_ compliant!", title="Material Auditor", is_warning=False)
             return
+
+        # Initialize pyRevit Output Console for live non-freezing visual progress
+        out = script.get_output()
+        out.set_title("Material Auditor - Live Standardization")
+        out.print_md("## 🎨 Riyan Material Auditor — Live Standardization")
+        out.print_md("Standardizing **{} families** to `RYN_MAT_` corporate standard...".format(len(inconsistent_list)))
 
         try:
             t = DB.Transaction(self.doc, "Apply RYN_MAT_ Standardization")
             t.Start()
 
-            # Refresh doc materials
+            # Refresh and index doc materials once for O(1) performance
             mat_collector = list(DB.FilteredElementCollector(self.doc).OfClass(DB.Material))
             doc_mats_by_id = {m.Id: m for m in mat_collector}
             doc_mats_by_name = {m.Name.lower(): m for m in mat_collector}
 
+            # Pre-index all families once in memory (Prevents 128 redundant DB scans!)
+            fams_by_name = {}
+            for f in DB.FilteredElementCollector(self.doc).OfClass(DB.Family):
+                if not f.IsInPlace:
+                    fams_by_name[f.Name] = f
+
             renamed_set = set()
             renamed_count = 0
             replaced_count = 0
+            total_items = len(inconsistent_list)
 
-            for fam_item in inconsistent_list:
+            for idx, fam_item in enumerate(inconsistent_list):
                 fam_name = fam_item.get("FamilyName")
                 cat_name = fam_item.get("Category", "")
-                collector = DB.FilteredElementCollector(self.doc).OfClass(DB.Family)
-                for f in collector:
-                    if f.Name == fam_name:
-                        for sym_id in f.GetFamilySymbolIds():
-                            sym = self.doc.GetElement(sym_id)
-                            if not sym:
+                
+                # Live Progress Bar & Windows message pumping (Never freezes!)
+                pct = int(((idx + 1) / float(total_items)) * 100)
+                out.update_progress(idx + 1, total_items)
+                WinForms.Application.DoEvents()
+
+                f = fam_f = fams_by_name.get(fam_name)
+                if not f:
+                    continue
+
+                for sym_id in f.GetFamilySymbolIds():
+                    sym = self.doc.GetElement(sym_id)
+                    if not sym:
+                        continue
+                    for p in sym.Parameters:
+                        if not p or not p.Definition:
+                            continue
+                        p_name = p.Definition.Name
+                        if "Material" in p_name or "MAT" in p_name:
+                            m_id = p.AsElementId()
+                            if not m_id or m_id == DB.ElementId.InvalidElementId:
                                 continue
-                            for p in sym.Parameters:
-                                if not p or not p.Definition:
-                                    continue
-                                p_name = p.Definition.Name
-                                if "Material" in p_name or "MAT" in p_name:
-                                    m_id = p.AsElementId()
-                                    if not m_id or m_id == DB.ElementId.InvalidElementId:
-                                        continue
 
-                                    m_elem = doc_mats_by_id.get(m_id) or self.doc.GetElement(m_id)
-                                    if not m_elem:
-                                        continue
-                                    m_name = m_elem.Name
-                                    if m_name.startswith("RYN_MAT_"):
-                                        continue
+                            m_elem = doc_mats_by_id.get(m_id) or self.doc.GetElement(m_id)
+                            if not m_elem:
+                                continue
+                            m_name = m_elem.Name
+                            if m_name.startswith("RYN_MAT_"):
+                                continue
 
-                                    # 1. Check if matches an existing authentic RYN_MAT_ material
-                                    matched_ryn = find_matching_ryn_material(m_name, p_name, cat_name, doc_mats_by_name)
-                                    if matched_ryn:
-                                        p.Set(matched_ryn.Id)
-                                        replaced_count += 1
-                                        continue
+                            # 1. Check if matches an existing authentic RYN_MAT_ material
+                            matched_ryn = find_matching_ryn_material(m_name, p_name, cat_name, doc_mats_by_name)
+                            if matched_ryn:
+                                p.Set(matched_ryn.Id)
+                                replaced_count += 1
+                                out.print_html(u"<span style='color:#10b981'>✔ [{}/{}] <b>{}</b> : Replaced '{}' ➔ <b>{}</b></span>".format(
+                                    idx + 1, total_items, fam_name, m_name, matched_ryn.Name))
+                                continue
 
-                                    # 2. Check if clean standard name already exists in project
-                                    clean_name = sanitize_material_name(m_name)
-                                    if clean_name.lower() in doc_mats_by_name:
-                                        # Reuse existing material ("yako ekama nama awot ekama material eka dapan magulak nokara")
-                                        existing_m = doc_mats_by_name[clean_name.lower()]
-                                        p.Set(existing_m.Id)
-                                        replaced_count += 1
-                                    else:
-                                        # Rename unique material preserving all textures/colors 100%
-                                        try:
-                                            m_elem.Name = clean_name
-                                            doc_mats_by_name[clean_name.lower()] = m_elem
-                                            doc_mats_by_id[m_elem.Id] = m_elem
-                                            renamed_set.add(clean_name)
-                                            renamed_count += 1
-                                        except Exception:
-                                            pass
-                        break
+                            # 2. Check if clean standard name already exists in project
+                            clean_name = sanitize_material_name(m_name)
+                            if clean_name.lower() in doc_mats_by_name:
+                                existing_m = doc_mats_by_name[clean_name.lower()]
+                                p.Set(existing_m.Id)
+                                replaced_count += 1
+                                out.print_html(u"<span style='color:#3b82f6'>🔗 [{}/{}] <b>{}</b> : Reused Existing ➔ <b>{}</b></span>".format(
+                                    idx + 1, total_items, fam_name, existing_m.Name))
+                            else:
+                                # Rename unique material preserving all textures/colors 100%
+                                try:
+                                    m_elem.Name = clean_name
+                                    doc_mats_by_name[clean_name.lower()] = m_elem
+                                    doc_mats_by_id[m_elem.Id] = m_elem
+                                    renamed_set.add(clean_name)
+                                    renamed_count += 1
+                                    out.print_html(u"<span style='color:#f59e0b'>✏ [{}/{}] <b>{}</b> : Standardized ➔ <b>{}</b></span>".format(
+                                        idx + 1, total_items, fam_name, clean_name))
+                                except Exception:
+                                    pass
+
+                WinForms.Application.DoEvents()
 
             t.Commit()
+            out.print_md("---")
+            out.print_md("### ✅ Standardization Finished Successfully!")
+            out.print_md("- **Replaced/Reused authentic `RYN_MAT_`:** {}\n- **Standardized unique materials:** {}".format(replaced_count, renamed_count))
+
             msg = u"Standardization Complete!\n\n"
             msg += u"• Assigned authentic/reused RYN_MAT_ materials: {}\n".format(replaced_count)
             msg += u"• Standardized unique material names (textures preserved): {}\n\n".format(renamed_count)
             msg += u"All materials in active families are now 100% RYN_MAT_ compliant!"
-            TaskDialog.Show("Standardization Complete", msg)
+            
+            # Show Signature Riyan Custom Alert (Zero Default OS popups!)
+            show_alert(msg, title="Standardization Complete", is_error=False)
 
-            # Refresh audit
+            # Refresh audit in window
             self.run_audit()
 
         except Exception as ex:
-            TaskDialog.Show("Standardization Failed", str(ex))
+            if 't' in locals() and t.HasStarted():
+                t.RollBack()
+            out.print_md("### ❌ Standardization Failed: {}".format(str(ex)))
+            show_alert("Standardization Failed:\n" + str(ex), title="Standardization Error", is_error=True)
 
     def OnExportReport(self, sender, e):
         if not self.audit_data:
@@ -666,7 +709,7 @@ class MaterialAuditorWindow(Window):
         with codecs.open(report_path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
 
-        TaskDialog.Show("Report Exported", u"Audit report saved to your Desktop:\n" + report_path)
+        show_alert(u"Audit report saved to your Desktop:\n" + report_path, title="Report Exported", is_error=False)
 
     def show(self):
         self.window.ShowDialog()
@@ -678,7 +721,7 @@ if __name__ == "__main__":
     doc = uiapp.ActiveUIDocument.Document if uiapp.ActiveUIDocument else None
 
     if not doc:
-        TaskDialog.Show("Material Auditor", "Please open a Revit project or Family Library RVT before running Material Auditor.")
+        show_alert("Please open a Revit project or Family Library RVT before running Material Auditor.", title="Material Auditor", is_warning=True)
     else:
         win = MaterialAuditorWindow(doc, uiapp)
         win.show()
