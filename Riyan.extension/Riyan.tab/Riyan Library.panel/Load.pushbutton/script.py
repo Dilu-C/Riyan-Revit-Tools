@@ -404,14 +404,11 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.LstCategories.SelectionChanged += self.on_category_changed
         self.LstFamilies.SelectionChanged += self.on_family_selected
 
-        # Mouse Wheel Anywhere Scrolling Support & Dynamic Card Auto-Fit
+        # Mouse Wheel Anywhere Scrolling Support
         if hasattr(self, "CardsScrollViewer") and self.CardsScrollViewer:
             self.CardsScrollViewer.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
-            self.CardsScrollViewer.SizeChanged += self.on_cards_area_resized
         if hasattr(self, "LstFamilies") and self.LstFamilies:
             self.LstFamilies.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
-
-        self.Loaded += self.on_window_loaded
 
         # View Mode Segmented Buttons
         view_btns = [
@@ -756,97 +753,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         except Exception:
             pass
 
-    def on_window_loaded(self, sender, e):
-        try:
-            self.update_card_widths()
-        except Exception:
-            pass
-
-    def on_cards_area_resized(self, sender, e):
-        try:
-            if not e.WidthChanged:
-                return
-            self.update_card_widths()
-        except Exception:
-            pass
-
-    def get_base_card_width(self):
-        if self.view_mode == "ExtraLarge":
-            return 230
-        elif self.view_mode == "Large":
-            return 185
-        elif self.view_mode == "Small":
-            return 120
-        return 150  # Medium (Default)
-
-    def get_available_cards_width(self):
-        try:
-            if hasattr(self, "CardsScrollViewer") and self.CardsScrollViewer:
-                vp_w = self.CardsScrollViewer.ViewportWidth
-                if vp_w > 80:
-                    return vp_w
-                act_w = self.CardsScrollViewer.ActualWidth
-                if act_w > 80:
-                    return act_w - 34
-        except Exception:
-            pass
-        try:
-            act_w = self.ActualWidth if (hasattr(self, "ActualWidth") and self.ActualWidth > 200) else self.Width
-            return max(300, int(act_w - 220 - 310 - 34))
-        except Exception:
-            return 520
-
-    def get_dynamic_card_width(self):
-        try:
-            base_w = self.get_base_card_width()
-            avail_w = self.get_available_cards_width()
-            
-            # Each ListBoxItem has Margin="4" (4px left + 4px right = 8px per item)
-            item_base_w = base_w + 8
-            cols = max(1, int(avail_w / float(item_base_w)))
-            
-            # Total margins for cols items = cols * 8
-            # Subtract 2px safety cushion to ensure WrapPanel never wraps the last item prematurely
-            usable_w = avail_w - (cols * 8) - 2
-            dynamic_w = int(usable_w / float(cols))
-            return max(80, dynamic_w)
-        except Exception:
-            return self.get_base_card_width()
-
-    def update_card_widths(self):
-        try:
-            if not hasattr(self, "LstFamilies") or not self.LstFamilies:
-                return
-
-            if self.view_mode == "List":
-                avail_w = self.get_available_cards_width()
-                list_w = max(300, int(avail_w - 12))
-                if hasattr(self, "_last_list_width") and abs(self._last_list_width - list_w) < 4:
-                    return
-                self._last_list_width = list_w
-                for item in self.LstFamilies.Items:
-                    if hasattr(item, "Content") and item.Content:
-                        item.Content.Width = list_w
-                return
-
-            new_w = self.get_dynamic_card_width()
-            if new_w <= 0:
-                return
-            if hasattr(self, "_last_card_width") and abs(self._last_card_width - new_w) < 4:
-                return
-            self._last_card_width = new_w
-
-            for item in self.LstFamilies.Items:
-                if hasattr(item, "Content") and item.Content:
-                    item.Content.Width = new_w
-        except Exception:
-            pass
-
     def set_view_mode(self, mode):
         """Switches thumbnail view size: Extra Large, Large, Medium, Small, List."""
         self.view_mode = mode
-        self._last_card_width = None
-        self._last_list_width = None
         # Update foreground highlights
         for b_name in ["BtnViewXL", "BtnViewL", "BtnViewM", "BtnViewS", "BtnViewList"]:
             b = getattr(self, b_name, None)
@@ -924,8 +833,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         # ---------------- LIST VIEW MODE ----------------
         if self.view_mode == "List":
             card_border = Border()
-            avail_w = self.get_available_cards_width()
-            card_border.Width = max(300, int(avail_w - 12))
+            card_border.Width = 680
             card_border.Height = 44
             card_border.Background = card_bg
             card_border.BorderBrush = border_brush
@@ -1023,16 +931,16 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         # ---------------- GRID VIEW MODES (ExtraLarge, Large, Medium, Small) ----------------
         if self.view_mode == "ExtraLarge":
-            card_h = 280; img_h = 175; font_title = 12; font_cat = 10
+            card_w = 230; card_h = 280; img_h = 175; font_title = 12; font_cat = 10
         elif self.view_mode == "Large":
-            card_h = 230; img_h = 135; font_title = 11.5; font_cat = 9.5
+            card_w = 185; card_h = 230; img_h = 135; font_title = 11.5; font_cat = 9.5
         elif self.view_mode == "Small":
-            card_h = 155; img_h = 75; font_title = 10; font_cat = 8.5
+            card_w = 120; card_h = 155; img_h = 75; font_title = 10; font_cat = 8.5
         else: # Medium (Default)
-            card_h = 190; img_h = 100; font_title = 11; font_cat = 9.5
+            card_w = 150; card_h = 190; img_h = 100; font_title = 11; font_cat = 9.5
 
         card_border = Border()
-        card_border.Width = self.get_dynamic_card_width()
+        card_border.Width = card_w
         card_border.Height = card_h
         card_border.Background = card_bg
         card_border.BorderBrush = border_brush
