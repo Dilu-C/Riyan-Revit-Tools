@@ -140,25 +140,53 @@ def resolve_live_path(path_str):
 
     return None
 
+# -------------------------------------------------------------
+# In-Memory Fast Thumbnail Cache (Eliminates 7,000+ disk checks)
+# -------------------------------------------------------------
+_THUMB_CACHE_LOCAL = {}
+_THUMB_CACHE_CENTRAL = {}
+_THUMB_CACHE_INIT = False
+
+def init_thumbnail_cache():
+    global _THUMB_CACHE_LOCAL, _THUMB_CACHE_CENTRAL, _THUMB_CACHE_INIT
+    if _THUMB_CACHE_INIT:
+        return
+    try:
+        loc_dir = os.path.join(LOCAL_CACHE_DIR, "Thumbnails")
+        if os.path.isdir(loc_dir):
+            for f in os.listdir(loc_dir):
+                if f.lower().endswith(".png"):
+                    _THUMB_CACHE_LOCAL[f.lower()] = os.path.join(loc_dir, f)
+    except Exception:
+        pass
+    try:
+        if os.path.isdir(THUMBNAILS_DIR):
+            for f in os.listdir(THUMBNAILS_DIR):
+                if f.lower().endswith(".png"):
+                    _THUMB_CACHE_CENTRAL[f.lower()] = os.path.join(THUMBNAILS_DIR, f)
+    except Exception:
+        pass
+    _THUMB_CACHE_INIT = True
+
 def resolve_thumbnail_path(fam_item):
     if not fam_item:
         return None
+    init_thumbnail_cache()
     code = fam_item.get("code", "")
+    key = (code + ".png").lower()
+    
+    # 1. Check local cache (fastest)
+    if key in _THUMB_CACHE_LOCAL:
+        return _THUMB_CACHE_LOCAL[key]
+        
+    # 2. Check central repo
+    if key in _THUMB_CACHE_CENTRAL:
+        return _THUMB_CACHE_CENTRAL[key]
+
+    # 3. Fallback to existing path if valid
     t = fam_item.get("thumbnail")
-    if is_valid_3d_thumbnail(t):
+    if t and is_valid_3d_thumbnail(t):
         return t
-        
-    t_res = resolve_live_path(t)
-    if is_valid_3d_thumbnail(t_res):
-        return t_res
-        
-    c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
-    if is_valid_3d_thumbnail(c1):
-        return c1
-        
-    c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
-    if is_valid_3d_thumbnail(c2):
-        return c2
 
     return None
 
@@ -404,9 +432,11 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.LstCategories.SelectionChanged += self.on_category_changed
         self.LstFamilies.SelectionChanged += self.on_family_selected
 
-        # Mouse Wheel Anywhere Scrolling Support
+        # Mouse Wheel Anywhere Scrolling Support & Incremental Lazy-Loading on Scroll
+        self.rendered_count = 0
         if hasattr(self, "CardsScrollViewer") and self.CardsScrollViewer:
             self.CardsScrollViewer.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
+            self.CardsScrollViewer.ScrollChanged += self.on_cards_scroll_changed
         if hasattr(self, "LstFamilies") and self.LstFamilies:
             self.LstFamilies.PreviewMouseWheel += self.on_cards_preview_mouse_wheel
 
@@ -453,8 +483,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         self.update_discipline_tab_styles()
 
-        # Load Catalog Data
+        # Load Catalog Data (Single Fast Pass)
+        self._is_loading = True
         self.load_catalog_data()
+        self._is_loading = False
 
     def on_titlebar_mouse_down(self, sender, e):
         try:
@@ -724,6 +756,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.LstCategories.Items.Add(lbi)
 
     def on_category_changed(self, sender, e):
+        if getattr(self, "_is_loading", False):
+            return
         sel = self.LstCategories.SelectedItem
         if sel and hasattr(sel, "Tag"):
             self.current_category = sel.Tag
@@ -785,12 +819,6 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             if re.search(r'\.\d{3,4}$', code) or re.search(r'\.\d{3,4}\.rfa$', rfa, re.IGNORECASE):
                 continue
 
-            # 2. Check or resolve thumbnail (keep family even if thumbnail is not yet local)
-            thumb_path = item.get("thumbnail")
-            if not thumb_path or not is_valid_3d_thumbnail(thumb_path):
-                thumb_path = resolve_thumbnail_path(item)
-                item["thumbnail"] = thumb_path
-
             if self.current_discipline != "ALL" and item.get("discipline") != self.current_discipline:
                 continue
             if self.current_category != "ALL" and item.get("category") != self.current_category:
@@ -811,9 +839,32 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         self.TxtResultsCount.Text = u"{} Families Found".format(len(self.filtered_families))
 
-        for fam in self.filtered_families:
-            card = self.create_family_card(fam)
+        # Instant Open: Render first batch (48 cards) immediately, lazy-load remaining on scroll
+        self.rendered_count = 0
+        self.load_next_card_batch(48)
+        if hasattr(self, "CardsScrollViewer") and self.CardsScrollViewer:
+            self.CardsScrollViewer.ScrollToTop()
+
+    def load_next_card_batch(self, count=36):
+        if not hasattr(self, "filtered_families") or not self.filtered_families:
+            return
+        total = len(self.filtered_families)
+        start_idx = getattr(self, "rendered_count", 0)
+        if start_idx >= total:
+            return
+        end_idx = min(start_idx + count, total)
+        for i in range(start_idx, end_idx):
+            card = self.create_family_card(self.filtered_families[i])
             self.LstFamilies.Items.Add(card)
+        self.rendered_count = end_idx
+
+    def on_cards_scroll_changed(self, sender, e):
+        try:
+            if getattr(self, "rendered_count", 0) < len(self.filtered_families):
+                if e.VerticalOffset + e.ViewportHeight >= e.ExtentHeight - 400:
+                    self.load_next_card_batch(36)
+        except Exception:
+            pass
 
     def create_family_card(self, fam):
         lbi = ListBoxItem()
