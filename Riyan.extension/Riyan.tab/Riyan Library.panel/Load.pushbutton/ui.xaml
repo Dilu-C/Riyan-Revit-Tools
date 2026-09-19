@@ -287,15 +287,8 @@
             <Border Grid.Row="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" CornerRadius="10,10,0,0" x:Name="TitleBar">
                 <Grid Margin="16,0,12,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <!-- Riyan Logo Emblem -->
-                        <Border Background="{DynamicResource RiyanMaroon}" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
-                            <TextBlock Text="RYN" FontWeight="Bold" FontSize="11" Foreground="#FFFFFF"/>
-                        </Border>
                         <TextBlock Text="RIYAN" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center" x:Name="TxtTitleRiyan"/>
                         <TextBlock Text=" FAMILY LIBRARY" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" x:Name="TxtTitleLibrary"/>
-                        <Border Background="{DynamicResource CardBg}" CornerRadius="4" Padding="6,2" Margin="10,0,0,0" VerticalAlignment="Center" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
-                            <TextBlock Text="BIM SERVER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextMuted}"/>
-                        </Border>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -523,9 +516,10 @@
             <!-- 4. Footer Bar -->
             <Border Grid.Row="3" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" CornerRadius="0,0,10,10" Padding="16,0" x:Name="FooterBorder">
                 <Grid VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Status Indicator (Hidden as requested) -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
                         <Ellipse Width="8" Height="8" Fill="{DynamicResource RiyanMaroon}" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="TxtStatus" Text="SharePoint Library Connected" FontSize="11" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtStatus" Text="" FontSize="11" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

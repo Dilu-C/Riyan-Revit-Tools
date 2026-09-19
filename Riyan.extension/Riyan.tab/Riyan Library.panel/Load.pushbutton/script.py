@@ -346,14 +346,7 @@ def categorize_by_level_rule(filename, directory_name=""):
             else:
                 cat = "Door-Other"
         elif "WIN" in name_upper or "WINDOW" in dir_upper:
-            if "TOPHUNG" in name_upper or "TOP HUNG" in name_upper or "AWNING" in name_upper:
-                cat = "Window-TopHung"
-            elif "SLIDING" in name_upper:
-                cat = "Window-Sliding"
-            elif "FIXED" in name_upper or "FIX" in name_upper:
-                cat = "Window-Fixed"
-            else:
-                cat = "Window-Other"
+            cat = "Windows"
         elif "WALL" in name_upper or "WALL" in dir_upper or "FACADE" in name_upper or "FACADE" in dir_upper:
             if not any(k in name_upper.lower() for k in ["toilet", "lavatory", "shower", "sink", "fountain", "washfountain", "urinal", "lighting", "light", "tag", "drain", "tree", "plant", "container", "hute", "door", "window"]):
                 cat = "Walls"
@@ -650,6 +643,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
                         # Resolve thumbnail across local, repo, or OneDrive
                         item["thumbnail"] = resolve_thumbnail_path(item)
+                        if item.get("category", "").startswith("Window-"):
+                            item["category"] = "Windows"
                         self.catalog.append(item)
             except Exception as ex:
                 self.build_live_catalog_from_folders()
