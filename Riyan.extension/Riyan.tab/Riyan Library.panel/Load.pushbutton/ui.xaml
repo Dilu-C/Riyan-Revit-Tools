@@ -6,6 +6,7 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
+        ResizeMode="CanResizeWithGrip"
         Background="Transparent"
         Foreground="{DynamicResource TextPrimary}"
         FontFamily="Segoe UI"
@@ -199,7 +200,9 @@
                         <!-- Theme Switcher Toggle -->
                         <Button x:Name="BtnToggleTheme" Content="🌓 Dark" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="80" FontSize="11" Margin="0,0,8,0"/>
                         <!-- Admin Sync / Settings -->
-                        <Button x:Name="BtnAdminSync" Content="⚙ Sync / Settings" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="110" FontSize="11" Margin="0,0,10,0"/>
+                        <Button x:Name="BtnAdminSync" Content="⚙ Sync / Settings" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="110" FontSize="11" Margin="0,0,8,0"/>
+                        <!-- Maximize / Restore Window Button -->
+                        <Button x:Name="BtnMaximize" Content="🗖" Width="30" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="13" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore" Margin="0,0,4,0"/>
                         <!-- Close Window Button -->
                         <Button x:Name="BtnClose" Content="✕" Width="30" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="14" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
                     </StackPanel>
@@ -423,6 +426,31 @@
                     </StackPanel>
                 </Grid>
             </Border>
+
+            <!-- 5. Window Drag Resizers (Right Edge, Bottom Edge, Corner) -->
+            <Thumb x:Name="ResizeRightThumb" Grid.Row="0" Grid.RowSpan="4" Width="7" HorizontalAlignment="Right" VerticalAlignment="Stretch" Cursor="SizeWE">
+                <Thumb.Template>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Thumb.Template>
+            </Thumb>
+            <Thumb x:Name="ResizeBottomThumb" Grid.Row="3" Height="7" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Cursor="SizeNS">
+                <Thumb.Template>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Thumb.Template>
+            </Thumb>
+            <Thumb x:Name="ResizeGripThumb" Grid.Row="3" Width="18" Height="18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Margin="0,0,2,2">
+                <Thumb.Template>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Grid Background="Transparent">
+                            <Path Data="M 14,0 L 14,14 L 0,14 Z M 10,4 L 10,14 L 0,14 Z M 6,8 L 6,14 L 0,14 Z" Fill="{DynamicResource TextMuted}" Stretch="None" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,4,4" Opacity="0.5"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Thumb.Template>
+            </Thumb>
         </Grid>
     </Border>
 </Window>

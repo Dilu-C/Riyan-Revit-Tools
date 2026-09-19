@@ -10,6 +10,7 @@ import sys
 import json
 import codecs
 import subprocess
+import re
 import clr
 
 clr.AddReference("System")
@@ -23,9 +24,9 @@ clr.AddReference("WindowsBase")
 import System
 from System.IO import Path, File, MemoryStream
 from System.Collections.Generic import List
-from System.Windows import Window, WindowStartupLocation, Application, Visibility, Thickness
-from System.Windows.Controls import ListBoxItem, Border, TextBlock, StackPanel, Image as WpfImage
-from System.Windows.Media import Brushes, Color, SolidColorBrush
+from System.Windows import Window, WindowStartupLocation, Application, Visibility, Thickness, WindowState
+from System.Windows.Controls import ListBoxItem, Border, TextBlock, StackPanel, Image as WpfImage, Grid, ColumnDefinition
+from System.Windows.Media import Brushes, Color, SolidColorBrush, ColorConverter
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
 from System.Windows.Interop import WindowInteropHelper
 
@@ -52,9 +53,16 @@ SHAREPOINT_LIB_ROOT = os.path.expandvars(
 )
 CENTRAL_REPOSITORY = os.path.join(SHAREPOINT_LIB_ROOT, "00 RIYAN FAMILY REPOSITORY")
 THUMBNAILS_DIR = os.path.join(CENTRAL_REPOSITORY, "Thumbnails")
-LOCAL_CACHE_DIR = os.path.expandvars(
-    r"%APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools\Library_Cache"
-)
+# Look for Library_Cache dynamically in repo root (relative to script) or APPDATA
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+_repo_root = os.path.abspath(os.path.join(_this_dir, "..", "..", "..", ".."))
+_repo_cache = os.path.join(_repo_root, "Library_Cache")
+if os.path.exists(_repo_cache):
+    LOCAL_CACHE_DIR = _repo_cache
+else:
+    LOCAL_CACHE_DIR = os.path.expandvars(
+        r"%APPDATA%\pyRevit\Extensions\Riyan-Revit-Tools\Library_Cache"
+    )
 REVIT_2025_EXE = r"C:\Program Files\Autodesk\Revit 2025\Revit.exe"
 
 # -------------------------------------------------------------
@@ -82,6 +90,109 @@ def is_valid_3d_thumbnail(image_path):
         return True
     except Exception:
         return False
+
+def resolve_live_path(path_str):
+    if not path_str:
+        return None
+    try:
+        if os.path.exists(path_str):
+            return path_str
+    except Exception:
+        pass
+    
+    user_prof = os.path.expandvars(r"%USERPROFILE%")
+    
+    # 1. Adapt OneDrive - Riyan Private Limited paths
+    onedrive_tag = "OneDrive - Riyan Private Limited"
+    if onedrive_tag in path_str:
+        idx = path_str.find(onedrive_tag)
+        rel_part = path_str[idx + len(onedrive_tag):].lstrip("\\/")
+        cand = os.path.join(user_prof, onedrive_tag, rel_part)
+        try:
+            if os.path.exists(cand):
+                return cand
+        except Exception:
+            pass
+            
+    # 2. Adapt C:\Users\<old_user>\... to current %USERPROFILE%
+    parts = path_str.split(os.sep)
+    if len(parts) > 3 and parts[0].endswith(":") and parts[1].lower() == "users":
+        cand_user = os.path.join(user_prof, *parts[3:])
+        try:
+            if os.path.exists(cand_user):
+                return cand_user
+        except Exception:
+            pass
+
+    return None
+
+def resolve_thumbnail_path(fam_item):
+    if not fam_item:
+        return None
+    code = fam_item.get("code", "")
+    t = fam_item.get("thumbnail")
+    if is_valid_3d_thumbnail(t):
+        return t
+        
+    t_res = resolve_live_path(t)
+    if is_valid_3d_thumbnail(t_res):
+        return t_res
+        
+    c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
+    if is_valid_3d_thumbnail(c1):
+        return c1
+        
+    c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
+    if is_valid_3d_thumbnail(c2):
+        return c2
+
+    return None
+
+def resolve_family_path(fam):
+    if not fam:
+        return None
+    rfa = fam.get("rfa_path", "")
+    try:
+        if rfa and os.path.exists(rfa):
+            return rfa
+    except Exception:
+        pass
+        
+    code = fam.get("code", "")
+    code_rfa = code + ".rfa" if not code.lower().endswith(".rfa") else code
+    
+    # 1. Try adapting path
+    resolved = resolve_live_path(rfa)
+    try:
+        if resolved and os.path.exists(resolved):
+            return resolved
+    except Exception:
+        pass
+        
+    # 2. Check under SharePoint library root and cache
+    sp_candidates = [
+        os.path.join(CENTRAL_REPOSITORY, code_rfa),
+        os.path.join(SHAREPOINT_LIB_ROOT, code_rfa),
+        os.path.join(LOCAL_CACHE_DIR, "Families", code_rfa)
+    ]
+    for cand in sp_candidates:
+        try:
+            if os.path.exists(cand):
+                return cand
+        except Exception:
+            pass
+            
+    # 3. Search SharePoint library root if folder exists
+    try:
+        if os.path.exists(SHAREPOINT_LIB_ROOT):
+            for root, dirs, files in os.walk(SHAREPOINT_LIB_ROOT):
+                for f in files:
+                    if f.lower() == code_rfa.lower():
+                        return os.path.join(root, f)
+    except Exception:
+        pass
+                
+    return None
 
 def load_bitmap(image_path):
     if not is_valid_3d_thumbnail(image_path):
@@ -201,9 +312,20 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         # Event Handlers
         self.BtnClose.Click += self.on_close
         self.BtnFooterClose.Click += self.on_close
+        if hasattr(self, "BtnMaximize") and self.BtnMaximize:
+            self.BtnMaximize.Click += self.on_maximize_restore
         self.BtnAdminSync.Click += self.on_admin_sync
         self.BtnToggleTheme.Click += self.on_toggle_theme
-        self.TitleBar.MouseLeftButtonDown += self.on_drag_move
+        self.TitleBar.MouseLeftButtonDown += self.on_titlebar_mouse_down
+
+        # Window Drag Resizing Handlers
+        if hasattr(self, "ResizeRightThumb") and self.ResizeRightThumb:
+            self.ResizeRightThumb.DragDelta += self.on_resize_right
+        if hasattr(self, "ResizeBottomThumb") and self.ResizeBottomThumb:
+            self.ResizeBottomThumb.DragDelta += self.on_resize_bottom
+        if hasattr(self, "ResizeGripThumb") and self.ResizeGripThumb:
+            self.ResizeGripThumb.DragDelta += self.on_resize_bottom_right
+
         self.TxtSearch.TextChanged += self.on_search_changed
         self.LstCategories.SelectionChanged += self.on_category_changed
         self.LstFamilies.SelectionChanged += self.on_family_selected
@@ -237,8 +359,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         # Admin Protection Guardrail: Hide Edit and Sync buttons for standard users
         try:
             uname = System.Environment.UserName.lower()
-            ADMIN_USERS = ["user", "dilupa", "dilupa.chathuranga", "dilupac", "dilupa1990"]
-            self.is_admin = uname in ADMIN_USERS
+            env_uname = os.environ.get("USERNAME", "").lower()
+            ADMIN_USERS = ["user", "windows", "dilupa", "dilupa.chathuranga", "dilupac", "dilupa1990"]
+            self.is_admin = (uname in ADMIN_USERS) or (env_uname in ADMIN_USERS)
             if not self.is_admin:
                 self.BtnEdit2025.Visibility = Visibility.Collapsed
                 self.BtnAdminSync.Visibility = Visibility.Collapsed
@@ -258,6 +381,55 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         # Load Catalog Data
         self.load_catalog_data()
+
+    def on_titlebar_mouse_down(self, sender, e):
+        try:
+            if hasattr(e, "ClickCount") and e.ClickCount == 2:
+                self.on_maximize_restore(sender, e)
+            else:
+                self.DragMove()
+        except Exception:
+            pass
+
+    def on_maximize_restore(self, sender=None, e=None):
+        try:
+            if self.WindowState == WindowState.Maximized:
+                self.WindowState = WindowState.Normal
+                if hasattr(self, "BtnMaximize") and self.BtnMaximize:
+                    self.BtnMaximize.Content = u"🗖"
+            else:
+                self.WindowState = WindowState.Maximized
+                if hasattr(self, "BtnMaximize") and self.BtnMaximize:
+                    self.BtnMaximize.Content = u"🗗"
+        except Exception:
+            pass
+
+    def on_resize_right(self, sender, e):
+        try:
+            new_w = self.ActualWidth + e.HorizontalChange
+            if new_w >= self.MinWidth:
+                self.Width = new_w
+        except Exception:
+            pass
+
+    def on_resize_bottom(self, sender, e):
+        try:
+            new_h = self.ActualHeight + e.VerticalChange
+            if new_h >= self.MinHeight:
+                self.Height = new_h
+        except Exception:
+            pass
+
+    def on_resize_bottom_right(self, sender, e):
+        try:
+            new_w = self.ActualWidth + e.HorizontalChange
+            new_h = self.ActualHeight + e.VerticalChange
+            if new_w >= self.MinWidth:
+                self.Width = new_w
+            if new_h >= self.MinHeight:
+                self.Height = new_h
+        except Exception:
+            pass
 
     def on_drag_move(self, sender, e):
         try:
@@ -337,15 +509,14 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.TxtStatus.Text = u"SharePoint Library Connected (BIM SERVER)"
         elif os.path.exists(fallback_path):
             target_path = fallback_path
-            self.TxtStatus.Text = u"Local Cached Library (Offline Mode)"
+            self.TxtStatus.Text = u"Riyan Library (Local Cache Mode)"
 
         if target_path:
             try:
                 with codecs.open(target_path, 'r', 'utf-8-sig') as f:
                     raw_items = json.load(f)
                     import re
-                    # Strict Zero-Backup & Mandatory 3D Thumbnail Guardrail
-                    cache_thumbs = os.path.join(LOCAL_CACHE_DIR, "Thumbnails")
+                    # Strict Zero-Backup Filter (Eliminate .0001, .0002 backup copies)
                     self.catalog = []
                     for item in raw_items:
                         c = item.get("code", "")
@@ -353,16 +524,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                         if re.search(r'\.\d{3,4}$', c) or re.search(r'\.\d{3,4}\.rfa$', r, re.IGNORECASE):
                             continue
                         
-                        t = item.get("thumbnail")
-                        if not is_valid_3d_thumbnail(t):
-                            c1 = os.path.join(THUMBNAILS_DIR, c + ".png")
-                            c2 = os.path.join(cache_thumbs, c + ".png")
-                            if is_valid_3d_thumbnail(c1):
-                                item["thumbnail"] = c1
-                            elif is_valid_3d_thumbnail(c2):
-                                item["thumbnail"] = c2
-                            else:
-                                continue # Bypass unconditionally! Zero placeholder icons!
+                        # Resolve thumbnail across local, repo, or OneDrive
+                        item["thumbnail"] = resolve_thumbnail_path(item)
                         self.catalog.append(item)
             except Exception as ex:
                 self.build_live_catalog_from_folders()
@@ -540,22 +703,11 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             if re.search(r'\.\d{3,4}$', code) or re.search(r'\.\d{3,4}\.rfa$', rfa, re.IGNORECASE):
                 continue
 
-            # 2. Mandatory Valid 3D Preview: Strictly bypass any family without a genuine 3D thumbnail
+            # 2. Check or resolve thumbnail (keep family even if thumbnail is not yet local)
             thumb_path = item.get("thumbnail")
-            if not is_valid_3d_thumbnail(thumb_path):
-                c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
-                c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
-                if is_valid_3d_thumbnail(c1):
-                    thumb_path = c1
-                    item["thumbnail"] = c1
-                elif is_valid_3d_thumbnail(c2):
-                    thumb_path = c2
-                    item["thumbnail"] = c2
-                else:
-                    continue
-
-            if not is_valid_3d_thumbnail(thumb_path):
-                continue
+            if not thumb_path or not is_valid_3d_thumbnail(thumb_path):
+                thumb_path = resolve_thumbnail_path(item)
+                item["thumbnail"] = thumb_path
 
             if self.current_discipline != "ALL" and item.get("discipline") != self.current_discipline:
                 continue
@@ -589,16 +741,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         border_brush = self.Resources["BorderColor"]
 
         thumb_path = fam.get("thumbnail")
-        if not is_valid_3d_thumbnail(thumb_path):
-            code = fam.get("code", "")
-            c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
-            c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
-            if is_valid_3d_thumbnail(c1):
-                thumb_path = c1
-            elif is_valid_3d_thumbnail(c2):
-                thumb_path = c2
-            else:
-                thumb_path = None
+        if not thumb_path or not is_valid_3d_thumbnail(thumb_path):
+            thumb_path = resolve_thumbnail_path(fam)
+            fam["thumbnail"] = thumb_path
 
         # ---------------- LIST VIEW MODE ----------------
         if self.view_mode == "List":
@@ -611,7 +756,6 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             card_border.CornerRadius = System.Windows.CornerRadius(6)
             card_border.Padding = Thickness(8, 4, 8, 4)
 
-            from System.Windows.Controls import Grid, ColumnDefinition
             row_grid = Grid()
             c0 = ColumnDefinition(); c0.Width = System.Windows.GridLength(40)
             c1 = ColumnDefinition(); c1.Width = System.Windows.GridLength(1, System.Windows.GridUnitType.Star)
@@ -622,18 +766,39 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             row_grid.ColumnDefinitions.Add(c2)
             row_grid.ColumnDefinitions.Add(c3)
 
-            # Mini Thumbnail
+            # Mini Thumbnail or Initial Badge
             img_b = Border()
             img_b.Width = 32; img_b.Height = 32
             img_b.CornerRadius = System.Windows.CornerRadius(4)
             img_b.Background = img_bg
             img_b.ClipToBounds = True
-            img = WpfImage()
-            img.Stretch = System.Windows.Media.Stretch.Uniform
-            if thumb_path and os.path.exists(thumb_path):
-                bi = load_bitmap(thumb_path)
-                if bi: img.Source = bi
-            img_b.Child = img
+            
+            bi = load_bitmap(thumb_path) if (thumb_path and os.path.exists(thumb_path)) else None
+            if bi:
+                img = WpfImage()
+                img.Stretch = System.Windows.Media.Stretch.Uniform
+                img.Source = bi
+                img_b.Child = img
+            else:
+                txt_init = TextBlock()
+                cat_up = fam.get("category", "").upper()
+                init_letter = "R"
+                if "DOOR" in cat_up: init_letter = "D"
+                elif "WINDOW" in cat_up: init_letter = "W"
+                elif "TITLE" in cat_up: init_letter = "T"
+                elif "COLUMN" in cat_up or "BEAM" in cat_up or fam.get("discipline") == "STRUCTURAL": init_letter = "S"
+                elif "PLUMB" in cat_up or fam.get("discipline") == "PLUMBING": init_letter = "P"
+                elif "ELEC" in cat_up or fam.get("discipline") == "ELECTRICAL": init_letter = "E"
+                elif "ACMV" in cat_up or fam.get("discipline") == "ACMV": init_letter = "M"
+                
+                txt_init.Text = init_letter
+                txt_init.FontSize = 13
+                txt_init.FontWeight = System.Windows.FontWeights.Bold
+                txt_init.Foreground = SolidColorBrush(Color.FromRgb(128, 47, 45))
+                txt_init.HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+                txt_init.VerticalAlignment = System.Windows.VerticalAlignment.Center
+                img_b.Child = txt_init
+
             Grid.SetColumn(img_b, 0)
             row_grid.Children.Add(img_b)
 
@@ -708,13 +873,80 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         img_border.Margin = Thickness(0, 0, 0, 6)
         img_border.ClipToBounds = True
 
-        img = WpfImage()
-        img.Stretch = System.Windows.Media.Stretch.Uniform
-        if thumb_path and os.path.exists(thumb_path):
-            bi = load_bitmap(thumb_path)
-            if bi:
-                img.Source = bi
-        img_border.Child = img
+        bi = load_bitmap(thumb_path) if (thumb_path and os.path.exists(thumb_path)) else None
+        if bi:
+            img = WpfImage()
+            img.Stretch = System.Windows.Media.Stretch.Uniform
+            img.Source = bi
+            img_border.Child = img
+        else:
+            fallback_grid = Grid()
+            inner_bg = SolidColorBrush(Color.FromRgb(30, 30, 34)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(240, 243, 246))
+            accent_border = Border()
+            accent_border.CornerRadius = System.Windows.CornerRadius(6)
+            accent_border.Background = inner_bg
+            fallback_grid.Children.Add(accent_border)
+            
+            fb_sp = StackPanel()
+            fb_sp.VerticalAlignment = System.Windows.VerticalAlignment.Center
+            fb_sp.HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+            
+            cat_str = fam.get("category", "").upper()
+            disc_str = fam.get("discipline", "").upper()
+            
+            badge_text = "RYAN"
+            sub_text = "STANDARD"
+            if "DOOR" in cat_str:
+                badge_text = "DOOR"
+                sub_text = "FAMILY"
+            elif "WINDOW" in cat_str:
+                badge_text = "WINDOW"
+                sub_text = "FAMILY"
+            elif "TITLEBLOCK" in cat_str:
+                badge_text = "TITLE BLOCK"
+                sub_text = "SHEET"
+            elif "COLUMN" in cat_str:
+                badge_text = "COLUMN"
+                sub_text = "STRUCTURAL"
+            elif "BEAM" in cat_str or "FRAME" in cat_str or disc_str == "STRUCTURAL":
+                badge_text = "STRUCTURE"
+                sub_text = "FRAME"
+            elif "PLUMB" in cat_str or disc_str == "PLUMBING":
+                badge_text = "PLUMBING"
+                sub_text = "FIXTURE"
+            elif "ELEC" in cat_str or disc_str == "ELECTRICAL":
+                badge_text = "ELECTRICAL"
+                sub_text = "EQUIPMENT"
+            elif "ACMV" in cat_str or "DUCT" in cat_str or disc_str == "ACMV":
+                badge_text = "HVAC / ACMV"
+                sub_text = "MECHANICAL"
+                
+            pill_b = Border()
+            pill_b.CornerRadius = System.Windows.CornerRadius(4)
+            pill_b.Background = SolidColorBrush(Color.FromRgb(128, 47, 45))
+            pill_b.Padding = Thickness(6, 2, 6, 2)
+            pill_b.HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+            
+            txt_pill = TextBlock()
+            txt_pill.Text = badge_text
+            txt_pill.FontSize = 10 if self.view_mode in ["ExtraLarge", "Large"] else 8.5
+            txt_pill.FontWeight = System.Windows.FontWeights.Bold
+            txt_pill.Foreground = SolidColorBrush(Color.FromRgb(255, 255, 255))
+            pill_b.Child = txt_pill
+            fb_sp.Children.Add(pill_b)
+            
+            txt_sub = TextBlock()
+            txt_sub.Text = sub_text
+            txt_sub.FontSize = 8.5 if self.view_mode in ["ExtraLarge", "Large"] else 7.5
+            txt_sub.FontWeight = System.Windows.FontWeights.SemiBold
+            txt_sub.Foreground = text_muted
+            txt_sub.Margin = Thickness(0, 4, 0, 0)
+            txt_sub.HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+            fb_sp.Children.Add(txt_sub)
+            
+            fallback_grid.Children.Add(fb_sp)
+            img_border.Child = fallback_grid
+
         sp.Children.Add(img_border)
 
         # Title (Strictly preserve user's actual family name / code)
@@ -759,16 +991,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.TxtDetailCategory.Text = fam.get("category", "General")
 
         thumb_path = fam.get("thumbnail")
-        if not is_valid_3d_thumbnail(thumb_path):
-            code = fam.get("code", "")
-            c1 = os.path.join(THUMBNAILS_DIR, code + ".png")
-            c2 = os.path.join(LOCAL_CACHE_DIR, "Thumbnails", code + ".png")
-            if is_valid_3d_thumbnail(c1):
-                thumb_path = c1
-            elif is_valid_3d_thumbnail(c2):
-                thumb_path = c2
-            else:
-                thumb_path = None
+        if not thumb_path or not is_valid_3d_thumbnail(thumb_path):
+            thumb_path = resolve_thumbnail_path(fam)
+            fam["thumbnail"] = thumb_path
         if thumb_path and is_valid_3d_thumbnail(thumb_path):
             self.ImgDetailPreview.Source = load_bitmap(thumb_path)
         else:
@@ -777,33 +1002,23 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         # Graphic Capability Badges
         self.PanelBadges.Children.Clear()
         for b in fam.get("badges", []):
-            badge_border = Border()
-            badge_border.CornerRadius = System.Windows.CornerRadius(4)
-            badge_border.Background = SolidColorBrush(Color.FromRgb(39, 39, 42)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(241, 245, 249))
-            badge_border.Padding = Thickness(8, 4, 8, 4)
-            badge_border.Margin = Thickness(0, 0, 6, 6)
+            bd = Border()
+            bd.CornerRadius = System.Windows.CornerRadius(4)
+            bd.Background = SolidColorBrush(ColorConverter.ConvertFromString(b.get("bg", "#475569")))
+            bd.Padding = Thickness(6, 2, 6, 2)
+            bd.Margin = Thickness(0, 0, 4, 4)
 
-            badge_sp = StackPanel()
-            badge_sp.Orientation = System.Windows.Controls.Orientation.Horizontal
+            sp_b = StackPanel()
+            sp_b.Orientation = System.Windows.Controls.Orientation.Horizontal
 
-            ico = TextBlock()
-            raw_ico = b.get("icon", "")
-            if any(bad in raw_ico for bad in [u"Ã", u"Â", u"â", u"€"]):
-                raw_ico = u"•"
-            ico.Text = (raw_ico if raw_ico else u"•") + u" "
-            ico.FontSize = 10
-            ico.Foreground = SolidColorBrush(Color.FromRgb(128, 47, 45)) # Riyan Maroon
-            badge_sp.Children.Add(ico)
-
-            lbl = TextBlock()
-            lbl.Text = b.get("label", "")
-            lbl.FontSize = 10
-            lbl.FontWeight = System.Windows.FontWeights.SemiBold
-            lbl.Foreground = SolidColorBrush(Color.FromRgb(228, 228, 231)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(15, 23, 42))
-            badge_sp.Children.Add(lbl)
-
-            badge_border.Child = badge_sp
-            self.PanelBadges.Children.Add(badge_border)
+            t_lbl = TextBlock()
+            t_lbl.Text = b.get("label", "")
+            t_lbl.FontSize = 10
+            t_lbl.FontWeight = System.Windows.FontWeights.SemiBold
+            t_lbl.Foreground = SolidColorBrush(Color.FromRgb(255, 255, 255))
+            sp_b.Children.Add(t_lbl)
+            bd.Child = sp_b
+            self.PanelBadges.Children.Add(bd)
 
         # Family Types Dropdown
         self.CmbTypes.Items.Clear()
@@ -813,9 +1028,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         if self.CmbTypes.Items.Count > 0:
             self.CmbTypes.SelectedIndex = 0
 
-        # Parameters Table
+        # Specifications & Parameters Panel
         self.PanelParams.Children.Clear()
         specs = fam.get("specs", {
+            "Discipline": fam.get("discipline", "ARCHITECTURAL"),
             "Level Category": fam.get("category", "General"),
             "Operation": "Smart Parametric Controls",
             "Dimensions": "Width & Height Parametric",
@@ -847,9 +1063,15 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             forms.alert(u"Please select a family from the list to load.", title=u"Load Family")
             return
         
-        rfa_path = self.selected_family.get("rfa_path")
+        rfa_path = resolve_family_path(self.selected_family)
         if not rfa_path or not os.path.exists(rfa_path):
-            forms.alert(u"Family file could not be found at path:\n{}".format(rfa_path), title=u"File Missing")
+            code_name = self.selected_family.get("code", self.selected_family.get("title", "Family"))
+            msg = u"Family '{}' could not be found locally.\n\n".format(code_name)
+            msg += u"Source Repository:\nOneDrive - Riyan Private Limited\\...\\02 LIBRARY\n\n"
+            msg += u"To load this family on your laptop:\n"
+            msg += u"1. Open OneDrive and ensure the '02 LIBRARY' folder is synced to your PC.\n"
+            msg += u"2. Once synced, click 'Load' again to load directly into Revit."
+            forms.alert(msg, title=u"Riyan Family - OneDrive Sync Required")
             return
 
         if not DOC:
@@ -880,9 +1102,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
     def on_edit_2025(self, sender, e):
         if not self.selected_family:
             return
-        rfa_path = self.selected_family.get("rfa_path")
+        rfa_path = resolve_family_path(self.selected_family)
         if not rfa_path or not os.path.exists(rfa_path):
-            forms.alert(u"Family file path does not exist.", title=u"Error")
+            forms.alert(u"Family file path does not exist on this computer.", title=u"Error")
             return
 
         if not os.path.exists(REVIT_2025_EXE):
