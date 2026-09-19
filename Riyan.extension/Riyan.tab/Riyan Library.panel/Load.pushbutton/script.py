@@ -310,6 +310,11 @@ def categorize_by_level_rule(filename, directory_name=""):
                 cat = "Window-Fixed"
             else:
                 cat = "Window-Other"
+        elif "WALL" in name_upper or "WALL" in dir_upper or "FACADE" in name_upper or "FACADE" in dir_upper:
+            if not any(k in name_upper.lower() for k in ["toilet", "lavatory", "shower", "sink", "fountain", "washfountain", "urinal", "lighting", "light", "tag", "drain", "tree", "plant", "container", "hute", "door", "window"]):
+                cat = "Walls"
+            else:
+                cat = "Arch-Other"
         elif "TITLEBLOCK" in name_upper or "COVERPAGE" in name_upper or "TITLE" in dir_upper:
             cat = "Annotation-TitleBlocks"
         elif "ANO_" in name_upper or "TAG" in name_upper or "ANNOTAT" in dir_upper:
@@ -966,6 +971,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             elif "WINDOW" in cat_str:
                 badge_text = "WINDOW"
                 sub_text = "FAMILY"
+            elif "WALL" in cat_str:
+                badge_text = "WALL"
+                sub_text = "ARCHITECTURAL"
             elif "TITLEBLOCK" in cat_str:
                 badge_text = "TITLE BLOCK"
                 sub_text = "SHEET"
