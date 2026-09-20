@@ -31,7 +31,6 @@ from System.Windows.Controls import (
 from System.Windows.Media import SolidColorBrush, Color, ColorConverter
 from System.Windows.Interop import WindowInteropHelper
 import Autodesk.Revit.DB as DB
-from pyrevit import script
 try:
     from riyan_alert import show_alert
 except ImportError:
@@ -717,17 +716,7 @@ class MaterialAuditorWindow(Window):
             show_alert("All families in this document are already RYN_MAT_ compliant!", title="Material Auditor", is_warning=False)
             return
 
-        # Initialize pyRevit Output Console for live non-freezing visual progress
-        out = script.get_output()
-        out.set_title("Material Auditor - Live Standardization")
-        try:
-            out.open()
-        except Exception:
-            pass
-        out.print_md("## 🎨 Riyan Material Auditor — Live Standardization")
-        out.print_md("Standardizing **{} families** to `RYN_MAT_` corporate standard...".format(len(inconsistent_list)))
-
-        # Activate In-Window Live Progress Bar
+        # Activate In-Window Live Progress Bar & Status
         if self.PanelProgress:
             self.PanelProgress.Visibility = Visibility.Visible
         if self.ProgressBarStandardize:
@@ -766,7 +755,6 @@ class MaterialAuditorWindow(Window):
                 
                 # Live Progress Bar & Windows message pumping (Never freezes!)
                 pct = int(((idx + 1) / float(total_items)) * 100)
-                out.update_progress(idx + 1, total_items)
                 if self.ProgressBarStandardize:
                     self.ProgressBarStandardize.Value = pct
                 if self.TxtProgressPct:
@@ -806,8 +794,6 @@ class MaterialAuditorWindow(Window):
                                 replaced_count += 1
                                 self.log(u"✔ [{}/{}] '{}' : Replaced '{}' ➔ {}".format(
                                     idx + 1, total_items, fam_name, m_name, matched_ryn.Name))
-                                out.print_html(u"<span style='color:#10b981'>✔ [{}/{}] <b>{}</b> : Replaced '{}' ➔ <b>{}</b></span>".format(
-                                    idx + 1, total_items, fam_name, m_name, matched_ryn.Name))
                                 continue
 
                             # 2. Check if clean standard name already exists in project
@@ -818,8 +804,6 @@ class MaterialAuditorWindow(Window):
                                 replaced_count += 1
                                 self.log(u"🔗 [{}/{}] '{}' : Reused Existing ➔ {}".format(
                                     idx + 1, total_items, fam_name, existing_m.Name))
-                                out.print_html(u"<span style='color:#3b82f6'>🔗 [{}/{}] <b>{}</b> : Reused Existing ➔ <b>{}</b></span>".format(
-                                    idx + 1, total_items, fam_name, existing_m.Name))
                             else:
                                 # Rename unique material preserving all textures/colors 100%
                                 try:
@@ -829,8 +813,6 @@ class MaterialAuditorWindow(Window):
                                     renamed_set.add(clean_name)
                                     renamed_count += 1
                                     self.log(u"✏ [{}/{}] '{}' : Standardized ➔ {}".format(
-                                        idx + 1, total_items, fam_name, clean_name))
-                                    out.print_html(u"<span style='color:#f59e0b'>✏ [{}/{}] <b>{}</b> : Standardized ➔ <b>{}</b></span>".format(
                                         idx + 1, total_items, fam_name, clean_name))
                                 except Exception:
                                     pass
@@ -849,10 +831,6 @@ class MaterialAuditorWindow(Window):
             self.log("------------------------------------------------------------")
             self.log(u"✅ [SUCCESS] Standardization Finished! Replaced/Reused: {}, Standardized: {}".format(replaced_count, renamed_count))
 
-            out.print_md("---")
-            out.print_md("### ✅ Standardization Finished Successfully!")
-            out.print_md("- **Replaced/Reused authentic `RYN_MAT_`:** {}\n- **Standardized unique materials:** {}".format(replaced_count, renamed_count))
-
             msg = u"Standardization Complete!\n\n"
             msg += u"• Assigned authentic/reused RYN_MAT_ materials: {}\n".format(replaced_count)
             msg += u"• Standardized unique material names (textures preserved): {}\n\n".format(renamed_count)
@@ -868,7 +846,6 @@ class MaterialAuditorWindow(Window):
             if 't' in locals() and t.HasStarted():
                 t.RollBack()
             self.log(u"❌ [ERROR] Standardization Failed: {}".format(str(ex)))
-            out.print_md("### ❌ Standardization Failed: {}".format(str(ex)))
             show_alert("Standardization Failed:\n" + str(ex), title="Standardization Error", is_error=True)
 
     def OnExportReport(self, sender, e):
