@@ -20,6 +20,11 @@ def show_alert(msg):
     forms.alert(msg, exitscript=False)
 
 def get_or_create_shared_params():
+    try:
+        import riyan_shared_params
+        riyan_shared_params.enforce_riyan_shared_parameters(app)
+    except Exception:
+        pass
     spf = app.OpenSharedParameterFile()
     if not spf: return None, "No shared parameter file loaded in Revit!"
     
