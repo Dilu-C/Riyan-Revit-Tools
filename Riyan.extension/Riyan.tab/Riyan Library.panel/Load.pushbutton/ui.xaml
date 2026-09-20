@@ -26,6 +26,7 @@
         <SolidColorBrush x:Key="RiyanMaroonPressed" Color="#632321"/>
         <SolidColorBrush x:Key="HoverBg" Color="#2A2A30"/>
         <SolidColorBrush x:Key="HoverBorder" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="SelectedCardBg" Color="#2E1413"/>
 
         <!-- Modern Floating Acrylic Thumbnail Brushes -->
         <LinearGradientBrush x:Key="ThumbnailBg" StartPoint="0,0" EndPoint="1,1">
@@ -549,7 +550,7 @@
                                                         </TransformGroup>
                                                     </Border.RenderTransform>
                                                     <Border.Effect>
-                                                        <DropShadowEffect BlurRadius="4" ShadowDepth="1" Direction="270" Color="#000000" Opacity="0.1"/>
+                                                        <DropShadowEffect BlurRadius="4" ShadowDepth="1" Direction="270" Color="#000000" Opacity="0.06"/>
                                                     </Border.Effect>
                                                     <ContentPresenter/>
                                                 </Border>
@@ -562,29 +563,29 @@
                                                     <Trigger Property="IsSelected" Value="True">
                                                         <Setter TargetName="cardBorder" Property="BorderBrush" Value="{DynamicResource RiyanMaroon}"/>
                                                         <Setter TargetName="cardBorder" Property="BorderThickness" Value="1.5"/>
-                                                        <Setter TargetName="cardBorder" Property="Background" Value="#2E1413"/>
+                                                        <Setter TargetName="cardBorder" Property="Background" Value="{DynamicResource SelectedCardBg}"/>
                                                         <Setter Property="Panel.ZIndex" Value="50"/>
                                                         <Trigger.EnterActions>
                                                             <BeginStoryboard>
                                                                 <Storyboard>
                                                                     <DoubleAnimation Storyboard.TargetName="cardBorder"
                                                                                      Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
-                                                                                     To="1.04" Duration="0:0:0.18" DecelerationRatio="0.8"/>
+                                                                                     To="1.035" Duration="0:0:0.18" DecelerationRatio="0.8"/>
                                                                     <DoubleAnimation Storyboard.TargetName="cardBorder"
                                                                                      Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
-                                                                                     To="1.04" Duration="0:0:0.18" DecelerationRatio="0.8"/>
+                                                                                     To="1.035" Duration="0:0:0.18" DecelerationRatio="0.8"/>
                                                                     <DoubleAnimation Storyboard.TargetName="cardBorder"
                                                                                      Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
-                                                                                     To="-4" Duration="0:0:0.18" DecelerationRatio="0.8"/>
+                                                                                     To="-3.5" Duration="0:0:0.18" DecelerationRatio="0.8"/>
                                                                     <DoubleAnimation Storyboard.TargetName="cardBorder"
                                                                                      Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)"
-                                                                                     To="0.65" Duration="0:0:0.18"/>
+                                                                                     To="0.28" Duration="0:0:0.18"/>
                                                                     <DoubleAnimation Storyboard.TargetName="cardBorder"
                                                                                      Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.BlurRadius)"
-                                                                                     To="18" Duration="0:0:0.18"/>
+                                                                                     To="14" Duration="0:0:0.18"/>
                                                                     <DoubleAnimation Storyboard.TargetName="cardBorder"
                                                                                      Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.ShadowDepth)"
-                                                                                     To="6" Duration="0:0:0.18"/>
+                                                                                     To="4" Duration="0:0:0.18"/>
                                                                 </Storyboard>
                                                             </BeginStoryboard>
                                                         </Trigger.EnterActions>
@@ -602,7 +603,7 @@
                                                                                      To="0" Duration="0:0:0.15"/>
                                                                     <DoubleAnimation Storyboard.TargetName="cardBorder"
                                                                                      Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)"
-                                                                                     To="0.1" Duration="0:0:0.15"/>
+                                                                                     To="0.06" Duration="0:0:0.15"/>
                                                                     <DoubleAnimation Storyboard.TargetName="cardBorder"
                                                                                      Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.BlurRadius)"
                                                                                      To="4" Duration="0:0:0.15"/>

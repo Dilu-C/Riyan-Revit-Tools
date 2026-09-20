@@ -559,6 +559,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(113, 113, 122))
             self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(42, 42, 48))
             self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
+            self.Resources["SelectedCardBg"] = SolidColorBrush(Color.FromRgb(46, 20, 19)) # Deep Wine Maroon
             grad_dark = LinearGradientBrush()
             grad_dark.StartPoint = Point(0, 0)
             grad_dark.EndPoint = Point(1, 1)
@@ -576,6 +577,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["BorderColor"] = SolidColorBrush(Color.FromRgb(203, 213, 225)) # Slate 300
             self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(226, 232, 240))     # Slate 200 distinct hover
             self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(203, 213, 225)) # Slate 300
+            self.Resources["SelectedCardBg"] = SolidColorBrush(Color.FromRgb(254, 238, 238)) # Soft pastel rose-50
             self.Resources["TextPrimary"] = SolidColorBrush(Color.FromRgb(15, 23, 42))     # Deep Pitch Black/Slate
             self.Resources["TextSecondary"] = SolidColorBrush(Color.FromRgb(51, 65, 85))   # Dark Slate 700
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(100, 116, 139))   # Slate 500
