@@ -115,41 +115,115 @@ def is_valid_shared_parameter_file(path):
         pass
     return False
 
-def find_latest_riyan_shared_parameter_file():
+def get_sharepoint_roots():
     r"""
-    Searches SharePoint, D:\ drive, and local caches for the newest Riyan Shared Parameter file.
-    Strictly ignores any file located in 'PREVIOUS', 'OLD', 'BACKUP', or 'ARCHIVE' directories.
+    Discovers SharePoint / OneDrive roots across Windows Registry,
+    UserProfile, Environment Variables, and Drive Letters.
+    Target structure:
+    - BIM SERVER / 00 - RIYAN REVIT STANDARD / 01 SHARED PARAMETER
     """
-    search_roots = [
-        os.path.join(os.path.dirname(SHAREPOINT_LIB_ROOT), "00 RIYAN STANDARD"),
-        SHAREPOINT_LIB_ROOT,
-        CENTRAL_REPOSITORY,
-        os.path.dirname(SHAREPOINT_LIB_ROOT),
-        r"D:\RIYAN\00 RIYAN STANDARD",
+    discovered = []
+    user_prof = os.path.expandvars(r"%USERPROFILE%")
+
+    # 1. Standard OneDrive / SharePoint directory names
+    base_parents = [
+        user_prof,
+        os.path.join(user_prof, "OneDrive - Riyan Private Limited"),
+        os.path.join(user_prof, "Riyan Private Limited"),
         r"D:\RIYAN\Riyan Private Limited",
         r"D:\RIYAN",
-        os.path.join(LOCAL_CACHE_DIR, "SharedParameters"),
-        LOCAL_CACHE_DIR
+        r"C:\RIYAN"
     ]
 
-    # Resolve live paths for user profiles
-    resolved_roots = []
-    for r in search_roots:
-        if r and r not in resolved_roots:
-            if os.path.exists(r):
-                resolved_roots.append(r)
-            else:
-                lp = resolve_live_path(r)
-                if lp and os.path.exists(lp) and lp not in resolved_roots:
-                    resolved_roots.append(lp)
+    # Add all drive letters
+    for dl in ['C', 'D', 'E', 'F', 'G']:
+        drv = dl + ":\\"
+        if os.path.exists(drv) and drv not in base_parents:
+            base_parents.append(drv)
+            base_parents.append(os.path.join(drv, "Riyan Private Limited"))
+            base_parents.append(os.path.join(drv, "RIYAN", "Riyan Private Limited"))
 
-    ignored_dir_names = {"previous", "old", "backup", "archive", "0000 previous", "0000_previous", "temp"}
+    # 2. Check Registry MountPoints (OneDrive for Business)
+    try:
+        try:
+            import winreg
+        except ImportError:
+            import _winreg as winreg
+
+        reg_keys = [
+            r'Software\SyncEngines\Providers\OneDrive',
+            r'Software\Microsoft\OneDrive\Accounts\Business1\ScopeIdToMountPointPathCache'
+        ]
+        for rk in reg_keys:
+            try:
+                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, rk) as k:
+                    n_sub, n_val, _ = winreg.QueryInfoKey(k)
+                    for i in range(n_sub):
+                        try:
+                            sn = winreg.EnumKey(k, i)
+                            with winreg.OpenKey(k, sn) as sk:
+                                mp, _ = winreg.QueryValueEx(sk, 'MountPoint')
+                                if mp and os.path.exists(mp) and mp not in base_parents:
+                                    base_parents.append(mp)
+                        except Exception:
+                            pass
+                    for i in range(n_val):
+                        try:
+                            _, v, _ = winreg.EnumValue(k, i)
+                            if isinstance(v, str) and os.path.exists(v) and v not in base_parents:
+                                base_parents.append(v)
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    # Target SharePoint subfolders to probe
+    sub_patterns = [
+        r"BIM SERVER\00 - RIYAN REVIT STANDARD\01 SHARED PARAMETER",
+        r"Riyan LK Projects - BIM SERVER\00 - RIYAN REVIT STANDARD\01 SHARED PARAMETER",
+        r"00 - RIYAN REVIT STANDARD\01 SHARED PARAMETER",
+        r"01 SHARED PARAMETER",
+        r"00 - RIYAN REVIT STANDARD",
+        r"00 RIYAN STANDARD",
+        r"Riyan LK Projects - 00 - RIYAN REVIT STANDARD\01 SHARED PARAMETER",
+        r"Riyan LK Projects - 00 - RIYAN REVIT STANDARD\02 LIBRARY",
+    ]
+
+    for bp in base_parents:
+        if not bp or not os.path.exists(bp):
+            continue
+        discovered.append(bp)
+        for sp in sub_patterns:
+            cand = os.path.join(bp, sp)
+            if os.path.exists(cand) and cand not in discovered:
+                discovered.append(cand)
+
+    return discovered
+
+def find_latest_riyan_shared_parameter_file():
+    r"""
+    Searches SharePoint, any drive, and local caches for the newest Riyan Shared Parameter file.
+    Strictly ignores '00 PREVIOUS REVISIONS', 'PREVIOUS', 'OLD', 'BACKUP', or 'ARCHIVE' directories.
+    """
+    search_roots = get_sharepoint_roots()
+    search_roots.extend([
+        os.path.join(LOCAL_CACHE_DIR, "SharedParameters"),
+        LOCAL_CACHE_DIR
+    ])
+
+    ignored_dir_names = {
+        "00 previous revisions", "00_previous_revisions", "previous revisions",
+        "previous", "old", "backup", "archive", "0000 previous", "0000_previous", "temp"
+    }
 
     candidates = []
 
-    for root_dir in resolved_roots:
+    for root_dir in search_roots:
+        if not root_dir or not os.path.exists(root_dir):
+            continue
         try:
-            # We only scan depth 1-2 to keep startup ultra-fast (0.001s)
             is_source = 0 if "library_cache" in root_dir.lower() else 1
             for item in os.listdir(root_dir):
                 full_item_path = os.path.join(root_dir, item)
