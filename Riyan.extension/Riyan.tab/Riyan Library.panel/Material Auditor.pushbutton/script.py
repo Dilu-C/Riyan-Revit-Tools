@@ -760,7 +760,7 @@ class MaterialAuditorWindow(Window):
                 if self.TxtProgressPct:
                     self.TxtProgressPct.Text = u"{}% ({}/{})".format(pct, idx + 1, total_items)
                 if self.TxtProgressStatus:
-                    self.TxtProgressStatus.Text = u"Standardizing '{}' [{}]...".format(fam_name, cat_name)
+                    self.TxtProgressStatus.Text = u"[Stage 1/2] Standardizing '{}' [{}]...".format(fam_name, cat_name)
                 WinForms.Application.DoEvents()
 
                 f = fam_f = fams_by_name.get(fam_name)
@@ -819,13 +819,77 @@ class MaterialAuditorWindow(Window):
 
                 WinForms.Application.DoEvents()
 
-            t.Commit()
+            # Stage 2: Revit Engine Regeneration & Transaction Commit
+            self.log("------------------------------------------------------------")
+            self.log(u"[REVIT ENGINE] Committing transaction & regenerating document...")
+            if self.ProgressBarStandardize:
+                self.ProgressBarStandardize.Value = 0
+            if self.TxtProgressPct:
+                self.TxtProgressPct.Text = u"0% | Regenerating"
+            if self.TxtProgressStatus:
+                self.TxtProgressStatus.Text = u"[Stage 2/2] Revit Engine: Regenerating document..."
+            WinForms.Application.DoEvents()
+
+            # Hook Revit Application ProgressChanged to mirror real internal Revit status bar (e.g. "3% | Regenerating")
+            app = None
+            if self.uiapp and hasattr(self.uiapp, "Application"):
+                app = self.uiapp.Application
+            elif self.doc and hasattr(self.doc, "Application"):
+                app = self.doc.Application
+            elif "__revit__" in globals() and hasattr(__revit__, "Application"):
+                app = __revit__.Application
+
+            last_logged_pct = [-1]
+
+            def on_revit_progress_changed(sender, args):
+                try:
+                    caption = getattr(args, "Caption", None) or "Regenerating"
+                    pos = getattr(args, "Position", 0)
+                    upper = getattr(args, "UpperRange", 0)
+                    if upper > 0:
+                        pct = int((float(pos) / float(upper)) * 100)
+                        pct = max(0, min(100, pct))
+                        if self.ProgressBarStandardize:
+                            self.ProgressBarStandardize.Value = pct
+                        if self.TxtProgressPct:
+                            self.TxtProgressPct.Text = u"{}% | {}".format(pct, caption)
+                        if self.TxtProgressStatus:
+                            self.TxtProgressStatus.Text = u"[Stage 2/2] Revit Engine: {} ({}%)...".format(caption, pct)
+
+                        if pct != last_logged_pct[0] and (pct % 10 == 0 or pct == 100 or pct == 1):
+                            last_logged_pct[0] = pct
+                            self.log(u"⏳ [REVIT ENGINE] {} : {}%".format(caption, pct))
+                    else:
+                        if self.TxtProgressStatus:
+                            self.TxtProgressStatus.Text = u"[Stage 2/2] Revit Engine: {}...".format(caption)
+                        if self.TxtProgressPct:
+                            self.TxtProgressPct.Text = caption
+
+                    WinForms.Application.DoEvents()
+                except Exception:
+                    pass
+
+            try:
+                if app:
+                    try:
+                        app.ProgressChanged += on_revit_progress_changed
+                    except Exception:
+                        pass
+
+                t.Commit()
+            finally:
+                if app:
+                    try:
+                        app.ProgressChanged -= on_revit_progress_changed
+                    except Exception:
+                        pass
+
             if self.ProgressBarStandardize:
                 self.ProgressBarStandardize.Value = 100
             if self.TxtProgressPct:
                 self.TxtProgressPct.Text = u"100%"
             if self.TxtProgressStatus:
-                self.TxtProgressStatus.Text = u"✅ 100% RYN_MAT_ Standardization Finished Successfully!"
+                self.TxtProgressStatus.Text = u"✅ 100% RYN_MAT_ Standardization & Regeneration Finished Successfully!"
             WinForms.Application.DoEvents()
 
             self.log("------------------------------------------------------------")
