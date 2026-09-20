@@ -189,11 +189,31 @@
                     </Border>
                 </Grid>
 
-                <!-- List / Grid View -->
-                <Border Grid.Row="1" Background="{DynamicResource CardBg}" CornerRadius="8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl x:Name="ItemsList" Margin="8"/>
-                    </ScrollViewer>
+                <!-- Virtualized List View for Lightning-Fast Resizing and Zero Freezes -->
+                <Border Grid.Row="1" Background="{DynamicResource CardBg}" CornerRadius="8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" ClipToBounds="True">
+                    <ListBox x:Name="ItemsList" Background="Transparent" BorderThickness="0" Padding="8"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.CanContentScroll="True"
+                             VirtualizingStackPanel.IsVirtualizing="True"
+                             VirtualizingStackPanel.VirtualizationMode="Recycling">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0,0,0,6"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
                 </Border>
             </Grid>
 
@@ -260,10 +280,33 @@
                             </Button.Template>
                         </Button>
                     </StackPanel>
-
-                    <ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-12,-6" Opacity="0.5"/>
                 </Grid>
             </Border>
+
+            <!-- 6. Window Drag Resizers (Right Edge, Bottom Edge, Corner) -->
+            <Thumb x:Name="ResizeRightThumb" Grid.Row="0" Grid.RowSpan="5" Width="7" HorizontalAlignment="Right" VerticalAlignment="Stretch" Cursor="SizeWE">
+                <Thumb.Template>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Thumb.Template>
+            </Thumb>
+            <Thumb x:Name="ResizeBottomThumb" Grid.Row="4" Height="7" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Cursor="SizeNS">
+                <Thumb.Template>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Thumb.Template>
+            </Thumb>
+            <Thumb x:Name="ResizeGripThumb" Grid.Row="4" Width="18" Height="18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Margin="0,0,2,2">
+                <Thumb.Template>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Grid Background="Transparent">
+                            <Path Data="M 14,0 L 14,14 L 0,14 Z M 10,4 L 10,14 L 0,14 Z M 6,8 L 6,14 L 0,14 Z" Fill="{DynamicResource TextMuted}" Stretch="None" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,4,4" Opacity="0.5"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Thumb.Template>
+            </Thumb>
         </Grid>
     </Border>
 </Window>

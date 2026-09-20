@@ -510,7 +510,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
     def on_resize_right(self, sender, e):
         try:
             new_w = self.ActualWidth + e.HorizontalChange
-            if new_w >= self.MinWidth:
+            if new_w >= self.MinWidth and abs(new_w - self.Width) >= 2:
                 self.Width = new_w
         except Exception:
             pass
@@ -518,7 +518,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
     def on_resize_bottom(self, sender, e):
         try:
             new_h = self.ActualHeight + e.VerticalChange
-            if new_h >= self.MinHeight:
+            if new_h >= self.MinHeight and abs(new_h - self.Height) >= 2:
                 self.Height = new_h
         except Exception:
             pass
@@ -527,9 +527,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         try:
             new_w = self.ActualWidth + e.HorizontalChange
             new_h = self.ActualHeight + e.VerticalChange
-            if new_w >= self.MinWidth:
+            if new_w >= self.MinWidth and abs(new_w - self.Width) >= 2:
                 self.Width = new_w
-            if new_h >= self.MinHeight:
+            if new_h >= self.MinHeight and abs(new_h - self.Height) >= 2:
                 self.Height = new_h
         except Exception:
             pass

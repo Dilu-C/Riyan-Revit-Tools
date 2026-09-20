@@ -23,7 +23,7 @@ import System
 from System.Windows import (
     Window, Application, WindowStartupLocation, WindowStyle,
     Thickness, VerticalAlignment, HorizontalAlignment, FontWeights,
-    TextWrapping, Visibility, GridLength, GridUnitType
+    TextWrapping, TextTrimming, Visibility, GridLength, GridUnitType
 )
 from System.Windows.Controls import (
     Border, Grid, ColumnDefinition, TextBlock, StackPanel, TextBox
@@ -205,6 +205,19 @@ class MaterialAuditorWindow(Window):
         self.BtnMaximize = self.window.FindName("BtnMaximize")
         if self.BtnMaximize:
             self.BtnMaximize.Click += self.on_maximize_restore
+
+        # Window Drag Resizing Handlers (Ultra-Smooth Resizing)
+        self.ResizeRightThumb = self.window.FindName("ResizeRightThumb")
+        if self.ResizeRightThumb:
+            self.ResizeRightThumb.DragDelta += self.on_resize_right
+
+        self.ResizeBottomThumb = self.window.FindName("ResizeBottomThumb")
+        if self.ResizeBottomThumb:
+            self.ResizeBottomThumb.DragDelta += self.on_resize_bottom
+
+        self.ResizeGripThumb = self.window.FindName("ResizeGripThumb")
+        if self.ResizeGripThumb:
+            self.ResizeGripThumb.DragDelta += self.on_resize_bottom_right
 
         self.PanelProgress = self.window.FindName("PanelProgress")
         self.ProgressBarStandardize = self.window.FindName("ProgressBarStandardize")
@@ -455,10 +468,13 @@ class MaterialAuditorWindow(Window):
         info_stack.Children.Add(fam_text)
 
         det_text = TextBlock()
-        det_text.Text = item.get("Details", "")
+        det_text_val = item.get("Details", "")
+        det_text.Text = det_text_val
         det_text.Foreground = res["TextSecondary"]
         det_text.FontSize = 11
-        det_text.TextWrapping = TextWrapping.Wrap
+        det_text.TextTrimming = TextTrimming.CharacterEllipsis
+        det_text.TextWrapping = TextWrapping.NoWrap
+        det_text.ToolTip = det_text_val
         det_text.Margin = Thickness(0, 3, 0, 0)
         info_stack.Children.Add(det_text)
         
@@ -572,6 +588,33 @@ class MaterialAuditorWindow(Window):
                 self.window.WindowState = WindowState.Maximized
                 if hasattr(self, "BtnMaximize") and self.BtnMaximize:
                     self.BtnMaximize.Content = u"🗗"
+        except Exception:
+            pass
+
+    def on_resize_right(self, sender, e):
+        try:
+            new_w = self.window.ActualWidth + e.HorizontalChange
+            if new_w >= self.window.MinWidth and abs(new_w - self.window.Width) >= 2:
+                self.window.Width = new_w
+        except Exception:
+            pass
+
+    def on_resize_bottom(self, sender, e):
+        try:
+            new_h = self.window.ActualHeight + e.VerticalChange
+            if new_h >= self.window.MinHeight and abs(new_h - self.window.Height) >= 2:
+                self.window.Height = new_h
+        except Exception:
+            pass
+
+    def on_resize_bottom_right(self, sender, e):
+        try:
+            new_w = self.window.ActualWidth + e.HorizontalChange
+            new_h = self.window.ActualHeight + e.VerticalChange
+            if new_w >= self.window.MinWidth and abs(new_w - self.window.Width) >= 2:
+                self.window.Width = new_w
+            if new_h >= self.window.MinHeight and abs(new_h - self.window.Height) >= 2:
+                self.window.Height = new_h
         except Exception:
             pass
 
