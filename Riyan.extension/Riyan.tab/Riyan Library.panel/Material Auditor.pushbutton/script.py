@@ -253,9 +253,29 @@ class MaterialAuditorWindow(Window):
         except Exception:
             pass
 
+        # In-built Process Log Terminal & Splitter (Dilu BIM Signature Console)
+        self.SplitLogs = self.window.FindName("SplitLogs")
+        self.HandleLogs = self.window.FindName("HandleLogs")
+        self.CardLogs = self.window.FindName("CardLogs")
+        self.TxtLog = self.window.FindName("TxtLog")
+        self.is_resizing_log = False
+        self.log_start_y = 0
+        self.log_start_h = 85
+
+        if self.SplitLogs:
+            self.SplitLogs.MouseEnter += self.on_split_log_enter
+            self.SplitLogs.MouseLeave += self.on_split_log_leave
+            self.SplitLogs.MouseLeftButtonDown += self.on_split_log_down
+            self.SplitLogs.MouseMove += self.on_split_log_move
+            self.SplitLogs.MouseLeftButtonUp += self.on_split_log_up
+
         self.TxtDocName.Text = u"Document: " + (self.doc.Title if self.doc else u"No Active Document")
 
         # Run Audit
+        self.log("Dilu BIM Automation & Material Auditor initialized.")
+        self.log("Zero Data Loss Architecture active: Double-verification backup enabled.")
+        if self.doc:
+            self.log("Active Document: {}".format(self.doc.Title))
         self.run_audit()
         self.apply_theme()
 
@@ -367,6 +387,10 @@ class MaterialAuditorWindow(Window):
         self.TxtCompliantCount.Text = str(len(compliant))
         self.TxtInconsistentCount.Text = str(len(inconsistent))
         self.TxtMissingParamsCount.Text = str(len(missing_params))
+
+        self.log(u"Audit complete: {} families audited ({} compliant, {} inconsistent, {} missing parameters).".format(
+            total, len(compliant), len(inconsistent), len(missing_params)
+        ))
 
         self.update_list_view()
 
@@ -626,6 +650,56 @@ class MaterialAuditorWindow(Window):
         except Exception:
             pass
 
+    def on_split_log_enter(self, sender, e):
+        if hasattr(self, 'HandleLogs') and self.HandleLogs:
+            self.HandleLogs.Background = SolidColorBrush(Color.FromRgb(192, 86, 82))
+
+    def on_split_log_leave(self, sender, e):
+        if not getattr(self, 'is_resizing_log', False) and hasattr(self, 'HandleLogs') and self.HandleLogs:
+            res = self.window.Resources
+            if "BorderColor" in res:
+                self.HandleLogs.Background = res["BorderColor"]
+
+    def on_split_log_down(self, sender, e):
+        if hasattr(e, "ClickCount") and e.ClickCount == 2:
+            if hasattr(self, 'CardLogs') and self.CardLogs:
+                if self.CardLogs.ActualHeight > 130:
+                    self.CardLogs.Height = 85
+                else:
+                    self.CardLogs.Height = 220
+            return
+        self.is_resizing_log = True
+        self.log_start_y = e.GetPosition(self.window).Y
+        if hasattr(self, 'CardLogs') and self.CardLogs:
+            self.log_start_h = self.CardLogs.ActualHeight
+        self.SplitLogs.CaptureMouse()
+
+    def on_split_log_move(self, sender, e):
+        if getattr(self, 'is_resizing_log', False) and hasattr(self, 'CardLogs') and self.CardLogs:
+            cur_y = e.GetPosition(self.window).Y
+            diff = self.log_start_y - cur_y
+            new_h = max(40, min(400, self.log_start_h + diff))
+            self.CardLogs.Height = new_h
+
+    def on_split_log_up(self, sender, e):
+        if getattr(self, 'is_resizing_log', False):
+            self.is_resizing_log = False
+            if hasattr(self, 'SplitLogs') and self.SplitLogs:
+                self.SplitLogs.ReleaseMouseCapture()
+            self.on_split_log_leave(sender, e)
+
+    def log(self, text):
+        try:
+            if hasattr(self, 'TxtLog') and self.TxtLog:
+                self.TxtLog.AppendText(str(text) + "\n")
+                self.TxtLog.ScrollToEnd()
+        except Exception:
+            pass
+        try:
+            WinForms.Application.DoEvents()
+        except Exception:
+            pass
+
     def OnCloseClicked(self, sender, e):
         self.window.Close()
 
@@ -665,6 +739,8 @@ class MaterialAuditorWindow(Window):
         WinForms.Application.DoEvents()
 
         try:
+            self.log("------------------------------------------------------------")
+            self.log(u"[START] Applying RYN_MAT_ corporate standardization ({} families)...".format(len(inconsistent_list)))
             t = DB.Transaction(self.doc, "Apply RYN_MAT_ Standardization")
             t.Start()
 
@@ -728,6 +804,8 @@ class MaterialAuditorWindow(Window):
                             if matched_ryn:
                                 p.Set(matched_ryn.Id)
                                 replaced_count += 1
+                                self.log(u"✔ [{}/{}] '{}' : Replaced '{}' ➔ {}".format(
+                                    idx + 1, total_items, fam_name, m_name, matched_ryn.Name))
                                 out.print_html(u"<span style='color:#10b981'>✔ [{}/{}] <b>{}</b> : Replaced '{}' ➔ <b>{}</b></span>".format(
                                     idx + 1, total_items, fam_name, m_name, matched_ryn.Name))
                                 continue
@@ -738,6 +816,8 @@ class MaterialAuditorWindow(Window):
                                 existing_m = doc_mats_by_name[clean_name.lower()]
                                 p.Set(existing_m.Id)
                                 replaced_count += 1
+                                self.log(u"🔗 [{}/{}] '{}' : Reused Existing ➔ {}".format(
+                                    idx + 1, total_items, fam_name, existing_m.Name))
                                 out.print_html(u"<span style='color:#3b82f6'>🔗 [{}/{}] <b>{}</b> : Reused Existing ➔ <b>{}</b></span>".format(
                                     idx + 1, total_items, fam_name, existing_m.Name))
                             else:
@@ -748,6 +828,8 @@ class MaterialAuditorWindow(Window):
                                     doc_mats_by_id[m_elem.Id] = m_elem
                                     renamed_set.add(clean_name)
                                     renamed_count += 1
+                                    self.log(u"✏ [{}/{}] '{}' : Standardized ➔ {}".format(
+                                        idx + 1, total_items, fam_name, clean_name))
                                     out.print_html(u"<span style='color:#f59e0b'>✏ [{}/{}] <b>{}</b> : Standardized ➔ <b>{}</b></span>".format(
                                         idx + 1, total_items, fam_name, clean_name))
                                 except Exception:
@@ -763,6 +845,9 @@ class MaterialAuditorWindow(Window):
             if self.TxtProgressStatus:
                 self.TxtProgressStatus.Text = u"✅ 100% RYN_MAT_ Standardization Finished Successfully!"
             WinForms.Application.DoEvents()
+
+            self.log("------------------------------------------------------------")
+            self.log(u"✅ [SUCCESS] Standardization Finished! Replaced/Reused: {}, Standardized: {}".format(replaced_count, renamed_count))
 
             out.print_md("---")
             out.print_md("### ✅ Standardization Finished Successfully!")
@@ -782,6 +867,7 @@ class MaterialAuditorWindow(Window):
         except Exception as ex:
             if 't' in locals() and t.HasStarted():
                 t.RollBack()
+            self.log(u"❌ [ERROR] Standardization Failed: {}".format(str(ex)))
             out.print_md("### ❌ Standardization Failed: {}".format(str(ex)))
             show_alert("Standardization Failed:\n" + str(ex), title="Standardization Error", is_error=True)
 
