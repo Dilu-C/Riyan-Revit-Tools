@@ -1,13 +1,15 @@
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Riyan Family Material Auditor"
-        Height="700" Width="880"
+        Height="720" Width="920"
         MinHeight="550" MinWidth="750"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
+        ResizeMode="CanResizeWithGrip"
         Background="Transparent"
-        FontFamily="Segoe UI">
+        FontFamily="Segoe UI"
+        x:Name="RootWindow">
 
     <Window.Resources>
         <SolidColorBrush x:Key="WindowBg" Color="#121316"/>
@@ -53,6 +55,7 @@
                 <RowDefinition Height="50"/>   <!-- Title Bar -->
                 <RowDefinition Height="Auto"/> <!-- Stats Bar -->
                 <RowDefinition Height="*"/>    <!-- Data View & Tabs -->
+                <RowDefinition Height="Auto"/> <!-- Live Progress Panel -->
                 <RowDefinition Height="65"/>   <!-- Footer Actions -->
             </Grid.RowDefinitions>
 
@@ -73,13 +76,24 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <!-- Theme Toggle Button -->
-                        <Button x:Name="BtnTheme" Content="☀️ Light" Margin="0,0,12,0" Padding="8,4"
+                        <Button x:Name="BtnTheme" Content="☀️ Light" Margin="0,0,10,0" Padding="8,4"
                                 Background="{DynamicResource CardBg}" Foreground="{DynamicResource TextPrimary}" 
                                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
                                             BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <!-- Maximize / Restore Window Button -->
+                        <Button x:Name="BtnMaximize" Content="🗖" Width="28" Height="28" Background="Transparent" 
+                                Foreground="{DynamicResource TextSecondary}" BorderThickness="0" FontSize="13" Cursor="Hand" ToolTip="Maximize / Restore" Margin="0,0,4,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </ControlTemplate>
@@ -183,8 +197,35 @@
                 </Border>
             </Grid>
 
-            <!-- 4. Footer Actions -->
-            <Border Grid.Row="3" Background="{DynamicResource SurfaceBg}" CornerRadius="0,0,11,11" 
+            <!-- 4. Live Progress & Standardization Activity Status Bar -->
+            <Border x:Name="PanelProgress" Grid.Row="3" Background="{DynamicResource SurfaceBg}" 
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Padding="18,10" Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,0,0,6">
+                        <TextBlock x:Name="TxtProgressStatus" Text="Standardizing materials to RYN_MAT_..." 
+                                   FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock x:Name="TxtProgressPct" Text="0%" FontSize="11" FontWeight="Bold" 
+                                   Foreground="{DynamicResource RiyanRose}" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <ProgressBar x:Name="ProgressBarStandardize" Grid.Row="1" Height="6" Minimum="0" Maximum="100" Value="0"
+                                 Background="{DynamicResource CardBg}" BorderThickness="0">
+                        <ProgressBar.Template>
+                            <ControlTemplate TargetType="ProgressBar">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="3" ClipToBounds="True">
+                                    <Border x:Name="PART_Indicator" Background="{DynamicResource RiyanMaroon}" CornerRadius="3" HorizontalAlignment="Left"/>
+                                </Border>
+                            </ControlTemplate>
+                        </ProgressBar.Template>
+                    </ProgressBar>
+                </Grid>
+            </Border>
+
+            <!-- 5. Footer Actions -->
+            <Border Grid.Row="4" Background="{DynamicResource SurfaceBg}" CornerRadius="0,0,11,11" 
                     BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Padding="18,10">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -219,6 +260,8 @@
                             </Button.Template>
                         </Button>
                     </StackPanel>
+
+                    <ResizeGrip HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-12,-6" Opacity="0.5"/>
                 </Grid>
             </Border>
         </Grid>

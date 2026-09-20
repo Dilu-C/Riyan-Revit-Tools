@@ -202,6 +202,15 @@ class MaterialAuditorWindow(Window):
         if self.BtnClose:
             self.BtnClose.Click += self.OnCloseClicked
 
+        self.BtnMaximize = self.window.FindName("BtnMaximize")
+        if self.BtnMaximize:
+            self.BtnMaximize.Click += self.on_maximize_restore
+
+        self.PanelProgress = self.window.FindName("PanelProgress")
+        self.ProgressBarStandardize = self.window.FindName("ProgressBarStandardize")
+        self.TxtProgressStatus = self.window.FindName("TxtProgressStatus")
+        self.TxtProgressPct = self.window.FindName("TxtProgressPct")
+
         self.BtnExport = self.window.FindName("BtnExport")
         if self.BtnExport:
             self.BtnExport.Click += self.OnExportReport
@@ -543,9 +552,26 @@ class MaterialAuditorWindow(Window):
 
     def OnTitleBarMouseDown(self, sender, e):
         try:
-            from System.Windows.Input import MouseButton
-            if e.ChangedButton == MouseButton.Left:
-                self.window.DragMove()
+            if hasattr(e, "ClickCount") and e.ClickCount == 2:
+                self.on_maximize_restore(sender, e)
+            else:
+                from System.Windows.Input import MouseButton
+                if e.ChangedButton == MouseButton.Left:
+                    self.window.DragMove()
+        except Exception:
+            pass
+
+    def on_maximize_restore(self, sender=None, e=None):
+        try:
+            from System.Windows import WindowState
+            if self.window.WindowState == WindowState.Maximized:
+                self.window.WindowState = WindowState.Normal
+                if hasattr(self, "BtnMaximize") and self.BtnMaximize:
+                    self.BtnMaximize.Content = u"🗖"
+            else:
+                self.window.WindowState = WindowState.Maximized
+                if hasattr(self, "BtnMaximize") and self.BtnMaximize:
+                    self.BtnMaximize.Content = u"🗗"
         except Exception:
             pass
 
@@ -569,8 +595,23 @@ class MaterialAuditorWindow(Window):
         # Initialize pyRevit Output Console for live non-freezing visual progress
         out = script.get_output()
         out.set_title("Material Auditor - Live Standardization")
+        try:
+            out.open()
+        except Exception:
+            pass
         out.print_md("## 🎨 Riyan Material Auditor — Live Standardization")
         out.print_md("Standardizing **{} families** to `RYN_MAT_` corporate standard...".format(len(inconsistent_list)))
+
+        # Activate In-Window Live Progress Bar
+        if self.PanelProgress:
+            self.PanelProgress.Visibility = Visibility.Visible
+        if self.ProgressBarStandardize:
+            self.ProgressBarStandardize.Value = 0
+        if self.TxtProgressPct:
+            self.TxtProgressPct.Text = u"0%"
+        if self.TxtProgressStatus:
+            self.TxtProgressStatus.Text = u"Starting RYN_MAT_ corporate standardization..."
+        WinForms.Application.DoEvents()
 
         try:
             t = DB.Transaction(self.doc, "Apply RYN_MAT_ Standardization")
@@ -599,6 +640,12 @@ class MaterialAuditorWindow(Window):
                 # Live Progress Bar & Windows message pumping (Never freezes!)
                 pct = int(((idx + 1) / float(total_items)) * 100)
                 out.update_progress(idx + 1, total_items)
+                if self.ProgressBarStandardize:
+                    self.ProgressBarStandardize.Value = pct
+                if self.TxtProgressPct:
+                    self.TxtProgressPct.Text = u"{}% ({}/{})".format(pct, idx + 1, total_items)
+                if self.TxtProgressStatus:
+                    self.TxtProgressStatus.Text = u"Standardizing '{}' [{}]...".format(fam_name, cat_name)
                 WinForms.Application.DoEvents()
 
                 f = fam_f = fams_by_name.get(fam_name)
@@ -658,6 +705,14 @@ class MaterialAuditorWindow(Window):
                 WinForms.Application.DoEvents()
 
             t.Commit()
+            if self.ProgressBarStandardize:
+                self.ProgressBarStandardize.Value = 100
+            if self.TxtProgressPct:
+                self.TxtProgressPct.Text = u"100%"
+            if self.TxtProgressStatus:
+                self.TxtProgressStatus.Text = u"✅ 100% RYN_MAT_ Standardization Finished Successfully!"
+            WinForms.Application.DoEvents()
+
             out.print_md("---")
             out.print_md("### ✅ Standardization Finished Successfully!")
             out.print_md("- **Replaced/Reused authentic `RYN_MAT_`:** {}\n- **Standardized unique materials:** {}".format(replaced_count, renamed_count))
