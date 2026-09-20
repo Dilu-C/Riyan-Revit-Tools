@@ -1964,9 +1964,18 @@ class BatchExportForm(forms.WPFWindow):
             settings_path = os.path.join(export_mgr_dir, "naming_settings.json")
             with open(settings_path, 'w') as f:
                 json.dump(self.settings, f, indent=4)
-            forms.alert("Theme changed to {}. Please close and reopen.".format(new_theme), title="Theme Switched")
         except Exception as ex:
-            forms.alert("Error saving theme: " + str(ex))
+            log_diag("Error saving theme: " + str(ex))
+
+        self.restart_for_theme = True
+        try:
+            self._saved_left = self.Left
+            self._saved_top = self.Top
+            self._saved_width = self.ActualWidth if self.ActualWidth > 0 else self.Width
+            self._saved_height = self.ActualHeight if self.ActualHeight > 0 else self.Height
+        except Exception:
+            pass
+        self.Close()
 
     def select_sheet_advanced(self, sheet_row, is_ctrl=False, is_shift=False):
         if not hasattr(self, 'selected_sheets'):
@@ -3637,27 +3646,50 @@ class BatchExportForm(forms.WPFWindow):
                 log_diag("Completion window error: " + str(ex_cw))
 
 def main():
-    try:
-        theme = "Dark"
-        settings_path = os.path.join(export_mgr_dir, "naming_settings.json")
-        if os.path.exists(settings_path):
-            import json
-            with open(settings_path, 'r') as f:
-                try:
-                    settings = json.load(f)
-                    theme = settings.get("theme", "Dark")
-                except:
-                    pass
-                    
-        exp_name = 'UI_Light.xaml' if theme == 'Light' else 'UI.xaml'
-        xaml_path = os.path.join(os.path.dirname(__file__), exp_name)
-        
-        form = BatchExportForm(xaml_path)
+    saved_pos = None
+    while True:
         try:
-            form.ShowDialog()
-        finally:
-            form.cleanup_cached_documents()
-    except Exception as ex:
-        forms.alert('Failed to load UI:\n\n' + str(ex) + '\n\n' + traceback.format_exc(), title='UI Error')
+            theme = "Dark"
+            settings_path = os.path.join(export_mgr_dir, "naming_settings.json")
+            if os.path.exists(settings_path):
+                import json
+                with open(settings_path, 'r') as f:
+                    try:
+                        settings = json.load(f)
+                        theme = settings.get("theme", "Dark")
+                    except:
+                        pass
+                        
+            exp_name = 'UI_Light.xaml' if theme == 'Light' else 'UI.xaml'
+            xaml_path = os.path.join(os.path.dirname(__file__), exp_name)
+            
+            form = BatchExportForm(xaml_path)
+            if saved_pos:
+                try:
+                    form.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual
+                    form.Left = saved_pos.get("left", form.Left)
+                    form.Top = saved_pos.get("top", form.Top)
+                    form.Width = saved_pos.get("width", form.Width)
+                    form.Height = saved_pos.get("height", form.Height)
+                except Exception:
+                    pass
+
+            try:
+                form.ShowDialog()
+            finally:
+                form.cleanup_cached_documents()
+
+            if getattr(form, 'restart_for_theme', False):
+                saved_pos = {
+                    "left": getattr(form, '_saved_left', form.Left),
+                    "top": getattr(form, '_saved_top', form.Top),
+                    "width": getattr(form, '_saved_width', form.Width),
+                    "height": getattr(form, '_saved_height', form.Height)
+                }
+                continue
+            break
+        except Exception as ex:
+            forms.alert('Failed to load UI:\n\n' + str(ex) + '\n\n' + traceback.format_exc(), title='UI Error')
+            break
 
 main()

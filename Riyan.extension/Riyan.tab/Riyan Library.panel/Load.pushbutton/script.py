@@ -549,7 +549,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
     def apply_theme(self):
         if self.is_dark_theme:
-            self.BtnToggleTheme.Content = u"🌓 Dark"
+            self.BtnToggleTheme.Content = u"☀️ Light"
             self.Resources["WindowBg"] = SolidColorBrush(Color.FromRgb(24, 24, 27))
             self.Resources["SurfaceBg"] = SolidColorBrush(Color.FromRgb(18, 18, 21))
             self.Resources["CardBg"] = SolidColorBrush(Color.FromRgb(32, 32, 36))
@@ -570,7 +570,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Background = Brushes.Transparent
             self.Foreground = self.Resources["TextPrimary"]
         else:
-            self.BtnToggleTheme.Content = u"☀️ Light"
+            self.BtnToggleTheme.Content = u"🌙 Dark"
             self.Resources["WindowBg"] = SolidColorBrush(Color.FromRgb(248, 250, 252)) # Slate 50
             self.Resources["SurfaceBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
             self.Resources["CardBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))

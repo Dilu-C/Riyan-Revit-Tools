@@ -403,7 +403,27 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <!-- Theme Switcher Toggle -->
-                        <Button x:Name="BtnToggleTheme" Content="🌓 Dark" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="80" FontSize="11" Margin="0,0,8,0"/>
+                        <Button x:Name="BtnToggleTheme" Content="☀️ Light" Margin="0,0,8,0" Padding="8,4" Height="26"
+                                Background="{DynamicResource CardBg}" Foreground="{DynamicResource TextPrimary}" 
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource HoverBorder}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource CardBg}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                         <!-- Admin Sync / Settings -->
                         <Button x:Name="BtnAdminSync" Content="⚙ Sync / Settings" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="110" FontSize="11" Margin="0,0,8,0"/>
                         <!-- Maximize / Restore Window Button -->

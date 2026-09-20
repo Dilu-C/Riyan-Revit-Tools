@@ -201,8 +201,29 @@
                         <Image x:Name="TitleLogo" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
                         <TextBlock Text="Riyan Batch Export Manager" Foreground="#802F2D" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
-                        <Button x:Name="BtnTheme" Content="&#x263D;" FontFamily="Segoe UI Symbol" Width="30" Height="30" Background="Transparent" BorderThickness="0" Click="BtnTheme_Click" ToolTip="Switch Theme"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <Button x:Name="BtnTheme" Content="🌙 Dark" Margin="0,0,10,0" Padding="8,4" Height="26"
+                                Background="{StaticResource CardBg}" Foreground="{StaticResource TextMain}" 
+                                BorderBrush="{StaticResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center"
+                                Click="BtnTheme_Click" ToolTip="Switch to Dark Theme">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#E5E7EB"/>
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="#D1D5DB"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{StaticResource CardBg}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                         <Button x:Name="BtnMinimize" Content="-" Width="30" Height="30" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="{StaticResource TextMain}" Click="MinimizeBtn_Click"/>
                         <Button x:Name="BtnMaximize" Content="&#x25A1;" FontFamily="Segoe UI Symbol" Width="30" Height="30" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="{StaticResource TextMain}" Click="MaximizeBtn_Click" ToolTip="Maximize / Restore"/>
                         <Button x:Name="BtnClose" Style="{StaticResource CloseBtnStyle}" Width="40" Height="30" Click="CloseBtn_Click"/>
