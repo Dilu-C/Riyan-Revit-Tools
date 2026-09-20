@@ -2031,6 +2031,15 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 # Entry Point
 # -------------------------------------------------------------
 if __name__ == "__main__":
+    try:
+        _lib_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib"))
+        if _lib_dir not in sys.path:
+            sys.path.append(_lib_dir)
+        import riyan_shared_params
+        riyan_shared_params.enforce_riyan_shared_parameters(APP)
+    except Exception:
+        pass
+
     xaml_file = os.path.join(os.path.dirname(__file__), "ui.xaml")
     win = RiyanFamilyBrowser(xaml_file)
     win.ShowDialog()

@@ -96,6 +96,25 @@ def extract_version_key(filename):
             pass
     return 0
 
+def is_valid_shared_parameter_file(path):
+    if not path or not os.path.isfile(path):
+        return False
+    try:
+        if os.path.getsize(path) < 20:
+            return False
+        with open(path, "rb") as f:
+            header = f.read(120)
+            if header.startswith(b'\xff\xfe'):
+                txt = header.decode('utf-16-le', errors='ignore').lower()
+                if 'shared parameter' in txt or '*meta' in txt or 'group' in txt:
+                    return True
+            txt = header.decode('utf-8', errors='ignore').lower()
+            if 'shared parameter' in txt or '*meta' in txt or 'group' in txt:
+                return True
+    except Exception:
+        pass
+    return False
+
 def find_latest_riyan_shared_parameter_file():
     r"""
     Searches SharePoint, D:\ drive, and local caches for the newest Riyan Shared Parameter file.
@@ -125,30 +144,32 @@ def find_latest_riyan_shared_parameter_file():
                     resolved_roots.append(lp)
 
     ignored_dir_names = {"previous", "old", "backup", "archive", "0000 previous", "0000_previous", "temp"}
+
     candidates = []
 
     for root_dir in resolved_roots:
         try:
             # We only scan depth 1-2 to keep startup ultra-fast (0.001s)
+            is_source = 0 if "library_cache" in root_dir.lower() else 1
             for item in os.listdir(root_dir):
                 full_item_path = os.path.join(root_dir, item)
                 if os.path.isfile(full_item_path):
                     f_lower = item.lower()
                     if f_lower.endswith(".txt") and ("sharedparameter" in f_lower or f_lower.startswith("ryn_sharedparameters")):
-                        # Skip backup copies
                         if ".bak" in f_lower or "backup" in f_lower:
+                            continue
+                        if not is_valid_shared_parameter_file(full_item_path):
                             continue
                         v_key = extract_version_key(item)
                         try:
                             mtime = os.path.getmtime(full_item_path)
                         except Exception:
                             mtime = 0
-                        candidates.append((v_key, mtime, full_item_path))
+                        candidates.append((v_key, is_source, mtime, full_item_path))
                 elif os.path.isdir(full_item_path):
                     d_lower = item.lower()
                     if d_lower in ignored_dir_names or "previous" in d_lower or "old" in d_lower:
                         continue
-                    # Check 1 level down
                     try:
                         for sub_f in os.listdir(full_item_path):
                             sub_lower = sub_f.lower()
@@ -156,27 +177,28 @@ def find_latest_riyan_shared_parameter_file():
                                 if ".bak" in sub_lower or "backup" in sub_lower:
                                     continue
                                 sub_full = os.path.join(full_item_path, sub_f)
+                                if not is_valid_shared_parameter_file(sub_full):
+                                    continue
                                 v_key = extract_version_key(sub_f)
                                 try:
                                     mtime = os.path.getmtime(sub_full)
                                 except Exception:
                                     mtime = 0
-                                candidates.append((v_key, mtime, sub_full))
+                                candidates.append((v_key, is_source, mtime, sub_full))
                     except Exception:
                         pass
         except Exception:
             pass
 
     if not candidates:
-        # Fallback to repository bundled file
         bundled = os.path.join(LOCAL_CACHE_DIR, "SharedParameters", "RYN_SharedParameters_V-RS20260205.txt")
-        if os.path.exists(bundled):
+        if is_valid_shared_parameter_file(bundled):
             return bundled
         return None
 
-    # Sort candidates by: (version_key, mtime) descending
-    candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    best_file = candidates[0][2]
+    # Sort candidates by: (version_key, is_source, mtime) descending
+    candidates.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+    best_file = candidates[0][3]
 
     # Synchronize to local cache so offline laptops always have the latest version
     try:
