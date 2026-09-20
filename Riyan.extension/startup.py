@@ -276,6 +276,33 @@ def cleanup_legacy_files():
             except Exception:
                 pass
 
+        # Zero-Touch Orphan Pushbutton & Stale Cache Purge across all panels
+        for folder in target_folders:
+            try:
+                # Explicit cleanup of relocated tools from Riyan tab
+                orphan_auditor = os.path.join(folder, "Riyan.tab", "Riyan Library.panel", "Material Auditor.pushbutton")
+                if os.path.exists(orphan_auditor):
+                    shutil.rmtree(orphan_auditor, ignore_errors=True)
+
+                for root, dirs, files in os.walk(folder):
+                    for d in list(dirs):
+                        if d.endswith(".pushbutton") or d.endswith(".smartbutton") or d.endswith(".urlbutton"):
+                            p_path = os.path.join(root, d)
+                            try:
+                                p_files = os.listdir(p_path) if os.path.exists(p_path) else []
+                                # A valid pyRevit button must contain a script or bundle
+                                has_valid_entry = any(
+                                    fn.lower().startswith("script.") or fn.lower() == "bundle.yaml"
+                                    for fn in p_files
+                                )
+                                if not has_valid_entry:
+                                    shutil.rmtree(p_path, ignore_errors=True)
+                                    dirs.remove(d)
+                            except Exception:
+                                pass
+            except Exception:
+                pass
+
         # Zero-Touch Self-Healing: Clean duplicate / conflicting root extensions
         duplicate_ext = os.path.join(ext_folder, "Riyan.extension")
         if os.path.exists(duplicate_ext) and os.path.abspath(duplicate_ext).lower() != os.path.abspath(current_dir).lower():
@@ -334,7 +361,13 @@ def check_for_updates():
     except Exception:
         pass
 
-# Run in daemon background thread
+# Run instant zero-touch cleanup synchronously on extension load
+try:
+    cleanup_legacy_files()
+except Exception:
+    pass
+
+# Run update check in daemon background thread
 t = threading.Thread(target=check_for_updates)
 t.isDaemon = True
 t.start()
