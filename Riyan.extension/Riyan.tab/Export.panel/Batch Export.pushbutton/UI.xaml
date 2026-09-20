@@ -17,6 +17,42 @@
         <SolidColorBrush x:Key="PrimaryColor" Color="#802F2D"/>
         <SolidColorBrush x:Key="AccentCyan" Color="#38BDF8"/>
         <SolidColorBrush x:Key="AccentGold" Color="#C8922A"/>
+
+        <!-- Dynamic Component Brushes -->
+        <SolidColorBrush x:Key="SecondaryBtnBg" Color="#333337"/>
+        <SolidColorBrush x:Key="SecondaryBtnFg" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="SecondaryBtnBorder" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="SecondaryBtnHover" Color="#3E3E42"/>
+
+        <SolidColorBrush x:Key="OutgoingBtnBg" Color="#1E293B"/>
+        <SolidColorBrush x:Key="OutgoingBtnFg" Color="#38BDF8"/>
+        <SolidColorBrush x:Key="OutgoingBtnBorder" Color="#0284C7"/>
+        <SolidColorBrush x:Key="OutgoingBtnHover" Color="#0F172A"/>
+        <SolidColorBrush x:Key="OutgoingBtnBorderHover" Color="#38BDF8"/>
+
+        <SolidColorBrush x:Key="SelectionBtnBg" Color="#292113"/>
+        <SolidColorBrush x:Key="SelectionBtnFg" Color="#FBBF24"/>
+        <SolidColorBrush x:Key="SelectionBtnBorder" Color="#B45309"/>
+        <SolidColorBrush x:Key="SelectionBtnHover" Color="#1F190B"/>
+        <SolidColorBrush x:Key="SelectionBtnBorderHover" Color="#FBBF24"/>
+
+        <SolidColorBrush x:Key="ApplyBtnBg" Color="#1E293B"/>
+        <SolidColorBrush x:Key="ApplyBtnFg" Color="#38BDF8"/>
+        <SolidColorBrush x:Key="ApplyBtnBorder" Color="#0284C7"/>
+        <SolidColorBrush x:Key="ApplyBtnHover" Color="#0F172A"/>
+        <SolidColorBrush x:Key="ApplyBtnBorderHover" Color="#38BDF8"/>
+
+        <SolidColorBrush x:Key="PreviewCardBg" Color="#141414"/>
+        <SolidColorBrush x:Key="SheetDetailsBg" Color="#242426"/>
+        <SolidColorBrush x:Key="ProgressBarBg" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="LogCardBg" Color="#0F0F0F"/>
+        <SolidColorBrush x:Key="LogBoxBg" Color="#0F0F0F"/>
+        <SolidColorBrush x:Key="HintTextFg" Color="#555555"/>
+        <SolidColorBrush x:Key="ContextMenuBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="ContextMenuFg" Color="#E0E0E0"/>
+        <SolidColorBrush x:Key="ThemeBtnHover" Color="#3E3E42"/>
+        <SolidColorBrush x:Key="ThemeBtnBorderHover" Color="#4B5563"/>
+        <SolidColorBrush x:Key="ThemeBtnHoverFg" Color="#FFFFFF"/>
         
         <!-- Primary Button -->
         <Style x:Key="PrimaryBtn" TargetType="Button">
@@ -44,9 +80,9 @@
         </Style>
 
         <Style x:Key="SecondaryBtn" TargetType="Button">
-            <Setter Property="Background" Value="#333337"/>
-            <Setter Property="Foreground" Value="#F5F5F5"/>
-            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="Background" Value="{DynamicResource SecondaryBtnBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryBtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SecondaryBtnBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -60,7 +96,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#3E3E42"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource SecondaryBtnHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -70,9 +106,9 @@
 
         <!-- Outgoing Accent Button Style -->
         <Style x:Key="OutgoingBtnStyle" TargetType="Button">
-            <Setter Property="Background" Value="#1E293B"/>
-            <Setter Property="Foreground" Value="#38BDF8"/>
-            <Setter Property="BorderBrush" Value="#0284C7"/>
+            <Setter Property="Background" Value="{DynamicResource OutgoingBtnBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OutgoingBtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutgoingBtnBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -86,8 +122,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#0F172A"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="#38BDF8"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource OutgoingBtnHover}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource OutgoingBtnBorderHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -97,9 +133,9 @@
 
         <!-- Selection Accent Button Style -->
         <Style x:Key="SelectionBtnStyle" TargetType="Button">
-            <Setter Property="Background" Value="#292113"/>
-            <Setter Property="Foreground" Value="#FBBF24"/>
-            <Setter Property="BorderBrush" Value="#B45309"/>
+            <Setter Property="Background" Value="{DynamicResource SelectionBtnBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SelectionBtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SelectionBtnBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -113,8 +149,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#1F190B"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="#FBBF24"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource SelectionBtnHover}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource SelectionBtnBorderHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -124,9 +160,9 @@
 
         <!-- Apply Accent Button Style -->
         <Style x:Key="ApplyBtnStyle" TargetType="Button">
-            <Setter Property="Background" Value="#1E293B"/>
-            <Setter Property="Foreground" Value="#38BDF8"/>
-            <Setter Property="BorderBrush" Value="#0284C7"/>
+            <Setter Property="Background" Value="{DynamicResource ApplyBtnBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ApplyBtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ApplyBtnBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="11.5"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -140,8 +176,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#0F172A"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="#38BDF8"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource ApplyBtnHover}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource ApplyBtnBorderHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -172,21 +208,21 @@
 
         <!-- ContextMenu Styles -->
         <Style x:Key="ThemeContextMenu" TargetType="ContextMenu">
-            <Setter Property="Background" Value="#1E1E1E"/>
-            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="Background" Value="{DynamicResource ContextMenuBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ContextMenuBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="{DynamicResource ContextMenuFg}"/>
             <Setter Property="FontSize" Value="11.5"/>
             <Setter Property="Padding" Value="4,4"/>
         </Style>
         <Style x:Key="ThemeMenuItem" TargetType="MenuItem">
-            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="{DynamicResource ContextMenuFg}"/>
             <Setter Property="FontSize" Value="11.5"/>
             <Setter Property="Padding" Value="8,5"/>
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource WindowBg}" CornerRadius="10" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" Padding="0">
+    <Border Background="{DynamicResource WindowBg}" CornerRadius="10" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Padding="0">
         <Grid Grid.IsSharedSizeScope="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
@@ -195,7 +231,7 @@
             </Grid.RowDefinitions>
 
             <!-- Title Bar -->
-            <Border Grid.Row="0" Background="{StaticResource TitleBarBg}" CornerRadius="10,10,0,0" MouseDown="TitleBar_MouseDown">
+            <Border Grid.Row="0" Background="{DynamicResource TitleBarBg}" CornerRadius="10,10,0,0" MouseDown="TitleBar_MouseDown">
                 <Grid Grid.IsSharedSizeScope="True">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                         <Image x:Name="TitleLogo" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -203,8 +239,8 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center">
                         <Button x:Name="BtnTheme" Content="☀️ Light" Margin="0,0,10,0" Padding="8,4" Height="26"
-                                Background="{StaticResource CardBg}" Foreground="{StaticResource TextMain}" 
-                                BorderBrush="{StaticResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center"
+                                Background="{DynamicResource CardBg}" Foreground="{DynamicResource TextMain}" 
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center"
                                 Click="BtnTheme_Click" ToolTip="Switch to Light Theme">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
@@ -214,18 +250,19 @@
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd" Property="Background" Value="#2D3748"/>
-                                            <Setter TargetName="bd" Property="BorderBrush" Value="#4B5563"/>
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource ThemeBtnHover}"/>
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource ThemeBtnBorderHover}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource ThemeBtnHoverFg}"/>
                                         </Trigger>
                                         <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="bd" Property="Background" Value="{StaticResource CardBg}"/>
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource CardBg}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
-                        <Button x:Name="BtnMinimize" Content="-" Width="30" Height="30" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="{StaticResource TextMain}" Click="MinimizeBtn_Click"/>
-                        <Button x:Name="BtnMaximize" Content="&#x25A1;" FontFamily="Segoe UI Symbol" Width="30" Height="30" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="{StaticResource TextMain}" Click="MaximizeBtn_Click" ToolTip="Maximize / Restore"/>
+                        <Button x:Name="BtnMinimize" Content="-" Width="30" Height="30" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="{DynamicResource TextMain}" Click="MinimizeBtn_Click"/>
+                        <Button x:Name="BtnMaximize" Content="&#x25A1;" FontFamily="Segoe UI Symbol" Width="30" Height="30" Background="Transparent" BorderThickness="0" FontSize="14" Foreground="{DynamicResource TextMain}" Click="MaximizeBtn_Click" ToolTip="Maximize / Restore"/>
                         <Button x:Name="BtnClose" Style="{StaticResource CloseBtnStyle}" Width="40" Height="30" Click="CloseBtn_Click"/>
                     </StackPanel>
                 </Grid>
@@ -251,7 +288,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Executive Toolbar & Batch Configuration Card -->
-                    <Border Grid.Row="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,10">
+                    <Border Grid.Row="0" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,10">
                         <StackPanel Orientation="Vertical">
                             <!-- Tier 1: File & Folder Actions -->
                             <Grid>
@@ -306,13 +343,13 @@
                             <!-- Tier 2: Batch Setup & Naming Options -->
                             <Grid>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="Sheet Set:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{StaticResource TextDim}" FontWeight="SemiBold" FontSize="11.5"/>
+                                    <TextBlock Text="Sheet Set:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource TextDim}" FontWeight="SemiBold" FontSize="11.5"/>
                                     <ComboBox x:Name="CmbMasterSet" Width="130" Height="26" IsEditable="True" Text="PRINT" VerticalContentAlignment="Center" Margin="0,0,6,0" FontSize="11.5"/>
                                     <Button x:Name="BtnApplySetToAll" Style="{StaticResource ApplyBtnStyle}" Content="Apply to All" Height="26" Padding="10,0" Margin="0,0,10,0" Click="BtnApplySetToAll_Click" ToolTip="Apply selected Sheet Set to all files in the list"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <Border Width="1" Height="16" Background="{StaticResource BorderColor}" Margin="0,0,10,0" Opacity="0.7"/>
-                                    <TextBlock Text="Naming Profile:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{StaticResource TextDim}" FontWeight="SemiBold" FontSize="11.5"/>
+                                    <Border Width="1" Height="16" Background="{DynamicResource BorderColor}" Margin="0,0,10,0" Opacity="0.7"/>
+                                    <TextBlock Text="Naming Profile:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource TextDim}" FontWeight="SemiBold" FontSize="11.5"/>
                                     <ComboBox x:Name="CmbGlobalProfile" Width="130" Height="26" VerticalContentAlignment="Center" FontSize="11.5"/>
                                 </StackPanel>
                             </Grid>
@@ -330,22 +367,22 @@
                             <ColumnDefinition x:Name="HCol3" Width="*" MinWidth="140" SharedSizeGroup="Col3"/>
                         </Grid.ColumnDefinitions>
                         
-                        <Border Grid.Column="0" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"
+                        <Border Grid.Column="0" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"
                                 Cursor="Hand" Background="#01000000" PreviewMouseLeftButtonDown="HeaderFileCell_MouseDown">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
                                 <CheckBox x:Name="ChkSelectAllFiles" IsChecked="True" IsThreeState="True" VerticalAlignment="Center" Margin="0,0,8,0" Click="ChkSelectAllFiles_Click" ToolTip="Select / Deselect All Files"/>
-                                <TextBlock Text="Revit File" FontWeight="SemiBold" Foreground="{StaticResource TextDim}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Revit File" FontWeight="SemiBold" Foreground="{DynamicResource TextDim}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
                         <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="2" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Sheet Set" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Sheet Set" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource TextDim}"/></Border>
                         <GridSplitter Grid.Column="3" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="4" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Output Location" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="4" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,1" Padding="5,0,0,5"><TextBlock Text="Output Location" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource TextDim}"/></Border>
                         <GridSplitter Grid.Column="5" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Cursor="SizeWE"/>
                         
-                        <Border Grid.Column="6" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,0,1" Padding="5,0,0,5"><TextBlock Text="Status" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextDim}"/></Border>
+                        <Border Grid.Column="6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="5,0,0,5"><TextBlock Text="Status" HorizontalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource TextDim}"/></Border>
                     </Grid>
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <StackPanel x:Name="FileStack" Orientation="Vertical">
@@ -356,34 +393,34 @@
                     <!-- Options -->
                     <Grid Grid.Row="3" Margin="0,10,0,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Export Mode:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource TextMain}" Margin="0,0,10,0"/>
-                            <RadioButton x:Name="RbCheckPrint" Content="Combined PDF" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                            <RadioButton x:Name="RbFinalExport" Content="Separate CAD/PDF" Foreground="{StaticResource TextMain}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Export Mode:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource TextMain}" Margin="0,0,10,0"/>
+                            <RadioButton x:Name="RbCheckPrint" Content="Combined PDF" Foreground="{DynamicResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                            <RadioButton x:Name="RbFinalExport" Content="Separate CAD/PDF" Foreground="{DynamicResource TextMain}" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Border Width="1" Height="14" Background="{StaticResource BorderColor}" Margin="0,0,14,0" Opacity="0.7"/>
-                            <CheckBox x:Name="ChkDrawingList" Content="Drawing List:" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold" FontSize="11"/>
-                            <RadioButton x:Name="RbBatchListExcel" GroupName="BatchListFormat" Content="Excel (.xlsx)" Foreground="{StaticResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="11"/>
-                            <RadioButton x:Name="RbBatchListWord" GroupName="BatchListFormat" Content="Word (.doc)" Foreground="{StaticResource TextMain}" VerticalAlignment="Center" FontSize="11"/>
+                            <Border Width="1" Height="14" Background="{DynamicResource BorderColor}" Margin="0,0,14,0" Opacity="0.7"/>
+                            <CheckBox x:Name="ChkDrawingList" Content="Drawing List:" Foreground="{DynamicResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold" FontSize="11"/>
+                            <RadioButton x:Name="RbBatchListExcel" GroupName="BatchListFormat" Content="Excel (.xlsx)" Foreground="{DynamicResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="11"/>
+                            <RadioButton x:Name="RbBatchListWord" GroupName="BatchListFormat" Content="Word (.doc)" Foreground="{DynamicResource TextMain}" VerticalAlignment="Center" FontSize="11"/>
                         </StackPanel>
                     </Grid>
 
                     <!-- Log Resize Splitter Bar -->
                     <Border x:Name="SplitLogs" Grid.Row="4" Height="10" Background="Transparent" Cursor="SizeNS" Margin="0,4,0,2" VerticalAlignment="Center" ToolTip="Drag up/down to resize log terminal (Double-click to expand/collapse)">
-                        <Border x:Name="HandleLogs" Height="4" Width="60" CornerRadius="2" Background="{StaticResource BorderColor}" HorizontalAlignment="Center"/>
+                        <Border x:Name="HandleLogs" Height="4" Width="60" CornerRadius="2" Background="{DynamicResource BorderColor}" HorizontalAlignment="Center"/>
                     </Border>
 
                     <!-- Real-time Process Log Terminal -->
-                    <Border x:Name="CardLogs" Grid.Row="5" Height="85" MinHeight="40" MaxHeight="450" Background="#0F0F0F" CornerRadius="6" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" Margin="0,0,0,0">
-                        <TextBox x:Name="TxtLog" Background="#0F0F0F" Foreground="#22C55E" FontFamily="Consolas" FontSize="11"
+                    <Border x:Name="CardLogs" Grid.Row="5" Height="85" MinHeight="40" MaxHeight="450" Background="{DynamicResource LogCardBg}" CornerRadius="6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Margin="0,0,0,0">
+                        <TextBox x:Name="TxtLog" Background="{DynamicResource LogBoxBg}" Foreground="#22C55E" FontFamily="Consolas" FontSize="11"
                                  IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                                  TextWrapping="Wrap" BorderThickness="0" Padding="8,6"/>
                     </Border>
                 </Grid>
 
                 <!-- Right Column: Sheet Preview & Details Sidebar -->
-                <Border Grid.Column="2" Background="{StaticResource TitleBarBg}" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="12">
+                <Border Grid.Column="2" Background="{DynamicResource TitleBarBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="12">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -392,49 +429,49 @@
                         </Grid.RowDefinitions>
 
                         <!-- Panel Header -->
-                        <TextBlock Grid.Row="0" Text="Sheet Preview &amp; Details" Foreground="{StaticResource TextMain}" FontWeight="Bold" FontSize="13" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="0" Text="Sheet Preview &amp; Details" Foreground="{DynamicResource TextMain}" FontWeight="Bold" FontSize="13" Margin="0,0,0,10"/>
 
                         <!-- Preview Container Box -->
-                        <Border Grid.Row="1" Background="#141414" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="6" ClipToBounds="True">
+                        <Border x:Name="PreviewContainerBorder" Grid.Row="1" Background="{DynamicResource PreviewCardBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" ClipToBounds="True">
                             <Grid>
                                 <!-- Rendered Preview Image -->
                                 <Image x:Name="ImgPreview" Stretch="Uniform" Visibility="Collapsed" Cursor="Hand" ToolTip="Click to view full size modal"/>
 
                                 <!-- Placeholder / Action Center -->
                                 <StackPanel x:Name="GridPreviewPrompt" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
-                                    <TextBlock Text="📐" FontSize="32" Foreground="#C8922A" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                                    <TextBlock x:Name="TxtPreviewHint" Text="Select a sheet from list" Foreground="{StaticResource TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,10" TextAlignment="Center"/>
+                                    <TextBlock Text="📐" FontSize="32" Foreground="{DynamicResource AccentGold}" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                    <TextBlock x:Name="TxtPreviewHint" Text="Select a sheet from list" Foreground="{DynamicResource TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,10" TextAlignment="Center"/>
                                     <Button x:Name="BtnDoPreview" Style="{StaticResource PrimaryBtn}" Content="👁  Preview Sheet" Width="130" Height="30" Visibility="Collapsed" Click="BtnPreview_Click" Cursor="Hand"/>
-                                    <TextBlock Text="(or double-click row)" Foreground="#555555" FontSize="10" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                                    <TextBlock Text="(or double-click row)" Foreground="{DynamicResource HintTextFg}" FontSize="10" HorizontalAlignment="Center" Margin="0,6,0,0"/>
                                 </StackPanel>
 
                                 <!-- Loading Indicator -->
                                 <StackPanel x:Name="GridPreviewLoading" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
-                                    <TextBlock Text="Rendering Sheet..." Foreground="{StaticResource TextDim}" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Rendering Sheet..." Foreground="{DynamicResource TextDim}" FontSize="12" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
 
                         <!-- Sheet Details -->
-                        <Border Grid.Row="2" Background="#242426" BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="6" Margin="0,12,0,0" Padding="10">
+                        <Border x:Name="SheetDetailsBorder" Grid.Row="2" Background="{DynamicResource SheetDetailsBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" Margin="0,12,0,0" Padding="10">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel>
-                                    <TextBlock Text="Selected Sheet Info" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Selected Sheet Info" Foreground="{DynamicResource TextMain}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,8"/>
                                     
-                                    <TextBlock Text="Sheet Number" Foreground="{StaticResource TextDim}" FontSize="10"/>
-                                    <TextBlock x:Name="TxtDetailNumber" Text="-" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Sheet Number" Foreground="{DynamicResource TextDim}" FontSize="10"/>
+                                    <TextBlock x:Name="TxtDetailNumber" Text="-" Foreground="{DynamicResource TextMain}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" TextWrapping="Wrap"/>
                                     
-                                    <TextBlock Text="Sheet Name" Foreground="{StaticResource TextDim}" FontSize="10"/>
-                                    <TextBlock x:Name="TxtDetailName" Text="-" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Sheet Name" Foreground="{DynamicResource TextDim}" FontSize="10"/>
+                                    <TextBlock x:Name="TxtDetailName" Text="-" Foreground="{DynamicResource TextMain}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" TextWrapping="Wrap"/>
                                     
-                                    <TextBlock Text="Sheet Collection" Foreground="{StaticResource TextDim}" FontSize="10"/>
-                                    <TextBlock x:Name="TxtDetailCollection" Text="-" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Sheet Collection" Foreground="{DynamicResource TextDim}" FontSize="10"/>
+                                    <TextBlock x:Name="TxtDetailCollection" Text="-" Foreground="{DynamicResource TextMain}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,6" TextWrapping="Wrap"/>
                                     
-                                    <TextBlock Text="Export Filename" Foreground="{StaticResource TextDim}" FontSize="10"/>
-                                    <TextBlock x:Name="TxtDetailExportName" Text="-" Foreground="{StaticResource TextMain}" FontSize="11" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Export Filename" Foreground="{DynamicResource TextDim}" FontSize="10"/>
+                                    <TextBlock x:Name="TxtDetailExportName" Text="-" Foreground="{DynamicResource TextMain}" FontSize="11" Margin="0,0,0,6" TextWrapping="Wrap"/>
                                     
-                                    <TextBlock Text="Revit File" Foreground="{StaticResource TextDim}" FontSize="10"/>
-                                    <TextBlock x:Name="TxtDetailModel" Text="-" Foreground="{StaticResource TextDim}" FontSize="10" Margin="0,0,0,4" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Revit File" Foreground="{DynamicResource TextDim}" FontSize="10"/>
+                                    <TextBlock x:Name="TxtDetailModel" Text="-" Foreground="{DynamicResource TextDim}" FontSize="10" Margin="0,0,0,4" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </ScrollViewer>
                         </Border>
@@ -443,7 +480,7 @@
             </Grid>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Background="{StaticResource TitleBarBg}" CornerRadius="0,0,10,10" BorderBrush="{StaticResource BorderColor}" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Background="{DynamicResource TitleBarBg}" CornerRadius="0,0,10,10" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0">
                 <Grid Margin="15,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -452,9 +489,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" x:Name="TxtFileCount" Text="0 Files Loaded" Foreground="{StaticResource TextMain}" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                    <ProgressBar Grid.Column="1" x:Name="ExportProgressBar" Height="8" Foreground="{StaticResource PrimaryColor}" Background="#3F3F46" BorderThickness="0" Maximum="100" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                    <TextBlock Grid.Column="2" x:Name="TxtPercent" Text="Ready" VerticalAlignment="Center" Foreground="{StaticResource TextDim}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,0,15,0" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                    <TextBlock Grid.Column="0" x:Name="TxtFileCount" Text="0 Files Loaded" Foreground="{DynamicResource TextMain}" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                    <ProgressBar Grid.Column="1" x:Name="ExportProgressBar" Height="8" Foreground="{DynamicResource PrimaryColor}" Background="{DynamicResource ProgressBarBg}" BorderThickness="0" Maximum="100" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                    <TextBlock Grid.Column="2" x:Name="TxtPercent" Text="Ready" VerticalAlignment="Center" Foreground="{DynamicResource TextDim}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,0,15,0" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
 
                     <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
                         <Button x:Name="BtnCancel" Style="{StaticResource SecondaryBtn}" Content="Cancel" Width="90" Height="32" Margin="0,0,10,0" Click="CloseBtn_Click"/>

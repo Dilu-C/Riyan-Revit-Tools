@@ -1561,16 +1561,26 @@ class BatchExportForm(forms.WPFWindow):
             import System
             from System.Windows.Media.Imaging import BitmapImage
             from System import Uri
-            tab_dir = os.path.dirname(os.path.dirname(__commandpath__))
-            logo_path = os.path.join(tab_dir, "System.panel", "About.pushbutton", "logo.png")
-            if not os.path.exists(logo_path):
-                logo_path = os.path.join(os.path.dirname(__commandpath__), "logo.png")
-            if not os.path.exists(logo_path):
-                logo_path = os.path.join(tab_dir, "Coordination.panel", "ChangeHostLevel.pushbutton", "logo.png")
-            if os.path.exists(logo_path) and hasattr(self, 'TitleLogo') and self.TitleLogo:
+            cur_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else (os.path.dirname(os.path.abspath(__commandpath__)) if '__commandpath__' in globals() else "")
+            candidates = [
+                os.path.join(cur_dir, "logo.png"),
+                os.path.abspath(os.path.join(cur_dir, "..", "..", "lib", "riyan_logo.png")),
+                os.path.abspath(os.path.join(cur_dir, "..", "..", "icon.png")),
+            ]
+            logo_path = None
+            for cand in candidates:
+                if os.path.exists(cand):
+                    logo_path = cand
+                    break
+            if logo_path and hasattr(self, 'TitleLogo') and self.TitleLogo:
                 self.TitleLogo.Source = BitmapImage(Uri(logo_path))
         except Exception as e:
             log_diag("Logo load error: " + str(e))
+
+        try:
+            self.apply_theme(self.settings.get("theme", "Dark"))
+        except Exception:
+            pass
 
         self.rows = []
         self.folder_groups = []
@@ -1671,7 +1681,7 @@ class BatchExportForm(forms.WPFWindow):
         except Exception:
             pass
 
-        self.log("Dilu BIM Automation initialized.")
+        self.log("Riyan pyRevit Tools initialized.")
         self.log("Zero Data Loss Architecture active: Double-verification backup enabled.")
 
     def on_source_initialized(self, sender, e):
@@ -1955,6 +1965,112 @@ class BatchExportForm(forms.WPFWindow):
     def MinimizeBtn_Click(self, sender, e):
         self.WindowState = System.Windows.WindowState.Minimized
 
+    def apply_theme(self, theme_name):
+        try:
+            from System.Windows.Media import SolidColorBrush, Color
+            if theme_name == "Light":
+                self.Resources["WindowBg"] = SolidColorBrush(Color.FromRgb(243, 244, 246))
+                self.Resources["TitleBarBg"] = SolidColorBrush(Color.FromRgb(229, 231, 235))
+                self.Resources["CardBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+                self.Resources["TextMain"] = SolidColorBrush(Color.FromRgb(31, 41, 55))
+                self.Resources["TextDim"] = SolidColorBrush(Color.FromRgb(75, 85, 99))
+                self.Resources["BorderColor"] = SolidColorBrush(Color.FromRgb(209, 213, 219))
+                self.Resources["AccentCyan"] = SolidColorBrush(Color.FromRgb(2, 132, 199))
+                self.Resources["AccentGold"] = SolidColorBrush(Color.FromRgb(180, 83, 9))
+
+                self.Resources["SecondaryBtnBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+                self.Resources["SecondaryBtnFg"] = SolidColorBrush(Color.FromRgb(31, 41, 55))
+                self.Resources["SecondaryBtnBorder"] = SolidColorBrush(Color.FromRgb(209, 213, 219))
+                self.Resources["SecondaryBtnHover"] = SolidColorBrush(Color.FromRgb(249, 250, 251))
+
+                self.Resources["OutgoingBtnBg"] = SolidColorBrush(Color.FromRgb(240, 249, 255))
+                self.Resources["OutgoingBtnFg"] = SolidColorBrush(Color.FromRgb(2, 132, 199))
+                self.Resources["OutgoingBtnBorder"] = SolidColorBrush(Color.FromRgb(186, 230, 253))
+                self.Resources["OutgoingBtnHover"] = SolidColorBrush(Color.FromRgb(224, 242, 254))
+                self.Resources["OutgoingBtnBorderHover"] = SolidColorBrush(Color.FromRgb(2, 132, 199))
+
+                self.Resources["SelectionBtnBg"] = SolidColorBrush(Color.FromRgb(255, 251, 235))
+                self.Resources["SelectionBtnFg"] = SolidColorBrush(Color.FromRgb(180, 83, 9))
+                self.Resources["SelectionBtnBorder"] = SolidColorBrush(Color.FromRgb(253, 230, 138))
+                self.Resources["SelectionBtnHover"] = SolidColorBrush(Color.FromRgb(254, 243, 199))
+                self.Resources["SelectionBtnBorderHover"] = SolidColorBrush(Color.FromRgb(180, 83, 9))
+
+                self.Resources["ApplyBtnBg"] = SolidColorBrush(Color.FromRgb(240, 249, 255))
+                self.Resources["ApplyBtnFg"] = SolidColorBrush(Color.FromRgb(2, 132, 199))
+                self.Resources["ApplyBtnBorder"] = SolidColorBrush(Color.FromRgb(186, 230, 253))
+                self.Resources["ApplyBtnHover"] = SolidColorBrush(Color.FromRgb(224, 242, 254))
+                self.Resources["ApplyBtnBorderHover"] = SolidColorBrush(Color.FromRgb(2, 132, 199))
+
+                self.Resources["PreviewCardBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+                self.Resources["SheetDetailsBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+                self.Resources["ProgressBarBg"] = SolidColorBrush(Color.FromRgb(209, 213, 219))
+                self.Resources["LogCardBg"] = SolidColorBrush(Color.FromRgb(30, 41, 59))
+                self.Resources["LogBoxBg"] = SolidColorBrush(Color.FromRgb(15, 23, 42))
+                self.Resources["HintTextFg"] = SolidColorBrush(Color.FromRgb(136, 136, 136))
+                self.Resources["ContextMenuBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+                self.Resources["ContextMenuBorder"] = SolidColorBrush(Color.FromRgb(204, 204, 204))
+                self.Resources["ContextMenuFg"] = SolidColorBrush(Color.FromRgb(34, 34, 34))
+
+                self.Resources["ThemeBtnHover"] = SolidColorBrush(Color.FromRgb(229, 231, 235))
+                self.Resources["ThemeBtnBorderHover"] = SolidColorBrush(Color.FromRgb(209, 213, 219))
+                self.Resources["ThemeBtnHoverFg"] = SolidColorBrush(Color.FromRgb(31, 41, 55))
+
+                if hasattr(self, "BtnTheme") and self.BtnTheme:
+                    self.BtnTheme.Content = u"🌙 Dark"
+                    self.BtnTheme.ToolTip = "Switch to Dark Theme"
+            else:
+                self.Resources["WindowBg"] = SolidColorBrush(Color.FromRgb(45, 45, 48))
+                self.Resources["TitleBarBg"] = SolidColorBrush(Color.FromRgb(30, 30, 30))
+                self.Resources["CardBg"] = SolidColorBrush(Color.FromRgb(30, 30, 30))
+                self.Resources["TextMain"] = SolidColorBrush(Color.FromRgb(245, 245, 245))
+                self.Resources["TextDim"] = SolidColorBrush(Color.FromRgb(160, 160, 160))
+                self.Resources["BorderColor"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
+                self.Resources["AccentCyan"] = SolidColorBrush(Color.FromRgb(56, 189, 248))
+                self.Resources["AccentGold"] = SolidColorBrush(Color.FromRgb(200, 146, 42))
+
+                self.Resources["SecondaryBtnBg"] = SolidColorBrush(Color.FromRgb(51, 51, 55))
+                self.Resources["SecondaryBtnFg"] = SolidColorBrush(Color.FromRgb(245, 245, 245))
+                self.Resources["SecondaryBtnBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
+                self.Resources["SecondaryBtnHover"] = SolidColorBrush(Color.FromRgb(62, 62, 66))
+
+                self.Resources["OutgoingBtnBg"] = SolidColorBrush(Color.FromRgb(30, 41, 59))
+                self.Resources["OutgoingBtnFg"] = SolidColorBrush(Color.FromRgb(56, 189, 248))
+                self.Resources["OutgoingBtnBorder"] = SolidColorBrush(Color.FromRgb(2, 132, 199))
+                self.Resources["OutgoingBtnHover"] = SolidColorBrush(Color.FromRgb(15, 23, 42))
+                self.Resources["OutgoingBtnBorderHover"] = SolidColorBrush(Color.FromRgb(56, 189, 248))
+
+                self.Resources["SelectionBtnBg"] = SolidColorBrush(Color.FromRgb(41, 33, 19))
+                self.Resources["SelectionBtnFg"] = SolidColorBrush(Color.FromRgb(251, 191, 36))
+                self.Resources["SelectionBtnBorder"] = SolidColorBrush(Color.FromRgb(180, 83, 9))
+                self.Resources["SelectionBtnHover"] = SolidColorBrush(Color.FromRgb(31, 25, 11))
+                self.Resources["SelectionBtnBorderHover"] = SolidColorBrush(Color.FromRgb(251, 191, 36))
+
+                self.Resources["ApplyBtnBg"] = SolidColorBrush(Color.FromRgb(30, 41, 59))
+                self.Resources["ApplyBtnFg"] = SolidColorBrush(Color.FromRgb(56, 189, 248))
+                self.Resources["ApplyBtnBorder"] = SolidColorBrush(Color.FromRgb(2, 132, 199))
+                self.Resources["ApplyBtnHover"] = SolidColorBrush(Color.FromRgb(15, 23, 42))
+                self.Resources["ApplyBtnBorderHover"] = SolidColorBrush(Color.FromRgb(56, 189, 248))
+
+                self.Resources["PreviewCardBg"] = SolidColorBrush(Color.FromRgb(20, 20, 20))
+                self.Resources["SheetDetailsBg"] = SolidColorBrush(Color.FromRgb(36, 36, 38))
+                self.Resources["ProgressBarBg"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
+                self.Resources["LogCardBg"] = SolidColorBrush(Color.FromRgb(15, 15, 15))
+                self.Resources["LogBoxBg"] = SolidColorBrush(Color.FromRgb(15, 15, 15))
+                self.Resources["HintTextFg"] = SolidColorBrush(Color.FromRgb(85, 85, 85))
+                self.Resources["ContextMenuBg"] = SolidColorBrush(Color.FromRgb(30, 30, 30))
+                self.Resources["ContextMenuBorder"] = SolidColorBrush(Color.FromRgb(51, 51, 51))
+                self.Resources["ContextMenuFg"] = SolidColorBrush(Color.FromRgb(224, 224, 224))
+
+                self.Resources["ThemeBtnHover"] = SolidColorBrush(Color.FromRgb(62, 62, 66))
+                self.Resources["ThemeBtnBorderHover"] = SolidColorBrush(Color.FromRgb(75, 85, 99))
+                self.Resources["ThemeBtnHoverFg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+
+                if hasattr(self, "BtnTheme") and self.BtnTheme:
+                    self.BtnTheme.Content = u"☀️ Light"
+                    self.BtnTheme.ToolTip = "Switch to Light Theme"
+        except Exception as ex:
+            log_diag("apply_theme error: " + str(ex))
+
     def BtnTheme_Click(self, sender, e):
         current = self.settings.get("theme", "Dark")
         new_theme = "Light" if current == "Dark" else "Dark"
@@ -1967,15 +2083,7 @@ class BatchExportForm(forms.WPFWindow):
         except Exception as ex:
             log_diag("Error saving theme: " + str(ex))
 
-        self.restart_for_theme = True
-        try:
-            self._saved_left = self.Left
-            self._saved_top = self.Top
-            self._saved_width = self.ActualWidth if self.ActualWidth > 0 else self.Width
-            self._saved_height = self.ActualHeight if self.ActualHeight > 0 else self.Height
-        except Exception:
-            pass
-        self.Close()
+        self.apply_theme(new_theme)
 
     def select_sheet_advanced(self, sheet_row, is_ctrl=False, is_shift=False):
         if not hasattr(self, 'selected_sheets'):
@@ -3646,50 +3754,14 @@ class BatchExportForm(forms.WPFWindow):
                 log_diag("Completion window error: " + str(ex_cw))
 
 def main():
-    saved_pos = None
-    while True:
+    try:
+        xaml_path = os.path.join(os.path.dirname(__file__), 'UI.xaml')
+        form = BatchExportForm(xaml_path)
         try:
-            theme = "Dark"
-            settings_path = os.path.join(export_mgr_dir, "naming_settings.json")
-            if os.path.exists(settings_path):
-                import json
-                with open(settings_path, 'r') as f:
-                    try:
-                        settings = json.load(f)
-                        theme = settings.get("theme", "Dark")
-                    except:
-                        pass
-                        
-            exp_name = 'UI_Light.xaml' if theme == 'Light' else 'UI.xaml'
-            xaml_path = os.path.join(os.path.dirname(__file__), exp_name)
-            
-            form = BatchExportForm(xaml_path)
-            if saved_pos:
-                try:
-                    form.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual
-                    form.Left = saved_pos.get("left", form.Left)
-                    form.Top = saved_pos.get("top", form.Top)
-                    form.Width = saved_pos.get("width", form.Width)
-                    form.Height = saved_pos.get("height", form.Height)
-                except Exception:
-                    pass
-
-            try:
-                form.ShowDialog()
-            finally:
-                form.cleanup_cached_documents()
-
-            if getattr(form, 'restart_for_theme', False):
-                saved_pos = {
-                    "left": getattr(form, '_saved_left', form.Left),
-                    "top": getattr(form, '_saved_top', form.Top),
-                    "width": getattr(form, '_saved_width', form.Width),
-                    "height": getattr(form, '_saved_height', form.Height)
-                }
-                continue
-            break
-        except Exception as ex:
-            forms.alert('Failed to load UI:\n\n' + str(ex) + '\n\n' + traceback.format_exc(), title='UI Error')
-            break
+            form.ShowDialog()
+        finally:
+            form.cleanup_cached_documents()
+    except Exception as ex:
+        forms.alert('Failed to load UI:\n\n' + str(ex) + '\n\n' + traceback.format_exc(), title='UI Error')
 
 main()

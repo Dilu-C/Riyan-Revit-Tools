@@ -1060,7 +1060,7 @@ elif not ReactiveBase:
 
 
 class SheetViewModel(ReactiveBase):
-    def __init__(self, sheet, scheme_parts, doc, is_view=False):
+    def __init__(self, sheet, scheme_parts, doc, is_view=False, titleblock_map=None):
         try:
             super(SheetViewModel, self).__init__()
         except Exception:
@@ -1083,14 +1083,17 @@ class SheetViewModel(ReactiveBase):
 
             # Get Size (from TitleBlock if available)
             self.Size = ""
-            try:
-                tbs = DB.FilteredElementCollector(doc, sheet.Id).OfCategory(DB.BuiltInCategory.OST_TitleBlocks).ToElements()
-                if tbs:
-                    self.Size = tbs[0].Name
-                else:
+            if titleblock_map and sheet.Id in titleblock_map:
+                self.Size = titleblock_map[sheet.Id]
+            else:
+                try:
+                    tbs = DB.FilteredElementCollector(doc, sheet.Id).OfCategory(DB.BuiltInCategory.OST_TitleBlocks).ToElements()
+                    if tbs:
+                        self.Size = tbs[0].Name
+                    else:
+                        self.Size = "A1"
+                except:
                     self.Size = "A1"
-            except:
-                self.Size = "A1"
 
         self._is_selected = False
         self._custom_file_name = ""
@@ -2074,19 +2077,30 @@ class ExportManagerForm(forms.WPFWindow):
             import System
             from System.Windows.Media.Imaging import BitmapImage
             from System import Uri
-            tab_dir = os.path.dirname(os.path.dirname(__commandpath__))
-            logo_path = os.path.join(tab_dir, "System.panel", "About.pushbutton", "logo.png")
-            if not os.path.exists(logo_path):
-                logo_path = os.path.join(os.path.dirname(__commandpath__), "logo.png")
-            if not os.path.exists(logo_path):
-                logo_path = os.path.join(tab_dir, "Coordination.panel", "ChangeHostLevel.pushbutton", "logo.png")
-            if os.path.exists(logo_path):
+            cur_dir = os.path.dirname(os.path.abspath(__file__))
+            candidates = [
+                os.path.abspath(os.path.join(cur_dir, "logo.png")),
+                os.path.abspath(os.path.join(cur_dir, "..", "..", "System.panel", "About.pushbutton", "logo.png")),
+                os.path.abspath(os.path.join(cur_dir, "..", "..", "lib", "riyan_logo.png")),
+                os.path.abspath(os.path.join(cur_dir, "..", "..", "lib", "dn_logo.png")),
+                os.path.abspath(os.path.join(cur_dir, "..", "..", "icon.png")),
+            ]
+            logo_path = None
+            for cand in candidates:
+                if os.path.exists(cand):
+                    logo_path = cand
+                    break
+            if logo_path and hasattr(self, 'TitleLogo') and self.TitleLogo:
                 self.TitleLogo.Source = BitmapImage(Uri(logo_path))
         except Exception as e:
             pass
 
         # Load naming settings
         self.settings = load_settings()
+        try:
+            self.apply_theme(self.settings.get("theme", "Dark"))
+        except Exception:
+            pass
         active = self.settings.get("active_scheme", "Default")
         self.active_scheme_parts = self.settings.get("schemes", {}).get(active, [])
 
@@ -2099,13 +2113,22 @@ class ExportManagerForm(forms.WPFWindow):
         self.export_path = os.path.join(os.environ["USERPROFILE"], "Desktop")
         self.TxtExportPath.Text = self.export_path
 
+        # Batch collect TitleBlocks for all sheets in 1 fast query instead of N queries
+        titleblock_map = {}
+        try:
+            for tb in DB.FilteredElementCollector(doc).OfCategory(DB.BuiltInCategory.OST_TitleBlocks).WhereElementIsNotElementType():
+                if tb.OwnerViewId and tb.OwnerViewId not in titleblock_map:
+                    titleblock_map[tb.OwnerViewId] = tb.Name
+        except Exception:
+            pass
+
         # Wrap sheets into ViewModels
-        self.sheets = [SheetViewModel(s, self.active_scheme_parts, doc, is_view=False) for s in sheets]
+        self.sheets = [SheetViewModel(s, self.active_scheme_parts, doc, is_view=False, titleblock_map=titleblock_map) for s in sheets]
         self.sheets.sort(key=lambda x: x.SheetNumber)
 
-        # Wrap views into ViewModels
-        self.views = [SheetViewModel(v, self.active_scheme_parts, doc, is_view=True) for v in views]
-        self.views.sort(key=lambda x: x.SheetName)
+        # Lazy views: DO NOT wrap views on startup!
+        self._raw_views = views
+        self.views = None
 
         self.current_items = self.sheets
         self.GridSheets.ItemsSource = self.current_items
@@ -2224,12 +2247,32 @@ class ExportManagerForm(forms.WPFWindow):
         self.update_favorite_star()
         self.update_set_buttons_state()
 
+    def get_or_load_views(self):
+        if self.views is None:
+            raw = []
+            if callable(self._raw_views):
+                raw = self._raw_views()
+            elif self._raw_views is not None:
+                raw = self._raw_views
+            else:
+                try:
+                    views_collector = DB.FilteredElementCollector(doc)\
+                                        .OfCategory(DB.BuiltInCategory.OST_Views)\
+                                        .WhereElementIsNotElementType()\
+                                        .ToElements()
+                    raw = [v for v in views_collector if not v.IsTemplate and v.CanBePrinted]
+                except Exception:
+                    raw = []
+            self.views = [SheetViewModel(v, self.active_scheme_parts, doc, is_view=True) for v in raw]
+            self.views.sort(key=lambda x: x.SheetName)
+        return self.views
+
     def RbMode_Checked(self, sender, e):
         """Switch the DataGrid between Sheets and Views."""
-        if not hasattr(self, "sheets") or not hasattr(self, "views"):
+        if not hasattr(self, "sheets"):
             return
-        if self.RbViews.IsChecked:
-            self.current_items = self.views
+        if getattr(self, "RbViews", None) and self.RbViews.IsChecked:
+            self.current_items = self.get_or_load_views()
         else:
             self.current_items = self.sheets
         self.GridSheets.ItemsSource = None
@@ -2947,16 +2990,175 @@ class ExportManagerForm(forms.WPFWindow):
         except Exception:
             pass
 
+    def apply_theme(self, theme_name):
+        try:
+            from System.Windows.Media import SolidColorBrush, Color
+            is_light = (theme_name == "Light")
+            
+            if is_light:
+                win_bg = Color.FromRgb(224, 224, 224)       # #E0E0E0
+                win_border = Color.FromRgb(176, 176, 176)   # #B0B0B0
+                title_bg = Color.FromRgb(212, 212, 212)     # #D4D4D4
+                card_bg = Color.FromRgb(255, 255, 255)      # #FFFFFF
+                ctrl_bg = Color.FromRgb(242, 242, 242)      # #F2F2F2
+                border_col = Color.FromRgb(200, 200, 200)   # #C8C8C8
+                footer_bg = Color.FromRgb(212, 212, 212)    # #D4D4D4
+                txt_prim = Color.FromRgb(17, 17, 17)        # #111111
+                txt_sec = Color.FromRgb(34, 34, 34)         # #222222
+                txt_muted = Color.FromRgb(85, 85, 85)       # #555555
+                
+                # TabControl
+                tab_bg = Color.FromRgb(255, 255, 255)       # #FFFFFF
+                tab_border = Color.FromRgb(200, 200, 200)   # #C8C8C8
+                tab_item_fg = Color.FromRgb(85, 85, 85)     # #555555
+                tab_item_sel_bg = Color.FromRgb(255, 255, 255) # #FFFFFF
+                tab_item_sel_border = Color.FromRgb(128, 47, 45) # #802F2D
+                tab_item_sel_fg = Color.FromRgb(17, 17, 17) # #111111
+                
+                # DataGrid
+                grid_hdr_bg = Color.FromRgb(245, 245, 245)  # #F5F5F5
+                grid_hdr_fg = Color.FromRgb(85, 85, 85)     # #555555
+                grid_hdr_border = Color.FromRgb(200, 200, 200) # #C8C8C8
+                grid_border = Color.FromRgb(176, 176, 176)  # #B0B0B0
+                grid_row_bg = Color.FromRgb(255, 255, 255)  # #FFFFFF
+                grid_row_alt_bg = Color.FromRgb(245, 245, 245) # #F5F5F5
+                grid_row_fg = Color.FromRgb(34, 34, 34)     # #222222
+                grid_row_hover = Color.FromRgb(255, 248, 214) # #FFF8D6
+                grid_row_sel = Color.FromRgb(252, 227, 138)   # #FCE38A
+                
+                # Custom File Name Column
+                cfn_hdr_bg = Color.FromRgb(212, 212, 212)   # #D4D4D4
+                cfn_hdr_border = Color.FromRgb(181, 123, 23) # #B57B17
+                cfn_hdr_fg = Color.FromRgb(181, 123, 23)     # #B57B17
+                cfn_cell_fg = Color.FromRgb(181, 123, 23)    # #B57B17
+                
+                # Sidebar
+                sidebar_bg = Color.FromRgb(235, 235, 235)   # #EBEBEB
+                sidebar_border = Color.FromRgb(212, 212, 212) # #D4D4D4
+
+                btn_hover_bg = Color.FromRgb(229, 231, 235)
+                btn_border_hover = Color.FromRgb(209, 213, 219)
+                btn_hover_fg = Color.FromRgb(31, 41, 55)
+            else:
+                win_bg = Color.FromRgb(17, 17, 17)          # #111111
+                win_border = Color.FromRgb(42, 42, 42)      # #2A2A2A
+                title_bg = Color.FromRgb(18, 18, 18)        # #121212
+                card_bg = Color.FromRgb(22, 22, 22)         # #161616
+                ctrl_bg = Color.FromRgb(30, 30, 30)         # #1E1E1E
+                border_col = Color.FromRgb(42, 42, 42)      # #2A2A2A
+                footer_bg = Color.FromRgb(14, 14, 14)       # #0E0E0E
+                txt_prim = Color.FromRgb(255, 255, 255)     # #FFFFFF
+                txt_sec = Color.FromRgb(204, 204, 204)      # #CCCCCC
+                txt_muted = Color.FromRgb(136, 136, 136)    # #888888
+                
+                # TabControl
+                tab_bg = Color.FromRgb(17, 17, 17)          # #111111
+                tab_border = Color.FromArgb(0, 0, 0, 0)     # Transparent
+                tab_item_fg = Color.FromRgb(136, 136, 136)  # #888888
+                tab_item_sel_bg = Color.FromArgb(0, 0, 0, 0)# Transparent
+                tab_item_sel_border = Color.FromRgb(128, 47, 45) # #802F2D
+                tab_item_sel_fg = Color.FromRgb(255, 255, 255) # #FFFFFF
+                
+                # DataGrid
+                grid_hdr_bg = Color.FromRgb(26, 26, 26)     # #1A1A1A
+                grid_hdr_fg = Color.FromRgb(170, 170, 170)  # #AAAAAA
+                grid_hdr_border = Color.FromRgb(51, 51, 51) # #333333
+                grid_border = Color.FromRgb(34, 34, 34)     # #222222
+                grid_row_bg = Color.FromRgb(17, 17, 17)     # #111111
+                grid_row_alt_bg = Color.FromRgb(21, 21, 21) # #151515
+                grid_row_fg = Color.FromRgb(204, 204, 204)  # #CCCCCC
+                grid_row_hover = Color.FromRgb(51, 45, 21)  # #332D15
+                grid_row_sel = Color.FromRgb(79, 66, 16)    # #4F4210
+                
+                # Custom File Name Column
+                cfn_hdr_bg = Color.FromRgb(28, 20, 16)      # #1C1410
+                cfn_hdr_border = Color.FromRgb(200, 146, 42) # #C8922A
+                cfn_hdr_fg = Color.FromRgb(200, 146, 42)    # #C8922A
+                cfn_cell_fg = Color.FromRgb(200, 146, 42)   # #C8922A
+                
+                # Sidebar
+                sidebar_bg = Color.FromRgb(22, 22, 22)      # #161616
+                sidebar_border = Color.FromRgb(42, 42, 42)  # #2A2A2A
+
+                btn_hover_bg = Color.FromRgb(42, 42, 42)
+                btn_border_hover = Color.FromRgb(75, 85, 99)
+                btn_hover_fg = Color.FromRgb(255, 255, 255)
+
+            # Update Resource dictionary
+            self.Resources["WindowBg"] = SolidColorBrush(win_bg)
+            self.Resources["TitleBarBg"] = SolidColorBrush(title_bg)
+            self.Resources["CardBg"] = SolidColorBrush(card_bg)
+            self.Resources["ControlBg"] = SolidColorBrush(ctrl_bg)
+            self.Resources["BorderColor"] = SolidColorBrush(border_col)
+            self.Resources["FooterBg"] = SolidColorBrush(footer_bg)
+            self.Resources["TextPrimary"] = SolidColorBrush(txt_prim)
+            self.Resources["TextSecondary"] = SolidColorBrush(txt_sec)
+            self.Resources["TextMuted"] = SolidColorBrush(txt_muted)
+
+            self.Resources["ThemeBtnHover"] = SolidColorBrush(btn_hover_bg)
+            self.Resources["ThemeBtnBorderHover"] = SolidColorBrush(btn_border_hover)
+            self.Resources["ThemeBtnHoverFg"] = SolidColorBrush(btn_hover_fg)
+
+            self.Resources["TabBg"] = SolidColorBrush(tab_bg)
+            self.Resources["TabBorder"] = SolidColorBrush(tab_border)
+            self.Resources["TabItemFg"] = SolidColorBrush(tab_item_fg)
+            self.Resources["TabItemSelectedBg"] = SolidColorBrush(tab_item_sel_bg)
+            self.Resources["TabItemSelectedBorder"] = SolidColorBrush(tab_item_sel_border)
+            self.Resources["TabItemSelectedFg"] = SolidColorBrush(tab_item_sel_fg)
+
+            self.Resources["GridHeaderBg"] = SolidColorBrush(grid_hdr_bg)
+            self.Resources["GridHeaderFg"] = SolidColorBrush(grid_hdr_fg)
+            self.Resources["GridHeaderBorder"] = SolidColorBrush(grid_hdr_border)
+            self.Resources["GridBorder"] = SolidColorBrush(grid_border)
+            self.Resources["GridRowBg"] = SolidColorBrush(grid_row_bg)
+            self.Resources["GridRowAltBg"] = SolidColorBrush(grid_row_alt_bg)
+            self.Resources["GridRowFg"] = SolidColorBrush(grid_row_fg)
+            self.Resources["GridRowHover"] = SolidColorBrush(grid_row_hover)
+            self.Resources["GridRowSelected"] = SolidColorBrush(grid_row_sel)
+
+            self.Resources["CustomFileNameHeaderBg"] = SolidColorBrush(cfn_hdr_bg)
+            self.Resources["CustomFileNameHeaderBorder"] = SolidColorBrush(cfn_hdr_border)
+            self.Resources["CustomFileNameHeaderFg"] = SolidColorBrush(cfn_hdr_fg)
+            self.Resources["CustomFileNameCellFg"] = SolidColorBrush(cfn_cell_fg)
+
+            self.Resources["SidebarBg"] = SolidColorBrush(sidebar_bg)
+            self.Resources["SidebarBorder"] = SolidColorBrush(sidebar_border)
+
+            if hasattr(self, "MainOuterBorder") and self.MainOuterBorder:
+                self.MainOuterBorder.Background = SolidColorBrush(win_bg)
+                self.MainOuterBorder.BorderBrush = SolidColorBrush(win_border)
+            if hasattr(self, "TitleBarBorder") and self.TitleBarBorder:
+                self.TitleBarBorder.Background = SolidColorBrush(title_bg)
+            if hasattr(self, "FooterBorder") and self.FooterBorder:
+                self.FooterBorder.Background = SolidColorBrush(footer_bg)
+                self.FooterBorder.BorderBrush = SolidColorBrush(border_col)
+            if hasattr(self, "btnThemeToggle") and self.btnThemeToggle:
+                self.btnThemeToggle.Content = u"🌙 Dark" if is_light else u"☀️ Light"
+                self.btnThemeToggle.ToolTip = "Switch to Dark Theme" if is_light else "Switch to Light Theme"
+                self.btnThemeToggle.Background = SolidColorBrush(ctrl_bg)
+                self.btnThemeToggle.Foreground = SolidColorBrush(txt_sec)
+                self.btnThemeToggle.BorderBrush = SolidColorBrush(border_col)
+
+            if hasattr(self, "GridSheets") and self.GridSheets:
+                self.GridSheets.Background = SolidColorBrush(grid_row_bg)
+                self.GridSheets.RowBackground = SolidColorBrush(grid_row_bg)
+                self.GridSheets.AlternatingRowBackground = SolidColorBrush(grid_row_alt_bg)
+                self.GridSheets.BorderBrush = SolidColorBrush(grid_border)
+            if hasattr(self, "GridQueue") and self.GridQueue:
+                self.GridQueue.Background = SolidColorBrush(grid_row_bg)
+                self.GridQueue.RowBackground = SolidColorBrush(grid_row_bg)
+                self.GridQueue.AlternatingRowBackground = SolidColorBrush(grid_row_alt_bg)
+                self.GridQueue.BorderBrush = SolidColorBrush(grid_border)
+        except Exception as ex:
+            pass
+
     def ThemeToggle_Click(self, sender, e):
         current_theme = self.settings.get("theme", "Dark")
         new_theme = "Light" if current_theme == "Dark" else "Dark"
         self.settings["theme"] = new_theme
         save_settings(self.settings)
 
-        self.restart_for_theme = True
-        self.saved_state = self.capture_state()
-        self.DialogResult = False
-        self.Close()
+        self.apply_theme(new_theme)
 
     def capture_state(self):
         state = {}
@@ -2972,9 +3174,9 @@ class ExportManagerForm(forms.WPFWindow):
             state["PdfIndex"] = self.CmbPdfSetup.SelectedIndex
             state["DwgIndex"] = self.CmbDwgSetup.SelectedIndex
             state["SearchText"] = self.TxtSearch.Text
-            state["SelectedSheets"] = [s.Sheet.Id for s in self.sheets if s.IsSelected]
-            state["SelectedViews"] = [v.Sheet.Id for v in self.views if v.IsSelected]
-            state["IsViewsActive"] = (getattr(self, "current_items", None) == self.views)
+            state["SelectedSheets"] = [s.Sheet.Id for s in self.sheets if s.IsSelected] if (hasattr(self, "sheets") and self.sheets) else []
+            state["SelectedViews"] = [v.Sheet.Id for v in self.views if v.IsSelected] if (hasattr(self, "views") and self.views) else []
+            state["IsViewsActive"] = (getattr(self, "current_items", None) == getattr(self, "views", None)) and (getattr(self, "views", None) is not None)
             if hasattr(self, "ChkActiveOnly") and self.ChkActiveOnly:
                 state["ActiveOnly"] = self.ChkActiveOnly.IsChecked
         except Exception:
@@ -3019,13 +3221,15 @@ class ExportManagerForm(forms.WPFWindow):
                     s.IsSelected = True
 
             sel_view_ids = set(state.get("SelectedViews", []))
-            for v in self.views:
-                if v.Sheet.Id in sel_view_ids:
-                    v.IsSelected = True
+            if sel_view_ids or state.get("IsViewsActive", False):
+                views = self.get_or_load_views()
+                for v in views:
+                    if v.Sheet.Id in sel_view_ids:
+                        v.IsSelected = True
 
             if state.get("IsViewsActive", False) and getattr(self, "RbViews", None):
                 self.RbViews.IsChecked = True
-                self.current_items = self.views
+                self.current_items = self.get_or_load_views()
                 self.GridSheets.ItemsSource = self.current_items
 
             if "TabIndex" in state and state["TabIndex"] >= 0:
@@ -3047,8 +3251,21 @@ class ExportManagerForm(forms.WPFWindow):
         else:
             self.WindowState = System.Windows.WindowState.Maximized
 
+    def cleanup_on_close(self):
+        try:
+            if hasattr(self, "GridSheets") and self.GridSheets:
+                self.GridSheets.ItemsSource = None
+            self.sheets = []
+            self.views = []
+            self.current_items = []
+            if hasattr(self, "preview_cache") and self.preview_cache:
+                self.preview_cache.clear()
+        except Exception:
+            pass
+
     def CloseBtn_Click(self, sender, e):
         self.DialogResult = False
+        self.cleanup_on_close()
         self.Close()
 
     # Tab 1: Selection Logic
@@ -3547,11 +3764,14 @@ class ExportManagerForm(forms.WPFWindow):
             self.active_scheme_parts = settings["schemes"].get(active, [])
 
             # Recalculate naming previews for all sheets and views
-            for sv in self.sheets:
-                sv.update_filename(self.active_scheme_parts, doc)
-            for sv in self.views:
-                sv.update_filename(self.active_scheme_parts, doc)
-            self.GridSheets.Items.Refresh()
+            if hasattr(self, "sheets") and self.sheets:
+                for sv in self.sheets:
+                    sv.update_filename(self.active_scheme_parts, doc)
+            if hasattr(self, "views") and self.views:
+                for sv in self.views:
+                    sv.update_filename(self.active_scheme_parts, doc)
+            if hasattr(self, "GridSheets") and self.GridSheets:
+                self.GridSheets.Items.Refresh()
             
             # Load profile specific combined setups
             self.active_combined_scheme_parts = settings.get("combined_schemes", {}).get(active, [])
@@ -4862,24 +5082,22 @@ def main():
                .WhereElementIsNotElementType()\
                .ToElements()
 
-    views_collector = DB.FilteredElementCollector(doc)\
-                        .OfCategory(DB.BuiltInCategory.OST_Views)\
-                        .WhereElementIsNotElementType()\
-                        .ToElements()
-    views = [v for v in views_collector if not v.IsTemplate and v.CanBePrinted]
+    if not sheets:
+        views_collector = DB.FilteredElementCollector(doc)\
+                            .OfCategory(DB.BuiltInCategory.OST_Views)\
+                            .WhereElementIsNotElementType()\
+                            .ToElements()
+        has_views = any((not v.IsTemplate and v.CanBePrinted) for v in views_collector)
+        if not has_views:
+            show_alert("No Sheets or Views found in the current project.", is_warning=True)
+            return
 
-    if not sheets and not views:
-        show_alert("No Sheets or Views found in the current project.", is_warning=True)
-    saved_state = None
-    while True:
-        theme = load_settings().get("theme", "Dark")
-        exp_name = "ExportUI_Light.xaml" if theme == "Light" else "ExportUI.xaml"
-        xaml_path = os.path.join(os.path.dirname(__file__), exp_name)
-        form = ExportManagerForm(xaml_path, sheets, views, state=saved_state)
+    xaml_path = os.path.join(os.path.dirname(__file__), "ExportUI.xaml")
+    form = ExportManagerForm(xaml_path, sheets, views=None)
+    try:
         form.ShowDialog()
-        if not getattr(form, "restart_for_theme", False):
-            break
-        saved_state = getattr(form, "saved_state", None)
+    finally:
+        form.cleanup_on_close()
 
 def create_drawing_list_xlsx(filepath, project_info, groups_data):
     import zipfile
