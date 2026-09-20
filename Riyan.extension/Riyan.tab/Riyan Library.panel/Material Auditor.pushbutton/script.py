@@ -543,6 +543,10 @@ class MaterialAuditorWindow(Window):
             res["TextSecondary"] = SolidColorBrush(Color.FromRgb(148, 163, 184))
             res["TextMuted"] = SolidColorBrush(Color.FromRgb(100, 116, 139))
             res["RiyanMaroon"] = SolidColorBrush(Color.FromRgb(128, 47, 45))
+            res["RiyanMaroonHover"] = SolidColorBrush(Color.FromRgb(155, 56, 54))
+            res["RiyanMaroonPressed"] = SolidColorBrush(Color.FromRgb(99, 35, 33))
+            res["HoverBg"] = SolidColorBrush(Color.FromRgb(42, 45, 53))
+            res["HoverBorder"] = SolidColorBrush(Color.FromRgb(71, 78, 93))
             res["RiyanRose"] = SolidColorBrush(Color.FromRgb(192, 86, 82))
             self.BtnTheme.Content = "☀️ Light"
         else:
@@ -555,6 +559,10 @@ class MaterialAuditorWindow(Window):
             res["TextSecondary"] = SolidColorBrush(Color.FromRgb(51, 65, 85))   # Dark Slate
             res["TextMuted"] = SolidColorBrush(Color.FromRgb(100, 116, 139))
             res["RiyanMaroon"] = SolidColorBrush(Color.FromRgb(128, 47, 45))
+            res["RiyanMaroonHover"] = SolidColorBrush(Color.FromRgb(155, 56, 54))
+            res["RiyanMaroonPressed"] = SolidColorBrush(Color.FromRgb(99, 35, 33))
+            res["HoverBg"] = SolidColorBrush(Color.FromRgb(226, 232, 240))
+            res["HoverBorder"] = SolidColorBrush(Color.FromRgb(203, 213, 225))
             res["RiyanRose"] = SolidColorBrush(Color.FromRgb(140, 40, 38))
             self.BtnTheme.Content = "🌙 Dark"
 

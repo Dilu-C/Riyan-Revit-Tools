@@ -21,6 +21,9 @@
         <SolidColorBrush x:Key="TextMuted" Color="#64748B"/>
         <SolidColorBrush x:Key="RiyanMaroon" Color="#802F2D"/>
         <SolidColorBrush x:Key="RiyanMaroonHover" Color="#9B3836"/>
+        <SolidColorBrush x:Key="RiyanMaroonPressed" Color="#632321"/>
+        <SolidColorBrush x:Key="HoverBg" Color="#2A2D35"/>
+        <SolidColorBrush x:Key="HoverBorder" Color="#474E5D"/>
         <SolidColorBrush x:Key="RiyanRose" Color="#C05652"/>
         <SolidColorBrush x:Key="SuccessGreen" Color="#10B981"/>
         <SolidColorBrush x:Key="WarningAmber" Color="#F59E0B"/>
@@ -81,10 +84,19 @@
                                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
                                             BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource HoverBorder}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource CardBg}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
@@ -93,9 +105,18 @@
                                 Foreground="{DynamicResource TextSecondary}" BorderThickness="0" FontSize="13" Cursor="Hand" ToolTip="Maximize / Restore" Margin="0,0,4,0">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource CardBg}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
@@ -103,9 +124,19 @@
                                 Foreground="{DynamicResource TextSecondary}" BorderThickness="0" FontSize="14" Cursor="Hand">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource RiyanMaroon}"/>
+                                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource RiyanMaroonPressed}"/>
+                                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
@@ -259,10 +290,23 @@
                                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="12">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
                                             BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource HoverBorder}"/>
+                                            <Setter TargetName="bd" Property="TextElement.Foreground" Value="{DynamicResource TextPrimary}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource CardBg}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
@@ -273,9 +317,20 @@
                                 BorderThickness="0" Cursor="Hand" FontWeight="Bold" FontSize="12">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource RiyanMaroonHover}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource RiyanMaroonPressed}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
