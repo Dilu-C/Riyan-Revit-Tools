@@ -901,9 +901,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             card_border = Border()
             card_border.Width = 680
             card_border.Height = 44
-            card_border.Background = card_bg
-            card_border.BorderBrush = border_brush
-            card_border.BorderThickness = Thickness(1)
+            card_border.Background = System.Windows.Media.Brushes.Transparent
+            card_border.BorderBrush = System.Windows.Media.Brushes.Transparent
+            card_border.BorderThickness = Thickness(0)
             card_border.CornerRadius = System.Windows.CornerRadius(6)
             card_border.Padding = Thickness(8, 4, 8, 4)
 
@@ -1010,9 +1010,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         card_border = Border()
         card_border.Width = card_w
         card_border.Height = card_h
-        card_border.Background = card_bg
-        card_border.BorderBrush = border_brush
-        card_border.BorderThickness = Thickness(1)
+        card_border.Background = System.Windows.Media.Brushes.Transparent
+        card_border.BorderBrush = System.Windows.Media.Brushes.Transparent
+        card_border.BorderThickness = Thickness(0)
         card_border.CornerRadius = System.Windows.CornerRadius(8)
         card_border.Padding = Thickness(6)
 
