@@ -205,11 +205,13 @@ def update_tools():
                             
                 if os.path.basename(extension_dir).endswith(".extension") and os.path.exists(source_ext):
                     sync_clean_tree(source_ext, extension_dir)
-                    # Also update version.txt in parent directory if it exists
+                    # Always ensure the latest version.txt is written to both extension and parent directories
                     src_v = os.path.join(source_dir, "version.txt")
-                    if os.path.exists(src_v) and os.path.exists(parent_dir):
+                    if os.path.exists(src_v):
                         try:
-                            shutil.copy2(src_v, os.path.join(parent_dir, "version.txt"))
+                            shutil.copy2(src_v, os.path.join(extension_dir, "version.txt"))
+                            if os.path.exists(parent_dir):
+                                shutil.copy2(src_v, os.path.join(parent_dir, "version.txt"))
                         except Exception:
                             pass
                 else:
