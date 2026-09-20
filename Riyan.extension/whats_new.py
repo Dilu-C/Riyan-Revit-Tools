@@ -15,7 +15,7 @@ import System
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riyan Revit Tools - V2.3.3 Release" Height="580" Width="820"
+        Title="Riyan Revit Tools - V2.4.0 Release" Height="580" Width="820"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize" FontFamily="Segoe UI">
@@ -71,7 +71,7 @@ XAML_STRING = """
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
                     <TextBlock Text="🌟" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="What's New in Riyan Tools - V2.3.3" Foreground="#D1D5DB" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Text="What's New in Riyan Tools - V2.4.0" Foreground="#D1D5DB" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Button x:Name="BtnCloseX" Grid.Column="1" Content="✕" Foreground="#9CA3AF" Background="Transparent" BorderThickness="0" FontSize="14" Cursor="Hand"/>
             </Grid>
@@ -95,10 +95,10 @@ XAML_STRING = """
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
                             <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="V2.3.3 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="V2.4.0 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Universal Self-Healing, Clean Parity &amp; Custom Locked File Dialog" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
+                        <TextBlock Text="Riyan Library Browser, Instant Theme Switching &amp; Zero-Touch Self-Healing" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
                         <TextBlock Text="Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -125,7 +125,7 @@ XAML_STRING = """
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Card 1: Combined PDF & Separate CAD/PDF Modes -->
+                <!-- Card 1: Riyan Library Browser -->
                 <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -133,22 +133,22 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#1E293B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[E]" Foreground="#60A5FA" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[L]" Foreground="#60A5FA" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Clean Export Modes" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Riyan Library Browser" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#1E293B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Streamlined" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="2,380+ Families" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Direct Combined PDF mode exports straight to output location without extra subfolders. Separate CAD/PDF mode creates dedicated PDF &amp; DWG folders for single sheets."
+                            <TextBlock Text="Instant browsing and 1-click loading of architectural &amp; structural families, System Walls, multi-select bulk loading, master RVT type name sync, and acrylic dark/light theme."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 2: Overwrite Conflict Guardrail -->
+                <!-- Card 2: Instant Theme Switching -->
                 <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -156,45 +156,45 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#1E3A2F" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[C]" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[T]" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Overwrite Conflict Guardrail" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Instant In-Place Theme Switching" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#1E3A2F" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Protection" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Zero-Flicker" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Intelligent prompt checks before files are replaced. Choose Replace (OK), Replace All (All OK), or Cancel anytime to prevent unintended overwrites."
+                            <TextBlock Text="Universal smooth instant theme toggle (Dark &amp; Light) across Export Manager, Batch Export, and Library with zero window reloading, zero lag, and zero disappearance."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 3: Delete Warning & Theme Adaptive UI -->
+                <!-- Card 3: Light Theme Polish & Typography -->
                 <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="28" Height="28" Background="#311F3B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[W]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Grid.Column="0" Width="28" Height="28" Background="#311F3B" CornerRadius="6" verticalAlignment="Top" Margin="0,2,0,0">
+                            <TextBlock Text="[P]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Delete Warning &amp; Theme UI" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Refined Light Theme Polish" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#311F3B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Polished" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="High Contrast" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Export Manager alerts with an Amber warning modal before deleting profiles. Create Profile dialog features full theme-adaptive high contrast for Dark and Light modes."
+                            <TextBlock Text="Complete Light Theme visual overhaul with crisp white cards, clean light-gray headers, warm readable amber file accents, soft row highlights, and perfect typography contrast."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 4: Background Multitasking Focus Protection -->
+                <!-- Card 4: Zero-Touch Startup Self-Healing -->
                 <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -202,16 +202,16 @@ XAML_STRING = """
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="28" Height="28" Background="#3B311B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[B]" Foreground="#FBBF24" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="[S]" Foreground="#FBBF24" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Background Multitasking Safety" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Zero-Touch Startup Self-Healing" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
                                 <Border Background="#3B311B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Non-Blocking" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
+                                    <TextBlock Text="Multi-PC Sync" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="Batch Export stays pinned to Revit without falling behind, while allowing full multitasking across Chrome, Excel, Word, or other applications without focus hijacking."
+                            <TextBlock Text="Automatic background startup routine in startup.py silently purges orphan button caches and pyRevit UI artifacts on Revit launch across all office workstations."
                                        Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
                         </StackPanel>
                     </Grid>
