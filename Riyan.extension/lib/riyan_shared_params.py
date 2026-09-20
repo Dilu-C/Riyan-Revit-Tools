@@ -378,13 +378,71 @@ def update_revit_ini_files(target_path):
                 except Exception:
                     pass
 
-def enforce_riyan_shared_parameters(app=None):
+def sync_cloud_shared_parameters_background(app=None):
+    r"""
+    Direct Cloud Auto-Downloader:
+    Background daemon worker that checks GitHub cloud for a newer RYN_SharedParameters_V-RS*.txt
+    Even if the user has NEVER synced SharePoint and NEVER created a desktop shortcut!
+    """
+    import threading
+    def _worker():
+        try:
+            import time
+            try:
+                import urllib2
+            except ImportError:
+                import urllib.request as urllib2
+
+            time.sleep(3)  # Let Revit finish opening
+            latest_url = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Library_Cache/SharedParameters/latest.txt?t=" + str(int(time.time()))
+            req = urllib2.Request(latest_url)
+            req.add_header('Cache-Control', 'no-cache')
+            req.add_header('Pragma', 'no-cache')
+            resp = urllib2.urlopen(req, timeout=4)
+            online_filename = resp.read().strip()
+            if hasattr(online_filename, 'decode'):
+                online_filename = online_filename.decode('utf-8').strip()
+            if not online_filename or not online_filename.lower().endswith('.txt'):
+                return
+
+            online_v = extract_version_key(online_filename)
+            local_file = find_latest_riyan_shared_parameter_file()
+            local_v = extract_version_key(os.path.basename(local_file)) if local_file else 0
+
+            if online_v > local_v:
+                file_url = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Library_Cache/SharedParameters/" + online_filename + "?t=" + str(int(time.time()))
+                req_f = urllib2.Request(file_url)
+                req_f.add_header('Cache-Control', 'no-cache')
+                file_resp = urllib2.urlopen(req_f, timeout=8)
+                data = file_resp.read()
+
+                cache_dir = os.path.join(LOCAL_CACHE_DIR, "SharedParameters")
+                os.makedirs(cache_dir, exist_ok=True)
+                dest_path = os.path.join(cache_dir, online_filename)
+
+                # Binary write to strictly preserve UTF-16LE BOM
+                with open(dest_path, "wb") as f:
+                    f.write(data)
+
+                if is_valid_shared_parameter_file(dest_path):
+                    with open(os.path.join(cache_dir, "latest.txt"), "w") as f:
+                        f.write(online_filename)
+                    enforce_riyan_shared_parameters(app, check_cloud=False)
+        except Exception:
+            pass
+
+    t = threading.Thread(target=_worker)
+    t.isDaemon = True
+    t.start()
+
+def enforce_riyan_shared_parameters(app=None, check_cloud=True):
     """
     Main entry point:
     1. Finds the latest versioned Riyan Shared Parameter file
     2. Applies permissions (Admin=Edit, Standard=ReadOnly)
     3. Detaches and replaces any previous or foreign file in Revit
     4. Updates Revit.ini
+    5. Optionally triggers background Cloud Auto-Downloader
     """
     latest_file = find_latest_riyan_shared_parameter_file()
     if not latest_file:
@@ -424,10 +482,17 @@ def enforce_riyan_shared_parameters(app=None):
     except Exception:
         pass
 
+    # 3. Trigger silent background cloud check for updates
+    if check_cloud:
+        try:
+            sync_cloud_shared_parameters_background(app)
+        except Exception:
+            pass
+
     return latest_file, changed
 
 if __name__ == "__main__":
-    f, ch = enforce_riyan_shared_parameters()
+    f, ch = enforce_riyan_shared_parameters(check_cloud=False)
     print("Latest Shared Parameter File:", f)
     print("Admin User:", is_admin_user())
     print("Changed in Revit:", ch)
