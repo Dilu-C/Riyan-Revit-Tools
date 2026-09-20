@@ -115,82 +115,9 @@ def is_valid_shared_parameter_file(path):
         pass
     return False
 
-def get_dynamic_roots():
-    roots = []
-    # 1. Check all standard drive letters for RIYAN folder
-    for d in ['C', 'D', 'E', 'F', 'G', 'H']:
-        drive = d + ":\\"
-        if os.path.exists(drive):
-            for pattern in [
-                os.path.join(drive, 'RIYAN', '00 RIYAN STANDARD'),
-                os.path.join(drive, '00 RIYAN STANDARD'),
-                os.path.join(drive, 'RIYAN', 'Riyan Private Limited'),
-                os.path.join(drive, 'Riyan Private Limited'),
-                os.path.join(drive, 'RIYAN')
-            ]:
-                if os.path.exists(pattern) and pattern not in roots:
-                    roots.append(pattern)
-
-    # 2. Check environment variables
-    for env_k in ['OneDrive', 'OneDriveCommercial', 'OneDriveConsumer']:
-        v = os.environ.get(env_k)
-        if v and os.path.exists(v) and v not in roots:
-            roots.append(v)
-
-    # 3. Check Windows Registry for SharePoint / OneDrive MountPoints
-    try:
-        try:
-            import winreg
-        except ImportError:
-            import _winreg as winreg
-
-        reg_keys = [
-            r'Software\SyncEngines\Providers\OneDrive',
-            r'Software\Microsoft\OneDrive\Accounts\Business1\ScopeIdToMountPointPathCache'
-        ]
-        for rk in reg_keys:
-            try:
-                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, rk) as k:
-                    n_sub, n_val, _ = winreg.QueryInfoKey(k)
-                    for i in range(n_sub):
-                        try:
-                            sn = winreg.EnumKey(k, i)
-                            with winreg.OpenKey(k, sn) as sk:
-                                mp, _ = winreg.QueryValueEx(sk, 'MountPoint')
-                                if mp and os.path.exists(mp) and mp not in roots:
-                                    roots.append(mp)
-                        except Exception:
-                            pass
-                    for i in range(n_val):
-                        try:
-                            _, v, _ = winreg.EnumValue(k, i)
-                            if isinstance(v, str) and os.path.exists(v) and v not in roots:
-                                roots.append(v)
-                        except Exception:
-                            pass
-            except Exception:
-                pass
-    except Exception:
-        pass
-
-    # 4. Expand parents and subdirectories for RIYAN STANDARD
-    expanded = list(roots)
-    for r in roots:
-        p = os.path.dirname(r)
-        if os.path.exists(p) and p not in expanded:
-            expanded.append(p)
-            cand = os.path.join(p, '00 RIYAN STANDARD')
-            if os.path.exists(cand) and cand not in expanded:
-                expanded.append(cand)
-            cand_lib = os.path.join(p, '02 LIBRARY')
-            if os.path.exists(cand_lib) and cand_lib not in expanded:
-                expanded.append(cand_lib)
-
-    return expanded
-
 def find_latest_riyan_shared_parameter_file():
     r"""
-    Searches SharePoint, any drive, and local caches for the newest Riyan Shared Parameter file.
+    Searches SharePoint, D:\ drive, and local caches for the newest Riyan Shared Parameter file.
     Strictly ignores any file located in 'PREVIOUS', 'OLD', 'BACKUP', or 'ARCHIVE' directories.
     """
     search_roots = [
@@ -201,13 +128,9 @@ def find_latest_riyan_shared_parameter_file():
         r"D:\RIYAN\00 RIYAN STANDARD",
         r"D:\RIYAN\Riyan Private Limited",
         r"D:\RIYAN",
-    ]
-    # Add all dynamically discovered roots
-    search_roots.extend(get_dynamic_roots())
-    search_roots.extend([
         os.path.join(LOCAL_CACHE_DIR, "SharedParameters"),
         LOCAL_CACHE_DIR
-    ])
+    ]
 
     # Resolve live paths for user profiles
     resolved_roots = []
