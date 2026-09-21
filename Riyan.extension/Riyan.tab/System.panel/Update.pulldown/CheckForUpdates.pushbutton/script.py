@@ -205,6 +205,15 @@ def update_tools():
                             
                 if os.path.basename(extension_dir).endswith(".extension") and os.path.exists(source_ext):
                     sync_clean_tree(source_ext, extension_dir)
+                    # Always sync Library_Cache so SharedParameters, catalog, and thumbnails are 100% updated
+                    src_lib_cache = os.path.join(source_dir, "Library_Cache")
+                    if os.path.exists(src_lib_cache):
+                        try:
+                            if os.path.exists(parent_dir):
+                                sync_clean_tree(src_lib_cache, os.path.join(parent_dir, "Library_Cache"))
+                            sync_clean_tree(src_lib_cache, os.path.join(extension_dir, "Library_Cache"))
+                        except Exception:
+                            pass
                     # Always ensure the latest version.txt is written to both extension and parent directories
                     src_v = os.path.join(source_dir, "version.txt")
                     if os.path.exists(src_v):
