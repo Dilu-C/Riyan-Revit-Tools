@@ -2069,6 +2069,181 @@ class CustomConflictWindow(Window):
     def show_dialog(self):
         self.ShowDialog()
         return self.result, self.apply_all
+
+class CustomFileLockedDialog(object):
+    def __init__(self, filename, ext, folder, is_light=False):
+        self.result = "Skip"
+        bg = "#FFFFFF" if is_light else "#2D2D30"
+        tb_bg = "#F2F4F7" if is_light else "#1E1E1E"
+        footer_bg = "#F8F9FA" if is_light else "#1E1E1E"
+        border = "#D0D5DD" if is_light else "#3F3F46"
+        footer_border = "#EAECF0" if is_light else "#3F3F46"
+        fg_title = "#1D2939" if is_light else "#F5F5F5"
+        fg_msg = "#101828" if is_light else "#F5F5F5"
+        fg_dim = "#475467" if is_light else "#A0A0A0"
+        close_fg = "#667085" if is_light else "#A0A0A0"
+        btn_primary = "#802F2D"
+        btn_hover = "#661F1D" if is_light else "#9E3A38"
+        btn_sec_bg = "#FFFFFF" if is_light else "#333337"
+        btn_sec_border = "#D0D5DD" if is_light else "#3F3F46"
+        btn_sec_fg = "#344054" if is_light else "#F5F5F5"
+        btn_sec_hover = "#F2F4F7" if is_light else "#3E3E42"
+
+        display_name = filename + ext
+
+        xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="File is Open" Width="520" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        Background="{bg}" WindowStyle="None" AllowsTransparency="False"
+        ResizeMode="NoResize" FontFamily="Segoe UI">
+    <Border BorderBrush="{border}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="38"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="54"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom Drag Title Bar -->
+            <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="38"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="⚠️" Foreground="#F59E0B" FontSize="15" Margin="14,0,8,0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="File is Open in Another Program" Foreground="{fg_title}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <Button x:Name="CloseBtn" Grid.Column="2" Content="✕" Foreground="{close_fg}" FontSize="13" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- Content Area -->
+            <StackPanel Grid.Row="1" Margin="22,16,22,16">
+                <TextBlock Text="The following file is currently OPEN and locked by another program (e.g. PDF viewer or Bluebeam):" Foreground="{fg_dim}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                <Border Background="{tb_bg}" BorderBrush="{border}" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,0,0,10">
+                    <TextBlock Text="{display_name}" Foreground="{fg_msg}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                </Border>
+                <TextBlock Text="Location:" Foreground="{fg_dim}" FontSize="10.5" Margin="0,0,0,2"/>
+                <TextBlock Text="{folder}" Foreground="{fg_dim}" FontSize="10.5" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                <TextBlock Text="Please close the file in the other program before retrying, or choose to Rename or Skip." Foreground="{fg_msg}" FontSize="11.5" FontWeight="Medium" TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- Footer Buttons -->
+            <Border Grid.Row="2" Background="{footer_bg}" BorderBrush="{footer_border}" BorderThickness="0,1,0,0" Padding="16,0">
+                <Grid VerticalAlignment="Center">
+                    <Button x:Name="BtnSkip" Content="Skip File" HorizontalAlignment="Left" Width="95" Height="30" 
+                            Background="{btn_sec_bg}" BorderBrush="{btn_sec_border}" BorderThickness="1" Foreground="{btn_sec_fg}"
+                            FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{btn_sec_hover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="BtnRename" Content="Rename..." Width="105" Height="30" Margin="0,0,10,0"
+                                Background="{btn_sec_bg}" BorderBrush="{btn_sec_border}" BorderThickness="1" Foreground="{btn_sec_fg}"
+                                FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{btn_sec_hover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button x:Name="BtnTryAgain" Content="Try Again" Width="105" Height="30"
+                                Background="{btn_primary}" BorderThickness="0" Foreground="White"
+                                FontSize="11.5" FontWeight="Bold" Cursor="Hand" IsDefault="True">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{btn_hover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
+""".format(
+            bg=bg, tb_bg=tb_bg, footer_bg=footer_bg, border=border,
+            footer_border=footer_border, fg_title=fg_title, fg_msg=fg_msg,
+            fg_dim=fg_dim, close_fg=close_fg, btn_primary=btn_primary,
+            btn_hover=btn_hover, btn_sec_bg=btn_sec_bg, btn_sec_border=btn_sec_border,
+            btn_sec_fg=btn_sec_fg, btn_sec_hover=btn_sec_hover,
+            display_name=display_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"),
+            folder=folder.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        )
+
+        r = XmlReader.Create(StringReader(xaml_code))
+        self.win = XamlReader.Load(r)
+
+        self.TitleBar = self.win.FindName("TitleBar")
+        self.CloseBtn = self.win.FindName("CloseBtn")
+        self.BtnSkip = self.win.FindName("BtnSkip")
+        self.BtnRename = self.win.FindName("BtnRename")
+        self.BtnTryAgain = self.win.FindName("BtnTryAgain")
+
+        if self.TitleBar:
+            self.TitleBar.MouseLeftButtonDown += self.TitleBar_MouseDown
+        if self.CloseBtn:
+            self.CloseBtn.Click += lambda s, e: self._set_res("Skip")
+        if self.BtnSkip:
+            self.BtnSkip.Click += lambda s, e: self._set_res("Skip")
+        if self.BtnRename:
+            self.BtnRename.Click += lambda s, e: self._set_res("Rename")
+        if self.BtnTryAgain:
+            self.BtnTryAgain.Click += lambda s, e: self._set_res("TryAgain")
+
+    def _set_res(self, val):
+        self.result = val
+        self.win.Close()
+
+    def TitleBar_MouseDown(self, sender, e):
+        try:
+            self.win.DragMove()
+        except:
+            pass
+
+    def ShowDialog(self):
+        self.win.ShowDialog()
+        return self.result
+
 class ExportManagerForm(forms.WPFWindow):
     def __init__(self, xaml_file_name, sheets, views, state=None):
         forms.WPFWindow.__init__(self, xaml_file_name)
@@ -4190,180 +4365,6 @@ class ExportManagerForm(forms.WPFWindow):
             frame
         )
         Dispatcher.PushFrame(frame)
-
-class CustomFileLockedDialog(object):
-    def __init__(self, filename, ext, folder, is_light=False):
-        self.result = "Skip"
-        bg = "#FFFFFF" if is_light else "#161616"
-        tb_bg = "#F2F4F7" if is_light else "#1E1E1E"
-        footer_bg = "#F8F9FA" if is_light else "#121212"
-        border = "#D0D5DD" if is_light else "#3A3A3A"
-        footer_border = "#EAECF0" if is_light else "#222222"
-        fg_title = "#1D2939" if is_light else "#E0E0E0"
-        fg_msg = "#101828" if is_light else "#FFFFFF"
-        fg_dim = "#475467" if is_light else "#A0A0A0"
-        close_fg = "#667085" if is_light else "#888888"
-        btn_primary = "#802F2D"
-        btn_hover = "#661F1D" if is_light else "#9E3A38"
-        btn_sec_bg = "#FFFFFF" if is_light else "#222222"
-        btn_sec_border = "#D0D5DD" if is_light else "#444444"
-        btn_sec_fg = "#344054" if is_light else "#E0E0E0"
-        btn_sec_hover = "#F2F4F7" if is_light else "#333333"
-
-        display_name = filename + ext
-
-        xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="File is Open" Width="520" SizeToContent="Height"
-        WindowStartupLocation="CenterScreen" Topmost="True"
-        Background="{bg}" WindowStyle="None" AllowsTransparency="False"
-        ResizeMode="NoResize" FontFamily="Segoe UI">
-    <Border BorderBrush="{border}" BorderThickness="1">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="38"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="54"/>
-            </Grid.RowDefinitions>
-
-            <!-- Custom Drag Title Bar -->
-            <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="38"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="⚠️" Foreground="#F59E0B" FontSize="15" Margin="14,0,8,0" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Text="File is Open in Another Program" Foreground="{fg_title}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                <Button x:Name="CloseBtn" Grid.Column="2" Content="✕" Foreground="{close_fg}" FontSize="13" Background="Transparent" BorderThickness="0" Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </Grid>
-
-            <!-- Content Area -->
-            <StackPanel Grid.Row="1" Margin="22,16,22,16">
-                <TextBlock Text="The following file is currently OPEN and locked by another program (e.g. PDF viewer or Bluebeam):" Foreground="{fg_dim}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                <Border Background="{tb_bg}" BorderBrush="{border}" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,0,0,10">
-                    <TextBlock Text="{display_name}" Foreground="{fg_msg}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                </Border>
-                <TextBlock Text="Location:" Foreground="{fg_dim}" FontSize="10.5" Margin="0,0,0,2"/>
-                <TextBlock Text="{folder}" Foreground="{fg_dim}" FontSize="10.5" TextWrapping="Wrap" Margin="0,0,0,12"/>
-                <TextBlock Text="Please close the file in the other program before retrying, or choose to Rename or Skip." Foreground="{fg_msg}" FontSize="11.5" FontWeight="Medium" TextWrapping="Wrap"/>
-            </StackPanel>
-
-            <!-- Footer Buttons -->
-            <Border Grid.Row="2" Background="{footer_bg}" BorderBrush="{footer_border}" BorderThickness="0,1,0,0" Padding="16,0">
-                <Grid VerticalAlignment="Center">
-                    <Button x:Name="BtnSkip" Content="Skip File" HorizontalAlignment="Left" Width="95" Height="30" 
-                            Background="{btn_sec_bg}" BorderBrush="{btn_sec_border}" BorderThickness="1" Foreground="{btn_sec_fg}"
-                            FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Background" Value="{btn_sec_hover}"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="BtnRename" Content="Rename..." Width="105" Height="30" Margin="0,0,10,0"
-                                Background="{btn_sec_bg}" BorderBrush="{btn_sec_border}" BorderThickness="1" Foreground="{btn_sec_fg}"
-                                FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd" Property="Background" Value="{btn_sec_hover}"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-                        <Button x:Name="BtnTryAgain" Content="Try Again" Width="105" Height="30"
-                                Background="{btn_primary}" BorderThickness="0" Foreground="White"
-                                FontSize="11.5" FontWeight="Bold" Cursor="Hand" IsDefault="True">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd" Property="Background" Value="{btn_hover}"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
-    </Border>
-</Window>
-""".format(
-            bg=bg, tb_bg=tb_bg, footer_bg=footer_bg, border=border,
-            footer_border=footer_border, fg_title=fg_title, fg_msg=fg_msg,
-            fg_dim=fg_dim, close_fg=close_fg, btn_primary=btn_primary,
-            btn_hover=btn_hover, btn_sec_bg=btn_sec_bg, btn_sec_border=btn_sec_border,
-            btn_sec_fg=btn_sec_fg, btn_sec_hover=btn_sec_hover,
-            display_name=display_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"),
-            folder=folder.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        )
-
-        r = XmlReader.Create(StringReader(xaml_code))
-        self.win = XamlReader.Load(r)
-
-        self.TitleBar = self.win.FindName("TitleBar")
-        self.CloseBtn = self.win.FindName("CloseBtn")
-        self.BtnSkip = self.win.FindName("BtnSkip")
-        self.BtnRename = self.win.FindName("BtnRename")
-        self.BtnTryAgain = self.win.FindName("BtnTryAgain")
-
-        if self.TitleBar:
-            self.TitleBar.MouseLeftButtonDown += self.TitleBar_MouseDown
-        if self.CloseBtn:
-            self.CloseBtn.Click += lambda s, e: self._set_res("Skip")
-        if self.BtnSkip:
-            self.BtnSkip.Click += lambda s, e: self._set_res("Skip")
-        if self.BtnRename:
-            self.BtnRename.Click += lambda s, e: self._set_res("Rename")
-        if self.BtnTryAgain:
-            self.BtnTryAgain.Click += lambda s, e: self._set_res("TryAgain")
-
-    def _set_res(self, val):
-        self.result = val
-        self.win.Close()
-
-    def TitleBar_MouseDown(self, sender, e):
-        try:
-            self.win.DragMove()
-        except:
-            pass
-
-    def ShowDialog(self):
-        self.win.ShowDialog()
-        return self.result
 
     def check_and_resolve_filename(self, folder, filename, ext, show_apply_all=True):
         import os
