@@ -136,6 +136,13 @@ try {
         $legacyPanel = Join-Path $targetTools "Riyan.extension\Riyan.tab\$_"
         if (Test-Path $legacyPanel) { Remove-Item -Path $legacyPanel -Recurse -Force -ErrorAction SilentlyContinue }
     }
+    @("Riyan.extension\Riyan.tab\System.panel\Update.pulldown\SyncSharedParameters.pushbutton",
+      "Riyan.extension\Riyan.tab\Coordination.panel\ChangeLevel.pushbutton",
+      "Riyan.extension\Riyan.tab\Coordination.panel\Change Level.pushbutton",
+      "Riyan.extension\Riyan.tab\Coordination.panel\link.pushbutton") | ForEach-Object {
+        $legacyItem = Join-Path $targetTools $_
+        if (Test-Path $legacyItem) { Remove-Item -Path $legacyItem -Recurse -Force -ErrorAction SilentlyContinue }
+    }
 
     Write-Host "[4/5] Ensuring clean pyRevit configuration..." -ForegroundColor Cyan
     $cfg = Join-Path $pyrevitRoot 'pyRevit_config.ini'

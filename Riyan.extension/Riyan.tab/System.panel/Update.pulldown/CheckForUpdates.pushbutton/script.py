@@ -291,8 +291,19 @@ def update_tools():
                                                 os.remove(target)
                                         except Exception:
                                             pass
+                            elif bname == "Update.pulldown":
+                                for item in ["SyncSharedParameters.pushbutton"]:
+                                    target = os.path.join(root, item)
+                                    if os.path.exists(target):
+                                        try:
+                                            if os.path.isdir(target):
+                                                shutil.rmtree(target, ignore_errors=True)
+                                            else:
+                                                os.remove(target)
+                                        except Exception:
+                                            pass
                             elif bname == "Coordination.panel":
-                                for item in ["link.pushbutton"]:
+                                for item in ["link.pushbutton", "ChangeLevel.pushbutton", "Change Level.pushbutton"]:
                                     target = os.path.join(root, item)
                                     if os.path.exists(target):
                                         try:
