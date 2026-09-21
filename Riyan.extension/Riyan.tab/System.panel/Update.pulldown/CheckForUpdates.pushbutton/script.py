@@ -86,7 +86,7 @@ def parse_version(v_str):
     return tuple(nums)
 
 def is_newer_version(online_str, local_str):
-    return parse_version(online_str) != parse_version(local_str)
+    return parse_version(online_str) > parse_version(local_str)
 
 def update_tools():
     try:
