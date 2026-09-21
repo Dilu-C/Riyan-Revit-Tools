@@ -15,7 +15,7 @@ import System
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riyan Revit Tools - V2.5.0 Release" Height="580" Width="820"
+        Title="Riyan Revit Tools - {VERSION} Release" Height="580" Width="820"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize" FontFamily="Segoe UI">
@@ -52,6 +52,34 @@ XAML_STRING = """
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="CloseBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="0,11,0,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#DC2626"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#991B1B"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Border Background="{StaticResource WindowBg}" CornerRadius="12" BorderBrush="#4B5563" BorderThickness="1">
@@ -64,17 +92,19 @@ XAML_STRING = """
             </Grid.RowDefinitions>
 
             <!-- Custom Draggable Title Bar -->
-            <Grid x:Name="TitleBar" Grid.Row="0" Background="#161619">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="40"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                    <TextBlock Text="🌟" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="What's New in Riyan Tools - V2.5.0" Foreground="#D1D5DB" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                </StackPanel>
-                <Button x:Name="BtnCloseX" Grid.Column="1" Content="✕" Foreground="#9CA3AF" Background="Transparent" BorderThickness="0" FontSize="14" Cursor="Hand"/>
-            </Grid>
+            <Border x:Name="TitleBar" Grid.Row="0" Background="#161619" CornerRadius="11,11,0,0" BorderBrush="#374151" BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="42"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                        <TextBlock Text="🌟" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="What's New in Riyan Tools - {VERSION}" Foreground="#D1D5DB" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button x:Name="BtnCloseX" Grid.Column="1" Content="✕" Style="{StaticResource CloseBtnStyle}"/>
+                </Grid>
+            </Border>
 
             <!-- Header Section -->
             <Border Grid.Row="1" Background="#242429" BorderBrush="#374151" BorderThickness="0,0,0,1" Padding="25,12">
@@ -95,7 +125,7 @@ XAML_STRING = """
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
                             <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="V2.5.0 UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                                <TextBlock Text="{VERSION} UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
                         <TextBlock Text="Centralized Shared Parameters, Dynamic Master RVT Sync &amp; 100% 3D Thumbnails" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
@@ -255,9 +285,27 @@ class WhatsNewWindow(forms.WPFWindow):
         except Exception:
             pass
 
+def get_version():
+    try:
+        curr = os.path.dirname(__file__)
+        for _ in range(5):
+            v_file = os.path.join(curr, "version.txt")
+            if os.path.exists(v_file):
+                with open(v_file, "r") as f:
+                    ver = f.read().strip()
+                    if ver:
+                        return ver
+            curr = os.path.dirname(curr)
+    except Exception:
+        pass
+    return "2.5.10"
+
 def show_whats_new():
     try:
-        w = WhatsNewWindow(XAML_STRING, literal_string=True)
+        ver = get_version()
+        disp_ver = "V" + ver if not ver.upper().startswith("V") else ver
+        xaml_content = XAML_STRING.replace("{VERSION}", disp_ver)
+        w = WhatsNewWindow(xaml_content, literal_string=True)
         w.ShowDialog()
     except Exception as e:
         try:
