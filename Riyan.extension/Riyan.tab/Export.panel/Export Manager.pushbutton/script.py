@@ -4319,28 +4319,32 @@ class ExportManagerForm(forms.WPFWindow):
             self.MainTabControl.SelectedIndex = idx - 1
 
     def BtnNext_Click(self, sender, e):
-        if getattr(self, "_exporting", False):
-            self._cancel_export = True
-            self.BtnNext.Content = "Cancelling..."
-            return
+        try:
+            if getattr(self, "_exporting", False):
+                self._cancel_export = True
+                self.BtnNext.Content = "Cancelling..."
+                return
 
-        idx = self.MainTabControl.SelectedIndex
-        if idx == 0:
-            # Check selection
-            selected_count = sum(1 for sv in self.sheets if sv.IsSelected)
-            if selected_count == 0:
-                show_alert("Please select at least one sheet before proceeding.", is_warning=True)
-                return
-            self.MainTabControl.SelectedIndex = 1
-        elif idx == 1:
-            # Check format
-            if not self.CbPDF.IsChecked and not self.CbDWG.IsChecked:
-                show_alert("Please select at least one export format.", is_warning=True)
-                return
-            self.MainTabControl.SelectedIndex = 2
-        elif idx == 2:
-            # Trigger Export Execution
-            self.run_export()
+            idx = self.MainTabControl.SelectedIndex
+            if idx == 0:
+                # Check selection
+                selected_count = sum(1 for sv in self.sheets if sv.IsSelected)
+                if selected_count == 0:
+                    show_alert("Please select at least one sheet before proceeding.", is_warning=True)
+                    return
+                self.MainTabControl.SelectedIndex = 1
+            elif idx == 1:
+                # Check format
+                if not self.CbPDF.IsChecked and not self.CbDWG.IsChecked:
+                    show_alert("Please select at least one export format.", is_warning=True)
+                    return
+                self.MainTabControl.SelectedIndex = 2
+            elif idx == 2:
+                # Trigger Export Execution
+                self.run_export()
+        except Exception as ex:
+            import traceback
+            show_alert("An unexpected error occurred during export navigation:\n{}".format(traceback.format_exc()), is_error=True)
 
     def BtnResetSettings_Click(self, sender, e):
         theme = load_settings().get("theme", "Dark")
