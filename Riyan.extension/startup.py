@@ -367,13 +367,58 @@ try:
 except Exception:
     pass
 
-# Synchronous Ultra-Fast (0.001s) Shared Parameter Enforcement
+# Zero-Touch Silent Shared Parameter Enforcement (Automatic across all 100 PCs)
+def _enforce_shared_params_safely(app_target=None):
+    try:
+        _lib_dir = os.path.join(os.path.dirname(__file__), "lib")
+        if _lib_dir not in sys.path:
+            sys.path.insert(0, _lib_dir)
+        import riyan_shared_params
+        riyan_shared_params.enforce_riyan_shared_parameters(app_target)
+    except Exception:
+        pass
+
+# 1. Immediate synchronous enforcement on extension load
+_enforce_shared_params_safely()
+
+# 2. Native Revit Event Hooks: Enforces on first UI idle tick and every project open
 try:
-    _lib_dir = os.path.join(os.path.dirname(__file__), "lib")
-    if _lib_dir not in sys.path:
-        sys.path.insert(0, _lib_dir)
-    import riyan_shared_params
-    riyan_shared_params.enforce_riyan_shared_parameters()
+    from pyrevit import HOST_APP
+
+    def _on_revit_idling(sender, args):
+        try:
+            _enforce_shared_params_safely(sender)
+        except Exception:
+            pass
+        finally:
+            try:
+                sender.Idling -= _on_revit_idling
+            except Exception:
+                pass
+
+    def _on_revit_doc_opened(sender, args):
+        try:
+            doc = getattr(args, "Document", None)
+            if doc and hasattr(doc, "Application"):
+                _enforce_shared_params_safely(doc.Application)
+        except Exception:
+            pass
+
+    ctrl_app = getattr(HOST_APP.app, "ControlledApplication", None)
+    if ctrl_app:
+        try:
+            ctrl_app.DocumentOpened += _on_revit_doc_opened
+        except Exception:
+            pass
+        try:
+            ctrl_app.Idling += _on_revit_idling
+        except Exception:
+            pass
+    elif hasattr(HOST_APP.app, "Idling"):
+        try:
+            HOST_APP.app.Idling += _on_revit_idling
+        except Exception:
+            pass
 except Exception:
     pass
 
