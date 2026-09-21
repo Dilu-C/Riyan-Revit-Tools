@@ -3040,47 +3040,47 @@ class ExportManagerForm(forms.WPFWindow):
                 btn_border_hover = Color.FromRgb(209, 213, 219)
                 btn_hover_fg = Color.FromRgb(31, 41, 55)
             else:
-                win_bg = Color.FromRgb(17, 17, 17)          # #111111
-                win_border = Color.FromRgb(42, 42, 42)      # #2A2A2A
-                title_bg = Color.FromRgb(18, 18, 18)        # #121212
-                card_bg = Color.FromRgb(22, 22, 22)         # #161616
-                ctrl_bg = Color.FromRgb(30, 30, 30)         # #1E1E1E
-                border_col = Color.FromRgb(42, 42, 42)      # #2A2A2A
-                footer_bg = Color.FromRgb(14, 14, 14)       # #0E0E0E
-                txt_prim = Color.FromRgb(255, 255, 255)     # #FFFFFF
-                txt_sec = Color.FromRgb(204, 204, 204)      # #CCCCCC
-                txt_muted = Color.FromRgb(136, 136, 136)    # #888888
+                win_bg = Color.FromRgb(45, 45, 48)          # #2D2D30
+                win_border = Color.FromRgb(63, 63, 70)      # #3F3F46
+                title_bg = Color.FromRgb(30, 30, 30)        # #1E1E1E
+                card_bg = Color.FromRgb(30, 30, 30)         # #1E1E1E
+                ctrl_bg = Color.FromRgb(51, 51, 55)         # #333337
+                border_col = Color.FromRgb(63, 63, 70)      # #3F3F46
+                footer_bg = Color.FromRgb(30, 30, 30)       # #1E1E1E
+                txt_prim = Color.FromRgb(245, 245, 245)     # #F5F5F5
+                txt_sec = Color.FromRgb(160, 160, 160)      # #A0A0A0
+                txt_muted = Color.FromRgb(113, 113, 122)    # #71717A
                 
                 # TabControl
-                tab_bg = Color.FromRgb(17, 17, 17)          # #111111
+                tab_bg = Color.FromRgb(45, 45, 48)          # #2D2D30
                 tab_border = Color.FromArgb(0, 0, 0, 0)     # Transparent
-                tab_item_fg = Color.FromRgb(136, 136, 136)  # #888888
+                tab_item_fg = Color.FromRgb(160, 160, 160)  # #A0A0A0
                 tab_item_sel_bg = Color.FromArgb(0, 0, 0, 0)# Transparent
                 tab_item_sel_border = Color.FromRgb(128, 47, 45) # #802F2D
-                tab_item_sel_fg = Color.FromRgb(255, 255, 255) # #FFFFFF
+                tab_item_sel_fg = Color.FromRgb(245, 245, 245) # #F5F5F5
                 
                 # DataGrid
-                grid_hdr_bg = Color.FromRgb(26, 26, 26)     # #1A1A1A
-                grid_hdr_fg = Color.FromRgb(170, 170, 170)  # #AAAAAA
-                grid_hdr_border = Color.FromRgb(51, 51, 51) # #333333
-                grid_border = Color.FromRgb(34, 34, 34)     # #222222
-                grid_row_bg = Color.FromRgb(17, 17, 17)     # #111111
-                grid_row_alt_bg = Color.FromRgb(21, 21, 21) # #151515
-                grid_row_fg = Color.FromRgb(204, 204, 204)  # #CCCCCC
-                grid_row_hover = Color.FromRgb(51, 45, 21)  # #332D15
-                grid_row_sel = Color.FromRgb(79, 66, 16)    # #4F4210
+                grid_hdr_bg = Color.FromRgb(30, 30, 30)     # #1E1E1E
+                grid_hdr_fg = Color.FromRgb(160, 160, 160)  # #A0A0A0
+                grid_hdr_border = Color.FromRgb(63, 63, 70) # #3F3F46
+                grid_border = Color.FromRgb(63, 63, 70)     # #3F3F46
+                grid_row_bg = Color.FromRgb(45, 45, 48)     # #2D2D30
+                grid_row_alt_bg = Color.FromRgb(40, 40, 43) # #28282B
+                grid_row_fg = Color.FromRgb(245, 245, 245)  # #F5F5F5
+                grid_row_hover = Color.FromRgb(62, 62, 66)  # #3E3E42
+                grid_row_sel = Color.FromRgb(46, 20, 19)    # #2E1413
                 
                 # Custom File Name Column
-                cfn_hdr_bg = Color.FromRgb(28, 20, 16)      # #1C1410
+                cfn_hdr_bg = Color.FromRgb(42, 34, 24)      # #2A2218
                 cfn_hdr_border = Color.FromRgb(200, 146, 42) # #C8922A
                 cfn_hdr_fg = Color.FromRgb(200, 146, 42)    # #C8922A
                 cfn_cell_fg = Color.FromRgb(200, 146, 42)   # #C8922A
                 
                 # Sidebar
-                sidebar_bg = Color.FromRgb(22, 22, 22)      # #161616
-                sidebar_border = Color.FromRgb(42, 42, 42)  # #2A2A2A
+                sidebar_bg = Color.FromRgb(30, 30, 30)      # #1E1E1E
+                sidebar_border = Color.FromRgb(63, 63, 70)  # #3F3F46
 
-                btn_hover_bg = Color.FromRgb(42, 42, 42)
+                btn_hover_bg = Color.FromRgb(62, 62, 66)    # #3E3E42
                 btn_border_hover = Color.FromRgb(75, 85, 99)
                 btn_hover_fg = Color.FromRgb(255, 255, 255)
 

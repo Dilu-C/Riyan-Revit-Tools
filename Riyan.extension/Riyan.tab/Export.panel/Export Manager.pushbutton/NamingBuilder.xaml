@@ -37,9 +37,9 @@
 
         <!-- Secondary (dark) button -->
         <Style x:Key="SecondaryBtn" TargetType="Button">
-            <Setter Property="Background"       Value="#1E1E1E"/>
-            <Setter Property="Foreground"       Value="White"/>
-            <Setter Property="BorderBrush"      Value="#2A2A2A"/>
+            <Setter Property="Background"       Value="#333337"/>
+            <Setter Property="Foreground"       Value="#F5F5F5"/>
+            <Setter Property="BorderBrush"      Value="#3F3F46"/>
             <Setter Property="BorderThickness"  Value="1"/>
             <Setter Property="Padding"          Value="0"/>
             <Setter Property="FontSize"         Value="11"/>
@@ -53,8 +53,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#2A2A2A"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="#444444"/>
+                                <Setter TargetName="bd" Property="Background" Value="#3E3E42"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#4B5563"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -64,9 +64,9 @@
 
         <!-- Small Arrow/Order buttons -->
         <Style x:Key="OrderBtn" TargetType="Button">
-            <Setter Property="Background"       Value="#1E1E1E"/>
-            <Setter Property="Foreground"       Value="#CCCCCC"/>
-            <Setter Property="BorderBrush"      Value="#2A2A2A"/>
+            <Setter Property="Background"       Value="#333337"/>
+            <Setter Property="Foreground"       Value="#F5F5F5"/>
+            <Setter Property="BorderBrush"      Value="#3F3F46"/>
             <Setter Property="BorderThickness"  Value="1"/>
             <Setter Property="Width"            Value="32"/>
             <Setter Property="Height"           Value="32"/>
@@ -205,11 +205,11 @@
 
         <!-- Dark DataGrid Style -->
         <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="#111111"/>
-            <Setter Property="RowBackground" Value="#111111"/>
-            <Setter Property="AlternatingRowBackground" Value="#151515"/>
-            <Setter Property="Foreground" Value="#CCCCCC"/>
-            <Setter Property="BorderBrush" Value="#222222"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="RowBackground" Value="#2D2D30"/>
+            <Setter Property="AlternatingRowBackground" Value="#28282B"/>
+            <Setter Property="Foreground" Value="#F5F5F5"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="GridLinesVisibility" Value="None"/>
             <Setter Property="RowHeight" Value="34"/>
@@ -217,9 +217,9 @@
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#161616"/>
-            <Setter Property="Foreground" Value="#888888"/>
-            <Setter Property="BorderBrush" Value="#1E1E1E"/>
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="Foreground" Value="#A0A0A0"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Setter Property="Padding" Value="10,8"/>
             <Setter Property="FontSize" Value="11"/>
@@ -292,7 +292,7 @@
         </Style>
     </Window.Resources>
 
-    <Border BorderBrush="#222222" BorderThickness="1" Background="#111111" CornerRadius="12" ClipToBounds="True">
+    <Border BorderBrush="#3F3F46" BorderThickness="1" Background="#2D2D30" CornerRadius="12" ClipToBounds="True">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="36"/>
@@ -302,11 +302,11 @@
             </Grid.RowDefinitions>
 
             <!-- TITLE BAR -->
-            <Border Grid.Row="0" Background="#121212" CornerRadius="11,11,0,0" MouseLeftButtonDown="TitleBar_MouseDown">
+            <Border Grid.Row="0" Background="#1E1E1E" CornerRadius="11,11,0,0" MouseLeftButtonDown="TitleBar_MouseDown">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                         <TextBlock Text="—" Foreground="#802F2D" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="Naming Rule Builder" Foreground="#CCCCCC" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="Naming Rule Builder" Foreground="#F5F5F5" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <Button x:Name="CloseBtn" Content="✕" HorizontalAlignment="Right"
                             Width="36" Height="28" BorderThickness="0" Cursor="Hand"
@@ -501,23 +501,23 @@
                 </Grid>
 
                 <!-- Custom Name Preview Box -->
-                <Border Grid.Row="1" Background="#1E1E1E" BorderBrush="#3A3A3A" BorderThickness="1" Padding="12,10" CornerRadius="8">
+                <Border Grid.Row="1" Background="#1E1E1E" BorderBrush="#3F3F46" BorderThickness="1" Padding="12,10" CornerRadius="8">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Custom Name Preview: " Foreground="#555555" FontSize="11" FontWeight="Bold"/>
+                        <TextBlock Text="Custom Name Preview: " Foreground="#A0A0A0" FontSize="11" FontWeight="Bold"/>
                         <TextBlock x:Name="TxtPreview" Text="[None]" Foreground="#802F2D" FontSize="11" FontWeight="Bold"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
             <!-- FOOTER -->
-            <Border Grid.Row="3" Background="#121212" BorderBrush="#222222" BorderThickness="0,1,0,0" CornerRadius="0,0,11,11">
+            <Border Grid.Row="3" Background="#1E1E1E" BorderBrush="#3F3F46" BorderThickness="0,1,0,0" CornerRadius="0,0,11,11">
                 <Grid Margin="24,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBlock x:Name="TxtStatus" Text="Select parameters to build custom name" Foreground="#666666" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtStatus" Text="Select parameters to build custom name" Foreground="#A0A0A0" FontSize="11" VerticalAlignment="Center"/>
                     
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button x:Name="BtnCancel" Content="Cancel" Style="{StaticResource SecondaryBtn}" Width="80" Height="30" Margin="0,0,10,0" Click="BtnCancel_Click"/>

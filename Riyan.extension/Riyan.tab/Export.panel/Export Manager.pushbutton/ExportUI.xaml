@@ -7,43 +7,44 @@
 
     <Window.Resources>
         <!-- Dynamic Theme Brushes -->
-        <SolidColorBrush x:Key="WindowBg" Color="#111111"/>
-        <SolidColorBrush x:Key="TitleBarBg" Color="#121212"/>
-        <SolidColorBrush x:Key="CardBg" Color="#161616"/>
-        <SolidColorBrush x:Key="ControlBg" Color="#1E1E1E"/>
-        <SolidColorBrush x:Key="BorderColor" Color="#2A2A2A"/>
-        <SolidColorBrush x:Key="FooterBg" Color="#0E0E0E"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#CCCCCC"/>
-        <SolidColorBrush x:Key="TextMuted" Color="#888888"/>
-        <SolidColorBrush x:Key="ThemeBtnHover" Color="#2A2A2A"/>
+        <!-- Dynamic Theme Brushes -->
+        <SolidColorBrush x:Key="WindowBg" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="TitleBarBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="CardBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="ControlBg" Color="#333337"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="FooterBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#A0A0A0"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#71717A"/>
+        <SolidColorBrush x:Key="ThemeBtnHover" Color="#3E3E42"/>
         <SolidColorBrush x:Key="ThemeBtnBorderHover" Color="#4B5563"/>
         <SolidColorBrush x:Key="ThemeBtnHoverFg" Color="#FFFFFF"/>
 
-        <SolidColorBrush x:Key="TabBg" Color="#111111"/>
+        <SolidColorBrush x:Key="TabBg" Color="#2D2D30"/>
         <SolidColorBrush x:Key="TabBorder" Color="#00000000"/>
-        <SolidColorBrush x:Key="TabItemFg" Color="#888888"/>
+        <SolidColorBrush x:Key="TabItemFg" Color="#A0A0A0"/>
         <SolidColorBrush x:Key="TabItemSelectedBg" Color="#00000000"/>
         <SolidColorBrush x:Key="TabItemSelectedBorder" Color="#802F2D"/>
-        <SolidColorBrush x:Key="TabItemSelectedFg" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TabItemSelectedFg" Color="#F5F5F5"/>
 
-        <SolidColorBrush x:Key="GridHeaderBg" Color="#1A1A1A"/>
-        <SolidColorBrush x:Key="GridHeaderFg" Color="#AAAAAA"/>
-        <SolidColorBrush x:Key="GridHeaderBorder" Color="#333333"/>
-        <SolidColorBrush x:Key="GridBorder" Color="#222222"/>
-        <SolidColorBrush x:Key="GridRowBg" Color="#111111"/>
-        <SolidColorBrush x:Key="GridRowAltBg" Color="#151515"/>
-        <SolidColorBrush x:Key="GridRowFg" Color="#CCCCCC"/>
-        <SolidColorBrush x:Key="GridRowHover" Color="#332D15"/>
-        <SolidColorBrush x:Key="GridRowSelected" Color="#4F4210"/>
+        <SolidColorBrush x:Key="GridHeaderBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="GridHeaderFg" Color="#A0A0A0"/>
+        <SolidColorBrush x:Key="GridHeaderBorder" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="GridBorder" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="GridRowBg" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="GridRowAltBg" Color="#28282B"/>
+        <SolidColorBrush x:Key="GridRowFg" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="GridRowHover" Color="#3E3E42"/>
+        <SolidColorBrush x:Key="GridRowSelected" Color="#2E1413"/>
 
-        <SolidColorBrush x:Key="CustomFileNameHeaderBg" Color="#1C1410"/>
+        <SolidColorBrush x:Key="CustomFileNameHeaderBg" Color="#2A2218"/>
         <SolidColorBrush x:Key="CustomFileNameHeaderBorder" Color="#C8922A"/>
         <SolidColorBrush x:Key="CustomFileNameHeaderFg" Color="#C8922A"/>
         <SolidColorBrush x:Key="CustomFileNameCellFg" Color="#C8922A"/>
 
-        <SolidColorBrush x:Key="SidebarBg" Color="#161616"/>
-        <SolidColorBrush x:Key="SidebarBorder" Color="#2A2A2A"/>
+        <SolidColorBrush x:Key="SidebarBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="SidebarBorder" Color="#3F3F46"/>
 
         <!-- Primary (accent) button -->
         <Style x:Key="PrimaryBtn" TargetType="Button">
