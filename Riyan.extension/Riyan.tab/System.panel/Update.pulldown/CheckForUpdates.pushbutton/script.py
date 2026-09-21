@@ -247,13 +247,24 @@ def update_tools():
                                 os.remove(target_f)
                             except Exception:
                                 pass
-                    # Unconditionally wipe all *.md files
+                    # Unconditionally wipe all *.md and *.zip files, and strip YAML BOM
                     try:
                         for root, dirs, files in os.walk(folder):
                             for fn in files:
-                                if fn.lower().endswith(".md") or fn.lower() == "extension.json.txt":
+                                fl = fn.lower()
+                                if fl.endswith(".md") or fl == "extension.json.txt" or fl.endswith(".zip"):
                                     try:
                                         os.remove(os.path.join(root, fn))
+                                    except Exception:
+                                        pass
+                                elif fl.endswith(".yaml") or fl.endswith(".yml"):
+                                    y_path = os.path.join(root, fn)
+                                    try:
+                                        with open(y_path, "rb") as yf:
+                                            b_data = yf.read()
+                                        if b_data.startswith(b"\xef\xbb\xbf"):
+                                            with open(y_path, "wb") as yf:
+                                                yf.write(b_data[3:])
                                     except Exception:
                                         pass
                     except Exception:
@@ -336,6 +347,19 @@ def update_tools():
 
                 # Clean pyRevit cache to force fresh ribbon recompile
                 pyrevit_root = os.path.dirname(ext_root)
+                cache_dir = os.path.join(pyrevit_root, 'Cache')
+                if os.path.exists(cache_dir):
+                    try:
+                        shutil.rmtree(cache_dir, ignore_errors=True)
+                    except Exception:
+                        pass
+                for c_item in os.listdir(pyrevit_root):
+                    if c_item.startswith('20') and os.path.isdir(os.path.join(pyrevit_root, c_item)):
+                        try:
+                            shutil.rmtree(os.path.join(pyrevit_root, c_item), ignore_errors=True)
+                        except Exception:
+                            pass
+
                 # Enforce Riyan standard shared parameters and update Revit.ini
                 try:
                     lib_p = os.path.join(extension_dir, "lib")

@@ -119,8 +119,15 @@ try {
     Copy-Item -Path (Join-Path $sourceRoot '*') -Destination $targetTools -Recurse -Force
     Remove-Item -Path $extractFolder -Recurse -Force -ErrorAction SilentlyContinue
 
-    # Purge leftover md, txt, .idea, and deprecated Tool.panel & About.panel from target
-    Get-ChildItem -Path $targetTools -Recurse -Filter '*.md' -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+    # Purge leftover md, zip, txt, .idea, and deprecated Tool.panel & About.panel from target
+    Get-ChildItem -Path $targetTools -Recurse -Include '*.md', '*.zip' -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+    # Strip UTF-8 BOM from all bundle.yaml files
+    Get-ChildItem -Path $targetTools -Recurse -Filter '*.yaml' -ErrorAction SilentlyContinue | ForEach-Object {
+        $b = [System.IO.File]::ReadAllBytes($_.FullName)
+        if ($b.Length -ge 3 -and $b[0] -eq 0xEF -and $b[1] -eq 0xBB -and $b[2] -eq 0xBF) {
+            [System.IO.File]::WriteAllBytes($_.FullName, $b[3..($b.Length - 1)])
+        }
+    }
     @('extension.json.txt', '.idea', '.gitattributes', '.gitignore', 'Other', '__pycache__') | ForEach-Object {
         $p = Join-Path (Join-Path $targetTools 'Riyan.extension') $_
         if (Test-Path $p) { Remove-Item -Path $p -Recurse -Force -ErrorAction SilentlyContinue }

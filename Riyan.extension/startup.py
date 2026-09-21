@@ -218,13 +218,24 @@ def cleanup_legacy_files():
                         os.remove(p)
                     except Exception:
                         pass
-            # Remove any *.md or extension.json.txt inside folder
+            # Remove any *.md, *.zip, or extension.json.txt inside folder and strip YAML BOM
             try:
                 for root, dirs, files in os.walk(folder):
                     for file_name in files:
-                        if file_name.lower().endswith(".md") or file_name.lower() == "extension.json.txt":
+                        fl = file_name.lower()
+                        if fl.endswith(".md") or fl == "extension.json.txt" or fl.endswith(".zip"):
                             try:
                                 os.remove(os.path.join(root, file_name))
+                            except Exception:
+                                pass
+                        elif fl.endswith(".yaml") or fl.endswith(".yml"):
+                            y_path = os.path.join(root, file_name)
+                            try:
+                                with open(y_path, "rb") as yf:
+                                    b_data = yf.read()
+                                if b_data.startswith(b"\xef\xbb\xbf"):
+                                    with open(y_path, "wb") as yf:
+                                        yf.write(b_data[3:])
                             except Exception:
                                 pass
             except Exception:

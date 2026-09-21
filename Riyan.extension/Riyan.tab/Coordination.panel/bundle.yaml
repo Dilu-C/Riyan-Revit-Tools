@@ -1,1 +1,7 @@
 title: Coordination
+layout:
+  - ChangeHostLevel
+  - Copy from Link
+  - Get Coordinates
+  - join_unjoin
+  - Toggle

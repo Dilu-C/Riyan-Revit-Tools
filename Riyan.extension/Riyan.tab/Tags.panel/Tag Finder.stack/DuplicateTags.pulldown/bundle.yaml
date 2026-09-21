@@ -1,1 +1,6 @@
 title: "Duplicate Tags"
+layout:
+  - DuplicateBeamsTags
+  - DuplicateColumnsTags
+  - DuplicateWallsTags
+  - DuplicateRebarsTags

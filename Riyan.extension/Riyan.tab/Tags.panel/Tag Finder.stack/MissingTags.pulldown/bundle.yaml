@@ -1,1 +1,8 @@
 title: "Missing Tags"
+layout:
+  - MissingBeamTags
+  - MissingColumnTags
+  - MissingWallsTags
+  - MissingFloorTags
+  - MissingFoundationTags
+  - MissingRebarsTags
