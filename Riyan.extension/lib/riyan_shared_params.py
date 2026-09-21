@@ -265,7 +265,19 @@ def find_latest_riyan_shared_parameter_file():
             pass
 
     if not candidates:
-        bundled = os.path.join(LOCAL_CACHE_DIR, "SharedParameters", "RYN_SharedParameters_V-RS20260205.txt")
+        cache_sp_dir = os.path.join(LOCAL_CACHE_DIR, "SharedParameters")
+        fallback_candidates = []
+        if os.path.exists(cache_sp_dir):
+            for fn in os.listdir(cache_sp_dir):
+                if fn.lower().startswith("ryn_sharedparameters") and fn.lower().endswith(".txt"):
+                    fp = os.path.join(cache_sp_dir, fn)
+                    if is_valid_shared_parameter_file(fp):
+                        fallback_candidates.append((extract_version_key(fn), fp))
+        if fallback_candidates:
+            fallback_candidates.sort(key=lambda x: x[0], reverse=True)
+            return fallback_candidates[0][1]
+
+        bundled = os.path.join(LOCAL_CACHE_DIR, "SharedParameters", "RYN_SharedParameters_V-RS20260918.txt")
         if is_valid_shared_parameter_file(bundled):
             return bundled
         return None
@@ -316,67 +328,111 @@ def update_revit_ini_files(target_path):
     """
     Updates Revit.ini for all installed Revit versions under [Directories]:
     SharedParameters=<target_path>
+    ExternalParameters=<target_path>
     This permanently fixes the shared parameter file at the Revit application level.
     """
     if not target_path or not os.path.exists(target_path):
         return
-    
+
     appdata_revit = os.path.expandvars(r"%APPDATA%\Autodesk\Revit")
     if not os.path.isdir(appdata_revit):
         return
 
     for item in os.listdir(appdata_revit):
         revit_dir = os.path.join(appdata_revit, item)
-        if os.path.isdir(revit_dir) and "Revit" in item:
+        if os.path.isdir(revit_dir) and "Revit" in item and "backup" not in item.lower():
             ini_path = os.path.join(revit_dir, "Revit.ini")
-            if os.path.isfile(ini_path):
+            if not os.path.isfile(ini_path):
+                continue
+
+            lines = None
+            encoding_mode = None
+
+            # 1. Try .NET File if available (IronPython / PythonNet)
+            if File and System:
                 try:
-                    with open(ini_path, "r", encoding="utf-16le") as f:
-                        lines = f.readlines()
-                    encoding = "utf-16le"
+                    from System.Text import Encoding
+                    raw_bytes = File.ReadAllBytes(ini_path)
+                    enc = Encoding.Unicode
+                    if len(raw_bytes) >= 3 and raw_bytes[0] == 0xEF and raw_bytes[1] == 0xBB and raw_bytes[2] == 0xBF:
+                        enc = Encoding.UTF8
+                    elif len(raw_bytes) >= 2 and raw_bytes[0] == 0xFF and raw_bytes[1] == 0xFE:
+                        enc = Encoding.Unicode
+                    lines = [str(l) for l in File.ReadAllLines(ini_path, enc)]
+                    encoding_mode = enc
                 except Exception:
+                    lines = None
+
+            # 2. Fallback to codecs.open (Standard Python 2/3)
+            if lines is None:
+                for enc_name in ["utf-16le", "utf-8", "mbcs"]:
                     try:
-                        with open(ini_path, "r", encoding="utf-8") as f:
+                        import codecs
+                        with codecs.open(ini_path, "r", encoding=enc_name) as f:
                             lines = f.readlines()
-                        encoding = "utf-8"
+                        encoding_mode = enc_name
+                        break
                     except Exception:
                         continue
 
-                new_lines = []
-                in_directories = False
-                shared_param_written = False
-                has_directories_section = any(line.strip().lower() == "[directories]" for line in lines)
+            if lines is None:
+                continue
 
-                for line in lines:
-                    stripped = line.strip()
-                    if stripped.lower() == "[directories]":
-                        in_directories = True
-                        new_lines.append(line)
-                        continue
-                    elif stripped.startswith("[") and stripped.endswith("]"):
-                        if in_directories and not shared_param_written:
-                            new_lines.append(u"SharedParameters={}\n".format(target_path))
+            new_lines = []
+            in_directories = False
+            shared_param_written = False
+            ext_param_written = False
+            has_directories_section = any(line.strip().lower() == "[directories]" for line in lines)
+
+            for line in lines:
+                stripped = line.strip()
+                if stripped.lower() == "[directories]":
+                    in_directories = True
+                    new_lines.append(line.rstrip("\r\n"))
+                    continue
+                elif stripped.startswith("[") and stripped.endswith("]"):
+                    if in_directories:
+                        if not shared_param_written:
+                            new_lines.append(u"SharedParameters={}".format(target_path))
                             shared_param_written = True
-                        in_directories = False
-                    
-                    if in_directories and stripped.lower().startswith("sharedparameters="):
-                        new_lines.append(u"SharedParameters={}\n".format(target_path))
-                        shared_param_written = True
-                    else:
-                        new_lines.append(line)
+                        if not ext_param_written:
+                            new_lines.append(u"ExternalParameters={}".format(target_path))
+                            ext_param_written = True
+                    in_directories = False
 
-                if in_directories and not shared_param_written:
-                    new_lines.append(u"SharedParameters={}\n".format(target_path))
+                if in_directories and stripped.lower().startswith("sharedparameters="):
+                    new_lines.append(u"SharedParameters={}".format(target_path))
                     shared_param_written = True
+                elif in_directories and stripped.lower().startswith("externalparameters="):
+                    new_lines.append(u"ExternalParameters={}".format(target_path))
+                    ext_param_written = True
+                else:
+                    new_lines.append(line.rstrip("\r\n"))
 
-                if not has_directories_section:
-                    new_lines.append(u"\n[Directories]\nSharedParameters={}\n".format(target_path))
+            if in_directories:
+                if not shared_param_written:
+                    new_lines.append(u"SharedParameters={}".format(target_path))
+                    shared_param_written = True
+                if not ext_param_written:
+                    new_lines.append(u"ExternalParameters={}".format(target_path))
+                    ext_param_written = True
 
-                try:
-                    with open(ini_path, "w", encoding=encoding) as f:
-                        f.writelines(new_lines)
-                except Exception:
-                    pass
+            if not has_directories_section:
+                new_lines.append(u"")
+                new_lines.append(u"[Directories]")
+                new_lines.append(u"SharedParameters={}".format(target_path))
+                new_lines.append(u"ExternalParameters={}".format(target_path))
+
+            try:
+                if File and hasattr(encoding_mode, "GetBytes"):
+                    File.WriteAllLines(ini_path, new_lines, encoding_mode)
+                elif encoding_mode:
+                    import codecs
+                    with codecs.open(ini_path, "w", encoding=encoding_mode) as f:
+                        for nl in new_lines:
+                            f.write(nl + u"\r\n")
+            except Exception:
+                pass
 
 def sync_cloud_shared_parameters_background(app=None):
     r"""
@@ -460,24 +516,30 @@ def enforce_riyan_shared_parameters(app=None, check_cloud=True):
     # 2. Update active Revit Application if available
     changed = False
     try:
-        if not app:
+        app_obj = app
+        if not app_obj:
             try:
                 from pyrevit import HOST_APP
-                app = HOST_APP.app
+                if hasattr(HOST_APP.app, "ControlledApplication"):
+                    app_obj = HOST_APP.app.ControlledApplication
+                elif hasattr(HOST_APP.app, "Application"):
+                    app_obj = HOST_APP.app.Application
+                else:
+                    app_obj = HOST_APP.app
             except Exception:
                 pass
-        if not app:
+        if not app_obj or not hasattr(app_obj, "SharedParametersFilename"):
             try:
                 from pyrevit import revit
-                if revit.doc and revit.doc.Application:
-                    app = revit.doc.Application
+                if revit.doc and hasattr(revit.doc, "Application"):
+                    app_obj = revit.doc.Application
             except Exception:
                 pass
 
-        if app and hasattr(app, "SharedParametersFilename"):
-            curr = app.SharedParametersFilename
+        if app_obj and hasattr(app_obj, "SharedParametersFilename"):
+            curr = app_obj.SharedParametersFilename
             if not curr or os.path.normpath(curr).lower() != os.path.normpath(latest_file).lower():
-                app.SharedParametersFilename = latest_file
+                app_obj.SharedParametersFilename = latest_file
                 changed = True
     except Exception:
         pass

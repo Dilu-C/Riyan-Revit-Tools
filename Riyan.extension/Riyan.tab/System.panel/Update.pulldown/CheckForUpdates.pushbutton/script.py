@@ -327,13 +327,16 @@ def update_tools():
 
                 # Clean pyRevit cache to force fresh ribbon recompile
                 pyrevit_root = os.path.dirname(ext_root)
-                cache_dir = os.path.join(pyrevit_root, "Cache")
-                if os.path.exists(cache_dir):
-                    try:
-                        shutil.rmtree(cache_dir, ignore_errors=True)
-                    except Exception:
-                        pass
-                
+                # Enforce Riyan standard shared parameters and update Revit.ini
+                try:
+                    lib_p = os.path.join(extension_dir, "lib")
+                    if lib_p not in sys.path:
+                        sys.path.insert(0, lib_p)
+                    import riyan_shared_params
+                    riyan_shared_params.enforce_riyan_shared_parameters()
+                except Exception:
+                    pass
+
                 pb.update_progress(100, 100)
                 
             # 9. Trigger pyRevit Reload & What's New

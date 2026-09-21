@@ -38,7 +38,7 @@ try {
     $pyrevitRoot = Join-Path $env:APPDATA 'pyRevit'
     $targetTools = Join-Path $extDir 'Riyan-Revit-Tools'
 
-    Write-Host "[1/4] Clean-Slate Wipe: Clearing old duplicates & pyRevit cache..." -ForegroundColor Yellow
+    Write-Host "[1/5] Clean-Slate Wipe: Clearing old duplicates & pyRevit cache..." -ForegroundColor Yellow
 
     # Delete all old legacy duplicate folders
     @('Riyan-Revit-Tools.extension', 'Riyan.extension', 'Riyan-Revit-Tools-main') | ForEach-Object {
@@ -82,7 +82,7 @@ try {
     }
     Get-ChildItem -Path $pyrevitRoot -Include '__pycache__', '*.pyc' -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 
-    Write-Host "[2/4] Downloading latest tools from GitHub..." -ForegroundColor Cyan
+    Write-Host "[2/5] Downloading latest tools from GitHub..." -ForegroundColor Cyan
     $zipPath = Join-Path $env:TEMP 'RiyanTools.zip'
     if (Test-Path $zipPath) { Remove-Item $zipPath -Force -ErrorAction SilentlyContinue }
 
@@ -94,7 +94,7 @@ try {
         throw "Failed to download zip file from GitHub (file is missing or empty)."
     }
 
-    Write-Host "[3/4] Extracting & installing latest tools..." -ForegroundColor Cyan
+    Write-Host "[3/5] Extracting & installing latest tools..." -ForegroundColor Cyan
     $extractFolder = Join-Path $env:TEMP 'Riyan_Extract'
     if (Test-Path $extractFolder) { Remove-Item $extractFolder -Recurse -Force -ErrorAction SilentlyContinue }
     Expand-Archive -Path $zipPath -DestinationPath $extractFolder -Force
@@ -130,7 +130,7 @@ try {
         if (Test-Path $legacyPanel) { Remove-Item -Path $legacyPanel -Recurse -Force -ErrorAction SilentlyContinue }
     }
 
-    Write-Host "[4/4] Ensuring clean pyRevit configuration..." -ForegroundColor Cyan
+    Write-Host "[4/5] Ensuring clean pyRevit configuration..." -ForegroundColor Cyan
     $cfg = Join-Path $pyrevitRoot 'pyRevit_config.ini'
     if (Test-Path $cfg) {
         $content = Get-Content $cfg -Raw
@@ -158,6 +158,159 @@ try {
         }
         $content = $content -replace ',\s*\]', ']' -replace '\[\s*,', '['
         Set-Content $cfg $content -NoNewline
+    }
+
+    Write-Host "[5/5] Enforcing Riyan Shared Parameters across all Revit versions..." -ForegroundColor Cyan
+    $targetParamPath = $null
+    $cacheSpDir = Join-Path $targetTools 'Library_Cache\SharedParameters'
+
+    # Check SharePoint paths first if available
+    $spCandidates = @(
+        (Join-Path $env:USERPROFILE 'OneDrive - Riyan Private Limited\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\01 SHARED PARAMETER'),
+        (Join-Path $env:USERPROFILE 'Riyan Private Limited\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\01 SHARED PARAMETER'),
+        'D:\RIYAN\Riyan Private Limited\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\01 SHARED PARAMETER'
+    )
+
+    $foundFiles = New-Object System.Collections.Generic.List[PSObject]
+
+    foreach ($sp in $spCandidates) {
+        if (Test-Path $sp) {
+            Get-ChildItem -Path $sp -Filter 'RYN_SharedParameters*.txt' -File -ErrorAction SilentlyContinue | Where-Object { 
+                $_.FullName -notmatch '(?i)(previous|old|backup|archive)' 
+            } | ForEach-Object {
+                $ver = 0
+                if ($_.Name -match '\d+') { $ver = [int64]$matches[0] }
+                $foundFiles.Add([PSCustomObject]@{ Path = $_.FullName; Version = $ver; IsCloud = $true })
+            }
+        }
+    }
+
+    if (Test-Path $cacheSpDir) {
+        Get-ChildItem -Path $cacheSpDir -Filter 'RYN_SharedParameters*.txt' -File -ErrorAction SilentlyContinue | ForEach-Object {
+            $ver = 0
+            if ($_.Name -match '\d+') { $ver = [int64]$matches[0] }
+            $foundFiles.Add([PSCustomObject]@{ Path = $_.FullName; Version = $ver; IsCloud = $false })
+        }
+    }
+
+    if ($foundFiles.Count -gt 0) {
+        $best = $foundFiles | Sort-Object -Property @{Expression={$_.Version}; Descending=$true}, @{Expression={$_.IsCloud}; Descending=$true} | Select-Object -First 1
+        $targetParamPath = $best.Path
+
+        # If best came from SharePoint, sync to local cache so offline always works
+        if ($best.IsCloud -and (Test-Path $cacheSpDir)) {
+            $localDest = Join-Path $cacheSpDir (Split-Path $best.Path -Leaf)
+            try {
+                Copy-Item -Path $best.Path -Destination $localDest -Force -ErrorAction SilentlyContinue
+                $targetParamPath = $localDest
+            } catch {}
+        }
+    }
+
+    if (-not $targetParamPath -or -not (Test-Path $targetParamPath)) {
+        $targetParamPath = Join-Path $cacheSpDir 'RYN_SharedParameters_V-RS20260918.txt'
+    }
+
+    if (Test-Path $targetParamPath) {
+        Write-Host "  Active Shared Parameter File: $(Split-Path $targetParamPath -Leaf)" -ForegroundColor DarkGray
+
+        # Permissions: Read-Only for standard users, Read/Write for Dilupa
+        $currentUser = $env:USERNAME.ToLower()
+        $adminUsers = @('user', 'windows', 'dilupa', 'dilupa.chathuranga', 'dilupac', 'dilupa1990')
+        try {
+            if ($adminUsers -contains $currentUser) {
+                Set-ItemProperty -Path $targetParamPath -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue
+                Write-Host "  Permission: Full Edit (Admin Mode)" -ForegroundColor DarkGray
+            } else {
+                Set-ItemProperty -Path $targetParamPath -Name IsReadOnly -Value $true -ErrorAction SilentlyContinue
+                Write-Host "  Permission: Locked Read-Only (Standard User Mode)" -ForegroundColor DarkGray
+            }
+        } catch {}
+
+        # Iterate all Revit.ini files across all Revit versions (2021-2027+)
+        $revitRoot = Join-Path $env:APPDATA 'Autodesk\Revit'
+        if (Test-Path $revitRoot) {
+            $revitInis = Get-ChildItem -Path $revitRoot -Filter 'Revit.ini' -Recurse -ErrorAction SilentlyContinue | Where-Object { 
+                $_.FullName -notmatch '(?i)backup' 
+            }
+
+            foreach ($iniItem in $revitInis) {
+                try {
+                    $iniPath = $iniItem.FullName
+                    $rawBytes = [System.IO.File]::ReadAllBytes($iniPath)
+                    $encoding = [System.Text.Encoding]::Unicode
+                    if ($rawBytes.Length -ge 3 -and $rawBytes[0] -eq 0xEF -and $rawBytes[1] -eq 0xBB -and $rawBytes[2] -eq 0xBF) {
+                        $encoding = [System.Text.Encoding]::UTF8
+                    } elseif ($rawBytes.Length -ge 2 -and $rawBytes[0] -eq 0xFF -and $rawBytes[1] -eq 0xFE) {
+                        $encoding = [System.Text.Encoding]::Unicode
+                    }
+
+                    $lines = [System.IO.File]::ReadAllLines($iniPath, $encoding)
+                    $newLines = New-Object System.Collections.Generic.List[string]
+                    $inDirectories = $false
+                    $hasDirectories = $false
+                    $sharedWritten = $false
+                    $externalWritten = $false
+
+                    foreach ($line in $lines) {
+                        $trim = $line.Trim()
+                        if ($trim -eq '[Directories]') {
+                            $inDirectories = $true
+                            $hasDirectories = $true
+                            $newLines.Add($line)
+                            continue
+                        }
+                        if ($inDirectories -and $trim.StartsWith('[') -and $trim.EndsWith(']')) {
+                            if (-not $sharedWritten) {
+                                $newLines.Add("SharedParameters=$targetParamPath")
+                                $sharedWritten = $true
+                            }
+                            if (-not $externalWritten) {
+                                $newLines.Add("ExternalParameters=$targetParamPath")
+                                $externalWritten = $true
+                            }
+                            $inDirectories = $false
+                        }
+
+                        if ($inDirectories -and $trim -match '^SharedParameters\s*=') {
+                            $newLines.Add("SharedParameters=$targetParamPath")
+                            $sharedWritten = $true
+                        } elseif ($inDirectories -and $trim -match '^ExternalParameters\s*=') {
+                            $newLines.Add("ExternalParameters=$targetParamPath")
+                            $externalWritten = $true
+                        } else {
+                            $newLines.Add($line)
+                        }
+                    }
+
+                    if ($inDirectories) {
+                        if (-not $sharedWritten) {
+                            $newLines.Add("SharedParameters=$targetParamPath")
+                            $sharedWritten = $true
+                        }
+                        if (-not $externalWritten) {
+                            $newLines.Add("ExternalParameters=$targetParamPath")
+                            $externalWritten = $true
+                        }
+                    }
+
+                    if (-not $hasDirectories) {
+                        $newLines.Add("")
+                        $newLines.Add("[Directories]")
+                        $newLines.Add("SharedParameters=$targetParamPath")
+                        $newLines.Add("ExternalParameters=$targetParamPath")
+                    }
+
+                    [System.IO.File]::WriteAllLines($iniPath, $newLines.ToArray(), $encoding)
+                    $relParent = Split-Path (Split-Path $iniPath -Parent) -Leaf
+                    Write-Host "  [OK] $relParent linked to Riyan Shared Parameters!" -ForegroundColor Green
+                } catch {
+                    Write-Host "  [!] Could not update $($iniItem.FullName): $($_.Exception.Message)" -ForegroundColor Yellow
+                }
+            }
+        }
+    } else {
+        Write-Host "  [!] Warning: Shared Parameter file could not be found." -ForegroundColor Yellow
     }
 
     Write-Host ""
