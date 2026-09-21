@@ -21,6 +21,13 @@
         <SolidColorBrush x:Key="ThemeBtnBorderHover" Color="#4B5563"/>
         <SolidColorBrush x:Key="ThemeBtnHoverFg" Color="#FFFFFF"/>
 
+        <SolidColorBrush x:Key="BtnDisabledBg" Color="#252528"/>
+        <SolidColorBrush x:Key="BtnDisabledBorder" Color="#333337"/>
+        <SolidColorBrush x:Key="BtnDisabledFg" Color="#71717A"/>
+        <SolidColorBrush x:Key="BtnHoverBg" Color="#3E3E42"/>
+        <SolidColorBrush x:Key="BtnHoverBorder" Color="#4B5563"/>
+        <SolidColorBrush x:Key="BtnHoverFg" Color="#FFFFFF"/>
+
         <SolidColorBrush x:Key="TabBg" Color="#2D2D30"/>
         <SolidColorBrush x:Key="TabBorder" Color="#00000000"/>
         <SolidColorBrush x:Key="TabItemFg" Color="#A0A0A0"/>
@@ -59,7 +66,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -70,8 +77,8 @@
                                 <Setter TargetName="bd" Property="Background" Value="#661F1D"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd" Property="Background" Value="#333333"/>
-                                <Setter Property="Foreground" Value="#666666"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BtnDisabledBg}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BtnDisabledFg}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -97,16 +104,17 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#2A2A2A"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="#444444"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BtnHoverBg}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BtnHoverBorder}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BtnHoverFg}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#151515"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BtnDisabledBg}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd" Property="Background" Value="#151515"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="#252525"/>
-                                <Setter Property="Foreground" Value="#444444"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BtnDisabledBg}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BtnDisabledBorder}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BtnDisabledFg}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

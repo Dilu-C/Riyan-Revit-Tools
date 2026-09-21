@@ -3211,6 +3211,10 @@ class ExportManagerForm(forms.WPFWindow):
                 sidebar_bg = Color.FromRgb(235, 235, 235)   # #EBEBEB
                 sidebar_border = Color.FromRgb(212, 212, 212) # #D4D4D4
 
+                btn_disabled_bg = Color.FromRgb(224, 226, 230)       # #E0E2E6
+                btn_disabled_border = Color.FromRgb(200, 203, 208)   # #C8CBD0
+                btn_disabled_fg = Color.FromRgb(140, 145, 155)       # #8C919B
+
                 btn_hover_bg = Color.FromRgb(229, 231, 235)
                 btn_border_hover = Color.FromRgb(209, 213, 219)
                 btn_hover_fg = Color.FromRgb(31, 41, 55)
@@ -3225,6 +3229,10 @@ class ExportManagerForm(forms.WPFWindow):
                 txt_prim = Color.FromRgb(245, 245, 245)     # #F5F5F5
                 txt_sec = Color.FromRgb(160, 160, 160)      # #A0A0A0
                 txt_muted = Color.FromRgb(113, 113, 122)    # #71717A
+
+                btn_disabled_bg = Color.FromRgb(37, 37, 40)          # #252528
+                btn_disabled_border = Color.FromRgb(51, 51, 55)      # #333337
+                btn_disabled_fg = Color.FromRgb(113, 113, 122)       # #71717A
                 
                 # TabControl
                 tab_bg = Color.FromRgb(45, 45, 48)          # #2D2D30
@@ -3269,6 +3277,10 @@ class ExportManagerForm(forms.WPFWindow):
             self.Resources["TextPrimary"] = SolidColorBrush(txt_prim)
             self.Resources["TextSecondary"] = SolidColorBrush(txt_sec)
             self.Resources["TextMuted"] = SolidColorBrush(txt_muted)
+
+            self.Resources["BtnDisabledBg"] = SolidColorBrush(btn_disabled_bg)
+            self.Resources["BtnDisabledBorder"] = SolidColorBrush(btn_disabled_border)
+            self.Resources["BtnDisabledFg"] = SolidColorBrush(btn_disabled_fg)
 
             self.Resources["ThemeBtnHover"] = SolidColorBrush(btn_hover_bg)
             self.Resources["ThemeBtnBorderHover"] = SolidColorBrush(btn_border_hover)
