@@ -668,49 +668,63 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         fallback_path = os.path.join(LOCAL_CACHE_DIR, "catalog.json")
 
         self.catalog = []
-        target_path = None
-        if os.path.exists(catalog_path):
-            target_path = catalog_path
-            self.TxtStatus.Text = u"SharePoint Library Connected (BIM SERVER)"
-        elif os.path.exists(fallback_path):
-            target_path = fallback_path
-            self.TxtStatus.Text = u"Riyan Library (Local Cache Mode)"
-
-        if target_path:
+        raw_items = None
+        candidates = [fallback_path, catalog_path]
+        for cpath in candidates:
+            if not cpath or not os.path.exists(cpath):
+                continue
             try:
-                with codecs.open(target_path, 'r', 'utf-8-sig') as f:
-                    raw_items = json.load(f)
-                    import re
-                    # Strict Zero-Backup Filter (Eliminate .0001, .0002 backup copies)
-                    self.catalog = []
-                    for item in raw_items:
-                        c = item.get("code", "")
-                        r = item.get("rfa_path", "")
-                        if re.search(r'\.\d{3,4}$', c) or re.search(r'\.\d{3,4}\.rfa$', r, re.IGNORECASE):
-                            continue
-                        
-                        # Strict Filter: Exclude internal nested sub-components (hardware, profiles, loose panels)
-                        if is_sub_component(item):
-                            continue
+                content = None
+                try:
+                    content = File.ReadAllText(cpath, System.Text.Encoding.UTF8)
+                except Exception:
+                    with codecs.open(cpath, 'r', 'utf-8-sig') as cf:
+                        content = cf.read()
+                if content:
+                    content = content.lstrip(u'\ufeff').strip()
+                    if content.startswith('[') and len(content) > 10:
+                        raw_items = json.loads(content)
+                        if raw_items and len(raw_items) > 0:
+                            if cpath == catalog_path:
+                                self.TxtStatus.Text = u"SharePoint Library Connected (BIM SERVER)"
+                            else:
+                                self.TxtStatus.Text = u"Riyan Library (Local Cache Mode)"
+                            break
+            except Exception:
+                pass
 
-                        # Resolve thumbnail across local, repo, or OneDrive
-                        item["thumbnail"] = resolve_thumbnail_path(item)
-                        if item.get("category", "").startswith("Window-"):
-                            item["category"] = "Windows"
-                        if item.get("category", "").startswith("Door-"):
-                            item["category"] = "Doors"
-                        self.catalog.append(item)
+        if raw_items and len(raw_items) > 0:
+            import re
+            # Strict Zero-Backup Filter (Eliminate .0001, .0002 backup copies)
+            for item in raw_items:
+                c = item.get("code", "")
+                r = item.get("rfa_path", "")
+                if re.search(r'\.\d{3,4}$', c) or re.search(r'\.\d{3,4}\.rfa$', r, re.IGNORECASE):
+                    continue
+                
+                # Strict Filter: Exclude internal nested sub-components (hardware, profiles, loose panels)
+                if is_sub_component(item):
+                    continue
 
-                # Live Dynamic Synchronizer (Zero-stale-cache, Live Add/Edit/Delete, 100% Thumbnail)
+                # Resolve thumbnail across local, repo, or OneDrive
+                item["thumbnail"] = resolve_thumbnail_path(item)
+                if item.get("category", "").startswith("Window-"):
+                    item["category"] = "Windows"
+                if item.get("category", "").startswith("Door-"):
+                    item["category"] = "Doors"
+                self.catalog.append(item)
+
+            # Live Dynamic Synchronizer (safely wrapped so it never corrupts self.catalog)
+            try:
                 self.sync_dynamic_library_content()
-
-            except Exception as ex:
-                self.build_live_catalog_from_folders()
+            except Exception:
+                pass
         else:
             self.build_live_catalog_from_folders()
 
         self.refresh_categories()
         self.apply_filter()
+
 
     def sync_dynamic_library_content(self):
         """
