@@ -518,8 +518,15 @@
 
                             <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" Height="32" x:Name="SearchInputBorder">
                                 <Grid Margin="10,0">
-                                    <TextBlock x:Name="TxtSearchPlaceholder" Text="🔍 Search content names, types, options..." Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" IsHitTestVisible="False"/>
-                                    <TextBox x:Name="TxtSearch" Background="Transparent" Foreground="{DynamicResource TextPrimary}" BorderThickness="0" VerticalAlignment="Center" FontSize="12"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="22"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="🔍" FontSize="12" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" HorizontalAlignment="Left" IsHitTestVisible="False"/>
+                                    <Grid Grid.Column="1">
+                                        <TextBlock x:Name="TxtSearchPlaceholder" Text="Search content names, types, options..." Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="12"/>
+                                        <TextBox x:Name="TxtSearch" Background="Transparent" Foreground="{DynamicResource TextPrimary}" CaretBrush="{DynamicResource TextPrimary}" BorderThickness="0" VerticalAlignment="Center" FontSize="12"/>
+                                    </Grid>
                                 </Grid>
                             </Border>
 

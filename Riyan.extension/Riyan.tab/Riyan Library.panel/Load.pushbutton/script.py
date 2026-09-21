@@ -472,6 +472,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.ResizeGripThumb.DragDelta += self.on_resize_bottom_right
 
         self.TxtSearch.TextChanged += self.on_search_changed
+        self.TxtSearch.GotFocus += self.on_search_focus
+        self.TxtSearch.LostFocus += self.on_search_blur
+        if hasattr(self, "SearchInputBorder") and self.SearchInputBorder:
+            self.SearchInputBorder.MouseLeftButtonDown += lambda s, e: self.TxtSearch.Focus()
         self.LstCategories.SelectionChanged += self.on_category_changed
         self.LstFamilies.SelectionChanged += self.on_family_selected
 
@@ -636,6 +640,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                     b.Foreground = SolidColorBrush(Color.FromRgb(255, 255, 255))
                 else:
                     b.Foreground = self.Resources["TextSecondary"]
+
+        if hasattr(self, "TxtSearch") and self.TxtSearch:
+            self.TxtSearch.CaretBrush = self.Resources["TextPrimary"]
 
         # Update and re-render
         self.refresh_categories()
@@ -1093,6 +1100,14 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                 else:
                     b.Foreground = self.Resources["TextSecondary"]
         self.apply_filter()
+
+    def on_search_focus(self, sender, e):
+        if hasattr(self, "SearchInputBorder") and self.SearchInputBorder:
+            self.SearchInputBorder.BorderBrush = self.Resources["RiyanMaroonHover"]
+
+    def on_search_blur(self, sender, e):
+        if hasattr(self, "SearchInputBorder") and self.SearchInputBorder:
+            self.SearchInputBorder.BorderBrush = self.Resources["BorderColor"]
 
     def on_search_changed(self, sender, e):
         txt = self.TxtSearch.Text.strip()
