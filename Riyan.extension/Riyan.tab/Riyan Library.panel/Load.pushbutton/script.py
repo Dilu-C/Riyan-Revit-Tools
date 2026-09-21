@@ -597,27 +597,33 @@ class RiyanFamilyBrowser(forms.WPFWindow):
     def apply_theme(self):
         if self.is_dark_theme:
             self.BtnToggleTheme.Content = u"☀️ Light"
-            self.Resources["WindowBg"] = SolidColorBrush(Color.FromRgb(24, 24, 27))
-            self.Resources["SurfaceBg"] = SolidColorBrush(Color.FromRgb(18, 18, 21))
-            self.Resources["CardBg"] = SolidColorBrush(Color.FromRgb(32, 32, 36))
-            self.Resources["BorderColor"] = SolidColorBrush(Color.FromRgb(46, 46, 51))
-            self.Resources["TextPrimary"] = SolidColorBrush(Color.FromRgb(244, 244, 245))
-            self.Resources["TextSecondary"] = SolidColorBrush(Color.FromRgb(161, 161, 170))
-            self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(113, 113, 122))
-            self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(42, 42, 48))
-            self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
-            self.Resources["SelectedCardBg"] = SolidColorBrush(Color.FromRgb(46, 20, 19)) # Deep Wine Maroon
+            self.Resources["WindowBg"] = SolidColorBrush(Color.FromRgb(45, 45, 48))       # #2D2D30
+            self.Resources["TitleBarBg"] = SolidColorBrush(Color.FromRgb(30, 30, 30))     # #1E1E1E
+            self.Resources["SurfaceBg"] = SolidColorBrush(Color.FromRgb(30, 30, 30))      # #1E1E1E
+            self.Resources["CardBg"] = SolidColorBrush(Color.FromRgb(30, 30, 30))         # #1E1E1E
+            self.Resources["ControlBg"] = SolidColorBrush(Color.FromRgb(51, 51, 55))      # #333337
+            self.Resources["BorderColor"] = SolidColorBrush(Color.FromRgb(63, 63, 70))    # #3F3F46
+            self.Resources["FooterBg"] = SolidColorBrush(Color.FromRgb(30, 30, 30))       # #1E1E1E
+            self.Resources["TextPrimary"] = SolidColorBrush(Color.FromRgb(245, 245, 245)) # #F5F5F5
+            self.Resources["TextSecondary"] = SolidColorBrush(Color.FromRgb(160, 160, 160)) # #A0A0A0
+            self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(113, 113, 122))   # #71717A
+            self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(62, 62, 66))        # #3E3E42
+            self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(75, 85, 99))    # #4B5563
+            self.Resources["SelectedCardBg"] = SolidColorBrush(Color.FromRgb(46, 20, 19)) # Deep Wine Maroon #2E1413
             # Studio White Canvas for CAD Thumbnails - 100% visibility for black linework in Dark Mode
             self.Resources["ThumbnailBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
-            self.Resources["ThumbnailBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
+            self.Resources["ThumbnailBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70)) # #3F3F46
             self.Background = Brushes.Transparent
             self.Foreground = self.Resources["TextPrimary"]
         else:
             self.BtnToggleTheme.Content = u"🌙 Dark"
             self.Resources["WindowBg"] = SolidColorBrush(Color.FromRgb(248, 250, 252)) # Slate 50
+            self.Resources["TitleBarBg"] = SolidColorBrush(Color.FromRgb(235, 238, 242))
             self.Resources["SurfaceBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
             self.Resources["CardBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+            self.Resources["ControlBg"] = SolidColorBrush(Color.FromRgb(241, 245, 249))
             self.Resources["BorderColor"] = SolidColorBrush(Color.FromRgb(203, 213, 225)) # Slate 300
+            self.Resources["FooterBg"] = SolidColorBrush(Color.FromRgb(241, 245, 249))
             self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(226, 232, 240))     # Slate 200 distinct hover
             self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(203, 213, 225)) # Slate 300
             self.Resources["SelectedCardBg"] = SolidColorBrush(Color.FromRgb(254, 238, 238)) # Soft pastel rose-50
@@ -1179,10 +1185,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         lbi = ListBoxItem()
         lbi.Tag = fam
 
-        card_bg = SolidColorBrush(Color.FromRgb(32, 32, 36)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(255, 255, 255))
-        img_bg = SolidColorBrush(Color.FromRgb(24, 24, 27)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(241, 245, 249))
-        text_primary = SolidColorBrush(Color.FromRgb(244, 244, 245)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(15, 23, 42))
-        text_muted = SolidColorBrush(Color.FromRgb(140, 140, 145)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(100, 116, 139))
+        card_bg = SolidColorBrush(Color.FromRgb(30, 30, 30)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(255, 255, 255))
+        img_bg = SolidColorBrush(Color.FromRgb(30, 30, 30)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(241, 245, 249))
+        text_primary = SolidColorBrush(Color.FromRgb(245, 245, 245)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(15, 23, 42))
+        text_muted = SolidColorBrush(Color.FromRgb(160, 160, 160)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(100, 116, 139))
         border_brush = self.Resources["BorderColor"]
 
         thumb_path = fam.get("thumbnail")
@@ -1275,7 +1281,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             # Discipline Pill
             disc_b = Border()
             disc_b.CornerRadius = System.Windows.CornerRadius(4)
-            disc_b.Background = SolidColorBrush(Color.FromRgb(24, 24, 27)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(241, 245, 249))
+            disc_b.Background = SolidColorBrush(Color.FromRgb(51, 51, 55)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(241, 245, 249))
             disc_b.Padding = Thickness(6, 2, 6, 2)
             disc_b.VerticalAlignment = System.Windows.VerticalAlignment.Center
             disc_b.HorizontalAlignment = System.Windows.HorizontalAlignment.Left
@@ -1324,7 +1330,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             img_border.Child = img
         else:
             fallback_grid = Grid()
-            inner_bg = SolidColorBrush(Color.FromRgb(30, 30, 34)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(240, 243, 246))
+            inner_bg = SolidColorBrush(Color.FromRgb(36, 36, 38)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(240, 243, 246))
             accent_border = Border()
             accent_border.CornerRadius = System.Windows.CornerRadius(6)
             accent_border.Background = inner_bg
@@ -1504,14 +1510,14 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             t_k.Text = k + ": "
             t_k.Width = 100
             t_k.FontSize = 11
-            t_k.Foreground = SolidColorBrush(Color.FromRgb(113, 113, 122))
+            t_k.Foreground = self.Resources["TextMuted"]
             row.Children.Add(t_k)
 
             t_v = TextBlock()
             t_v.Text = str(v)
             t_v.FontSize = 11
             t_v.FontWeight = System.Windows.FontWeights.SemiBold
-            t_v.Foreground = SolidColorBrush(Color.FromRgb(244, 244, 245)) if self.is_dark_theme else SolidColorBrush(Color.FromRgb(15, 23, 42))
+            t_v.Foreground = self.Resources["TextPrimary"]
             row.Children.Add(t_v)
 
             self.PanelParams.Children.Add(row)

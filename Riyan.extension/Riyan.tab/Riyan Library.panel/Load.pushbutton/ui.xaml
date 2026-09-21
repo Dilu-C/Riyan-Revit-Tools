@@ -13,19 +13,22 @@
         x:Name="RootWindow">
 
     <Window.Resources>
-        <!-- Dynamic Theme Brushes (Default to Dark Theme) -->
-        <SolidColorBrush x:Key="WindowBg" Color="#18181B"/>
-        <SolidColorBrush x:Key="SurfaceBg" Color="#121215"/>
-        <SolidColorBrush x:Key="CardBg" Color="#202024"/>
-        <SolidColorBrush x:Key="BorderColor" Color="#2E2E33"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#F4F4F5"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#A1A1AA"/>
+        <!-- Dynamic Theme Brushes (Default to Batch Export Manager's Signature Dark Palette) -->
+        <SolidColorBrush x:Key="WindowBg" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="TitleBarBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="SurfaceBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="CardBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="ControlBg" Color="#333337"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="FooterBg" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#A0A0A0"/>
         <SolidColorBrush x:Key="TextMuted" Color="#71717A"/>
         <SolidColorBrush x:Key="RiyanMaroon" Color="#802F2D"/>
-        <SolidColorBrush x:Key="RiyanMaroonHover" Color="#9C3A38"/>
-        <SolidColorBrush x:Key="RiyanMaroonPressed" Color="#632321"/>
-        <SolidColorBrush x:Key="HoverBg" Color="#2A2A30"/>
-        <SolidColorBrush x:Key="HoverBorder" Color="#3F3F46"/>
+        <SolidColorBrush x:Key="RiyanMaroonHover" Color="#9E3A38"/>
+        <SolidColorBrush x:Key="RiyanMaroonPressed" Color="#661F1D"/>
+        <SolidColorBrush x:Key="HoverBg" Color="#3E3E42"/>
+        <SolidColorBrush x:Key="HoverBorder" Color="#4B5563"/>
         <SolidColorBrush x:Key="SelectedCardBg" Color="#2E1413"/>
 
         <!-- Studio White Canvas for CAD Thumbnails (Guarantees 100% visibility for black linework in Dark Mode) -->
@@ -170,7 +173,7 @@
 
         <!-- Secondary Neutral Button with Visible Hover Highlight -->
         <Style x:Key="RiyanSecondaryBtn" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBg}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="12"/>
@@ -273,7 +276,7 @@
 
         <!-- Modern Styled ComboBox ToggleButton -->
         <ControlTemplate x:Key="RiyanComboBoxToggle" TargetType="ToggleButton">
-            <Border x:Name="border" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6">
+            <Border x:Name="border" Background="{DynamicResource ControlBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -297,7 +300,7 @@
 
         <!-- Modern Theme-Aware ComboBox Style -->
         <Style x:Key="RiyanComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBg}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -336,7 +339,7 @@
                                    Focusable="False"
                                    PopupAnimation="Slide">
                                 <Grid x:Name="DropDown" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="220">
-                                    <Border Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" 
+                                    <Border Background="{DynamicResource ControlBg}" BorderBrush="{DynamicResource BorderColor}" 
                                             BorderThickness="1" CornerRadius="6" Margin="0,3,0,0" Padding="2">
                                         <ScrollViewer SnapsToDevicePixels="True">
                                             <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
@@ -391,17 +394,17 @@
             </Grid.RowDefinitions>
 
             <!-- 1. Custom Title Bar -->
-            <Border Grid.Row="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" CornerRadius="10,10,0,0" x:Name="TitleBar">
+            <Border Grid.Row="0" Background="{DynamicResource TitleBarBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" CornerRadius="10,10,0,0" x:Name="TitleBar">
                 <Grid Margin="16,0,12,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="RIYAN" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center" x:Name="TxtTitleRiyan"/>
+                        <TextBlock Text="RIYAN" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource RiyanMaroon}" VerticalAlignment="Center" x:Name="TxtTitleRiyan"/>
                         <TextBlock Text=" FAMILY LIBRARY" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" x:Name="TxtTitleLibrary"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <!-- Theme Switcher Toggle -->
                         <Button x:Name="BtnToggleTheme" Content="☀️ Light" Margin="0,0,8,0" Padding="8,4" Height="26"
-                                Background="{DynamicResource CardBg}" Foreground="{DynamicResource TextPrimary}" 
+                                Background="{DynamicResource ControlBg}" Foreground="{DynamicResource TextPrimary}" 
                                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
@@ -424,9 +427,49 @@
                         <!-- Admin Sync / Settings -->
                         <Button x:Name="BtnAdminSync" Content="⚙ Sync / Settings" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="110" FontSize="11" Margin="0,0,8,0"/>
                         <!-- Maximize / Restore Window Button -->
-                        <Button x:Name="BtnMaximize" Content="🗖" Width="30" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="13" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore" Margin="0,0,4,0"/>
+                        <Button x:Name="BtnMaximize" Content="🗖" Width="32" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="12" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore" Margin="0,0,2,0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBg}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <!-- Close Window Button -->
-                        <Button x:Name="BtnClose" Content="✕" Width="30" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="14" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
+                        <Button x:Name="BtnClose" Content="✕" Width="36" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="13" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="0,9,0,0">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="bd" Property="Background" Value="#802F2D"/>
+                                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -516,7 +559,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" Height="32" x:Name="SearchInputBorder">
+                            <Border Grid.Column="0" Background="{DynamicResource ControlBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" Height="32" x:Name="SearchInputBorder">
                                 <Grid Margin="10,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="22"/>
@@ -533,7 +576,7 @@
                             <TextBlock Grid.Column="1" x:Name="TxtResultsCount" Text="0 Families" Foreground="{DynamicResource TextSecondary}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="16,0,16,0"/>
 
                             <!-- View Mode Segmented Buttons (No white popup dropdown) -->
-                            <Border Grid.Column="2" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" 
+                            <Border Grid.Column="2" Background="{DynamicResource ControlBg}" BorderBrush="{DynamicResource BorderColor}" 
                                     BorderThickness="1" CornerRadius="6" Padding="2" Height="30" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton x:Name="BtnViewGrid" Content="▦ Grid" ToolTip="Grid View" GroupName="ViewModeGroup" Tag="Grid" IsChecked="True" Style="{DynamicResource ViewSegmentBtn}"/>
@@ -667,7 +710,7 @@
                                 <Border Background="{DynamicResource RiyanMaroon}" CornerRadius="4" Padding="8,3" Margin="0,0,6,0">
                                     <TextBlock x:Name="TxtDetailDiscipline" Text="ARCHITECTURAL" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
                                 </Border>
-                                <Border Background="{DynamicResource CardBg}" CornerRadius="4" Padding="8,3" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" x:Name="CategoryBadgeBorder">
+                                <Border Background="{DynamicResource ControlBg}" CornerRadius="4" Padding="8,3" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" x:Name="CategoryBadgeBorder">
                                     <TextBlock x:Name="TxtDetailCategory" Text="Door-Sliding" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
                                 </Border>
                             </StackPanel>
@@ -706,7 +749,7 @@
             </Grid>
 
             <!-- 4. Footer Bar -->
-            <Border Grid.Row="3" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" CornerRadius="0,0,10,10" Padding="16,0" x:Name="FooterBorder">
+            <Border Grid.Row="3" Background="{DynamicResource FooterBg}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" CornerRadius="0,0,10,10" Padding="16,0" x:Name="FooterBorder">
                 <Grid VerticalAlignment="Center">
                     <!-- Status Indicator (Hidden as requested) -->
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
