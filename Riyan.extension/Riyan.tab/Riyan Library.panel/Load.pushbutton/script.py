@@ -393,9 +393,9 @@ def categorize_by_level_rule(filename, directory_name=""):
     # Category matching Dilupa's RVT Levels
     cat = "General"
     if disc == "ARCHITECTURAL":
-        if "DOR" in name_upper or "DOOR" in dir_upper:
+        if "RYN_DOR_" in name_upper or name_upper.startswith("DOR_") or "DOOR" in name_upper or "DOOR" in dir_upper:
             cat = "Doors"
-        elif "WIN" in name_upper or "WINDOW" in dir_upper:
+        elif "RYN_WIN_" in name_upper or name_upper.startswith("WIN_") or "WINDOW" in name_upper or "WINDOW" in dir_upper:
             cat = "Windows"
         elif "WALL" in name_upper or "WALL" in dir_upper or "FACADE" in name_upper or "FACADE" in dir_upper:
             if not any(k in name_upper.lower() for k in ["toilet", "lavatory", "shower", "sink", "fountain", "washfountain", "urinal", "lighting", "light", "tag", "drain", "tree", "plant", "container", "hute", "door", "window"]):
@@ -696,10 +696,26 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
                 # Resolve thumbnail across local, repo, or OneDrive
                 item["thumbnail"] = resolve_thumbnail_path(item)
-                if item.get("category", "").startswith("Window-"):
-                    item["category"] = "Windows"
-                if item.get("category", "").startswith("Door-"):
-                    item["category"] = "Doors"
+                # Sanitize category false positives (e.g. 'vendor', 'escorregador' matched 'DOR'; 'swing' matched 'WIN')
+                cat_raw = item.get("category", "")
+                c_up = c.upper()
+                r_up = r.upper()
+                if cat_raw.startswith("Door"):
+                    if "DOOR" not in c_up and "DOOR" not in r_up and "RYN_DOR" not in c_up and not c_up.startswith("DOR_"):
+                        if "VENDOR" in c_up or "WASHROOM" in r_up:
+                            item["category"] = "Plumbing-Fixtures"
+                        else:
+                            item["category"] = "Arch-Other"
+                    else:
+                        item["category"] = "Doors"
+                elif cat_raw.startswith("Window"):
+                    if "WINDOW" not in c_up and "WINDOW" not in r_up and "RYN_WIN" not in c_up and not c_up.startswith("WIN_"):
+                        if "DOOR" in c_up or "DOOR" in r_up or "GATE" in c_up:
+                            item["category"] = "Doors"
+                        else:
+                            item["category"] = "Arch-Other"
+                    else:
+                        item["category"] = "Windows"
                 self.catalog.append(item)
 
             # Live Dynamic Synchronizer (safely wrapped so it never corrupts self.catalog)
