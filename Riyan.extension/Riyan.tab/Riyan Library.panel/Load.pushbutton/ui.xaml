@@ -28,12 +28,9 @@
         <SolidColorBrush x:Key="HoverBorder" Color="#3F3F46"/>
         <SolidColorBrush x:Key="SelectedCardBg" Color="#2E1413"/>
 
-        <!-- Modern Floating Acrylic Thumbnail Brushes -->
-        <LinearGradientBrush x:Key="ThumbnailBg" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#25252A" Offset="0.0"/>
-            <GradientStop Color="#161619" Offset="1.0"/>
-        </LinearGradientBrush>
-        <SolidColorBrush x:Key="ThumbnailBorder" Color="#2E2E36"/>
+        <!-- Studio White Canvas for CAD Thumbnails (Guarantees 100% visibility for black linework in Dark Mode) -->
+        <SolidColorBrush x:Key="ThumbnailBg" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="ThumbnailBorder" Color="#3F3F46"/>
 
         <!-- Ultra-Sleek Modern Transparent ScrollBar Style (Zero OS Default Grey) -->
         <Style TargetType="{x:Type ScrollBar}">

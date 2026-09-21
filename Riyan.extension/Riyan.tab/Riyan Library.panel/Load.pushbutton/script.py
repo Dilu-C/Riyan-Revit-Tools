@@ -603,13 +603,9 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["HoverBg"] = SolidColorBrush(Color.FromRgb(42, 42, 48))
             self.Resources["HoverBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
             self.Resources["SelectedCardBg"] = SolidColorBrush(Color.FromRgb(46, 20, 19)) # Deep Wine Maroon
-            grad_dark = LinearGradientBrush()
-            grad_dark.StartPoint = Point(0, 0)
-            grad_dark.EndPoint = Point(1, 1)
-            grad_dark.GradientStops.Add(GradientStop(Color.FromRgb(37, 37, 42), 0.0))
-            grad_dark.GradientStops.Add(GradientStop(Color.FromRgb(22, 22, 25), 1.0))
-            self.Resources["ThumbnailBg"] = grad_dark
-            self.Resources["ThumbnailBorder"] = SolidColorBrush(Color.FromRgb(46, 46, 54))
+            # Studio White Canvas for CAD Thumbnails - 100% visibility for black linework in Dark Mode
+            self.Resources["ThumbnailBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+            self.Resources["ThumbnailBorder"] = SolidColorBrush(Color.FromRgb(63, 63, 70))
             self.Background = Brushes.Transparent
             self.Foreground = self.Resources["TextPrimary"]
         else:
@@ -624,13 +620,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             self.Resources["TextPrimary"] = SolidColorBrush(Color.FromRgb(15, 23, 42))     # Deep Pitch Black/Slate
             self.Resources["TextSecondary"] = SolidColorBrush(Color.FromRgb(51, 65, 85))   # Dark Slate 700
             self.Resources["TextMuted"] = SolidColorBrush(Color.FromRgb(100, 116, 139))   # Slate 500
-            grad_light = LinearGradientBrush()
-            grad_light.StartPoint = Point(0, 0)
-            grad_light.EndPoint = Point(1, 1)
-            grad_light.GradientStops.Add(GradientStop(Color.FromRgb(248, 250, 252), 0.0))
-            grad_light.GradientStops.Add(GradientStop(Color.FromRgb(235, 239, 245), 1.0))
-            self.Resources["ThumbnailBg"] = grad_light
-            self.Resources["ThumbnailBorder"] = SolidColorBrush(Color.FromRgb(215, 222, 232))
+            self.Resources["ThumbnailBg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
+            self.Resources["ThumbnailBorder"] = SolidColorBrush(Color.FromRgb(203, 213, 225))
             self.Background = Brushes.Transparent
             self.Foreground = self.Resources["TextPrimary"]
 
