@@ -315,8 +315,8 @@ def update_tools():
                                             pass
                     except Exception:
                         pass
-                    # Purge legacy Tool.panel and About.panel
-                    for legacy_p in ["Tool.panel", "About.panel"]:
+                    # Purge legacy Tool.panel, About.panel, and RIY.panel
+                    for legacy_p in ["Tool.panel", "About.panel", "RIY.panel"]:
                         legacy_target = os.path.join(folder, "Riyan.tab", legacy_p)
                         if os.path.exists(legacy_target):
                             try:

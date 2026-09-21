@@ -138,7 +138,7 @@ try {
         $p = Join-Path (Join-Path $targetTools 'Riyan.extension') $_
         if (Test-Path $p) { Remove-Item -Path $p -Recurse -Force -ErrorAction SilentlyContinue }
     }
-    @('Tool.panel', 'About.panel') | ForEach-Object {
+    @('Tool.panel', 'About.panel', 'RIY.panel') | ForEach-Object {
         $legacyPanel = Join-Path $targetTools "Riyan.extension\Riyan.tab\$_"
         if (Test-Path $legacyPanel) { Remove-Item -Path $legacyPanel -Recurse -Force -ErrorAction SilentlyContinue }
     }

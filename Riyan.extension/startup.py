@@ -347,12 +347,28 @@ def cleanup_legacy_files():
             except Exception:
                 pass
 
-        # Purge any ancient About.panel that lacks script file or duplicates System.panel
+        # Purge any ancient About.panel, Tool.panel, or RIY.panel
         for folder in target_folders:
-            ancient_about = os.path.join(folder, "Riyan.tab", "About.panel")
-            if os.path.exists(ancient_about):
+            for bad_p in ["About.panel", "Tool.panel", "RIY.panel"]:
+                bp = os.path.join(folder, "Riyan.tab", bad_p)
+                if os.path.exists(bp):
+                    try:
+                        shutil.rmtree(bp, ignore_errors=True)
+                    except Exception:
+                        pass
+
+        # Purge rogue system-level extension paths
+        rogue_system_paths = [
+            os.path.expandvars(r"%PROGRAMDATA%\pyRevit\Extension"),
+            os.path.expandvars(r"%PROGRAMDATA%\pyRevit\Extensions\Riyan.extension"),
+            os.path.expandvars(r"%PROGRAMDATA%\pyRevit\Extensions\Riyan-Revit-Tools"),
+            os.path.expandvars(r"%ProgramFiles%\pyRevit-Master\extensions\Riyan.extension"),
+            os.path.expandvars(r"%ProgramFiles%\pyRevit-Master\extensions\Riyan-Revit-Tools")
+        ]
+        for rp in rogue_system_paths:
+            if os.path.exists(rp):
                 try:
-                    shutil.rmtree(ancient_about, ignore_errors=True)
+                    shutil.rmtree(rp, ignore_errors=True)
                 except Exception:
                     pass
 
