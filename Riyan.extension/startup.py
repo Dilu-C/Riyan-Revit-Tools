@@ -195,8 +195,15 @@ def cleanup_legacy_files():
     try:
         import shutil
         current_dir = os.path.dirname(__file__)
-        parent_dir = os.path.dirname(current_dir)
-        ext_folder = os.path.expandvars(r"%APPDATA%\pyRevit\Extensions")
+        pyrevit_root = os.path.expandvars(r"%APPDATA%\pyRevit")
+        singular_ext = os.path.join(pyrevit_root, "Extension")
+        if os.path.exists(singular_ext):
+            try:
+                shutil.rmtree(singular_ext, ignore_errors=True)
+            except Exception:
+                pass
+
+        ext_folder = os.path.join(pyrevit_root, "Extensions")
         
         target_folders = set(filter(None, [ext_folder, parent_dir, current_dir]))
         bad_files = [
@@ -360,6 +367,8 @@ def cleanup_legacy_files():
                     import re
                     # Strip any non-existent RGLK-Drive references
                     cleaned_cfg = re.sub(r'[\'"][^\'"]*RGLK-Drive[^\'"]*[\'"]\s*,?', '', cfg_data)
+                    # Strip any references to singular Extension folder
+                    cleaned_cfg = re.sub(r'[\'"][^\'"]*pyRevit[\\/]Extension[\\/][^\'"]*[\'"]\s*,?', '', cleaned_cfg, flags=re.IGNORECASE)
                     cleaned_cfg = cleaned_cfg.replace(', ]', ']').replace('[, ', '[').replace(',,', ',')
                     if cleaned_cfg != cfg_data:
                         with open(cfg_file, "w") as cf:

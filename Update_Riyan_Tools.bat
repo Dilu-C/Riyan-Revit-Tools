@@ -40,7 +40,13 @@ try {
 
     Write-Host "[1/5] Clean-Slate Wipe: Clearing old duplicates & pyRevit cache..." -ForegroundColor Yellow
 
-    # Delete all old legacy duplicate folders
+    # Delete all old legacy duplicate folders (both singular Extension and plural Extensions)
+    $singularExtDir = Join-Path $pyrevitRoot 'Extension'
+    if (Test-Path $singularExtDir) {
+        Write-Host "  Removing ancient legacy singular Extension folder: $singularExtDir" -ForegroundColor DarkGray
+        Remove-Item -Path $singularExtDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
     @('Riyan-Revit-Tools.extension', 'Riyan.extension', 'Riyan-Revit-Tools-main') | ForEach-Object {
         $target = Join-Path $extDir $_
         if (Test-Path $target) {
@@ -157,7 +163,7 @@ try {
         $escaped = $targetTools.Replace('\', '\\')
         if ($content -match 'userextensions\s*=\s*\[(.*?)\]') {
             $existingItems = $matches[1].Split(',') | ForEach-Object { $_.Trim().Trim('"').Trim('''') } | Where-Object { 
-                $_ -and (Test-Path $_) -and ($_ -notmatch 'RGLK-Drive')
+                $_ -and (Test-Path $_) -and ($_ -notmatch 'RGLK-Drive') -and ($_ -notmatch '(?i)pyRevit[\\/]Extension([\\/]|$)')
             }
             # Add targetTools if not already present
             if ($existingItems -notcontains $targetTools -and $existingItems -notcontains $escaped) {

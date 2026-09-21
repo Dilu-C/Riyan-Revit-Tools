@@ -324,6 +324,15 @@ def update_tools():
                             except Exception:
                                 pass
 
+                # Zero-Touch Self-Healing: Clean ancient singular Extension directory (%APPDATA%\pyRevit\Extension)
+                pyrevit_root = os.path.dirname(ext_root)
+                singular_ext = os.path.join(pyrevit_root, "Extension")
+                if os.path.exists(singular_ext):
+                    try:
+                        shutil.rmtree(singular_ext, ignore_errors=True)
+                    except Exception:
+                        pass
+
                 # Zero-Touch Self-Healing: Clean duplicate / conflicting root extensions
                 duplicate_ext = os.path.join(ext_root, "Riyan.extension")
                 if os.path.exists(duplicate_ext) and os.path.abspath(duplicate_ext).lower() != os.path.abspath(extension_dir).lower():
@@ -339,20 +348,19 @@ def update_tools():
                     except Exception:
                         pass
 
-                # Self-heal pyRevit_config.ini from invalid ghost network drives (e.g. \\RGLK-Drive)
-                pyrevit_root = os.path.dirname(ext_root)
+                # Self-heal pyRevit_config.ini from invalid ghost network drives and singular Extension
                 cfg_file = os.path.join(pyrevit_root, "pyRevit_config.ini")
                 if os.path.exists(cfg_file):
                     try:
                         with open(cfg_file, "r") as cf:
                             cfg_data = cf.read()
-                        if "RGLK-Drive" in cfg_data:
-                            import re
-                            cleaned_cfg = re.sub(r'[\'"][^\'"]*RGLK-Drive[^\'"]*[\'"]\s*,?', '', cfg_data)
-                            cleaned_cfg = cleaned_cfg.replace(', ]', ']').replace('[, ', '[').replace(',,', ',')
-                            if cleaned_cfg != cfg_data:
-                                with open(cfg_file, "w") as cf:
-                                    cf.write(cleaned_cfg)
+                        import re
+                        cleaned_cfg = re.sub(r'[\'"][^\'"]*RGLK-Drive[^\'"]*[\'"]\s*,?', '', cfg_data)
+                        cleaned_cfg = re.sub(r'[\'"][^\'"]*pyRevit[\\/]Extension[\\/][^\'"]*[\'"]\s*,?', '', cleaned_cfg, flags=re.IGNORECASE)
+                        cleaned_cfg = cleaned_cfg.replace(', ]', ']').replace('[, ', '[').replace(',,', ',')
+                        if cleaned_cfg != cfg_data:
+                            with open(cfg_file, "w") as cf:
+                                cf.write(cleaned_cfg)
                     except Exception:
                         pass
 
