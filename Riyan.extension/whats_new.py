@@ -298,7 +298,7 @@ def get_version():
             curr = os.path.dirname(curr)
     except Exception:
         pass
-    return "2.5.10"
+    return "2.5.11"
 
 def show_whats_new():
     try:
