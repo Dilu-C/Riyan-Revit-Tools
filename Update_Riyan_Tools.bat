@@ -210,6 +210,9 @@ try {
     if (-not $targetParamPath -or -not (Test-Path $targetParamPath)) {
         $targetParamPath = Join-Path $cacheSpDir 'RYN_SharedParameters_V-RS20260918.txt'
     }
+    if (-not $targetParamPath -or -not (Test-Path $targetParamPath)) {
+        $targetParamPath = Join-Path (Join-Path $targetTools 'Riyan.extension\lib') 'RYN_SharedParameters_V-RS20260918.txt'
+    }
 
     if (Test-Path $targetParamPath) {
         Write-Host "  Active Shared Parameter File: $(Split-Path $targetParamPath -Leaf)" -ForegroundColor DarkGray

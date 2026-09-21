@@ -209,6 +209,7 @@ def find_latest_riyan_shared_parameter_file():
     """
     search_roots = get_sharepoint_roots()
     search_roots.extend([
+        _this_dir,
         os.path.join(LOCAL_CACHE_DIR, "SharedParameters"),
         LOCAL_CACHE_DIR
     ])
@@ -219,6 +220,15 @@ def find_latest_riyan_shared_parameter_file():
     }
 
     candidates = []
+
+    # Direct embedded standard parameter file in lib (100% guaranteed presence)
+    embedded_file = os.path.join(_this_dir, "RYN_SharedParameters_V-RS20260918.txt")
+    if is_valid_shared_parameter_file(embedded_file):
+        try:
+            mtime = os.path.getmtime(embedded_file)
+        except Exception:
+            mtime = 0
+        candidates.append((20260918, 1, mtime, embedded_file))
 
     for root_dir in search_roots:
         if not root_dir or not os.path.exists(root_dir):
