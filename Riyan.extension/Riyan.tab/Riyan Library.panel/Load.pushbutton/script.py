@@ -444,7 +444,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.current_discipline = "ALL"
         self.current_category = "ALL"
         self.is_dark_theme = True
-        self.view_mode = "Medium"
+        self.view_mode = "Grid"
 
         # Win32 HWND Ownership
         if UIDOC and hasattr(UIDOC, "Application"):
@@ -485,10 +485,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
 
         # View Mode Segmented Buttons
         view_btns = [
-            ("BtnViewXL", "ExtraLarge"),
-            ("BtnViewL", "Large"),
-            ("BtnViewM", "Medium"),
-            ("BtnViewS", "Small"),
+            ("BtnViewGrid", "Grid"),
             ("BtnViewList", "List")
         ]
         for b_name, mode in view_btns:
@@ -641,7 +638,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
         self.update_discipline_tab_styles()
 
         # View Mode Segmented Buttons Contrast
-        for b_name in ["BtnViewXL", "BtnViewL", "BtnViewM", "BtnViewS", "BtnViewList"]:
+        for b_name in ["BtnViewGrid", "BtnViewList"]:
             b = getattr(self, b_name, None)
             if b:
                 if b.IsChecked:
@@ -1078,10 +1075,10 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             pass
 
     def set_view_mode(self, mode):
-        """Switches thumbnail view size: Extra Large, Large, Medium, Small, List."""
+        """Switches thumbnail view mode: Grid or List."""
         self.view_mode = mode
         # Update foreground highlights
-        for b_name in ["BtnViewXL", "BtnViewL", "BtnViewM", "BtnViewS", "BtnViewList"]:
+        for b_name in ["BtnViewGrid", "BtnViewList"]:
             b = getattr(self, b_name, None)
             if b:
                 if b.IsChecked:
@@ -1272,15 +1269,8 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             lbi.Content = card_border
             return lbi
 
-        # ---------------- GRID VIEW MODES (ExtraLarge, Large, Medium, Small) ----------------
-        if self.view_mode == "ExtraLarge":
-            card_w = 230; card_h = 280; img_h = 175; font_title = 12; font_cat = 10
-        elif self.view_mode == "Large":
-            card_w = 185; card_h = 230; img_h = 135; font_title = 11.5; font_cat = 9.5
-        elif self.view_mode == "Small":
-            card_w = 120; card_h = 155; img_h = 75; font_title = 10; font_cat = 8.5
-        else: # Medium (Default)
-            card_w = 150; card_h = 190; img_h = 100; font_title = 11; font_cat = 9.5
+        # ---------------- GRID VIEW MODE ----------------
+        card_w = 150; card_h = 190; img_h = 100; font_title = 11; font_cat = 9.5
 
         card_border = Border()
         card_border.Width = card_w
@@ -1363,7 +1353,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             
             txt_pill = TextBlock()
             txt_pill.Text = badge_text
-            txt_pill.FontSize = 10 if self.view_mode in ["ExtraLarge", "Large"] else 8.5
+            txt_pill.FontSize = 8.5
             txt_pill.FontWeight = System.Windows.FontWeights.Bold
             txt_pill.Foreground = SolidColorBrush(Color.FromRgb(255, 255, 255))
             pill_b.Child = txt_pill
@@ -1371,7 +1361,7 @@ class RiyanFamilyBrowser(forms.WPFWindow):
             
             txt_sub = TextBlock()
             txt_sub.Text = sub_text
-            txt_sub.FontSize = 8.5 if self.view_mode in ["ExtraLarge", "Large"] else 7.5
+            txt_sub.FontSize = 7.5
             txt_sub.FontWeight = System.Windows.FontWeights.SemiBold
             txt_sub.Foreground = text_muted
             txt_sub.Margin = Thickness(0, 4, 0, 0)

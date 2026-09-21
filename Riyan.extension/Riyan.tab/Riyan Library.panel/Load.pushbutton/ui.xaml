@@ -246,7 +246,7 @@
             <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Padding" Value="7,3"/>
+            <Setter Property="Padding" Value="10,3"/>
             <Setter Property="Margin" Value="1,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -532,10 +532,7 @@
                             <Border Grid.Column="2" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderColor}" 
                                     BorderThickness="1" CornerRadius="6" Padding="2" Height="30" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <RadioButton x:Name="BtnViewXL" Content="⊞ XL" ToolTip="Extra Large Icons" GroupName="ViewModeGroup" Tag="ExtraLarge" Style="{DynamicResource ViewSegmentBtn}"/>
-                                    <RadioButton x:Name="BtnViewL" Content="⊞ L" ToolTip="Large Icons" GroupName="ViewModeGroup" Tag="Large" Style="{DynamicResource ViewSegmentBtn}"/>
-                                    <RadioButton x:Name="BtnViewM" Content="▦ M" ToolTip="Medium Icons" GroupName="ViewModeGroup" Tag="Medium" IsChecked="True" Style="{DynamicResource ViewSegmentBtn}"/>
-                                    <RadioButton x:Name="BtnViewS" Content="▤ S" ToolTip="Small Icons" GroupName="ViewModeGroup" Tag="Small" Style="{DynamicResource ViewSegmentBtn}"/>
+                                    <RadioButton x:Name="BtnViewGrid" Content="▦ Grid" ToolTip="Grid View" GroupName="ViewModeGroup" Tag="Grid" IsChecked="True" Style="{DynamicResource ViewSegmentBtn}"/>
                                     <RadioButton x:Name="BtnViewList" Content="☰ List" ToolTip="List View" GroupName="ViewModeGroup" Tag="List" Style="{DynamicResource ViewSegmentBtn}"/>
                                 </StackPanel>
                             </Border>
