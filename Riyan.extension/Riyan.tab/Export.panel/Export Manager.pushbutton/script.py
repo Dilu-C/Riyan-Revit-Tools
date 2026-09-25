@@ -2117,7 +2117,7 @@ class CustomFileLockedDialog(object):
                 <Button x:Name="CloseBtn" Grid.Column="2" Content="✕" Foreground="{close_fg}" FontSize="13" Background="Transparent" BorderThickness="0" Cursor="Hand">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -2150,7 +2150,7 @@ class CustomFileLockedDialog(object):
                             FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="4">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -2167,7 +2167,7 @@ class CustomFileLockedDialog(object):
                                 FontSize="11.5" FontWeight="SemiBold" Cursor="Hand">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="4">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <ControlTemplate.Triggers>
@@ -2183,7 +2183,7 @@ class CustomFileLockedDialog(object):
                                 FontSize="11.5" FontWeight="Bold" Cursor="Hand" IsDefault="True">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="4">
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <ControlTemplate.Triggers>
@@ -2200,15 +2200,15 @@ class CustomFileLockedDialog(object):
         </Grid>
     </Border>
 </Window>
-""".format(
-            bg=bg, tb_bg=tb_bg, footer_bg=footer_bg, border=border,
-            footer_border=footer_border, fg_title=fg_title, fg_msg=fg_msg,
-            fg_dim=fg_dim, close_fg=close_fg, btn_primary=btn_primary,
-            btn_hover=btn_hover, btn_sec_bg=btn_sec_bg, btn_sec_border=btn_sec_border,
-            btn_sec_fg=btn_sec_fg, btn_sec_hover=btn_sec_hover,
-            display_name=display_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"),
-            folder=folder.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        )
+""".replace("{bg}", bg).replace("{tb_bg}", tb_bg).replace("{footer_bg}", footer_bg)\
+   .replace("{border}", border).replace("{footer_border}", footer_border)\
+   .replace("{fg_title}", fg_title).replace("{fg_msg}", fg_msg)\
+   .replace("{fg_dim}", fg_dim).replace("{close_fg}", close_fg)\
+   .replace("{btn_primary}", btn_primary).replace("{btn_hover}", btn_hover)\
+   .replace("{btn_sec_bg}", btn_sec_bg).replace("{btn_sec_border}", btn_sec_border)\
+   .replace("{btn_sec_fg}", btn_sec_fg).replace("{btn_sec_hover}", btn_sec_hover)\
+   .replace("{display_name}", display_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))\
+   .replace("{folder}", folder.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
         r = XmlReader.Create(StringReader(xaml_code))
         self.win = XamlReader.Load(r)
