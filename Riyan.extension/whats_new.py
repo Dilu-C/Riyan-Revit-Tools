@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import os
 import sys
 import clr
@@ -86,7 +86,7 @@ XAML_STRING = """
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="45"/>
-                <RowDefinition Height="75"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="65"/>
             </Grid.RowDefinitions>
@@ -99,10 +99,10 @@ XAML_STRING = """
                         <ColumnDefinition Width="42"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                        <TextBlock Text="🌟" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        
                         <TextBlock Text="What's New in Riyan Tools - {VERSION}" Foreground="#D1D5DB" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Button x:Name="BtnCloseX" Grid.Column="1" Content="✕" Style="{StaticResource CloseBtnStyle}"/>
+                    <Button x:Name="BtnCloseX" Grid.Column="1" Content="X" Style="{StaticResource CloseBtnStyle}"/>
                 </Grid>
             </Border>
 

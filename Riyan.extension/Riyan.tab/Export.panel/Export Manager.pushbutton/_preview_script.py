@@ -66,11 +66,11 @@ class PreviewForm(forms.WPFWindow):
         if self.WindowState == System.Windows.WindowState.Maximized:
             self.WindowState = System.Windows.WindowState.Normal
             if hasattr(self, 'BtnMaximize'):
-                self.BtnMaximize.Content = u"\u25A2"
+                self.BtnMaximize.Content = u"\u25A1"
         else:
             self.WindowState = System.Windows.WindowState.Maximized
             if hasattr(self, 'BtnMaximize'):
-                self.BtnMaximize.Content = u"\u29C9"
+                self.BtnMaximize.Content = u"\u25A1"
         self.Dispatcher.BeginInvoke(System.Action(lambda: self.BtnFit_Click(None, None)))
 
     def on_pan_start(self, sender, e):

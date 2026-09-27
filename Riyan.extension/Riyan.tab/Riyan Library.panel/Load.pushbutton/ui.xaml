@@ -403,7 +403,7 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <!-- Theme Switcher Toggle -->
-                        <Button x:Name="BtnToggleTheme" Content="☀️ Light" Margin="0,0,8,0" Padding="8,4" Height="26"
+                        <Button x:Name="BtnToggleTheme" Content="Light" Margin="0,0,8,0" Padding="8,4" Height="26"
                                 Background="{DynamicResource ControlBg}" Foreground="{DynamicResource TextPrimary}" 
                                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center">
                             <Button.Template>
@@ -424,10 +424,9 @@
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
-                        <!-- Admin Sync / Settings -->
-                        <Button x:Name="BtnAdminSync" Content="⚙ Sync / Settings" Style="{StaticResource RiyanSecondaryBtn}" Height="28" MinWidth="110" FontSize="11" Margin="0,0,8,0"/>
+
                         <!-- Maximize / Restore Window Button -->
-                        <Button x:Name="BtnMaximize" Content="🗖" Width="32" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="12" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore" Margin="0,0,2,0">
+                        <Button x:Name="BtnMaximize" Content="&#x25A1;" FontFamily="Segoe UI Symbol" Width="32" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="12" BorderThickness="0" Cursor="Hand" ToolTip="Maximize / Restore" Margin="0,0,2,0">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
@@ -449,7 +448,7 @@
                             </Button.Style>
                         </Button>
                         <!-- Close Window Button -->
-                        <Button x:Name="BtnClose" Content="✕" Width="36" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="13" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand">
+                        <Button x:Name="BtnClose" Content="&#x2715;" FontFamily="Segoe UI Symbol" Width="36" Height="28" Background="Transparent" Foreground="{DynamicResource TextSecondary}" FontSize="13" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
@@ -735,9 +734,7 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Action Buttons -->
-                            <Button x:Name="BtnLoadFamily" Content="⬇ Load into Project" Style="{StaticResource RiyanPrimaryBtn}" Height="36" Margin="0,0,0,8"/>
-                            <Button x:Name="BtnLoadTypeOnly" Content="Load Selected Type Only" Style="{StaticResource RiyanSecondaryBtn}" Height="32" Margin="0,0,0,12"/>
+
 
                             <!-- Admin Edit in Revit 2025 Button -->
                             <Button x:Name="BtnEdit2025" Content="🛠 Edit Master in Revit 2025" Style="{StaticResource RiyanSecondaryBtn}" 

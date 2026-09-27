@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Custom Naming Rule" Height="620" Width="880"
         WindowStartupLocation="CenterScreen"
@@ -484,11 +484,11 @@
                     
                     <!-- Ordering buttons -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <Button x:Name="BtnMoveToTop" Content="⤒" Style="{StaticResource OrderBtn}" Click="BtnMoveToTop_Click" ToolTip="Move to Top" FontSize="14"/>
-                        <Button x:Name="BtnMoveUp" Content="▲" Style="{StaticResource OrderBtn}" Click="BtnMoveUp_Click" ToolTip="Move Up"/>
-                        <Button x:Name="BtnMoveDown" Content="▼" Style="{StaticResource OrderBtn}" Click="BtnMoveDown_Click" ToolTip="Move Down"/>
-                        <Button x:Name="BtnMoveToBottom" Content="⤓" Style="{StaticResource OrderBtn}" Click="BtnMoveToBottom_Click" ToolTip="Move to Bottom" FontSize="14"/>
-                        <Button x:Name="BtnReset" Content="↻" Style="{StaticResource OrderBtn}" Click="BtnReset_Click" ToolTip="Clear All"/>
+                        <Button x:Name="BtnMoveToTop" Content="&#x2912;" FontFamily="Segoe UI Symbol" Style="{StaticResource OrderBtn}" Click="BtnMoveToTop_Click" ToolTip="Move to Top" FontSize="14"/>
+                        <Button x:Name="BtnMoveUp" Content="&#x25B2;" FontFamily="Segoe UI Symbol" Style="{StaticResource OrderBtn}" Click="BtnMoveUp_Click" ToolTip="Move Up"/>
+                        <Button x:Name="BtnMoveDown" Content="&#x25BC;" FontFamily="Segoe UI Symbol" Style="{StaticResource OrderBtn}" Click="BtnMoveDown_Click" ToolTip="Move Down"/>
+                        <Button x:Name="BtnMoveToBottom" Content="&#x2913;" FontFamily="Segoe UI Symbol" Style="{StaticResource OrderBtn}" Click="BtnMoveToBottom_Click" ToolTip="Move to Bottom" FontSize="14"/>
+                        <Button x:Name="BtnReset" Content="Reset" Style="{StaticResource OrderBtn}" Click="BtnReset_Click" ToolTip="Clear All"/>
                     </StackPanel>
 
                     <!-- Scheme Management: Scheme Name and Save/Delete -->

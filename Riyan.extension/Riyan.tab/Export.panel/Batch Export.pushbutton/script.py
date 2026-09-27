@@ -366,7 +366,7 @@ class SheetRow:
             pass
 
         mi_preview = System.Windows.Controls.MenuItem()
-        mi_preview.Header = u"👁  Preview Sheet (Double-Click)"
+        mi_preview.Header = "Preview Sheet"
         if mi_style: mi_preview.Style = mi_style
         mi_preview.Click += lambda s, e: self.form.preview_sheet_row(self)
         cm.Items.Add(mi_preview)
@@ -374,19 +374,19 @@ class SheetRow:
         cm.Items.Add(System.Windows.Controls.Separator())
         
         mi_check = System.Windows.Controls.MenuItem()
-        mi_check.Header = u"✓  Check Selected (Space)"
+        mi_check.Header = "Check Selected (Space)"
         if mi_style: mi_check.Style = mi_style
         mi_check.Click += lambda s, e: self.form.menu_check_selected(True)
         cm.Items.Add(mi_check)
         
         mi_uncheck = System.Windows.Controls.MenuItem()
-        mi_uncheck.Header = u"☐  Uncheck Selected"
+        mi_uncheck.Header = "Uncheck Selected"
         if mi_style: mi_uncheck.Style = mi_style
         mi_uncheck.Click += lambda s, e: self.form.menu_check_selected(False)
         cm.Items.Add(mi_uncheck)
         
         mi_invert = System.Windows.Controls.MenuItem()
-        mi_invert.Header = u"⇄  Invert Selected"
+        mi_invert.Header = "Invert Selected"
         if mi_style: mi_invert.Style = mi_style
         mi_invert.Click += lambda s, e: self.form.menu_invert_selected()
         cm.Items.Add(mi_invert)
@@ -1014,19 +1014,19 @@ class FileRow:
         except: pass
 
         mi_check = System.Windows.Controls.MenuItem()
-        mi_check.Header = u"✓  Check Selected (Space)"
+        mi_check.Header = "Check Selected (Space)"
         if mi_style: mi_check.Style = mi_style
         mi_check.Click += lambda s, e: self.form.menu_check_selected(True)
         cm.Items.Add(mi_check)
         
         mi_uncheck = System.Windows.Controls.MenuItem()
-        mi_uncheck.Header = u"☐  Uncheck Selected"
+        mi_uncheck.Header = "Uncheck Selected"
         if mi_style: mi_uncheck.Style = mi_style
         mi_uncheck.Click += lambda s, e: self.form.menu_check_selected(False)
         cm.Items.Add(mi_uncheck)
         
         mi_invert = System.Windows.Controls.MenuItem()
-        mi_invert.Header = u"⇄  Invert Selected"
+        mi_invert.Header = "Invert Selected"
         if mi_style: mi_invert.Style = mi_style
         mi_invert.Click += lambda s, e: self.form.menu_invert_selected()
         cm.Items.Add(mi_invert)
@@ -1953,7 +1953,7 @@ class BatchExportForm(forms.WPFWindow):
             else:
                 self.WindowState = System.Windows.WindowState.Maximized
                 if hasattr(self, 'BtnMaximize'):
-                    self.BtnMaximize.Content = u"\u29C9"
+                    self.BtnMaximize.Content = u"\u25A1"
         except:
             pass
 
@@ -2016,7 +2016,7 @@ class BatchExportForm(forms.WPFWindow):
                 self.Resources["ThemeBtnHoverFg"] = SolidColorBrush(Color.FromRgb(31, 41, 55))
 
                 if hasattr(self, "BtnTheme") and self.BtnTheme:
-                    self.BtnTheme.Content = u"🌙 Dark"
+                    self.BtnTheme.Content = u"Dark"
                     self.BtnTheme.ToolTip = "Switch to Dark Theme"
             else:
                 self.Resources["WindowBg"] = SolidColorBrush(Color.FromRgb(45, 45, 48))
@@ -2066,7 +2066,7 @@ class BatchExportForm(forms.WPFWindow):
                 self.Resources["ThemeBtnHoverFg"] = SolidColorBrush(Color.FromRgb(255, 255, 255))
 
                 if hasattr(self, "BtnTheme") and self.BtnTheme:
-                    self.BtnTheme.Content = u"☀️ Light"
+                    self.BtnTheme.Content = u"Light"
                     self.BtnTheme.ToolTip = "Switch to Light Theme"
         except Exception as ex:
             log_diag("apply_theme error: " + str(ex))
@@ -2449,7 +2449,7 @@ class BatchExportForm(forms.WPFWindow):
             self.log("[OUTGOING] Replicated folder structure updated for {} model(s).".format(len(self.rows)))
         else:
             if hasattr(self, 'BtnOutgoingFolder') and self.BtnOutgoingFolder:
-                self.BtnOutgoingFolder.Content = u"📁 Outgoing ▾"
+                self.BtnOutgoingFolder.Content = "Outgoing"
                 self.BtnOutgoingFolder.ToolTip = "Set target root folder for replicated exports"
             for row in self.rows:
                 row.set_output_location(os.path.dirname(os.path.abspath(row.file_path)))

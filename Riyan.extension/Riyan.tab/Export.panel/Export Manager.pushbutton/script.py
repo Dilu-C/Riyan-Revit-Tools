@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import clr
 import os
 import shutil
@@ -3320,7 +3320,7 @@ class ExportManagerForm(forms.WPFWindow):
                 self.FooterBorder.Background = SolidColorBrush(footer_bg)
                 self.FooterBorder.BorderBrush = SolidColorBrush(border_col)
             if hasattr(self, "btnThemeToggle") and self.btnThemeToggle:
-                self.btnThemeToggle.Content = u"🌙 Dark" if is_light else u"☀️ Light"
+                self.btnThemeToggle.Content = "Dark" if is_light else "Light"
                 self.btnThemeToggle.ToolTip = "Switch to Dark Theme" if is_light else "Switch to Light Theme"
                 self.btnThemeToggle.Background = SolidColorBrush(ctrl_bg)
                 self.btnThemeToggle.Foreground = SolidColorBrush(txt_sec)

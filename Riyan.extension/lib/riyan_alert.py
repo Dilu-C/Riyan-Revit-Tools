@@ -49,15 +49,15 @@ class CustomAlertWindow(object):
         close_fg = "#71717A" if is_light else "#A1A1AA"
 
         if is_error:
-            icon_char = u"✖"
+            icon_char = u"!"
             icon_color = "#DC2626" if is_light else "#EF4444"
             badge_title = "Error"
         elif is_warning:
-            icon_char = u"⚠"
+            icon_char = u"!"
             icon_color = "#D97706" if is_light else "#F59E0B"
             badge_title = "Warning"
         else:
-            icon_char = u"✔"
+            icon_char = u"OK"
             icon_color = "#16A34A" if is_light else "#10B981"
             badge_title = "Success"
 
@@ -72,7 +72,7 @@ class CustomAlertWindow(object):
         xaml_code = """<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{title}" Width="440" SizeToContent="Height"
-        WindowStartupLocation="CenterScreen" 
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
         Background="{bg}" WindowStyle="None" AllowsTransparency="False"
         ResizeMode="NoResize">
     <Border BorderBrush="{border}" BorderThickness="1.5" CornerRadius="8">
@@ -86,10 +86,10 @@ class CustomAlertWindow(object):
             <!-- Title Bar -->
             <Grid x:Name="TitleBar" Grid.Row="0" Background="{tb_bg}">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-                    <TextBlock Text="■" Foreground="{accent_color}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="&#x25CF;" FontFamily="Segoe UI Symbol" Foreground="{accent_color}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <TextBlock Text="{title}" Foreground="{fg_title}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </StackPanel>
-                <Button x:Name="CloseBtn" Content="✕" HorizontalAlignment="Right"
+                <Button x:Name="CloseBtn" Content="X" HorizontalAlignment="Right"
                         Width="40" Height="38" BorderThickness="0" Cursor="Hand"
                         Background="Transparent" Foreground="{close_fg}"
                         FontSize="12">
@@ -186,10 +186,15 @@ class CustomAlertWindow(object):
 
     def ShowDialog(self):
         try:
-            # Set Revit window as owner if available
-            app_windows = Application.Current.Windows if Application.Current else None
-            if app_windows and app_windows.Count > 0:
-                self.win.Owner = app_windows[0]
+            # Set Revit window as owner via Win32 HWND if available
+            from pyrevit import revit
+            if hasattr(revit, "HOST_APP") and hasattr(revit.HOST_APP, "proc_window") and revit.HOST_APP.proc_window:
+                helper = WindowInteropHelper(self.win)
+                helper.Owner = revit.HOST_APP.proc_window
+            else:
+                app_windows = Application.Current.Windows if Application.Current else None
+                if app_windows and app_windows.Count > 0:
+                    self.win.Owner = app_windows[0]
         except Exception:
             pass
         return self.win.ShowDialog()

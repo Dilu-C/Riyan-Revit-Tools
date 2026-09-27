@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import os
 import sys
 import threading
@@ -112,7 +112,7 @@ def show_update_toast(online_version, local_version):
             
             # Header
             txt_title = TextBlock()
-            txt_title.Text = u"🚀 Riyan Tools Update Available!"
+            txt_title.Text = "Riyan Tools Update Available!"
             txt_title.Foreground = SolidColorBrush(Color.FromRgb(245, 245, 245))
             txt_title.FontWeight = System.Windows.FontWeights.Bold
             txt_title.FontSize = 13
@@ -131,7 +131,7 @@ def show_update_toast(online_version, local_version):
             btn_panel.Orientation = System.Windows.Controls.Orientation.Horizontal
             
             btn_update = Button()
-            btn_update.Content = u"Got It 👍"
+            btn_update.Content = "Got It"
             btn_update.Background = SolidColorBrush(Color.FromRgb(128, 47, 45))
             btn_update.Foreground = Brushes.White
             btn_update.FontWeight = System.Windows.FontWeights.SemiBold
@@ -148,7 +148,7 @@ def show_update_toast(online_version, local_version):
             
             # Close button
             btn_close = Button()
-            btn_close.Content = u"✕"
+            btn_close.Content = "X"
             btn_close.Background = Brushes.Transparent
             btn_close.Foreground = SolidColorBrush(Color.FromRgb(140, 140, 140))
             btn_close.BorderThickness = System.Windows.Thickness(0)
