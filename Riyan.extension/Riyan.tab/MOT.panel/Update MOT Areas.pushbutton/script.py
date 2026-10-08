@@ -2,8 +2,18 @@
 __title__ = "Update MOT\nAreas"
 __doc__ = "Calculates total Covered (Building Common Area) and Open (Exterior Area) areas and writes them to Project Information parameters for the MOT Schedule."
 
+import os
+import sys
 import re
 from pyrevit import revit, DB, UI, forms
+
+try:
+    from riyan_alert import show_alert
+except ImportError:
+    _lib_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib"))
+    if _lib_dir not in sys.path:
+        sys.path.append(_lib_dir)
+    from riyan_alert import show_alert
 
 doc = revit.doc
 
@@ -23,14 +33,14 @@ def main():
             break
             
     if not target_view:
-        forms.alert("Could not find an Area Plan view named 'TOTAL BUA PER UNIT'.", title="View Not Found", warn_icon=True)
+        show_alert("Could not find an Area Plan view named 'TOTAL BUA PER UNIT'.", title="Update MOT Areas", is_warning=True)
         return
 
     # 2. Collect areas visible in the TARGET VIEW for calculation
     areas_in_view = DB.FilteredElementCollector(doc, target_view.Id).OfCategory(DB.BuiltInCategory.OST_Areas).WhereElementIsNotElementType().ToElements()
 
     if not areas_in_view:
-        forms.alert("No areas found in the view '{}'.".format(target_view.Name), title="No Areas Found", warn_icon=True)
+        show_alert("No areas found in the view '{}'.".format(target_view.Name), title="Update MOT Areas", is_warning=True)
         return
 
     covered_area = 0.0
@@ -93,7 +103,7 @@ def main():
                 updated_count += 1
                 
         if updated_count == 0:
-            forms.alert("Please ensure the following Project Parameters are assigned to the 'Areas' category:\n\n- COVERED / MOT AREA PER UNIT (SQM)\n- OPEN AREA PER UNIT (SQM)", title="Missing Parameters", warn_icon=True)
+            show_alert("Please ensure the following Project Parameters are assigned to the 'Areas' category:\n\n• COVERED / MOT AREA PER UNIT (SQM)\n• OPEN AREA PER UNIT (SQM)", title="Update MOT Areas", is_warning=True)
             return
 
         # 4. Format Schedule Title: <Building Number> - <Building Code> - <Building Name>
@@ -173,7 +183,7 @@ def main():
         msg += "• Schedule Header Updated:\n  '{}'".format(mot_new_title)
     elif mot_new_title:
         msg += "• Schedule Title Generated:\n  '{}'".format(mot_new_title)
-    forms.alert(msg, title="Success")
+    show_alert(msg, title="Update MOT Areas", is_error=False)
 
 if __name__ == '__main__':
     main()
