@@ -187,7 +187,7 @@ class CustomAlertWindow(object):
                         IsDefault="True" IsCancel="True">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{btn_bg}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <Border x:Name="bd" Background="{btn_bg}" CornerRadius="5">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
