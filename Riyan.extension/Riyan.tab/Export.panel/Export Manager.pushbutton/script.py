@@ -4294,6 +4294,8 @@ class ExportManagerForm(forms.WPFWindow):
             self.TxtExportPath.Text = self.export_path
 
     def generate_queue(self):
+        if getattr(self, "_exporting", False):
+            return
         selected_vms = [sv for sv in self.sheets if sv.IsSelected]
         queue = []
 
@@ -4311,7 +4313,13 @@ class ExportManagerForm(forms.WPFWindow):
 
     # Wizard Navigation
     def MainTabControl_SelectionChanged(self, sender, e):
+        # WPF routed event guard: SelectionChanged bubbles from child controls (DataGrid, ListBox, ComboBox).
+        # Strictly ignore any bubbling event not originating directly from MainTabControl!
+        if hasattr(e, "OriginalSource") and e.OriginalSource != sender:
+            return
         if not hasattr(self, 'BtnBack') or not hasattr(self, 'BtnNext'):
+            return
+        if getattr(self, "_exporting", False):
             return
         idx = self.MainTabControl.SelectedIndex
         if idx == 0:
