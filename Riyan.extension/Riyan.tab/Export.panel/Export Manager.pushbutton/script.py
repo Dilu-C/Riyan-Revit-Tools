@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import clr
 import os
 import shutil
@@ -4447,6 +4447,13 @@ class ExportManagerForm(forms.WPFWindow):
             item.TargetFileName = generate_filename(item.SheetVM.Sheet, self.active_scheme_parts, doc)
         
         self.GridQueue.Items.Refresh()
+        if self.queue_items:
+            try:
+                self.GridQueue.SelectedItem = self.queue_items[0]
+                self.GridQueue.ScrollIntoView(self.queue_items[0])
+                self.GridQueue.UpdateLayout()
+            except Exception:
+                pass
         self.ExportProgressBar.Value = 0
         self.TxtPercent.Text = "Completed 0%"
         self.do_events()
@@ -4500,23 +4507,7 @@ class ExportManagerForm(forms.WPFWindow):
             pass
 
         try:
-            # --- AUTO-ARCHIVE PREVIOUS DELIVERABLES ---
-            try:
-                combine_pdf_chk = hasattr(self, 'RbCombineFiles') and (self.RbCombineFiles.IsChecked == True)
-                em_target_files = []
-                if combine_pdf_chk:
-                    c_name = self.TxtCombinedFileName.Text.strip() if hasattr(self, 'TxtCombinedFileName') and self.TxtCombinedFileName.Text.strip() else "Combined_PDF"
-                    em_target_files.append(c_name + ".pdf")
-                    em_target_files.append(c_name + " - LIST OF DRAWINGS.doc")
-                    em_target_files.append(c_name + " - LIST OF DRAWINGS.xlsx")
-                for itm in self.queue_items:
-                    fname = getattr(itm, 'TargetFileName', None) or getattr(itm, 'Filename', None)
-                    if fname:
-                        fmt_ext = ".pdf" if getattr(itm, 'Format', 'PDF') == "PDF" else ".dwg"
-                        em_target_files.append(fname if fname.lower().endswith(fmt_ext) else fname + fmt_ext)
-                archive_previous_exports(folder, em_target_files)
-            except Exception:
-                pass
+            # Archiving removed per user request (Existing deliverables in folder, CAD/DWG and PDF subfolders remain 100% intact)
 
             # --- PRE-FLIGHT CHECKS ---
             combine_pdf = hasattr(self, 'RbCombineFiles') and (self.RbCombineFiles.IsChecked == True)
@@ -4576,6 +4567,16 @@ class ExportManagerForm(forms.WPFWindow):
                     
                 item.Status = "Exporting..."
                 self.GridQueue.Items.Refresh()
+                try:
+                    self.GridQueue.SelectedItem = item
+                    self.GridQueue.ScrollIntoView(item)
+                    self.GridQueue.UpdateLayout()
+                except Exception:
+                    pass
+                sh_title = "{} - {}".format(getattr(item, 'SheetNumber', ''), getattr(item, 'SheetName', '')).strip(" -")
+                fmt_lbl = getattr(item, 'Format', '')
+                if sh_title:
+                    self.TxtPercent.Text = "Exporting [{}/{}]: {} ({})".format(idx + 1, total, sh_title, fmt_lbl)
                 self.do_events()
 
                 success = False
@@ -4609,6 +4610,12 @@ class ExportManagerForm(forms.WPFWindow):
                 self.ExportProgressBar.Value = percent
                 self.TxtPercent.Text = "Completed {}%".format(percent)
                 self.GridQueue.Items.Refresh()
+                try:
+                    self.GridQueue.SelectedItem = item
+                    self.GridQueue.ScrollIntoView(item)
+                    self.GridQueue.UpdateLayout()
+                except Exception:
+                    pass
                 self.do_events()
 
             # --- COMBINED PDF EXPORT ---
@@ -4619,6 +4626,12 @@ class ExportManagerForm(forms.WPFWindow):
                     for item in pdf_items:
                         item.Status = "Pending"
                     self.GridQueue.Items.Refresh()
+                    try:
+                        self.GridQueue.SelectedItem = pdf_items[0]
+                        self.GridQueue.ScrollIntoView(pdf_items[0])
+                        self.GridQueue.UpdateLayout()
+                    except Exception:
+                        pass
                     
                     self.TxtPercent.Text = "Generating Combined PDF ({} sheets)...".format(len(pdf_items))
                     self.do_events()
@@ -4977,25 +4990,50 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
             c_upper = caption.upper()
             matched_idx = -1
             
-            # 1. Match by exact Sheet Number (e.g. 'GF-103', 'ZZ-108')
+            # 1. Match by exact Sheet Number (e.g. '00-000-000-01', 'GF-103')
             for idx, item in enumerate(pdf_items):
                 s_num = (item.SheetNumber or "").strip().upper()
                 if s_num and len(s_num) >= 2 and s_num in c_upper:
                     matched_idx = idx
                     break
             
-            # 2. Match by full Sheet Name (only if specific and >= 6 characters)
-            if matched_idx == -1:
+            # 2. Match by alphanumeric cleaned Sheet Number
+            if matched_idx == -1 and c_upper:
+                import re
+                c_clean = re.sub(r'[^A-Z0-9]', '', c_upper)
+                for idx, item in enumerate(pdf_items):
+                    s_num = (item.SheetNumber or "").strip().upper()
+                    s_clean = re.sub(r'[^A-Z0-9]', '', s_num)
+                    if s_clean and len(s_clean) >= 3 and s_clean in c_clean:
+                        matched_idx = idx
+                        break
+
+            # 3. Match by full Sheet Name (only if specific and >= 6 characters)
+            if matched_idx == -1 and c_upper:
                 for idx, item in enumerate(pdf_items):
                     s_name = (item.SheetName or "").strip().upper()
                     if s_name and len(s_name) >= 6 and s_name in c_upper:
                         matched_idx = idx
                         break
+
+            # 4. Fallback match by page/sheet position regex (e.g. "sheet 3 of 10", "(3/10)")
+            if matched_idx == -1 and c_upper:
+                import re
+                m = re.search(r'(?:sheet|view|page|\()\s*(\d+)\s*(?:of|/)\s*(\d+)', c_upper)
+                if m:
+                    pos = int(m.group(1))
+                    if 1 <= pos <= len(pdf_items):
+                        matched_idx = pos - 1
+
+            # 5. Fallback match by args.Position if args.UpperRange matches len(pdf_items)
+            if matched_idx == -1 and args.UpperRange == len(pdf_items) and 1 <= args.Position <= len(pdf_items):
+                matched_idx = args.Position - 1
             
             if matched_idx != -1 and matched_idx != current_idx[0]:
-                # Mark ONLY the previously active sheet as Done
-                if current_idx[0] != -1 and current_idx[0] < len(pdf_items):
-                    pdf_items[current_idx[0]].Status = "Done"
+                # Mark all sheets before matched_idx as Done
+                for p_idx in range(matched_idx):
+                    if pdf_items[p_idx].Status != "Error":
+                        pdf_items[p_idx].Status = "Done"
                 
                 # Mark the newly active sheet as Exporting
                 pdf_items[matched_idx].Status = "Exporting..."
@@ -5004,12 +5042,18 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
                 if window_instance:
                     curr_item = pdf_items[matched_idx]
                     sh_display = "{} - {}".format(getattr(curr_item, 'SheetNumber', ''), getattr(curr_item, 'SheetName', '')).strip(" -")
-                    window_instance.TxtPercent.Text = "Exporting Sheet: {}".format(sh_display) if sh_display else "Exporting Sheet..."
+                    window_instance.TxtPercent.Text = "Exporting [{}/{}]: {}".format(matched_idx + 1, len(pdf_items), sh_display) if sh_display else "Exporting Sheet..."
                     if args.UpperRange > 0:
                         pct = int((float(args.Position) / args.UpperRange) * 100)
                         window_instance.ExportProgressBar.Value = pct
                     if hasattr(window_instance, 'GridQueue') and window_instance.GridQueue:
                         window_instance.GridQueue.Items.Refresh()
+                        try:
+                            window_instance.GridQueue.SelectedItem = curr_item
+                            window_instance.GridQueue.ScrollIntoView(curr_item)
+                            window_instance.GridQueue.UpdateLayout()
+                        except Exception:
+                            pass
                     window_instance.do_events()
             elif window_instance:
                 if args.UpperRange > 0:
@@ -5019,7 +5063,7 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
                 if current_idx[0] != -1 and current_idx[0] < len(pdf_items):
                     curr_item = pdf_items[current_idx[0]]
                     sh_display = "{} - {}".format(getattr(curr_item, 'SheetNumber', ''), getattr(curr_item, 'SheetName', '')).strip(" -")
-                    window_instance.TxtPercent.Text = "Exporting Sheet: {}".format(sh_display) if sh_display else "Exporting Combined PDF..."
+                    window_instance.TxtPercent.Text = "Exporting [{}/{}]: {}".format(current_idx[0] + 1, len(pdf_items), sh_display) if sh_display else "Exporting Combined PDF..."
                 else:
                     window_instance.TxtPercent.Text = "Exporting Combined PDF..."
                 window_instance.do_events()
@@ -5073,6 +5117,13 @@ def export_combined_pdf_2022(folder, pdf_items, filename, zoom_type, zoom_pct, w
             window_instance.ExportProgressBar.Value = 100
             window_instance.TxtPercent.Text = "Completed 100%"
             window_instance.GridQueue.Items.Refresh()
+            if pdf_items:
+                try:
+                    window_instance.GridQueue.SelectedItem = pdf_items[-1]
+                    window_instance.GridQueue.ScrollIntoView(pdf_items[-1])
+                    window_instance.GridQueue.UpdateLayout()
+                except Exception:
+                    pass
             window_instance.do_events()
 
         return True
