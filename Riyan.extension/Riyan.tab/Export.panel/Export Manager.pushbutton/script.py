@@ -5366,9 +5366,11 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
     from Autodesk.Revit import DB
 
     def clean_val(val):
-        if not val:
+        if val is None:
             return ""
         s = str(val).strip()
+        if not s:
+            return ""
         if s in ("", "-", "--", "---", "- -", "N/A", "n/a", "NA", "TBC", "TBD", "None", "none", "?", "xx/xx/xxxx", "00/00/0000", "YYYY-MM-DD", "DD/MM/YYYY"):
             return ""
         if not any(c.isalnum() for c in s):
@@ -5567,51 +5569,84 @@ def generate_excel_transmittal(folder, selected_vms, doc, combined_name=None, co
             if not grp: grp = "General"
             if grp not in groups:
                 groups[grp] = []
-            groups[grp].append(sheet)
+            groups[grp].append((vm, sheet))
 
         # Build structured sheet data for both Excel and Word
         groups_data = []
         for grp in sorted(groups.keys()):
-            sorted_sheets = sorted(groups[grp], key=lambda x: getattr(x, 'SheetNumber', ''))
+            sorted_items = sorted(groups[grp], key=lambda x: getattr(x[1], 'SheetNumber', ''))
             s_list = []
-            for sheet in sorted_sheets:
+            for vm, sheet in sorted_items:
                 sheet_doc = getattr(sheet, 'Document', None) or doc
                 rev_num = ""
                 rev_date = ""
+
+                # 1. Primary: SHEET_CURRENT_REVISION parameter directly from the Sheet!
+                try:
+                    p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
+                    if p and p.HasValue:
+                        rev_num = clean_val(p.AsString() or p.AsValueString())
+                except:
+                    pass
+
+                # 2. Check Sheet Revision via GetCurrentRevision() for Revision Date and fallback revision number
                 try:
                     rev_id = sheet.GetCurrentRevision()
                     if rev_id != DB.ElementId.InvalidElementId:
                         rev_el = sheet_doc.GetElement(rev_id)
                         if rev_el:
-                            p_num = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_SEQUENCE_NUM)
+                            # Revision Date from the Revision Element
                             p_date = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_REVISION_DATE)
-                            if p_num and p_num.HasValue: rev_num = clean_val(p_num.AsString() or p_num.AsValueString())
-                            if p_date and p_date.HasValue: rev_date = clean_val(p_date.AsString() or p_date.AsValueString())
+                            if p_date and p_date.HasValue:
+                                rev_date = clean_val(p_date.AsString() or p_date.AsValueString())
+
+                            # Fallback for rev_num if SHEET_CURRENT_REVISION was empty
+                            if not rev_num:
+                                if hasattr(sheet, "GetRevisionNumberOnSheet"):
+                                    try:
+                                        rn = sheet.GetRevisionNumberOnSheet(rev_id)
+                                        if rn:
+                                            rev_num = clean_val(rn)
+                                    except:
+                                        pass
+                                if not rev_num:
+                                    p_rnum = rev_el.get_Parameter(DB.BuiltInParameter.PROJECT_REVISION_REVISION_NUM)
+                                    if p_rnum and p_rnum.HasValue:
+                                        rev_num = clean_val(p_rnum.AsString() or p_rnum.AsValueString())
+                                    elif hasattr(rev_el, "RevisionNumber"):
+                                        rev_num = clean_val(getattr(rev_el, "RevisionNumber", ""))
                 except:
                     pass
-                if not rev_num:
-                    try:
-                        p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION)
-                        if p and p.HasValue: rev_num = clean_val(p.AsString() or p.AsValueString())
-                    except:
-                        pass
+
+                # 3. Fallback to SHEET_CURRENT_REVISION_DATE if rev_date still empty
                 if not rev_date:
                     try:
                         p = sheet.get_Parameter(DB.BuiltInParameter.SHEET_CURRENT_REVISION_DATE)
-                        if p and p.HasValue: rev_date = clean_val(p.AsString() or p.AsValueString())
+                        if p and p.HasValue:
+                            rev_date = clean_val(p.AsString() or p.AsValueString())
                     except:
                         pass
 
+                # 4. Fallback to vm.Revision if rev_num still empty
+                if not rev_num and hasattr(vm, 'Revision'):
+                    v_rev = clean_val(getattr(vm, 'Revision', ''))
+                    if v_rev and v_rev != "-":
+                        rev_num = v_rev
+
                 # Resolve sheet issue date using our deep universal extractor!
                 sheet_issue_date = resolve_sheet_date(sheet, sheet_doc, rev_date=rev_date, fallback_project_date=issued_date)
-                
+
+                sheet_size = getattr(vm, 'Size', '') or "A1"
+                if sheet_size == "-":
+                    sheet_size = "A1"
+
                 s_list.append({
                     "num": getattr(sheet, 'SheetNumber', '') or '',
                     "name": getattr(sheet, 'Name', '') or '',
                     "rev": rev_num,
                     "rev_date": rev_date,
                     "issue_date": sheet_issue_date,
-                    "size": "A1"
+                    "size": sheet_size
                 })
             groups_data.append((grp, s_list))
 
