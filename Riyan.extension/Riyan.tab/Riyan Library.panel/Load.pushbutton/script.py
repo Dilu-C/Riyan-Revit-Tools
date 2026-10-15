@@ -465,6 +465,19 @@ def category_sort_key(cat_name):
         "TITLE BLOCKS",
         "TAGS",
         "DETAIL ITEMS",
+        "FOUNDATIONS",
+        "COLUMN",
+        "BEAMS",
+        "NGL",
+        "FIXTURES",
+        "EQUIPMENT",
+        "WATER TANKS",
+        "FIRE PROTECTORS",
+        "FIRE DETECTORS",
+        "VALVES AND PIPES",
+        "EXIT LIGHTS & SIGNS",
+        "MECHANICAL EQUIPMENTS",
+        "DUCT RELATED FAMILIES",
         "GENERIC MODELS"
     ]
     if cat_up in ORDERED_MASTER_LEVELS:
@@ -628,60 +641,66 @@ def get_all_open_documents():
         pass
     return docs
 
+_CACHED_SOURCE_DOCS = {}
+
 def get_master_rvt_document(primary_path=None):
     """
-    Auto-detects the Master Library RVT:
-    1. Checks AppDomain process-wide cache
+    Auto-detects the Master Library RVT per discipline/path:
+    1. Checks path-specific cache
     2. Checks all open documents in Revit UI (instant, no file lock)
     3. Safely opens detached in background if not already open
     """
-    global _CACHED_SOURCE_DOC
-    # 1. AppDomain cache check
-    try:
-        domain_doc = System.AppDomain.CurrentDomain.GetData("RIYAN_CACHED_SOURCE_DOC")
-        if domain_doc and domain_doc.IsValidObject:
-            _CACHED_SOURCE_DOC = domain_doc
-            return domain_doc
-    except Exception:
-        pass
-
-    if _CACHED_SOURCE_DOC and getattr(_CACHED_SOURCE_DOC, "IsValidObject", False):
-        return _CACHED_SOURCE_DOC
+    global _CACHED_SOURCE_DOCS
+    target_path = resolve_live_path(primary_path) if primary_path else None
+    
+    # 1. Check path-specific cache
+    if target_path:
+        norm = os.path.normpath(target_path).lower()
+        if norm in _CACHED_SOURCE_DOCS:
+            doc_c = _CACHED_SOURCE_DOCS[norm]
+            if doc_c and getattr(doc_c, "IsValidObject", False):
+                return doc_c
 
     # 2. Check all open documents in Revit UI
     for d in get_all_open_documents():
         t = (d.Title or "").upper()
         p = (d.PathName or "").upper()
-        if ("RIYAN" in t and "LIBRARY" in t) or ("RIYAN" in p and "LIBRARY" in p) or "RIYAN_LIBRARY_ARC" in t or "RIYAN_LIBRARY_ARC" in p:
-            _CACHED_SOURCE_DOC = d
-            try:
-                System.AppDomain.CurrentDomain.SetData("RIYAN_CACHED_SOURCE_DOC", d)
-            except Exception:
-                pass
-            return d
+        if target_path:
+            if os.path.normpath(d.PathName or "").lower() == os.path.normpath(target_path).lower():
+                norm = os.path.normpath(target_path).lower()
+                _CACHED_SOURCE_DOCS[norm] = d
+                return d
+            # Fallback title match
+            t_name = os.path.splitext(os.path.basename(target_path))[0].upper()
+            if t_name in t or t_name in p:
+                norm = os.path.normpath(target_path).lower()
+                _CACHED_SOURCE_DOCS[norm] = d
+                return d
+        else:
+            if ("RIYAN" in t and "LIBRARY" in t) or ("RIYAN" in p and "LIBRARY" in p) or "RIYAN_LIBRARY_ARC" in t or "RIYAN_LIBRARY_ARC" in p:
+                return d
 
     # 3. Check disk candidates and open detached
     curr_app = APP or (revit.app if revit else None)
     if curr_app:
-        for c in get_master_rvt_candidates(primary_path):
+        cands = [target_path] if target_path else get_master_rvt_candidates(primary_path)
+        for c in cands:
             if c and os.path.exists(c):
+                norm = os.path.normpath(c).lower()
                 for d in get_all_open_documents():
                     if (d.PathName or "").lower() == c.lower():
-                        _CACHED_SOURCE_DOC = d
+                        _CACHED_SOURCE_DOCS[norm] = d
                         return d
                 try:
                     opened = open_revit_doc_safely(curr_app, c)
                     if opened:
-                        _CACHED_SOURCE_DOC = opened
-                        try:
-                            System.AppDomain.CurrentDomain.SetData("RIYAN_CACHED_SOURCE_DOC", opened)
-                        except Exception:
-                            pass
+                        _CACHED_SOURCE_DOCS[norm] = opened
                         return opened
                 except Exception:
                     pass
 
     return None
+
 
 def load_bitmap(image_path):
     if not image_path:
