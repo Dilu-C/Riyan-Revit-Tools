@@ -1,3 +1,12 @@
-title: Get Coordinates
-tooltip: Calculate and update X, Y, Z coordinates for Structural Foundations and Columns based on the Survey Point.
-author: Chalana Perera
+﻿title: Get Coordinates
+tooltip: >-
+  Inspects and copies precise coordinates of any clicked point.
+  
+  • Reports Shared (Easting, Northing, Elevation), Survey, and Internal Coordinates.
+  • Single click to copy coordinates to Windows clipboard.
+  
+  How to use:
+  1. Click Get Coordinates.
+  2. Pick any point or vertex in plan/section/3D view.
+  3. View coordinate readout and click Copy.
+author: Chalana

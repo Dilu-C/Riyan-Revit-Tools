@@ -1,3 +1,12 @@
-title: Copy from Link
-tooltip: Copy elements (Walls, Columns, Beams, Floors, etc.) from a selected Revit Link into the current project.
-author: Udarie
+﻿title: Copy from Link
+tooltip: >-
+  Copies selected elements directly from a linked Revit model into active project.
+  
+  • Select elements from linked architectures or engineering models.
+  • Transfers geometry, family types, and parameter values seamlessly.
+  
+  How to use:
+  1. Click Copy from Link.
+  2. Select elements inside the linked model.
+  3. Press Finish to copy selected elements into active project.
+author: Chalana

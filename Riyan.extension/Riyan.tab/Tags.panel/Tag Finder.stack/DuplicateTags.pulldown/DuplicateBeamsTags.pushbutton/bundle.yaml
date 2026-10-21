@@ -1,2 +1,6 @@
-title: "Duplicate Beam\nTag Finder"
-tooltip: "Selects beams with duplicate tags in current view."
+﻿title: "Duplicate Beam\nTag Finder"
+tooltip: >-
+  Finds and highlights duplicate tags assigned to structural beams.
+  
+  How to use:
+  1. Click to scan active view and isolate duplicate beam tags.

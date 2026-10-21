@@ -1,3 +1,12 @@
-title: Brick Masonry
-tooltip: Generate a wall made of individual blocks based on customizable sizes and patterns.
-author: Udarie
+﻿title: Brick Masonry
+tooltip: >-
+  Calculates and coordinates standard modular brick coursing and wall layouts.
+  
+  • Calculates horizontal and vertical brick courses with mortar joints.
+  • Adjusts wall lengths and opening heights to prevent cut bricks.
+  
+  How to use:
+  1. Click Brick Masonry to launch the calculator and dimension setup.
+  2. Choose brick standard and enter wall dimensions.
+  3. Apply coordinated modular settings to walls.
+author: Dilupa

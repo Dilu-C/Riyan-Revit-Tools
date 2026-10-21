@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 import sys
 import threading
@@ -473,6 +473,22 @@ except Exception:
 t = threading.Thread(target=check_for_updates)
 t.isDaemon = True
 t.start()
+
+# Silent Antigravity Skills Hub background sync (Runs only if Antigravity is installed)
+def _bg_skills_sync():
+    try:
+        _lib_dir = os.path.join(os.path.dirname(__file__), "lib")
+        if _lib_dir not in sys.path:
+            sys.path.insert(0, _lib_dir)
+        import skills_sync
+        skills_sync.sync_approved_skills()
+    except Exception:
+        pass
+
+t_skills = threading.Thread(target=_bg_skills_sync)
+t_skills.isDaemon = True
+t_skills.start()
+
 
 
 

@@ -1,5 +1,11 @@
-tooltip: |
-  Toggle level bubbles in View.
-
-  Press "Esc" to finalize the process. For further assistance please contact - Asanka
+﻿tooltip: >-
+  Batch joins or unjoins intersecting building elements across categories.
   
+  • Eliminates visual overlaps between Walls, Columns, Beams, and Floors.
+  • Supports category-to-category joining and switch join order.
+  
+  How to use:
+  1. Click Join / Unjoin.
+  2. Select Primary category and Secondary intersecting category.
+  3. Click 'Join Elements' or 'Unjoin Elements'.
+author: Chalana

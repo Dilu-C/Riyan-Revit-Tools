@@ -1,0 +1,11 @@
+title: Update MOT Areas
+tooltip: >-
+  Calculates Covered and Open areas and updates Project Information for MOT Schedule.
+  
+  • Sums up Building Common Area and Exterior Open Areas across area schemes.
+  • Writes final values into MOT Project Information parameters automatically.
+  
+  How to use:
+  1. Ensure Area Schemes are placed correctly.
+  2. Click Update MOT Areas to recalculate and store project values.
+author: Udarie & Dilupa

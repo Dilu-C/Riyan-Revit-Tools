@@ -1,3 +1,12 @@
-title: Split Column
-tooltip: Split selected columns at chosen levels.
+﻿title: Split Column
+tooltip: >-
+  Splits continuous vertical structural columns at specified levels.
+  
+  • Divides multi-story columns into individual level-hosted segments.
+  • Preserves structural parameters, offsets, and materials.
+  
+  How to use:
+  1. Select one or more structural columns.
+  2. Click Split Column and choose target split levels from dialog.
+  3. Confirm to split into separate column elements.
 author: Chalana Perera

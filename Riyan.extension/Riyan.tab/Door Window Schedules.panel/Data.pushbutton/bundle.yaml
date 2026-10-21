@@ -1,1 +1,11 @@
-title: "Data"
+﻿title: "Data"
+tooltip: >-
+  Automatically calculates and populates door/window scheduling parameters.
+  
+  • Detects Room To/From, Host Wall Type, Wall Thickness, Sill and Lintel heights.
+  • Writes values directly into RYN_Schedule parameters for automated legends.
+  
+  How to use:
+  1. Click Data in Door Window Schedules panel.
+  2. Select Doors, Windows, or Both categories.
+  3. Confirm to calculate and update schedule parameters.

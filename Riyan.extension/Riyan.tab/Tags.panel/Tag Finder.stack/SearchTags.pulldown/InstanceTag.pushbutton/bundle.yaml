@@ -1,2 +1,7 @@
-title: "Instance Tag\nFinder"
-tooltip: "Searches and selects elements in current view based on input tag defined in instance parameter."
+﻿title: "Instance Tag\nFinder"
+tooltip: >-
+  Instantly locates and zooms to elements matching a specific Instance Tag.
+  
+  How to use:
+  1. Click to enter the tag mark or number (e.g. C-12, B-04).
+  2. Press Enter to zoom and center the matching element.

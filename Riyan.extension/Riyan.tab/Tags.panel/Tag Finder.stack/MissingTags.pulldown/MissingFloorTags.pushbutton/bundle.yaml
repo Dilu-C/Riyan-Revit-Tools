@@ -1,2 +1,6 @@
-title: "Missing Floor\nTag Finder"
-tooltip: "Selects floors with no associated tags in current view."
+﻿title: "Missing Floor\nTag Finder"
+tooltip: >-
+  Identifies and selects untagged structural/architectural floors in the active view.
+  
+  How to use:
+  1. Click to select all untagged floors for rapid batch tagging.

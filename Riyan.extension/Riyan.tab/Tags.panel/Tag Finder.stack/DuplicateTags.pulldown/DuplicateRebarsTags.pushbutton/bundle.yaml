@@ -1,2 +1,6 @@
-title: "Duplicate Rebar\nTag Finder"
-tooltip: "Selects rebars with duplicate tags in current view."
+﻿title: "Duplicate Rebar\nTag Finder"
+tooltip: >-
+  Finds and highlights duplicate tags assigned to structural reinforcement.
+  
+  How to use:
+  1. Click to scan active view and isolate duplicate rebar tags.

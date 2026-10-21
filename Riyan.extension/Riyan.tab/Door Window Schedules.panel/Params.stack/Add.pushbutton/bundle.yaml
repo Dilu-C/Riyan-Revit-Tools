@@ -1,3 +1,10 @@
-title: Add
-tooltip: Batch loads standard Riyan Door Schedule shared parameters. Run in a Family to add Instance Parameters, or in a Project to add Project Parameters.
-author: Riyan BIM Standard
+﻿title: Add
+tooltip: >-
+  Injects standard Riyan Door/Window Shared Parameters into the project.
+  
+  • Adds parameters: Location, Frame Material, Hardware, Fire Rating, Acoustic, etc.
+  • Binds parameters to Doors and Windows categories automatically.
+  
+  How to use:
+  1. Click Add.
+  2. Confirms parameter group injection into active model.

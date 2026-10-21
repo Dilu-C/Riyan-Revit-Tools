@@ -1,1 +1,10 @@
-title: Remove
+﻿title: Remove
+tooltip: >-
+  Purges obsolete door/window schedule parameters from project or family.
+  
+  • Cleans up deprecated 'RYN_Door_Schedule_' parameters.
+  • Safely removes unused parameter bindings to keep schedule data lean.
+  
+  How to use:
+  1. Click Remove.
+  2. Review detected legacy parameters and confirm cleanup.

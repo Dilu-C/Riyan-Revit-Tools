@@ -1777,6 +1777,16 @@ class BatchExportForm(forms.WPFWindow):
                 return "hurasveli"
         return "default"
 
+    def sync_export_mode_from_profile(self):
+        profile_name = str(self.CmbGlobalProfile.SelectedItem) if (hasattr(self, 'CmbGlobalProfile') and self.CmbGlobalProfile and self.CmbGlobalProfile.SelectedItem) else ""
+        combined_schemes = self.settings.get("combined_schemes", {}) if hasattr(self, 'settings') else {}
+        is_combined = (profile_name in combined_schemes) or ("combined" in profile_name.lower())
+        
+        if hasattr(self, 'RbCheckPrint') and self.RbCheckPrint:
+            self.RbCheckPrint.IsChecked = is_combined
+        if hasattr(self, 'RbFinalExport') and self.RbFinalExport:
+            self.RbFinalExport.IsChecked = not is_combined
+
     def auto_select_profile(self):
         if not hasattr(self, 'CmbGlobalProfile') or not self.CmbGlobalProfile:
             return
@@ -1784,35 +1794,19 @@ class BatchExportForm(forms.WPFWindow):
             return
             
         proj = self.get_detected_project()
-        is_combined = (getattr(self, 'RbCheckPrint', None) and self.RbCheckPrint.IsChecked == True)
-        
         target_profile = None
-        if is_combined:
-            if proj == "ehdhuffaru":
-                target_profile = "RYN_Ehdhuffaru_Combined"
-            elif proj == "hurasveli":
-                target_profile = "RYN_Hurasveli_Combined"
-            else:
-                target_profile = "RYN_Export_Combined"
-                
-            if target_profile not in self.profiles:
-                for p in self.profiles:
-                    if "combined" in p.lower():
-                        target_profile = p
-                        break
+        if proj == "ehdhuffaru":
+            target_profile = "RYN_Ehdhuffaru_Sheetwise"
+        elif proj == "hurasveli":
+            target_profile = "RYN_Hurasveli_Sheetwise"
         else:
-            if proj == "ehdhuffaru":
-                target_profile = "RYN_Ehdhuffaru_Sheetwise"
-            elif proj == "hurasveli":
-                target_profile = "RYN_Hurasveli_Sheetwise"
-            else:
-                target_profile = "RYN_Export_Sheetwise"
-                
-            if target_profile not in self.profiles:
-                for p in self.profiles:
-                    if "sheetwise" in p.lower():
-                        target_profile = p
-                        break
+            target_profile = "RYN_Export_Sheetwise"
+            
+        if target_profile not in self.profiles:
+            for p in self.profiles:
+                if "sheetwise" in p.lower():
+                    target_profile = p
+                    break
 
         if target_profile and target_profile in self.profiles:
             if self.CmbGlobalProfile.SelectedItem != target_profile:
@@ -1820,8 +1814,10 @@ class BatchExportForm(forms.WPFWindow):
         elif self.profiles and not self.CmbGlobalProfile.SelectedItem:
             self.CmbGlobalProfile.SelectedIndex = 0
 
+        self.sync_export_mode_from_profile()
+
     def on_export_mode_changed(self, sender, e):
-        self.auto_select_profile()
+        pass
 
     def check_file_overwrite(self, folder, filename):
         full_path = os.path.join(folder, filename)
@@ -1843,6 +1839,7 @@ class BatchExportForm(forms.WPFWindow):
             return False
 
     def on_global_profile_changed(self, sender, e):
+        self.sync_export_mode_from_profile()
         for row in self.rows:
             if getattr(row, 'sheets_loaded', False) and getattr(row, 'sheet_rows', None):
                 try:
@@ -3273,7 +3270,9 @@ class BatchExportForm(forms.WPFWindow):
         # We explicitly keep Topmost = False and do not call Activate() so that
         # it does not block other OS applications (Chrome, Word, Excel) or steal focus.
         self.Topmost = False
-        is_check_print = (getattr(self, 'RbCheckPrint', None) and self.RbCheckPrint.IsChecked == True)
+        profile_name = str(self.CmbGlobalProfile.SelectedItem) if (hasattr(self, 'CmbGlobalProfile') and self.CmbGlobalProfile and self.CmbGlobalProfile.SelectedItem) else ""
+        combined_schemes = self.settings.get("combined_schemes", {}) if hasattr(self, 'settings') else {}
+        is_check_print = (profile_name in combined_schemes) or ("combined" in profile_name.lower())
         
         # Clear active user selection in Revit to prevent blue selection highlights on exported PDFs
         try:

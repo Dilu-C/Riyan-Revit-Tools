@@ -1,3 +1,12 @@
-title: Change Host
-tooltip: Re-hosts selected elements to new levels while maintaining absolute elevation.
-author: Chalana Perera
+﻿title: Change Host
+tooltip: >-
+  Re-hosts elements or modifies level elevation without moving geometry.
+  
+  • Mode 1: Re-hosts selected elements to a new level while maintaining absolute elevation.
+  • Mode 2: Shifts level datum elevation without physically moving hosted elements.
+  
+  How to use:
+  1. Click to open Change Host / Level dialog.
+  2. Choose operation mode and select target elements/levels.
+  3. Click Apply to update hosting data safely.
+author: Chalana

@@ -1,4 +1,6 @@
-title:
-  en_us: Toggle All Grid Bubbles in Current View
-tooltip:
-  en_us: Contact Asanka if this button isn't working
+﻿title:
+tooltip: >-
+  Shows or hides both start and end bubbles on all grids in current view.
+  
+  How to use:
+  1. Click to toggle bubble visibility on both ends of all grid lines.

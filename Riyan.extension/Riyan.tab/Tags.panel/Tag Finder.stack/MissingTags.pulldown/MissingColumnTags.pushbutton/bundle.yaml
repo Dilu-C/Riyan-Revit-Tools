@@ -1,2 +1,6 @@
-title: "Missing Column\nTag Finder"
-tooltip: "Selects columns with no associated tags in current view."
+﻿title: "Missing Column\nTag Finder"
+tooltip: >-
+  Identifies and selects untagged structural columns in the active view.
+  
+  How to use:
+  1. Click to select all untagged columns for rapid batch tagging.

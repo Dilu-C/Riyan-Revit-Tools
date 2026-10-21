@@ -1,2 +1,10 @@
-title: Check for Updates
-tooltip: Check and install the latest Riyan Revit Tools update
+﻿title: Check for Updates
+tooltip: >-
+  Checks for new Riyan Revit Tools releases and updates with one click.
+  
+  • Compares local version with the latest online GitHub release.
+  • Safely updates scripts and resets pyRevit ribbon cache.
+  
+  How to use:
+  1. Click Check for Updates.
+  2. If an update is available, click 'Update Now'.

@@ -1,3 +1,12 @@
-title: Smart Connect
-tooltip: Select a main element and quickly place structural connections to intersecting elements.
+﻿title: Smart Connect
+tooltip: >-
+  Instantly applies structural connections to intersecting framing elements.
+  
+  • Select a primary structural member (Beam or Column).
+  • Automatically detects all intersecting members and applies selected connection types.
+  
+  How to use:
+  1. Click Smart Connect.
+  2. Pick the primary framing element in the 3D/Plan view.
+  3. Select connection type and intersecting members to connect.
 author: Chalana Perera

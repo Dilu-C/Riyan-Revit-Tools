@@ -1,2 +1,6 @@
-title: "Missing Beam\nTag Finder"
-tooltip: "Selects beams with no associated tags in current view."
+﻿title: "Missing Beam\nTag Finder"
+tooltip: >-
+  Identifies and selects untagged structural framing beams in the active view.
+  
+  How to use:
+  1. Click to select all untagged beams for rapid batch tagging.

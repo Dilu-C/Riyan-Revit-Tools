@@ -1,0 +1,12 @@
+title: Project Beams
+tooltip: >-
+  Projects 2D model lines onto complex 3D surfaces to generate framing beams.
+  
+  • Maps flat linework directly onto sloped or curved roof/floor topologies.
+  • Automatically instantiates structural framing families along projected curves.
+  
+  How to use:
+  1. Draw 2D model lines representing framing centerlines.
+  2. Click Project Beams, select target surface and beam family type.
+  3. Finish to generate 3D curved/sloped framing.
+author: Chalana Perera

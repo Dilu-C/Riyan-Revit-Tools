@@ -2244,6 +2244,34 @@ class CustomFileLockedDialog(object):
         self.win.ShowDialog()
         return self.result
 
+def get_or_create_ryn_cad_setting(target_doc):
+    if not target_doc:
+        return None
+    try:
+        collector = DB.FilteredElementCollector(target_doc).OfClass(DB.ExportDWGSettings)
+        for ds in collector:
+            if ds.Name == "RYN_CadExport_Standard":
+                return ds
+
+        t = DB.Transaction(target_doc, "Create RYN_CadExport_Standard")
+        t.Start()
+        try:
+            opts = DB.DWGExportOptions()
+            opts.TargetUnit = DB.ExportUnit.Millimeter
+            opts.Colors = DB.ExportColorMode.IndexColors
+            opts.MergedViews = True
+            opts.LayerMapping = "ISO13567"
+            opts.LineScaling = DB.LineScaling.PaperSpace
+            opts.TextTreatment = DB.TextTreatment.Exact
+            ds = DB.ExportDWGSettings.Create(target_doc, "RYN_CadExport_Standard", opts)
+            t.Commit()
+            return ds
+        except Exception:
+            t.RollBack()
+            return None
+    except Exception:
+        return None
+
 class ExportManagerForm(forms.WPFWindow):
     def __init__(self, xaml_file_name, sheets, views, state=None):
         forms.WPFWindow.__init__(self, xaml_file_name)
@@ -2316,21 +2344,21 @@ class ExportManagerForm(forms.WPFWindow):
 
         # Populate Setups
         self.print_settings = list(DB.FilteredElementCollector(doc).OfClass(DB.PrintSetting).ToElements())
+        # Populate Setups - ensure RYN_CadExport_Standard exists unconditionally!
+        get_or_create_ryn_cad_setting(doc)
         self.dwg_settings = list(DB.FilteredElementCollector(doc).OfClass(DB.ExportDWGSettings).ToElements())
+        self.dwg_setting_names = [ds.Name for ds in self.dwg_settings if ds.Name]
 
-        self.pdf_setting_names = [ps.Name for ps in self.print_settings]
-        self.dwg_setting_names = [ds.Name for ds in self.dwg_settings]
+        # Put RYN_CadExport_Standard at the very top of the list; do NOT add <In-Session / Default>!
+        if "RYN_CadExport_Standard" in self.dwg_setting_names:
+            self.dwg_setting_names.remove("RYN_CadExport_Standard")
+            self.dwg_setting_names.insert(0, "RYN_CadExport_Standard")
+        else:
+            self.dwg_setting_names.insert(0, "RYN_CadExport_Standard")
 
-        self.pdf_setting_names.insert(0, "<In-Session / Default>")
-        self.dwg_setting_names.insert(0, "<In-Session / Default>")
-
-        self.CmbPdfSetup.ItemsSource = self.pdf_setting_names
-        self.CmbDwgSetup.ItemsSource = self.dwg_setting_names
-
-        if self.pdf_setting_names: self.CmbPdfSetup.SelectedIndex = 0
-        if self.dwg_setting_names: self.CmbDwgSetup.SelectedIndex = 0
-
-        # Initialize naming schemes
+        if hasattr(self, 'CmbDwgSetup') and self.CmbDwgSetup:
+            self.CmbDwgSetup.ItemsSource = self.dwg_setting_names
+            self.CmbDwgSetup.SelectedItem = "RYN_CadExport_Standard"
         self.reload_schemes()
         self.load_viewsets()
         self.update_combined_filename_preview()
@@ -3358,7 +3386,7 @@ class ExportManagerForm(forms.WPFWindow):
             state["TabIndex"] = self.MainTabControl.SelectedIndex
             state["ExportPath"] = self.TxtExportPath.Text
             state["Profile"] = self.CmbProfile.SelectedItem
-            state["PdfIndex"] = self.CmbPdfSetup.SelectedIndex
+            state["PdfIndex"] = self.CmbPdfSetup.SelectedIndex if (hasattr(self, "CmbPdfSetup") and self.CmbPdfSetup) else -1
             state["DwgIndex"] = self.CmbDwgSetup.SelectedIndex
             state["SearchText"] = self.TxtSearch.Text
             state["SelectedSheets"] = [s.Sheet.Id for s in self.sheets if s.IsSelected] if (hasattr(self, "sheets") and self.sheets) else []
@@ -3390,7 +3418,7 @@ class ExportManagerForm(forms.WPFWindow):
             if "Profile" in state and state["Profile"] and state["Profile"] in self.CmbProfile.ItemsSource:
                 self.CmbProfile.SelectedItem = state["Profile"]
 
-            if "PdfIndex" in state and state["PdfIndex"] >= 0:
+            if hasattr(self, "CmbPdfSetup") and self.CmbPdfSetup and "PdfIndex" in state and state["PdfIndex"] >= 0:
                 self.CmbPdfSetup.SelectedIndex = state["PdfIndex"]
 
             if "DwgIndex" in state and state["DwgIndex"] >= 0:
@@ -3965,26 +3993,52 @@ class ExportManagerForm(forms.WPFWindow):
             self.update_combined_filename_preview()
             
             # Load profile specific format setups
-            if "profile_settings" in settings and hasattr(self, 'CmbPdfSetup') and hasattr(self, 'CmbDwgSetup'):
-                p_settings = settings["profile_settings"].get(active, {})
-                if "pdf_setting" in p_settings and p_settings["pdf_setting"] in getattr(self, 'pdf_setting_names', []):
+            p_settings = settings.get("profile_settings", {}).get(active, {})
+            if hasattr(self, 'CmbPdfSetup') and self.CmbPdfSetup and "pdf_setting" in p_settings:
+                if p_settings["pdf_setting"] in getattr(self, 'pdf_setting_names', []):
                     self.CmbPdfSetup.SelectedItem = p_settings["pdf_setting"]
-                if "dwg_setting" in p_settings and p_settings["dwg_setting"] in getattr(self, 'dwg_setting_names', []):
+            
+            if hasattr(self, 'CmbDwgSetup') and self.CmbDwgSetup:
+                if "RYN_CadExport_Standard" in getattr(self, 'dwg_setting_names', []):
+                    self.CmbDwgSetup.SelectedItem = "RYN_CadExport_Standard"
+                elif "dwg_setting" in p_settings and p_settings["dwg_setting"] in getattr(self, 'dwg_setting_names', []):
                     self.CmbDwgSetup.SelectedItem = p_settings["dwg_setting"]
-                if hasattr(self, "CbPDF"):
-                    self.CbPDF.IsChecked = p_settings.get("is_pdf_checked", True)
-                if hasattr(self, "CbDWG"):
-                    self.CbDWG.IsChecked = p_settings.get("is_dwg_checked", True)
-                if hasattr(self, "RbCombineFiles"):
-                    is_comb = p_settings.get("is_combined", "combined" in active.lower())
-                    self.RbCombineFiles.IsChecked = is_comb
-                    self.RbSeparateFiles.IsChecked = not is_comb
-                    self.PanelCombineOptions.IsEnabled = is_comb
-                    
-                    if hasattr(self, "RbSaveSameFolder") and hasattr(self, "RbSplitByFormat"):
-                        self.RbSaveSameFolder.IsChecked = is_comb
-                        self.RbSplitByFormat.IsChecked = not is_comb
 
+            # Combined vs Sheetwise: strictly determined by profile name / combined_schemes!
+            combined_schemes = settings.get("combined_schemes", {})
+            is_comb = (active in combined_schemes) or ("combined" in str(active).lower())
+
+            if hasattr(self, "RbCombineFiles") and hasattr(self, "RbSeparateFiles"):
+                self.RbCombineFiles.IsChecked = is_comb
+                self.RbSeparateFiles.IsChecked = not is_comb
+                if hasattr(self, "PanelCombineOptions") and self.PanelCombineOptions:
+                    self.PanelCombineOptions.IsEnabled = is_comb
+                
+                if hasattr(self, "RbSaveSameFolder") and hasattr(self, "RbSplitByFormat"):
+                    self.RbSaveSameFolder.IsChecked = is_comb
+                    self.RbSplitByFormat.IsChecked = not is_comb
+
+            # Formats & File mode handling strictly driven by Profile:
+            if is_comb:
+                # Combined Mode: Strictly Combined PDF ONLY!
+                if hasattr(self, "CbPDF") and self.CbPDF:
+                    self.CbPDF.IsChecked = True
+                    self.CbPDF.IsEnabled = False
+                    self.CbPDF.ToolTip = "Combined mode strictly generates a Combined PDF"
+                if hasattr(self, "CbDWG") and self.CbDWG:
+                    self.CbDWG.IsChecked = False
+                    self.CbDWG.IsEnabled = False
+                    self.CbDWG.ToolTip = "DWG export is not supported in Combined mode"
+            else:
+                # Sheetwise Mode: 100% manual freedom for PDF and DWG!
+                if hasattr(self, "CbPDF") and self.CbPDF:
+                    self.CbPDF.IsEnabled = True
+                    self.CbPDF.ToolTip = "Export individual sheets to PDF"
+                    self.CbPDF.IsChecked = p_settings.get("is_pdf_checked", True)
+                if hasattr(self, "CbDWG") and self.CbDWG:
+                    self.CbDWG.IsEnabled = True
+                    self.CbDWG.ToolTip = "Export individual sheets to DWG"
+                    self.CbDWG.IsChecked = p_settings.get("is_dwg_checked", True)
     def _save_profile_setting(self, key, value):
         if not hasattr(self, "CmbProfile"): return
         active = self.CmbProfile.SelectedItem
@@ -3998,8 +4052,7 @@ class ExportManagerForm(forms.WPFWindow):
         save_settings(settings)
 
     def CmbPdfSetup_SelectionChanged(self, sender, e):
-        if getattr(self, '_init_done', False):
-            self._save_profile_setting("pdf_setting", self.CmbPdfSetup.SelectedItem)
+        pass
 
     def CmbDwgSetup_SelectionChanged(self, sender, e):
         if getattr(self, '_init_done', False):
@@ -4466,7 +4519,7 @@ class ExportManagerForm(forms.WPFWindow):
         self.TxtPercent.Text = "Completed 0%"
         self.do_events()
 
-        pdf_idx = self.CmbPdfSetup.SelectedIndex
+        pdf_idx = self.CmbPdfSetup.SelectedIndex if (hasattr(self, "CmbPdfSetup") and self.CmbPdfSetup) else -1
         selected_pdf_setting = self.print_settings[pdf_idx - 1] if pdf_idx > 0 else None
         
         pdf_zoom_type = getattr(DB.ZoomType, "Zoom", None) if hasattr(DB, "ZoomType") else None
@@ -4487,8 +4540,13 @@ class ExportManagerForm(forms.WPFWindow):
             finally:
                 revit.uidoc.Application.DialogBoxShowing -= dismiss_dialog
 
-        dwg_idx = self.CmbDwgSetup.SelectedIndex
+        dwg_idx = self.CmbDwgSetup.SelectedIndex if (hasattr(self, "CmbDwgSetup") and self.CmbDwgSetup) else -1
         selected_dwg_setting = self.dwg_settings[dwg_idx - 1] if dwg_idx > 0 else None
+        if not selected_dwg_setting:
+            for ds in self.dwg_settings:
+                if ds.Name == "RYN_CadExport_Standard":
+                    selected_dwg_setting = ds
+                    break
 
         # Disable navigation controls
         self.BtnBack.IsEnabled = False
@@ -4919,6 +4977,17 @@ def export_dwg(folder, sheet, filename, dwg_setting):
     opt = DB.DWGExportOptions()
     if dwg_setting:
         opt = dwg_setting.GetDWGExportOptions()
+    else:
+        sheet_doc = sheet.Document
+        setting = get_or_create_ryn_cad_setting(sheet_doc)
+        if setting:
+            opt = setting.GetDWGExportOptions()
+        else:
+            opt.TargetUnit = DB.ExportUnit.Millimeter
+            opt.Colors = DB.ExportColorMode.IndexColors
+            opt.LayerMapping = "ISO13567"
+            opt.LineScaling = DB.LineScaling.PaperSpace
+            opt.TextTreatment = DB.TextTreatment.Exact
 
     opt.MergedViews = True
 
@@ -4926,7 +4995,7 @@ def export_dwg(folder, sheet, filename, dwg_setting):
     views = List[DB.ElementId]()
     views.Add(sheet.Id)
 
-    doc.Export(folder, filename, views, opt)
+    sheet.Document.Export(folder, filename, views, opt)
 
 def export_pdf_2022(folder, sheet, filename, zoom_type, zoom_pct):
     try:

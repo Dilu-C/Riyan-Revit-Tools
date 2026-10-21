@@ -1,4 +1,4 @@
-﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Riyan Export Manager" Height="740" Width="1340"
         WindowStartupLocation="CenterScreen"
@@ -928,8 +928,8 @@
                                 <TextBlock Text="FILE" Foreground="#555555" FontSize="9" FontWeight="Bold" Margin="0,0,0,8"/>
                                 <Border BorderBrush="#E5E5E5" BorderThickness="1" CornerRadius="4" Padding="12">
                                     <StackPanel>
-                                        <RadioButton x:Name="RbSeparateFiles" Content="Create separate files" Foreground="#111111" FontSize="11.5" IsChecked="True" Margin="0,0,0,8" Click="RbFileOption_Click"/>
-                                        <RadioButton x:Name="RbCombineFiles" Content="Combine multiple views/sheets into a single file" Foreground="#111111" FontSize="11.5" Click="RbFileOption_Click"/>
+                                        <RadioButton x:Name="RbSeparateFiles" Content="Create separate files" Foreground="#111111" FontSize="11.5" IsChecked="True" Margin="0,0,0,8" Click="RbFileOption_Click" IsEnabled="False" ToolTip="Driven automatically by selected Naming Profile"/>
+                                        <RadioButton x:Name="RbCombineFiles" Content="Combine multiple views/sheets into a single file" Foreground="#111111" FontSize="11.5" Click="RbFileOption_Click" IsEnabled="False" ToolTip="Driven automatically by selected Naming Profile"/>
                                         
                                         <StackPanel x:Name="PanelCombineOptions" Margin="24,12,0,0" IsEnabled="False">
                                             <Button x:Name="BtnCombinedNaming" Content="Custom File Name" Style="{StaticResource SecondaryBtn}" Width="150" HorizontalAlignment="Left" Click="BtnCombinedNaming_Click" Margin="0,0,0,12"/>
@@ -944,10 +944,6 @@
                             <!-- RIGHT PANEL: Setups -->
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="EXPORT SETUPS" Foreground="#555555" FontSize="9" FontWeight="Bold" Margin="0,0,0,12"/>
-                                <StackPanel Margin="0,0,0,16">
-                                    <TextBlock Text="PDF Print Setting:" Foreground="#555555" FontSize="10" Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="CmbPdfSetup" Style="{StaticResource DarkComboBox}" SelectionChanged="CmbPdfSetup_SelectionChanged"/>
-                                </StackPanel>
                                 <StackPanel>
                                     <TextBlock Text="DWG Export Setup:" Foreground="#555555" FontSize="10" Margin="0,0,0,4"/>
                                     <ComboBox x:Name="CmbDwgSetup" Style="{StaticResource DarkComboBox}" SelectionChanged="CmbDwgSetup_SelectionChanged"/>

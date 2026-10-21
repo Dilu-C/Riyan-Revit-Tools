@@ -1,2 +1,6 @@
-title: "Duplicate Wall\nTag Finder"
-tooltip: "Selects walls with duplicate tags in current view."
+﻿title: "Duplicate Wall\nTag Finder"
+tooltip: >-
+  Finds and highlights duplicate tags assigned to walls.
+  
+  How to use:
+  1. Click to scan active view and isolate duplicate wall tags.

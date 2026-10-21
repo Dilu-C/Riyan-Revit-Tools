@@ -1,2 +1,6 @@
-title: "Duplicate Column\nTag Finder"
-tooltip: "Selects columns with duplicate tags in current view."
+﻿title: "Duplicate Column\nTag Finder"
+tooltip: >-
+  Finds and highlights duplicate tags assigned to structural columns.
+  
+  How to use:
+  1. Click to scan active view and isolate duplicate column tags.

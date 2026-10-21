@@ -1,5 +1,6 @@
-title: "Toggle\nGrids"
-tooltip: |
-  Toggle grid bubbles in View.
-
-  Press "Esc" to finalize the process. For further assistance please contact - Asanka
+﻿title: "Toggle\nGrids"
+tooltip: >-
+  Toggles end bubble visibility on selected grids in current view.
+  
+  How to use:
+  1. Click to toggle grid bubble display.

@@ -1,2 +1,6 @@
-title: "Missing Wall\nTag Finder"
-tooltip: "Selects walls with no associated tags in current view."
+﻿title: "Missing Wall\nTag Finder"
+tooltip: >-
+  Identifies and selects untagged walls in the active view.
+  
+  How to use:
+  1. Click to select all untagged walls for rapid batch tagging.

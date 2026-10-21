@@ -1,5 +1,6 @@
-title: "Toggle\nLevels"
-tooltip: |
-  Toggle level bubbles in View.
-
-  Press "Esc" to finalize the process. For further assistance please contact - Asanka
+﻿title: "Toggle\nLevels"
+tooltip: >-
+  Shows or hides elevation heads on level datums in active section/elevation view.
+  
+  How to use:
+  1. Click to toggle level datum bubbles in current view.

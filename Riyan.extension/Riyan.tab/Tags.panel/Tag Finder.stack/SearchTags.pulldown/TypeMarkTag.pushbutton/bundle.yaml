@@ -1,2 +1,7 @@
-title: "Type Mark Tag\nFinder"
-tooltip: "Searches and selects elements in current view based on input tag defined in Type Mark parameter."
+﻿title: "Type Mark Tag\nFinder"
+tooltip: >-
+  Instantly locates and zooms to elements matching a specific Type Mark.
+  
+  How to use:
+  1. Click to enter the type mark (e.g. W1, D2).
+  2. Press Enter to zoom and center matching elements.

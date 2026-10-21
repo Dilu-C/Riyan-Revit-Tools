@@ -1,1 +1,10 @@
-title: Update Tables
+﻿title: Update Tables
+tooltip: >-
+  Synchronizes existing door/window schedule tables with latest model changes.
+  
+  • Refreshes dimensions, parameter text, and counts in existing schedule views.
+  • Ensures schedule documentation matches current 3D geometry.
+  
+  How to use:
+  1. Click Update Tables.
+  2. Tables are refreshed and updated across all active schedule views.

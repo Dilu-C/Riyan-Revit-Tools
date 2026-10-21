@@ -1,4 +1,4 @@
-﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Batch Export Manager" Height="720" Width="1380" MinWidth="1100" MinHeight="550"
         WindowStartupLocation="CenterScreen"
@@ -416,8 +416,8 @@
                     <Grid Grid.Row="3" Margin="0,10,0,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Export Mode:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource TextMain}" Margin="0,0,10,0"/>
-                            <RadioButton x:Name="RbCheckPrint" Content="Combined PDF" Foreground="{DynamicResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                            <RadioButton x:Name="RbFinalExport" Content="Separate CAD/PDF" Foreground="{DynamicResource TextMain}" VerticalAlignment="Center"/>
+                            <RadioButton x:Name="RbCheckPrint" Content="Combined PDF" Foreground="{DynamicResource TextMain}" IsChecked="True" VerticalAlignment="Center" Margin="0,0,20,0" IsEnabled="False" ToolTip="Driven automatically by selected Naming Profile"/>
+                            <RadioButton x:Name="RbFinalExport" Content="Separate CAD/PDF" Foreground="{DynamicResource TextMain}" VerticalAlignment="Center" IsEnabled="False" ToolTip="Driven automatically by selected Naming Profile"/>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
