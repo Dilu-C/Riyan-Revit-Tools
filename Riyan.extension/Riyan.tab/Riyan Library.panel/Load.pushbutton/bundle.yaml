@@ -1,4 +1,4 @@
-﻿title: Load
+title: Load
 tooltip: >-
   Visual family library browser for Riyan BIM Standards.
   
@@ -8,6 +8,6 @@ tooltip: >-
   
   How to use:
   1. Click Riyan Library (Load).
-  2. Search or filter families by category.
+  2. Filter by discipline (ARC, STR, PLU, FIRE, ACMV) or search.
   3. Select family and click 'Load into Project'.
 author: Dilupa
