@@ -69,6 +69,32 @@ def get_target_skills_dirs():
     ]
     return dirs
 
+def get_corporate_fleet_dir():
+    """Locates the shared Riyan Corporate OneDrive / SharePoint Skills Fleet directory."""
+    user_profile = os.environ.get('USERPROFILE', os.path.expanduser('~'))
+    candidates = [
+        os.path.join(user_profile, 'OneDrive - Riyan Private Limited', 'Riyan LK Projects - 00 - RIYAN REVIT STANDARD', '04 AUTOMATION', 'RIYAN_SKILLS_FLEET'),
+        os.path.join(user_profile, 'Riyan Private Limited', 'Riyan LK Projects - 00 - RIYAN REVIT STANDARD', '04 AUTOMATION', 'RIYAN_SKILLS_FLEET'),
+        r'D:\RIYAN\Riyan Private Limited\Riyan LK Projects - 00 - RIYAN REVIT STANDARD\04 AUTOMATION\RIYAN_SKILLS_FLEET'
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    # Try parent auto-creation if standard folder exists
+    base_candidates = [
+        os.path.join(user_profile, 'OneDrive - Riyan Private Limited', 'Riyan LK Projects - 00 - RIYAN REVIT STANDARD', '04 AUTOMATION'),
+        os.path.join(user_profile, 'Riyan Private Limited', 'Riyan LK Projects - 00 - RIYAN REVIT STANDARD', '04 AUTOMATION')
+    ]
+    for b in base_candidates:
+        if os.path.exists(b):
+            target = os.path.join(b, 'RIYAN_SKILLS_FLEET')
+            try:
+                os.makedirs(target)
+                return target
+            except Exception:
+                pass
+    return None
+
 def get_local_skills_hub_dir():
     """Locates the local fallback Skills_Hub in Riyan-Revit-Tools repository root."""
     current_lib = os.path.dirname(__file__)
@@ -111,12 +137,143 @@ def fetch_url_text(url, timeout=6):
     except Exception:
         return None
 
+def publish_local_skills_to_fleet():
+    """
+    Bidirectional Uplink:
+    Detects any locally created/modified skill on this PC (by any user or project)
+    and publishes it to the Corporate Fleet so every other PC receives it.
+    """
+    fleet_dir = get_corporate_fleet_dir()
+    if not fleet_dir or not os.path.exists(fleet_dir):
+        return False
+
+    target_dirs = get_target_skills_dirs()
+    sentinel = get_sentinel()
+    published = 0
+
+    for local_dir in target_dirs:
+        if not os.path.exists(local_dir):
+            continue
+        for item in os.listdir(local_dir):
+            skill_path = os.path.join(local_dir, item)
+            if not os.path.isdir(skill_path) or item.startswith('.'):
+                continue
+            skill_md = os.path.join(skill_path, 'SKILL.md')
+            if not os.path.exists(skill_md):
+                continue
+
+            fleet_skill_dir = os.path.join(fleet_dir, item)
+            fleet_skill_md = os.path.join(fleet_skill_dir, 'SKILL.md')
+
+            needs_push = False
+            if not os.path.exists(fleet_skill_md):
+                needs_push = True
+            else:
+                try:
+                    if os.path.getmtime(skill_md) > (os.path.getmtime(fleet_skill_md) + 2):
+                        needs_push = True
+                except Exception:
+                    pass
+
+            if needs_push:
+                try:
+                    with open(skill_md, 'r', encoding='utf-8') as sf:
+                        content = sf.read()
+                except Exception:
+                    with open(skill_md, 'r', encoding='latin-1', errors='replace') as sf:
+                        content = sf.read()
+
+                if sentinel:
+                    is_safe, clash_info = sentinel.audit_incoming_skill(item, content, target_dirs)
+                    if not is_safe:
+                        print(f"[SENTINEL] Refused to publish conflicting skill '{item}' to Fleet!")
+                        continue
+
+                try:
+                    if not os.path.exists(fleet_skill_dir):
+                        os.makedirs(fleet_skill_dir)
+                    for f in os.listdir(skill_path):
+                        src_f = os.path.join(skill_path, f)
+                        dst_f = os.path.join(fleet_skill_dir, f)
+                        if os.path.isfile(src_f):
+                            shutil.copy2(src_f, dst_f)
+                    published += 1
+                    print(f"[FLEET UPLINK] Successfully published '{item}' to Corporate Fleet!")
+                except Exception as ex:
+                    print(f"[FLEET ERROR] Could not publish '{item}': {ex}")
+
+    return published > 0
+
+def pull_skills_from_fleet():
+    """
+    Corporate Fleet Downlink:
+    Silently syncs any skills published by other PCs in the office via OneDrive / Corporate Share.
+    """
+    fleet_dir = get_corporate_fleet_dir()
+    if not fleet_dir or not os.path.exists(fleet_dir):
+        return False
+
+    target_dirs = get_target_skills_dirs()
+    sentinel = get_sentinel()
+    pulled = 0
+
+    for item in os.listdir(fleet_dir):
+        fleet_skill = os.path.join(fleet_dir, item)
+        if not os.path.isdir(fleet_skill) or item.startswith('.'):
+            continue
+        fleet_skill_md = os.path.join(fleet_skill, 'SKILL.md')
+        if not os.path.exists(fleet_skill_md):
+            continue
+
+        for t_dir in target_dirs:
+            local_skill_dir = os.path.join(t_dir, item)
+            local_skill_md = os.path.join(local_skill_dir, 'SKILL.md')
+
+            needs_copy = False
+            if not os.path.exists(local_skill_md):
+                needs_copy = True
+            else:
+                try:
+                    if os.path.getmtime(fleet_skill_md) > (os.path.getmtime(local_skill_md) + 2):
+                        needs_copy = True
+                except Exception:
+                    pass
+
+            if needs_copy:
+                try:
+                    with open(fleet_skill_md, 'r', encoding='utf-8') as sf:
+                        content = sf.read()
+                except Exception:
+                    with open(fleet_skill_md, 'r', encoding='latin-1', errors='replace') as sf:
+                        content = sf.read()
+
+                if sentinel:
+                    is_safe, clash_info = sentinel.audit_incoming_skill(item, content, target_dirs)
+                    if not is_safe:
+                        print(f"[SENTINEL] Blocked incoming conflicting skill '{item}' from Fleet!")
+                        continue
+
+                try:
+                    if not os.path.exists(local_skill_dir):
+                        os.makedirs(local_skill_dir)
+                    for f in os.listdir(fleet_skill):
+                        src_f = os.path.join(fleet_skill, f)
+                        dst_f = os.path.join(local_skill_dir, f)
+                        if os.path.isfile(src_f):
+                            shutil.copy2(src_f, dst_f)
+                    pulled += 1
+                except Exception:
+                    pass
+
+    return pulled > 0
+
 def sync_approved_skills():
     """
-    Executes a single-pass delta sync.
-    1. Tries online GitHub manifest first.
-    2. Falls back to local Skills_Hub if offline.
-    3. Downloads/copies only new or modified skills into local Antigravity directories.
+    Executes a complete bidirectional single-pass delta sync:
+    1. Uplink: Publishes locally created/modified skills to Corporate Fleet (OneDrive).
+    2. Corporate Downlink: Pulls skills published by other PCs from Corporate Fleet.
+    3. Internet Downlink: Pulls approved skills from central GitHub manifest.
+    4. Local Fallback: Pulls from local extension Skills_Hub if offline.
     """
     target_dirs = get_target_skills_dirs()
     if not target_dirs:
@@ -128,6 +285,18 @@ def sync_approved_skills():
                 os.makedirs(t_dir)
             except Exception:
                 pass
+
+    # STEP 1: Corporate Fleet Uplink (Publish local skills)
+    try:
+        publish_local_skills_to_fleet()
+    except Exception:
+        pass
+
+    # STEP 2: Corporate Fleet Downlink (Pull skills from other PCs via OneDrive)
+    try:
+        pull_skills_from_fleet()
+    except Exception:
+        pass
 
     # 1. Try Online Manifest
     manifest_json_str = fetch_url_text(ONLINE_MANIFEST_URL, timeout=5)
