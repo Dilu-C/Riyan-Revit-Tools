@@ -194,16 +194,16 @@ XAML_STRING = """
                             <!-- Item 1 -->
                             <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,0,0,8">
                                 <StackPanel>
-                                    <TextBlock Text="100+ Multi-Discipline Families" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
-                                    <TextBlock Text="Ready-to-place Structural beams/columns, Plumbing fixtures, Fire Fighting &amp; ACMV diffusers in Riyan Library." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                    <TextBlock Text="AI Skills Fleet &amp; Sentinel Engine" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Zero-touch background sync of 11 curated BIM skills across 100 workstations with real-time Peer-to-Peer conflict detection." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Item 2 -->
                             <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,0,0,8">
                                 <StackPanel>
-                                    <TextBlock Text="Crisp 3D Thumbnail Previews" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
-                                    <TextBlock Text="Every family in the library displays clear 3D preview cards. Never load or guess wrong families again." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                    <TextBlock Text="100+ Multi-Discipline Families" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Ready-to-place Structural beams/columns, Plumbing fixtures, Fire Fighting &amp; ACMV diffusers in Riyan Library." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
                                 </StackPanel>
                             </Border>
 
