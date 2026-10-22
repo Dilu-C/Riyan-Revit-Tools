@@ -395,6 +395,14 @@ def get_previous_version():
         pass
     return "2.5.10"
 
+def format_version_label(ver_str):
+    if not ver_str:
+        return ""
+    s = str(ver_str).strip()
+    if s.lower().startswith("v"):
+        return "V" + s[1:]
+    return "V" + s
+
 def show_whats_new(prev_version=None, current_version=None):
     try:
         if not current_version:
@@ -402,8 +410,8 @@ def show_whats_new(prev_version=None, current_version=None):
         if not prev_version:
             prev_version = get_previous_version()
             
-        cur_disp = "v" + current_version if not current_version.lower().startswith("v") else current_version
-        prev_disp = "v" + prev_version if not prev_version.lower().startswith("v") else prev_version
+        cur_disp = format_version_label(current_version)
+        prev_disp = format_version_label(prev_version)
         
         xaml_content = XAML_STRING.replace("{VERSION}", cur_disp).replace("{PREV_VERSION}", prev_disp)
         w = WhatsNewWindow(xaml_content, literal_string=True)
