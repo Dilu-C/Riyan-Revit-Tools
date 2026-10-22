@@ -474,7 +474,17 @@ t = threading.Thread(target=check_for_updates)
 t.isDaemon = True
 t.start()
 
-# Silent Antigravity Skills Hub background sync (Runs only if Antigravity is installed)
+# Direct Revit MCP Listener Auto-Start
+try:
+    _lib_dir = os.path.join(os.path.dirname(__file__), "lib")
+    if _lib_dir not in sys.path:
+        sys.path.insert(0, _lib_dir)
+    import revit_mcp_listener
+    revit_mcp_listener.start_server()
+except Exception:
+    pass
+
+# Direct Antigravity Skills Hub background sync (Runs only if Antigravity is installed)
 def _bg_skills_sync():
     try:
         _lib_dir = os.path.join(os.path.dirname(__file__), "lib")

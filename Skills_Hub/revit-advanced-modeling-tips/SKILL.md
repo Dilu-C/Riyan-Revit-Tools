@@ -1,15 +1,15 @@
-﻿---
+---
 name: revit-advanced-modeling-tips
-description: Advanced architectural and structural modeling techniques in Autodesk Revit, including flush wall-column corner joins (no kattak), hip roof slope calculations, and hosted element Z-coordinate math.
+description: Advanced architectural and structural modeling techniques in Autodesk Revit, including flush wall-column corner joins (no kattak), hip roof slope calculations, hosted element Z-coordinate math, 3D perspective camera vector calculations, and gable wall attachment.
 author: "Asanka (Sri Lanka) - Curated by Dilu"
-office: "Sri Lanka"
-discipline: "BIM / Architecture / Modeling"
-version: "1.0.0"
+office: "Sri Lanka & Maldives"
+discipline: "BIM / Architecture / Modeling / Geometry"
+version: "1.1.0"
 ---
 
 # Revit Advanced Modeling Tips & Precise Math
 
-Practical geometric formulas and lessons learned for clean Revit element placement.
+Practical geometric formulas and lessons learned for clean Revit element placement, camera setups, and complex geometries.
 
 ---
 
@@ -49,3 +49,52 @@ Practical geometric formulas and lessons learned for clean Revit element placeme
   insertion_z = host_level.Elevation + local_offset
   ```
 - **Floor Slab Rebar**: Revit floors grow downward from their placement level ($Top = Level$, $Bottom = Level - Thickness$). When calculating rebar mesh elevations, always offset relative to actual concrete bottom/top elevation rather than raw level elevation.
+
+---
+
+## 4. 3D Perspective Camera Vector Math (Zero Horizon Distortion)
+**The Problem**: When creating a custom perspective 3D view using `ViewOrientation3D(eye, up, forward)`, Revit strictly throws an `ArgumentException` if the `up` and `forward` vectors are not exactly 90 degrees perpendicular.
+**The Solution**:
+- Derive the orthogonal horizon vectors using vector cross-products:
+  ```python
+  from Autodesk.Revit.DB import XYZ, ViewOrientation3D
+
+  forward = (target - eye).Normalize()
+  # Derive horizontal right vector perpendicular to global Z
+  right = forward.CrossProduct(XYZ(0, 0, 1)).Normalize()
+  # Derive exact perpendicular camera up vector
+  up = right.CrossProduct(forward).Normalize()
+
+  orientation = ViewOrientation3D(eye, up, forward)
+  view_3d.SetOrientation(orientation)
+  ```
+
+---
+
+## 5. Sloped Roof Wall Attachment & Gable Clean-Up
+**The Problem**: Modeling walls under sloped or stepped gable roofs often leaves triangles unclosed or requires manual wall editing profiles.
+**The Solution**:
+- Programmatically attach wall tops to the roof element:
+  ```python
+  from Autodesk.Revit.DB import AttachmentLocation
+
+  for wall in walls_under_roof:
+      if wall.CanHaveAnalyticalModel(): # or valid structural/architectural wall
+          wall.Attach(roof, AttachmentLocation.Top)
+  ```
+- To read or adjust the roof's vertical offset programmatically, use `BuiltInParameter.ROOF_LEVEL_OFFSET_PARAM`.
+
+---
+
+## 6. IronPython 2.7 / C# `out` Parameter Passing Pattern
+**The Pitfall**: In IronPython, calling Revit API methods with `out` parameters (e.g., `doc.Create.NewFootPrintRoof(..., out modelCurves)`) by passing `clr.Reference[T]()` passes a `null` reference, throwing an internal exception.
+**The Fix**:
+- Always instantiate the underlying collection first, then pass it inside the reference wrapper:
+  ```python
+  import clr
+  from Autodesk.Revit.DB import ModelCurveArray
+
+  ref_obj = clr.Reference[ModelCurveArray](ModelCurveArray())
+  roof = doc.Create.NewFootPrintRoof(curves, level, roof_type, ref_obj)
+  curves_out = ref_obj.Value  # Contains the created model curves
+  ```
