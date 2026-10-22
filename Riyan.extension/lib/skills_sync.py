@@ -1,25 +1,67 @@
 # -*- coding: utf-8 -*-
 """
-skills_sync.py - Silent Background Antigravity Skills Sync for Riyan Revit Tools
-Compatible with IronPython 2.7, CPython 3, Revit 2021-2027+
-Zero-Crash & Silent Guardrail Engine
-Multi-Path Auto Discovery: ~/.gemini/config/skills and ~/.gemini/antigravity/skills
+skills_sync.py - Real-Time Online Antigravity Skills Fleet Engine for Riyan Revit Tools
+Multi-Office Support: Sri Lanka & Maldives
+Compatibility: IronPython 2.7, CPython 3.8-3.13+, Revit 2021-2027+, Standalone Daemon
+Features:
+- Online GitHub Raw Manifest auto-polling (Zero-Touch, no batch file required)
+- SHA256 / Timestamp delta sync: only fetches updated files
+- Background heartbeat daemon (polls every 5 minutes while software is running)
+- Silent fail-safe: zero crash, zero popups on network loss
 """
 
 import os
 import sys
+import json
+import time
 import shutil
+import threading
+
+# Compatibility imports for urllib across IronPython 2.7 and Python 3
+try:
+    import urllib2
+    from urllib2 import urlopen, Request
+except ImportError:
+    import urllib.request as urllib2
+    from urllib.request import urlopen, Request
+
+try:
+    import hashlib
+    HAS_HASH = True
+except ImportError:
+    HAS_HASH = False
+
+ONLINE_REPO_BASE = "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Skills_Hub"
+ONLINE_MANIFEST_URL = ONLINE_REPO_BASE + "/skills_manifest.json"
+
+_HEARTBEAT_THREAD = None
+_STOP_HEARTBEAT = False
+
+def get_sentinel():
+    """Dynamically imports skill_sentinel if available."""
+    try:
+        import skill_sentinel
+        return skill_sentinel
+    except ImportError:
+        try:
+            lib_dir = os.path.dirname(__file__)
+            if lib_dir not in sys.path:
+                sys.path.append(lib_dir)
+            import skill_sentinel
+            return skill_sentinel
+        except Exception:
+            return None
 
 def get_target_skills_dirs():
-    """
-    Returns valid skill deployment directories on the local machine.
-    Includes both the official global discovery path (.gemini/config/skills)
-    and the legacy path (.gemini/antigravity/skills).
-    """
+    """Returns all Antigravity skill directories on the local machine."""
     user_profile = os.environ.get('USERPROFILE', os.path.expanduser('~'))
     gemini_dir = os.path.join(user_profile, '.gemini')
     if not os.path.exists(gemini_dir):
-        return []
+        # Auto-create if Antigravity config path exists
+        try:
+            os.makedirs(os.path.join(gemini_dir, 'config', 'skills'))
+        except Exception:
+            pass
 
     dirs = [
         os.path.join(gemini_dir, 'config', 'skills'),
@@ -27,42 +69,121 @@ def get_target_skills_dirs():
     ]
     return dirs
 
-def get_skills_hub_dir():
-    """Locate Skills_Hub in Riyan-Revit-Tools repository root."""
-    current_lib = os.path.dirname(__file__)                     # Riyan.extension/lib
-    ext_dir = os.path.dirname(current_lib)                      # Riyan.extension
-    repo_root = os.path.dirname(ext_dir)                        # Riyan-Revit-Tools root
-    
+def get_local_skills_hub_dir():
+    """Locates the local fallback Skills_Hub in Riyan-Revit-Tools repository root."""
+    current_lib = os.path.dirname(__file__)
+    ext_dir = os.path.dirname(current_lib)
+    repo_root = os.path.dirname(ext_dir)
     hub_dir = os.path.join(repo_root, 'Skills_Hub')
     if os.path.exists(hub_dir):
         return hub_dir
     return None
 
+def compute_sha256(filepath):
+    """Computes SHA256 of a local file."""
+    if not HAS_HASH or not os.path.exists(filepath):
+        return None
+    try:
+        h = hashlib.sha256()
+        with open(filepath, 'rb') as f:
+            while True:
+                chunk = f.read(8192)
+                if not chunk:
+                    break
+                h.update(chunk)
+        return h.hexdigest()
+    except Exception:
+        return None
+
+def fetch_url_text(url, timeout=6):
+    """Fetches text content from a remote URL with cache-busting."""
+    try:
+        cache_buster = "?_t=" + str(int(time.time()))
+        req = Request(url + cache_buster)
+        req.add_header('User-Agent', 'Riyan-Skills-Fleet-Engine/1.0')
+        req.add_header('Cache-Control', 'no-cache')
+        req.add_header('Pragma', 'no-cache')
+        response = urlopen(req, timeout=timeout)
+        data = response.read()
+        if hasattr(data, 'decode'):
+            return data.decode('utf-8', errors='replace')
+        return str(data)
+    except Exception:
+        return None
+
 def sync_approved_skills():
     """
-    Synchronizes approved company skills from Skills_Hub into local Antigravity skills.
-    Runs silently. If Antigravity is not installed, exits immediately.
+    Executes a single-pass delta sync.
+    1. Tries online GitHub manifest first.
+    2. Falls back to local Skills_Hub if offline.
+    3. Downloads/copies only new or modified skills into local Antigravity directories.
     """
-    try:
-        target_dirs = get_target_skills_dirs()
-        if not target_dirs:
-            return False
+    target_dirs = get_target_skills_dirs()
+    if not target_dirs:
+        return False
 
-        hub_dir = get_skills_hub_dir()
-        if not hub_dir:
-            return False
+    for t_dir in target_dirs:
+        if not os.path.exists(t_dir):
+            try:
+                os.makedirs(t_dir)
+            except Exception:
+                pass
 
-        # Ensure target directories exist
-        for t_dir in target_dirs:
-            if not os.path.exists(t_dir):
-                try:
-                    os.makedirs(t_dir)
-                except Exception:
-                    pass
+    # 1. Try Online Manifest
+    manifest_json_str = fetch_url_text(ONLINE_MANIFEST_URL, timeout=5)
+    manifest = None
+    if manifest_json_str:
+        try:
+            manifest = json.loads(manifest_json_str)
+        except Exception:
+            manifest = None
 
-        # Iterate through approved skills in Skills_Hub
-        for item in os.listdir(hub_dir):
-            src_skill = os.path.join(hub_dir, item)
+    updated_count = 0
+
+    if manifest and "skills" in manifest:
+        # Online Sync Mode
+        base_url = manifest.get("repo_url", ONLINE_REPO_BASE)
+        for skill_key, skill_info in manifest["skills"].items():
+            rel_path = skill_info.get("rel_path", skill_key + "/SKILL.md")
+            remote_sha = skill_info.get("sha256")
+            remote_file_url = base_url + "/" + rel_path
+
+            for target_skills_dir in target_dirs:
+                dest_skill_dir = os.path.join(target_skills_dir, skill_key)
+                dest_skill_md = os.path.join(dest_skill_dir, "SKILL.md")
+
+                needs_download = False
+                if not os.path.exists(dest_skill_md):
+                    needs_download = True
+                elif remote_sha:
+                    local_sha = compute_sha256(dest_skill_md)
+                    if local_sha and local_sha != remote_sha:
+                        needs_download = True
+
+                if needs_download:
+                    content = fetch_url_text(remote_file_url, timeout=7)
+                    if content:
+                        sentinel = get_sentinel()
+                        if sentinel:
+                            is_safe, clash_info = sentinel.audit_incoming_skill(skill_key, content, target_dirs)
+                            if not is_safe:
+                                print(f"[SENTINEL] Blocked conflicting skill '{skill_key}' from syncing!")
+                                continue
+                        try:
+                            if not os.path.exists(dest_skill_dir):
+                                os.makedirs(dest_skill_dir)
+                            with open(dest_skill_md, "w") as f:
+                                f.write(content.encode("utf-8") if sys.version_info[0] == 2 else content)
+                            updated_count += 1
+                        except Exception:
+                            pass
+        return True
+
+    # 2. Local Fallback Mode (Offline)
+    local_hub = get_local_skills_hub_dir()
+    if local_hub and os.path.exists(local_hub):
+        for item in os.listdir(local_hub):
+            src_skill = os.path.join(local_hub, item)
             if os.path.isdir(src_skill) and not item.startswith('.'):
                 src_skill_md = os.path.join(src_skill, 'SKILL.md')
                 if not os.path.exists(src_skill_md):
@@ -71,35 +192,81 @@ def sync_approved_skills():
                 for target_skills_dir in target_dirs:
                     dest_skill = os.path.join(target_skills_dir, item)
                     dest_skill_md = os.path.join(dest_skill, 'SKILL.md')
-                    
+
                     needs_copy = False
                     if not os.path.exists(dest_skill_md):
                         needs_copy = True
                     else:
                         try:
-                            # If hub version is newer, update
                             if os.path.getmtime(src_skill_md) > os.path.getmtime(dest_skill_md):
                                 needs_copy = True
                         except Exception:
                             pass
 
                     if needs_copy:
-                        if not os.path.exists(dest_skill):
+                        sentinel = get_sentinel()
+                        if sentinel:
                             try:
-                                os.makedirs(dest_skill)
+                                with open(src_skill_md, 'r', encoding='utf-8') as sf:
+                                    s_content = sf.read()
+                                is_safe, clash_info = sentinel.audit_incoming_skill(item, s_content, target_dirs)
+                                if not is_safe:
+                                    print(f"[SENTINEL] Blocked conflicting skill '{item}' from local sync!")
+                                    continue
                             except Exception:
                                 pass
-                        
-                        # Copy all files in skill directory
-                        for f in os.listdir(src_skill):
-                            s_file = os.path.join(src_skill, f)
-                            d_file = os.path.join(dest_skill, f)
-                            if os.path.isfile(s_file):
-                                try:
+                        try:
+                            if not os.path.exists(dest_skill):
+                                os.makedirs(dest_skill)
+                            for f in os.listdir(src_skill):
+                                s_file = os.path.join(src_skill, f)
+                                d_file = os.path.join(dest_skill, f)
+                                if os.path.isfile(s_file):
                                     shutil.copy2(s_file, d_file)
-                                except Exception:
-                                    pass
+                        except Exception:
+                            pass
         return True
-    except Exception:
-        # Complete fail-safe guardrail: never throw or block Revit startup
-        return False
+
+    return False
+
+def start_heartbeat(interval_seconds=300):
+    """
+    Launches a background daemon thread that periodically checks for skill updates.
+    Runs silently every 5 minutes (default).
+    Ensures that when Dilu updates a skill at 12:00 PM, all running PCs sync by 12:05 PM
+    without closing or restarting Revit/AutoCAD/Navisworks!
+    """
+    global _HEARTBEAT_THREAD, _STOP_HEARTBEAT
+    if _HEARTBEAT_THREAD and _HEARTBEAT_THREAD.is_alive():
+        return
+
+    _STOP_HEARTBEAT = False
+
+    def _worker():
+        # First immediate sync on software start
+        try:
+            sync_approved_skills()
+        except Exception:
+            pass
+
+        # Periodic loop
+        while not _STOP_HEARTBEAT:
+            try:
+                time.sleep(interval_seconds)
+                sync_approved_skills()
+            except Exception:
+                pass
+
+    _HEARTBEAT_THREAD = threading.Thread(target=_worker)
+    _HEARTBEAT_THREAD.isDaemon = True
+    _HEARTBEAT_THREAD.name = "RiyanSkillsFleetHeartbeat"
+    _HEARTBEAT_THREAD.start()
+
+def stop_heartbeat():
+    global _STOP_HEARTBEAT
+    _STOP_HEARTBEAT = True
+
+if __name__ == "__main__":
+    print("[*] Running standalone manual Skills Fleet Sync...")
+    res = sync_approved_skills()
+    print("[OK] Sync Completed. Status: " + str(res))

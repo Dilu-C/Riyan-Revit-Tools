@@ -1,4 +1,4 @@
-<# :
+﻿<# :
 @echo off
 setlocal
 title Riyan Revit Tools 1-Click Updater
@@ -126,7 +126,7 @@ try {
     Remove-Item -Path $extractFolder -Recurse -Force -ErrorAction SilentlyContinue
 
     # Purge leftover md, zip, txt, .idea, and deprecated Tool.panel & About.panel from target
-    Get-ChildItem -Path $targetTools -Recurse -Include '*.md', '*.zip' -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+    Get-ChildItem -Path $targetTools -Recurse -Include '*.md', '*.zip' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch 'Skills_Hub' } | Remove-Item -Force -ErrorAction SilentlyContinue
     # Strip UTF-8 BOM from all bundle.yaml files
     Get-ChildItem -Path $targetTools -Recurse -Filter '*.yaml' -ErrorAction SilentlyContinue | ForEach-Object {
         $b = [System.IO.File]::ReadAllBytes($_.FullName)

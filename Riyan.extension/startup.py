@@ -484,14 +484,14 @@ try:
 except Exception:
     pass
 
-# Direct Antigravity Skills Hub background sync (Runs only if Antigravity is installed)
+# Direct Antigravity Skills Hub background sync & periodic heartbeat (Runs only if Antigravity is installed)
 def _bg_skills_sync():
     try:
         _lib_dir = os.path.join(os.path.dirname(__file__), "lib")
         if _lib_dir not in sys.path:
             sys.path.insert(0, _lib_dir)
         import skills_sync
-        skills_sync.sync_approved_skills()
+        skills_sync.start_heartbeat(interval_seconds=300)
     except Exception:
         pass
 
