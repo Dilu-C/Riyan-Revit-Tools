@@ -141,6 +141,14 @@ def update_tools():
             
         # 5. Prompt for update (online_version is strictly newer than local_version)
         if show_dialog("UPDATE_AVAILABLE", (online_version, local_version)):
+            # Record local_version as previous version for What's New dialog
+            try:
+                prev_v_file = os.path.join(extension_dir, "prev_version.txt")
+                with open(prev_v_file, "w") as pf:
+                    pf.write(str(local_version).strip())
+            except Exception:
+                pass
+
             with forms.ProgressBar(title="Downloading Update...") as pb:
                 pb.update_progress(10, 100)
                 
@@ -407,7 +415,7 @@ def update_tools():
                         except Exception:
                             pass
                     if hasattr(whats_new, "show_whats_new"):
-                        whats_new.show_whats_new()
+                        whats_new.show_whats_new(prev_version=local_version, current_version=online_version)
                 except Exception as ex:
                     forms.alert("Could not open What's New window:\n" + str(ex), title="What's New")
             sessionmgr.reload_pyrevit()

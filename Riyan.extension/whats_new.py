@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 import sys
 import clr
@@ -15,21 +15,30 @@ import System
 XAML_STRING = """
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Riyan Revit Tools - {VERSION} Release" Height="580" Width="820"
+        Title="What's New in Riyan Tools - {VERSION}" Height="630" Width="940"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize" FontFamily="Segoe UI">
 
     <Window.Resources>
-        <SolidColorBrush x:Key="WindowBg" Color="#1E1E22"/>
-        <SolidColorBrush x:Key="CardBg" Color="#26262B"/>
+        <SolidColorBrush x:Key="WindowBg" Color="#1C1C20"/>
+        <SolidColorBrush x:Key="HeaderBg" Color="#222227"/>
+        <SolidColorBrush x:Key="CardBg" Color="#24242A"/>
         <SolidColorBrush x:Key="CardBorder" Color="#383842"/>
+        <SolidColorBrush x:Key="ItemBg" Color="#1D1D22"/>
+        <SolidColorBrush x:Key="ItemBorder" Color="#30303A"/>
         <SolidColorBrush x:Key="PrimaryMaroon" Color="#802F2D"/>
         <SolidColorBrush x:Key="PrimaryHover" Color="#A13B38"/>
         <SolidColorBrush x:Key="EmeraldText" Color="#34D399"/>
-        <SolidColorBrush x:Key="EmeraldBg" Color="#152E24"/>
+        <SolidColorBrush x:Key="EmeraldBg" Color="#132B20"/>
+        <SolidColorBrush x:Key="BlueText" Color="#60A5FA"/>
+        <SolidColorBrush x:Key="BlueBg" Color="#1A283D"/>
+        <SolidColorBrush x:Key="PurpleText" Color="#C084FC"/>
+        <SolidColorBrush x:Key="PurpleBg" Color="#2A1E38"/>
         <SolidColorBrush x:Key="TextWhite" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#F3F4F6"/>
         <SolidColorBrush x:Key="TextMuted" Color="#9CA3AF"/>
+        <SolidColorBrush x:Key="TextDarkMuted" Color="#6B7280"/>
 
         <Style x:Key="PrimaryBtn" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource PrimaryMaroon}"/>
@@ -40,7 +49,7 @@ XAML_STRING = """
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="20,10">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="20,9">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -52,6 +61,7 @@ XAML_STRING = """
                 </Setter.Value>
             </Setter>
         </Style>
+
         <Style x:Key="CloseBtnStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#9CA3AF"/>
@@ -85,177 +95,234 @@ XAML_STRING = """
     <Border Background="{StaticResource WindowBg}" CornerRadius="12" BorderBrush="#4B5563" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="45"/>
+                <RowDefinition Height="40"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="65"/>
+                <RowDefinition Height="58"/>
             </Grid.RowDefinitions>
 
             <!-- Custom Draggable Title Bar -->
-            <Border x:Name="TitleBar" Grid.Row="0" Background="#161619" CornerRadius="11,11,0,0" BorderBrush="#374151" BorderThickness="0,0,0,1">
+            <Border x:Name="TitleBar" Grid.Row="0" Background="#141417" CornerRadius="11,11,0,0" BorderBrush="#2D2D35" BorderThickness="0,0,0,1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="42"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                        
-                        <TextBlock Text="What's New in Riyan Tools - {VERSION}" Foreground="#D1D5DB" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="What's New in Riyan Tools" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                        <TextBlock Text=" — Release Highlights &amp; Migration Guide" Foreground="#6B7280" FontSize="12" Margin="4,0,0,0"/>
                     </StackPanel>
-                    <Button x:Name="BtnCloseX" Grid.Column="1" Content="X" Style="{StaticResource CloseBtnStyle}"/>
+                    <Button x:Name="BtnCloseX" Grid.Column="1" Content="✕" Style="{StaticResource CloseBtnStyle}"/>
                 </Grid>
             </Border>
 
             <!-- Header Section -->
-            <Border Grid.Row="1" Background="#242429" BorderBrush="#374151" BorderThickness="0,0,0,1" Padding="25,12">
+            <Border Grid.Row="1" Background="{StaticResource HeaderBg}" BorderBrush="#2F2F38" BorderThickness="0,0,0,1" Padding="24,13">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="54"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Icon / Brand Badge -->
-                    <Border Grid.Column="0" Width="48" Height="48" CornerRadius="10" Background="{StaticResource PrimaryMaroon}" Margin="0,0,12,0">
-                        <TextBlock Text="R" Foreground="White" FontSize="26" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10" Background="{StaticResource PrimaryMaroon}" Margin="0,0,10,0">
+                        <TextBlock Text="R" Foreground="White" FontSize="24" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
 
                     <!-- Title Info -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="20" FontWeight="Black" Margin="0,0,10,0"/>
-                            <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
-                                <TextBlock Text="{VERSION} UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Riyan Revit Tools" Foreground="{StaticResource TextWhite}" FontSize="19" FontWeight="Black" Margin="0,0,10,0"/>
+                            
+                            <!-- Upgrade Pill -->
+                            <Border Background="{StaticResource BlueBg}" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="6" Padding="8,2" Margin="0,0,6,0">
+                                <TextBlock Text="{PREV_VERSION} ➔ {VERSION}" Foreground="{StaticResource BlueText}" FontSize="11" FontWeight="Bold"/>
+                            </Border>
+
+                            <!-- Major Release Pill -->
+                            <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="6" Padding="8,2">
+                                <TextBlock Text="MAJOR UPDATE" Foreground="{StaticResource EmeraldText}" FontSize="10" FontWeight="Bold"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="Centralized Shared Parameters, Dynamic Master RVT Sync &amp; 100% 3D Thumbnails" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,4,0,3"/>
-                        <TextBlock Text="Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="#D1D5DB" FontSize="11" FontWeight="SemiBold"/>
+                        
+                        <TextBlock Text="Multi-Discipline Family Library, Interactive Video Guides, Parameter Security &amp; Smart Export Automation." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,4,0,2"/>
+                        <TextBlock Text="Engineering Team: Asanka, Udarie, Chalana &amp; Dilupa" Foreground="{StaticResource TextDarkMuted}" FontSize="10" FontWeight="SemiBold"/>
                     </StackPanel>
 
                     <!-- Status Pill -->
-                    <Border Grid.Column="2" Background="#182A20" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Padding="12,6" VerticalAlignment="Center">
+                    <Border Grid.Column="2" Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="8" Padding="12,6" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="OK" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold" Margin="0,0,6,0"/>
-                            <TextBlock Text="100% Tested &amp; Active" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="✓" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" Margin="0,0,6,0"/>
+                            <TextBlock Text="100% Verified &amp; Active" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                         </StackPanel>
                     </Border>
                 </Grid>
             </Border>
 
-            <!-- Features Grid (4 Cards) -->
-            <Grid Grid.Row="2" Margin="25,18,25,10">
+            <!-- 3 Categorized Columns -->
+            <Grid Grid.Row="2" Margin="22,14,22,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="15"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
 
-                <!-- Card 1: Centralized Shared Parameter Engine -->
-                <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
+                <!-- COLUMN 1: WHAT'S NEW (ADDED) -->
+                <Border Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="13,12">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="38"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="28" Height="28" Background="#1E293B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[P]" Foreground="#60A5FA" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Versioned Shared Parameters" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
-                                <Border Background="#1E293B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Admin Edit / Read-Only" Foreground="#60A5FA" FontSize="9" FontWeight="Bold"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Column Header -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <Border Background="{StaticResource EmeraldBg}" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                                    <TextBlock Text="✨ NEW" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Black"/>
                                 </Border>
+                                <TextBlock Text="What's Added" Foreground="{StaticResource TextWhite}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Text="Auto-detects latest RYN_SharedParameters_*.txt (bypassing PREVIOUS folders). Detaches foreign files across Revit and Revit.ini. Admin edit access, Read-Only lock for standard users."
-                                       Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
+                            <TextBlock Text="Brand new tools and assets added to your ribbon" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                        </StackPanel>
+
+                        <!-- Items Stack -->
+                        <StackPanel Grid.Row="1">
+                            <!-- Item 1 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock Text="100+ Multi-Discipline Families" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Ready-to-place Structural beams/columns, Plumbing fixtures, Fire Fighting &amp; ACMV diffusers in Riyan Library." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Item 2 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock Text="Crisp 3D Thumbnail Previews" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Every family in the library displays clear 3D preview cards. Never load or guess wrong families again." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Item 3 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="Video Tooltips on Ribbon" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Hover over ribbon buttons to watch animated visual clips explaining how each tool works in seconds." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 2: Live Dynamic Master RVT Library Sync -->
-                <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
+                <!-- COLUMN 2: WHAT'S IMPROVED (UPGRADES) -->
+                <Border Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="13,12">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="38"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="28" Height="28" Background="#1E3A2F" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[S]" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Live Master RVT Library Sync" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
-                                <Border Background="#1E3A2F" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Zero Stale Cache" Foreground="{StaticResource EmeraldText}" FontSize="9" FontWeight="Bold"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Column Header -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <Border Background="{StaticResource BlueBg}" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                                    <TextBlock Text="⚡ UPGRADES" Foreground="{StaticResource BlueText}" FontSize="9" FontWeight="Black"/>
                                 </Border>
+                                <TextBlock Text="What's Improved" Foreground="{StaticResource TextWhite}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Text="Add, edit, or delete families in SharePoint Master RVT or library folders and they reflect live across all PCs. Loading always fetches the latest updated family with overwrite."
-                                       Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
+                            <TextBlock Text="Smoother workflow and major bug fixes" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                        </StackPanel>
+
+                        <!-- Items Stack -->
+                        <StackPanel Grid.Row="1">
+                            <!-- Item 1 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock Text="Smart Batch &amp; Sheet Export" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Auto sheet revision naming, organized CAD/PDF folder structures, and zero Revit crashing during export loops." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Item 2 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock Text="Auto-Linked Shared Parameters" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Revit automatically connects to the official company parameter file on startup. No missing parameter errors." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Item 3 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="Live SharePoint Library Sync" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="When coordinators update families in SharePoint, they reflect live across all PCs with 1-click overwrite loading." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Card 3: 100% 3D Thumbnail Previews -->
-                <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
+                <!-- COLUMN 3: WHAT'S CLEANED & PROTECTED -->
+                <Border Grid.Column="4" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="13,12">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="38"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="28" Height="28" Background="#311F3B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[V]" Foreground="#C084FC" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="100% 3D Thumbnail Previews" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
-                                <Border Background="#311F3B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Revit API Renders" Foreground="#C084FC" FontSize="9" FontWeight="Bold"/>
-                                </Border>
-                            </StackPanel>
-                            <TextBlock Text="Every family receives a crisp Autodesk 3D preview rendered directly via Revit API GetPreviewImage(). Multi-tier resolution guarantees no broken or blank cards in browser."
-                                       Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                <!-- Card 4: Background Event Hooks & Zero-Touch Healing -->
-                <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="14">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="38"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="28" Height="28" Background="#3B311B" CornerRadius="6" VerticalAlignment="Top" Margin="0,2,0,0">
-                            <TextBlock Text="[H]" Foreground="#FBBF24" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="pyRevit Hooks &amp; Zero Lag" Foreground="{StaticResource TextWhite}" FontWeight="Bold" FontSize="13" Margin="0,0,6,0"/>
-                                <Border Background="#3B311B" CornerRadius="4" Padding="4,1" VerticalAlignment="Center">
-                                    <TextBlock Text="Instant Ctrl+S Sync" Foreground="#FBBF24" FontSize="9" FontWeight="Bold"/>
+                        <!-- Column Header -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <Border Background="{StaticResource PurpleBg}" BorderBrush="#9333EA" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                                    <TextBlock Text="🛡️ OPTIMIZED" Foreground="{StaticResource PurpleText}" FontSize="9" FontWeight="Black"/>
                                 </Border>
+                                <TextBlock Text="Cleaned &amp; Protected" Foreground="{StaticResource TextWhite}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Text="Master RVT doc-saved hook updates SharePoint catalog in background on Ctrl+S. Project doc-opened hook locks standard parameters. 0.001s startup with zero lag."
-                                       Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" LineHeight="16"/>
+                            <TextBlock Text="Removed junk, lag, and potential errors" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                        </StackPanel>
+
+                        <!-- Items Stack -->
+                        <StackPanel Grid.Row="1">
+                            <!-- Item 1 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock Text="Wiped Obsolete UI Caches" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Auto-purged stale pyRevit caches, duplicate parameter paths, and old script remnants to prevent conflicts." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Item 2 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <TextBlock Text="Zero Startup Delay (0.00s Lag)" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Heavy startup network queries were removed. pyRevit launches immediately with zero Revit slowdown." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Item 3 -->
+                            <Border Background="{StaticResource ItemBg}" BorderBrush="{StaticResource ItemBorder}" BorderThickness="1" CornerRadius="7" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="Locked Parameter Protection" Foreground="{StaticResource TextPrimary}" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="Standard users have Read-Only lock on parameter definitions, preventing accidental deletion or project file corruption." Foreground="{StaticResource TextMuted}" FontSize="10" TextWrapping="Wrap" LineHeight="14" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
 
             <!-- Footer Bar -->
-            <Border Grid.Row="3" Background="#161619" CornerRadius="0,0,12,12" Padding="25,0">
+            <Border Grid.Row="3" Background="#141417" CornerRadius="0,0,11,11" Padding="24,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Production Engine: " Foreground="{StaticResource TextMuted}" FontSize="12"/>
-                        <TextBlock Text="Revit 2022-2026 Active Production | 2027+ Ready" Foreground="{StaticResource EmeraldText}" FontSize="12" FontWeight="Bold"/>
+                        <TextBlock Text="Engine Compatibility: " Foreground="{StaticResource TextDarkMuted}" FontSize="11"/>
+                        <TextBlock Text="Revit 2021 – 2026 (Active Production) | 2027+ Ready" Foreground="{StaticResource EmeraldText}" FontSize="11" FontWeight="Bold"/>
                     </StackPanel>
-                    <Button x:Name="BtnGotIt" Content="Got It, Let's Work!" Style="{StaticResource PrimaryBtn}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <Button x:Name="BtnGotIt" Content="Got It, Let's Work! 🚀" Style="{StaticResource PrimaryBtn}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </Grid>
@@ -275,6 +342,19 @@ class WhatsNewWindow(forms.WPFWindow):
             self.BtnGotIt.Click += self.CloseBtn_Click
         if hasattr(self, 'TitleBar') and self.TitleBar:
             self.TitleBar.MouseLeftButtonDown += self.TitleBar_MouseDown
+            
+        try:
+            self.PreviewKeyDown += self.Window_PreviewKeyDown
+        except Exception:
+            pass
+            
+    def Window_PreviewKeyDown(self, sender, e):
+        try:
+            if e.Key == System.Windows.Input.Key.Escape:
+                e.Handled = True
+                self.Close()
+        except Exception:
+            pass
             
     def CloseBtn_Click(self, sender, e):
         self.Close()
@@ -298,13 +378,34 @@ def get_version():
             curr = os.path.dirname(curr)
     except Exception:
         pass
-    return "2.5.11"
+    return "3.0.0"
 
-def show_whats_new():
+def get_previous_version():
     try:
-        ver = get_version()
-        disp_ver = "V" + ver if not ver.upper().startswith("V") else ver
-        xaml_content = XAML_STRING.replace("{VERSION}", disp_ver)
+        curr = os.path.dirname(__file__)
+        for _ in range(5):
+            v_file = os.path.join(curr, "prev_version.txt")
+            if os.path.exists(v_file):
+                with open(v_file, "r") as f:
+                    ver = f.read().strip()
+                    if ver:
+                        return ver
+            curr = os.path.dirname(curr)
+    except Exception:
+        pass
+    return "2.5.10"
+
+def show_whats_new(prev_version=None, current_version=None):
+    try:
+        if not current_version:
+            current_version = get_version()
+        if not prev_version:
+            prev_version = get_previous_version()
+            
+        cur_disp = "v" + current_version if not current_version.lower().startswith("v") else current_version
+        prev_disp = "v" + prev_version if not prev_version.lower().startswith("v") else prev_version
+        
+        xaml_content = XAML_STRING.replace("{VERSION}", cur_disp).replace("{PREV_VERSION}", prev_disp)
         w = WhatsNewWindow(xaml_content, literal_string=True)
         w.ShowDialog()
     except Exception as e:
@@ -315,5 +416,3 @@ def show_whats_new():
 
 if __name__ == '__main__':
     show_whats_new()
-
-
