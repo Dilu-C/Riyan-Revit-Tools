@@ -53,7 +53,7 @@ def get_sentinel():
             return None
 
 def get_target_skills_dirs():
-    """Returns all Antigravity skill directories on the local machine."""
+    """Returns all Antigravity skill directories on the local machine (global and project workspaces)."""
     user_profile = os.environ.get('USERPROFILE', os.path.expanduser('~'))
     gemini_dir = os.path.join(user_profile, '.gemini')
     if not os.path.exists(gemini_dir):
@@ -67,6 +67,27 @@ def get_target_skills_dirs():
         os.path.join(gemini_dir, 'config', 'skills'),
         os.path.join(gemini_dir, 'antigravity', 'skills')
     ]
+
+    # Auto-discover any active Antigravity project workspaces (.agents/skills)
+    search_roots = [
+        os.path.join(user_profile, 'Desktop'),
+        os.path.join(user_profile, 'Documents')
+    ]
+    for s_root in search_roots:
+        if not os.path.exists(s_root):
+            continue
+        try:
+            for root, subdirs, files in os.walk(s_root):
+                if '.agents' in subdirs:
+                    project_skills = os.path.join(root, '.agents', 'skills')
+                    if os.path.exists(project_skills) and project_skills not in dirs:
+                        dirs.append(project_skills)
+                depth = root[len(s_root):].count(os.sep)
+                if depth >= 3:
+                    subdirs[:] = []
+        except Exception:
+            pass
+
     return dirs
 
 def get_corporate_fleet_dir():
