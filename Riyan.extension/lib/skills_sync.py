@@ -90,6 +90,43 @@ def get_target_skills_dirs():
 
     return dirs
 
+def get_target_rules_dirs():
+    """Returns all Antigravity global and project rules directories on the local machine."""
+    user_profile = os.environ.get('USERPROFILE', os.path.expanduser('~'))
+    gemini_dir = os.path.join(user_profile, '.gemini')
+    dirs = [
+        os.path.join(gemini_dir, 'config', 'rules'),
+        os.path.join(gemini_dir, 'antigravity', 'rules')
+    ]
+    for d in dirs:
+        if not os.path.exists(d):
+            try:
+                os.makedirs(d)
+            except Exception:
+                pass
+
+    # Auto-discover active project workspaces (.agents/rules)
+    search_roots = [
+        os.path.join(user_profile, 'Desktop'),
+        os.path.join(user_profile, 'Documents')
+    ]
+    for s_root in search_roots:
+        if not os.path.exists(s_root):
+            continue
+        try:
+            for root, subdirs, files in os.walk(s_root):
+                if '.agents' in subdirs:
+                    project_rules = os.path.join(root, '.agents', 'rules')
+                    if os.path.exists(project_rules) and project_rules not in dirs:
+                        dirs.append(project_rules)
+                depth = root[len(s_root):].count(os.sep)
+                if depth >= 3:
+                    subdirs[:] = []
+        except Exception:
+            pass
+
+    return dirs
+
 def get_corporate_fleet_dir():
     """Locates the shared Riyan Corporate OneDrive / SharePoint Skills Fleet directory."""
     user_profile = os.environ.get('USERPROFILE', os.path.expanduser('~'))
@@ -124,6 +161,16 @@ def get_local_skills_hub_dir():
     hub_dir = os.path.join(repo_root, 'Skills_Hub')
     if os.path.exists(hub_dir):
         return hub_dir
+    return None
+
+def get_local_rules_hub_dir():
+    """Locates the local fallback Rules_Hub in Riyan-Revit-Tools repository root."""
+    current_lib = os.path.dirname(__file__)
+    ext_dir = os.path.dirname(current_lib)
+    repo_root = os.path.dirname(ext_dir)
+    rules_dir = os.path.join(repo_root, 'Rules_Hub')
+    if os.path.exists(rules_dir):
+        return rules_dir
     return None
 
 def compute_sha256(filepath):
@@ -288,6 +335,74 @@ def pull_skills_from_fleet():
 
     return pulled > 0
 
+def sync_approved_rules(manifest=None):
+    """
+    Syncs approved company rules from online GitHub or local Rules_Hub
+    into all Antigravity global and project rules directories.
+    """
+    target_rules_dirs = get_target_rules_dirs()
+    if not target_rules_dirs:
+        return False
+
+    for tr_dir in target_rules_dirs:
+        if not os.path.exists(tr_dir):
+            try:
+                os.makedirs(tr_dir)
+            except Exception:
+                pass
+
+    # 1. Online GitHub sync
+    if manifest and "rules" in manifest:
+        rules_base_url = manifest.get("rules_url", "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Rules_Hub")
+        for rule_file, rule_info in manifest["rules"].items():
+            remote_sha = rule_info.get("sha256")
+            rule_url = rules_base_url + "/" + rule_file
+
+            for tr_dir in target_rules_dirs:
+                dest_file = os.path.join(tr_dir, rule_file)
+                needs_download = False
+                if not os.path.exists(dest_file):
+                    needs_download = True
+                elif remote_sha:
+                    local_sha = compute_sha256(dest_file)
+                    if local_sha and local_sha != remote_sha:
+                        needs_download = True
+
+                if needs_download:
+                    content = fetch_url_text(rule_url, timeout=7)
+                    if content:
+                        try:
+                            with open(dest_file, "w") as f:
+                                f.write(content.encode("utf-8") if sys.version_info[0] == 2 else content)
+                        except Exception:
+                            pass
+        return True
+
+    # 2. Local Fallback Mode (Offline)
+    local_rules = get_local_rules_hub_dir()
+    if local_rules and os.path.exists(local_rules):
+        for r_item in os.listdir(local_rules):
+            if r_item.endswith('.md'):
+                src_r = os.path.join(local_rules, r_item)
+                for tr_dir in target_rules_dirs:
+                    dest_r = os.path.join(tr_dir, r_item)
+                    needs_copy = False
+                    if not os.path.exists(dest_r):
+                        needs_copy = True
+                    else:
+                        try:
+                            if os.path.getmtime(src_r) > os.path.getmtime(dest_r):
+                                needs_copy = True
+                        except Exception:
+                            pass
+                    if needs_copy:
+                        try:
+                            shutil.copy2(src_r, dest_r)
+                        except Exception:
+                            pass
+        return True
+    return False
+
 def sync_approved_skills():
     """
     Executes a complete bidirectional single-pass delta sync:
@@ -327,6 +442,12 @@ def sync_approved_skills():
             manifest = json.loads(manifest_json_str)
         except Exception:
             manifest = None
+
+    # Sync company rules across all Antigravity instances
+    try:
+        sync_approved_rules(manifest)
+    except Exception:
+        pass
 
     updated_count = 0
 
@@ -415,6 +536,10 @@ def sync_approved_skills():
                                     shutil.copy2(s_file, d_file)
                         except Exception:
                             pass
+        try:
+            sync_approved_rules(None)
+        except Exception:
+            pass
         return True
 
     return False

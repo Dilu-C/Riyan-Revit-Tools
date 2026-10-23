@@ -72,7 +72,9 @@ def build_manifest():
         "hub_version": "1.0.0",
         "generated_at": os.popen("powershell Get-Date -Format s").read().strip() if os.name == "nt" else "",
         "repo_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Skills_Hub",
-        "skills": {}
+        "rules_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Rules_Hub",
+        "skills": {},
+        "rules": {}
     }
 
     for item in sorted(os.listdir(hub_dir)):
@@ -94,6 +96,20 @@ def build_manifest():
                     "size_bytes": os.path.getsize(skill_md)
                 }
 
+    # Index Rules_Hub
+    rules_dir = os.path.join(os.path.dirname(hub_dir), "Rules_Hub")
+    if os.path.exists(rules_dir):
+        for r_file in sorted(os.listdir(rules_dir)):
+            if r_file.endswith(".md"):
+                r_path = os.path.join(rules_dir, r_file)
+                r_sha = get_file_hash(r_path)
+                manifest["rules"][r_file] = {
+                    "filename": r_file,
+                    "sha256": r_sha,
+                    "rel_path": "Rules_Hub/" + r_file,
+                    "size_bytes": os.path.getsize(r_path)
+                }
+
     manifest_path = os.path.join(hub_dir, "skills_manifest.json")
     try:
         with io.open(manifest_path, "w", encoding="utf-8") as f:
@@ -102,7 +118,7 @@ def build_manifest():
         with open(manifest_path, "w") as f:
             json.dump(manifest, f, indent=2)
 
-    print("[OK] Generated skills_manifest.json with " + str(len(manifest["skills"])) + " skills.")
+    print("[OK] Generated skills_manifest.json with " + str(len(manifest["skills"])) + " skills and " + str(len(manifest["rules"])) + " rules.")
     return manifest_path
 
 if __name__ == "__main__":

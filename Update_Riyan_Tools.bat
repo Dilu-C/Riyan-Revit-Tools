@@ -125,8 +125,19 @@ try {
     Copy-Item -Path (Join-Path $sourceRoot '*') -Destination $targetTools -Recurse -Force
     Remove-Item -Path $extractFolder -Recurse -Force -ErrorAction SilentlyContinue
 
+    # Deploy company rules to Antigravity global configuration across all client PCs
+    $rulesSrc = Join-Path $targetTools 'Rules_Hub'
+    if (Test-Path $rulesSrc) {
+        @((Join-Path $env:USERPROFILE '.gemini\configules'),
+          (Join-Path $env:USERPROFILE '.geminintigravityules')) | ForEach-Object {
+            if (!(Test-Path $_)) { New-Item -ItemType Directory -Path $_ -Force | Out-Null }
+            Copy-Item -Path (Join-Path $rulesSrc '*.md') -Destination $_ -Force -ErrorAction SilentlyContinue
+        }
+        Write-Host "  [OK] Synchronized company rules to Antigravity Global configuration!" -ForegroundColor Green
+    }
+
     # Purge leftover md, zip, txt, .idea, and deprecated Tool.panel & About.panel from target
-    Get-ChildItem -Path $targetTools -Recurse -Include '*.md', '*.zip' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch 'Skills_Hub' } | Remove-Item -Force -ErrorAction SilentlyContinue
+    Get-ChildItem -Path $targetTools -Recurse -Include '*.md', '*.zip' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch 'Skills_Hub' -and $_.FullName -notmatch 'Rules_Hub' } | Remove-Item -Force -ErrorAction SilentlyContinue
     # Strip UTF-8 BOM from all bundle.yaml files
     Get-ChildItem -Path $targetTools -Recurse -Filter '*.yaml' -ErrorAction SilentlyContinue | ForEach-Object {
         $b = [System.IO.File]::ReadAllBytes($_.FullName)

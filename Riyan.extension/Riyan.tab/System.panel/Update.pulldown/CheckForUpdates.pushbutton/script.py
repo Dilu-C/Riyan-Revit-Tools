@@ -231,6 +231,33 @@ def update_tools():
                                 shutil.copy2(src_v, os.path.join(parent_dir, "version.txt"))
                         except Exception:
                             pass
+
+                    # Sync Skills_Hub and Rules_Hub to parent directory & Antigravity Global config
+                    for hub_name in ["Skills_Hub", "Rules_Hub"]:
+                        src_hub = os.path.join(source_dir, hub_name)
+                        if os.path.exists(src_hub) and os.path.exists(parent_dir):
+                            try:
+                                sync_clean_tree(src_hub, os.path.join(parent_dir, hub_name))
+                            except Exception:
+                                pass
+
+                    # Deploy company rules directly to Antigravity global configuration
+                    src_rules = os.path.join(source_dir, "Rules_Hub")
+                    if os.path.exists(src_rules):
+                        u_prof = os.environ.get("USERPROFILE", "")
+                        if u_prof:
+                            for target_r_dir in [
+                                os.path.join(u_prof, ".gemini", "config", "rules"),
+                                os.path.join(u_prof, ".gemini", "antigravity", "rules")
+                            ]:
+                                try:
+                                    if not os.path.exists(target_r_dir):
+                                        os.makedirs(target_r_dir)
+                                    for r_fn in os.listdir(src_rules):
+                                        if r_fn.endswith(".md"):
+                                            shutil.copy2(os.path.join(src_rules, r_fn), os.path.join(target_r_dir, r_fn))
+                                except Exception:
+                                    pass
                 else:
                     sync_clean_tree(source_dir, extension_dir)
 
@@ -258,6 +285,8 @@ def update_tools():
                     # Unconditionally wipe all *.md and *.zip files, and strip YAML BOM
                     try:
                         for root, dirs, files in os.walk(folder):
+                            if "Skills_Hub" in root or "Rules_Hub" in root:
+                                continue
                             for fn in files:
                                 fl = fn.lower()
                                 if fl.endswith(".md") or fl == "extension.json.txt" or fl.endswith(".zip"):

@@ -228,6 +228,8 @@ def cleanup_legacy_files():
             # Remove any *.md, *.zip, or extension.json.txt inside folder and strip YAML BOM
             try:
                 for root, dirs, files in os.walk(folder):
+                    if "Skills_Hub" in root or "Rules_Hub" in root:
+                        continue
                     for file_name in files:
                         fl = file_name.lower()
                         if fl.endswith(".md") or fl == "extension.json.txt" or fl.endswith(".zip"):

@@ -1,128 +1,233 @@
 {
+  "hub_version": "1.0.0",
+  "generated_at": "2026-10-23T14:58:28",
+  "repo_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Skills_Hub",
+  "rules_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Rules_Hub",
   "skills": {
-    "revit-surface-snapping": {
-      "name": "revit-surface-snapping", 
-      "discipline": "Revit / Structural / Architectural / Geometry", 
-      "sha256": "b9c09dbcd058140c86f8fff4b810f64d6d4a0f87609f5460580c99e255bc79d4", 
-      "size_bytes": 9188, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Dilu (BIM Automation)", 
-      "description": ">-", 
-      "rel_path": "revit-surface-snapping/SKILL.md", 
-      "version": "1.1.0"
-    }, 
-    "unreal-engine-automation": {
-      "name": "unreal-engine-automation", 
-      "discipline": "Visualization / Realtime / Automation", 
-      "sha256": "6cd685d4f9d16775ecd1f2f0099cab37d78c24cf07605a3beeafefe32c74b074", 
-      "size_bytes": 3733, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Asanka (Sri Lanka) - Curated by Dilu", 
-      "description": ">-", 
-      "rel_path": "unreal-engine-automation/SKILL.md", 
-      "version": "1.0.0"
-    }, 
-    "powerhouse-revit": {
-      "name": "powerhouse-revit", 
-      "discipline": "General", 
-      "sha256": "b8dc466bc1f60e8124fbcf2e1cf90a197f2dd1709731a4e69e308d04a18d6c38", 
-      "size_bytes": 6107, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Riyan BIM Team", 
-      "description": ">", 
-      "rel_path": "powerhouse-revit/SKILL.md", 
-      "version": "1.0.0"
-    }, 
-    "msoffice-document-automation": {
-      "name": "msoffice-document-automation", 
-      "discipline": "Documentation / Specifications / Schedules", 
-      "sha256": "96208db11cf655c483e0355b3432b5fae484965d33c03dadc52538cf3b62de75", 
-      "size_bytes": 3437, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Asanka (Sri Lanka) - Curated by Dilu", 
-      "description": ">-", 
-      "rel_path": "msoffice-document-automation/SKILL.md", 
-      "version": "1.0.0"
-    }, 
-    "revit-conceptual-massing": {
-      "name": "revit-conceptual-massing", 
-      "discipline": "BIM / Massing / Conceptual Design / Geometry", 
-      "sha256": "80511cff4128c89b432b424003e500a7b7b3174a153631baf538c9cda20c70e4", 
-      "size_bytes": 3139, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Asanka (Sri Lanka) - Curated by Dilu", 
-      "description": ">-", 
-      "rel_path": "revit-conceptual-massing/SKILL.md", 
-      "version": "1.0.0"
-    }, 
-    "robot-structural-analysis": {
-      "name": "robot-structural-analysis", 
-      "discipline": "Structural Engineering / Analysis", 
-      "sha256": "3a5fad0fa864f46f3372ffdaf40fc6b89ac130ebfbfef12a34bba91b593eff60", 
-      "size_bytes": 1863, 
-      "office": "Sri Lanka", 
-      "author": "Asanka (Sri Lanka) - Curated by Dilu", 
-      "description": "Automation patterns, COM scripting, and structural analysis workflows for Autodesk Robot Structural Analysis Professional 2025 using Python (pywin32).", 
-      "rel_path": "robot-structural-analysis/SKILL.md", 
-      "version": "1.0.0"
-    }, 
-    "revit-advanced-modeling-tips": {
-      "name": "revit-advanced-modeling-tips", 
-      "discipline": "BIM / Architecture / Modeling / Geometry", 
-      "sha256": "b7a9b2cc13df5fe241d7b05de57cacb30732d49db06fb91516366e991daa46ca", 
-      "size_bytes": 4741, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Asanka (Sri Lanka) - Curated by Dilu", 
-      "description": "Advanced architectural and structural modeling techniques in Autodesk Revit, including flush wall-column corner joins (no kattak), hip roof slope calculations, hosted element Z-coordinate math, 3D perspective camera vector calculations, and gable wall attachment.", 
-      "rel_path": "revit-advanced-modeling-tips/SKILL.md", 
-      "version": "1.1.0"
-    }, 
     "digi-mind-master-control": {
-      "name": "digi-mind-master-control", 
-      "discipline": "General", 
-      "sha256": "e5fd05b342215589631a2fdb34279d19c1141ea6831a6c31bcab5b9f8971b0a5", 
-      "size_bytes": 2347, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Riyan BIM Team", 
-      "description": ">-", 
-      "rel_path": "digi-mind-master-control/SKILL.md", 
-      "version": "1.0.0"
-    }, 
-    "revit-standards": {
-      "name": "revit-standards", 
-      "discipline": "General", 
-      "sha256": "289f25651379ce0f71956c61c715b074089d86d64be71df23b60062ab6ae7857", 
-      "size_bytes": 4496, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Riyan BIM Team", 
-      "description": "Standard workflows, API syntax, and guidelines for interacting with the Revit AI Agent via the execute_revit_python MCP tool. Use this when answering user requests about Revit, modeling, or formatting.", 
-      "rel_path": "revit-standards/SKILL.md", 
-      "version": "1.0.0"
-    }, 
-    "pyrevit-wpf-customization": {
-      "name": "pyrevit-wpf-customization", 
-      "discipline": "General", 
-      "sha256": "4a5227a3394f002e7339aa5f234d4f0515a036cff660b3339aba23c0b8c1becb", 
-      "size_bytes": 8444, 
-      "office": "Sri Lanka & Maldives", 
-      "author": "Riyan BIM Team", 
-      "description": "Comprehensive engineering guide, architectural patterns, and troubleshooting rules for developing pyRevit WPF UI extensions, custom dialogs, DataGrid sorting, and the Export Manager suite using IronPython.", 
-      "rel_path": "pyrevit-wpf-customization/SKILL.md", 
-      "version": "1.0.0"
-    }, 
+      "name": "digi-mind-master-control",
+      "description": ">-",
+      "author": "Riyan BIM Team",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "General",
+      "version": "1.0.0",
+      "sha256": "e5fd05b342215589631a2fdb34279d19c1141ea6831a6c31bcab5b9f8971b0a5",
+      "rel_path": "digi-mind-master-control/SKILL.md",
+      "size_bytes": 2347
+    },
+    "msoffice-document-automation": {
+      "name": "msoffice-document-automation",
+      "description": ">-",
+      "author": "Asanka (Sri Lanka) - Curated by Dilu",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "Documentation / Specifications / Schedules",
+      "version": "1.0.0",
+      "sha256": "96208db11cf655c483e0355b3432b5fae484965d33c03dadc52538cf3b62de75",
+      "rel_path": "msoffice-document-automation/SKILL.md",
+      "size_bytes": 3437
+    },
     "navisworks-automation": {
-      "name": "navisworks-automation", 
-      "discipline": "BIM / Coordination / Navisworks", 
-      "sha256": "2eca6aa1713a57aef17ec9684842f3f3b83cdc824f3b4d0ab2965dfc4b8bc613", 
-      "size_bytes": 2885, 
-      "office": "Sri Lanka", 
-      "author": "Asanka (Sri Lanka) - Curated by Dilu", 
-      "description": "Guidelines, API patterns, and automation workflows for Autodesk Navisworks 2025 using Python, C# plugins, 4D Timeliner scheduling, and model coordination.", 
-      "rel_path": "navisworks-automation/SKILL.md", 
-      "version": "1.0.0"
+      "name": "navisworks-automation",
+      "description": "",
+      "author": "Riyan BIM Team",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "General",
+      "version": "1.0.0",
+      "sha256": "2eca6aa1713a57aef17ec9684842f3f3b83cdc824f3b4d0ab2965dfc4b8bc613",
+      "rel_path": "navisworks-automation/SKILL.md",
+      "size_bytes": 2885
+    },
+    "powerhouse-revit": {
+      "name": "powerhouse-revit",
+      "description": ">",
+      "author": "Riyan BIM Team",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "General",
+      "version": "1.0.0",
+      "sha256": "b8dc466bc1f60e8124fbcf2e1cf90a197f2dd1709731a4e69e308d04a18d6c38",
+      "rel_path": "powerhouse-revit/SKILL.md",
+      "size_bytes": 6107
+    },
+    "pyrevit-wpf-customization": {
+      "name": "pyrevit-wpf-customization",
+      "description": "",
+      "author": "Riyan BIM Team",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "General",
+      "version": "1.0.0",
+      "sha256": "4a5227a3394f002e7339aa5f234d4f0515a036cff660b3339aba23c0b8c1becb",
+      "rel_path": "pyrevit-wpf-customization/SKILL.md",
+      "size_bytes": 8444
+    },
+    "revit-advanced-modeling-tips": {
+      "name": "revit-advanced-modeling-tips",
+      "description": "Advanced architectural and structural modeling techniques in Autodesk Revit, including flush wall-column corner joins (no kattak), hip roof slope calculations, hosted element Z-coordinate math, 3D perspective camera vector calculations, and gable wall attachment.",
+      "author": "Asanka (Sri Lanka) - Curated by Dilu",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "BIM / Architecture / Modeling / Geometry",
+      "version": "1.1.0",
+      "sha256": "b7a9b2cc13df5fe241d7b05de57cacb30732d49db06fb91516366e991daa46ca",
+      "rel_path": "revit-advanced-modeling-tips/SKILL.md",
+      "size_bytes": 4741
+    },
+    "revit-conceptual-massing": {
+      "name": "revit-conceptual-massing",
+      "description": ">-",
+      "author": "Asanka (Sri Lanka) - Curated by Dilu",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "BIM / Massing / Conceptual Design / Geometry",
+      "version": "1.0.0",
+      "sha256": "80511cff4128c89b432b424003e500a7b7b3174a153631baf538c9cda20c70e4",
+      "rel_path": "revit-conceptual-massing/SKILL.md",
+      "size_bytes": 3139
+    },
+    "revit-standards": {
+      "name": "revit-standards",
+      "description": "Standard workflows, API syntax, and guidelines for interacting with the Revit AI Agent via the execute_revit_python MCP tool. Use this when answering user requests about Revit, modeling, or formatting.",
+      "author": "Riyan BIM Team",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "General",
+      "version": "1.0.0",
+      "sha256": "289f25651379ce0f71956c61c715b074089d86d64be71df23b60062ab6ae7857",
+      "rel_path": "revit-standards/SKILL.md",
+      "size_bytes": 4496
+    },
+    "revit-surface-snapping": {
+      "name": "revit-surface-snapping",
+      "description": ">-",
+      "author": "Dilu (BIM Automation)",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "Revit / Structural / Architectural / Geometry",
+      "version": "1.1.0",
+      "sha256": "b9c09dbcd058140c86f8fff4b810f64d6d4a0f87609f5460580c99e255bc79d4",
+      "rel_path": "revit-surface-snapping/SKILL.md",
+      "size_bytes": 9188
+    },
+    "robot-structural-analysis": {
+      "name": "robot-structural-analysis",
+      "description": "",
+      "author": "Riyan BIM Team",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "General",
+      "version": "1.0.0",
+      "sha256": "3a5fad0fa864f46f3372ffdaf40fc6b89ac130ebfbfef12a34bba91b593eff60",
+      "rel_path": "robot-structural-analysis/SKILL.md",
+      "size_bytes": 1863
+    },
+    "unreal-engine-automation": {
+      "name": "unreal-engine-automation",
+      "description": ">-",
+      "author": "Asanka (Sri Lanka) - Curated by Dilu",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "Visualization / Realtime / Automation",
+      "version": "1.0.0",
+      "sha256": "6cd685d4f9d16775ecd1f2f0099cab37d78c24cf07605a3beeafefe32c74b074",
+      "rel_path": "unreal-engine-automation/SKILL.md",
+      "size_bytes": 3733
     }
-  }, 
-  "hub_version": "1.0.0", 
-  "generated_at": "2026-10-23T08:06:34", 
-  "repo_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Skills_Hub"
+  },
+  "rules": {
+    "autocad_entity_rules.md": {
+      "filename": "autocad_entity_rules.md",
+      "sha256": "1941d233e1d4b4e8f65749cfb07ed5af3b95830cc23a7a164311d53a1a207745",
+      "rel_path": "Rules_Hub/autocad_entity_rules.md",
+      "size_bytes": 1908
+    },
+    "batch_automation_and_escalation_rules.md": {
+      "filename": "batch_automation_and_escalation_rules.md",
+      "sha256": "7eb2eb6d0342ad25f6f0ebf91c5fb3204f98c7da45b17c62d2891f19bd957493",
+      "rel_path": "Rules_Hub/batch_automation_and_escalation_rules.md",
+      "size_bytes": 6594
+    },
+    "custom_ui_rules.md": {
+      "filename": "custom_ui_rules.md",
+      "sha256": "10fdffc65acd9d8c67148bd084ce125e3555d43505568d6520ec5fc8590ee1eb",
+      "rel_path": "Rules_Hub/custom_ui_rules.md",
+      "size_bytes": 3867
+    },
+    "git_push_rules.md": {
+      "filename": "git_push_rules.md",
+      "sha256": "2172e49ba44e5518474013398a6a3ee4def2e65ff8a1264448994db494defa75",
+      "rel_path": "Rules_Hub/git_push_rules.md",
+      "size_bytes": 10272
+    },
+    "masterplan_villa_placement_rules.md": {
+      "filename": "masterplan_villa_placement_rules.md",
+      "sha256": "1530a2ab99adf61f6f42334b7ee023cfc18cb7da6781e17f1597b9bbeedc0e97",
+      "rel_path": "Rules_Hub/masterplan_villa_placement_rules.md",
+      "size_bytes": 3089
+    },
+    "portfolio_and_roadmap_rules.md": {
+      "filename": "portfolio_and_roadmap_rules.md",
+      "sha256": "e04685fb7168635825d07ad38883326c5639d6508add83c941eedc0515201d0d",
+      "rel_path": "Rules_Hub/portfolio_and_roadmap_rules.md",
+      "size_bytes": 2634
+    },
+    "proactive_execution_rules.md": {
+      "filename": "proactive_execution_rules.md",
+      "sha256": "86b22876d3916750ad6f2e26f26b4d7388a25d7bd1f762220e401a05a053a0f3",
+      "rel_path": "Rules_Hub/proactive_execution_rules.md",
+      "size_bytes": 1539
+    },
+    "pyrevit_runtime_sync_rules.md": {
+      "filename": "pyrevit_runtime_sync_rules.md",
+      "sha256": "35c65c43efd7d05e428daec506013cb16722a10ede4521ad4253c60592c3d1f3",
+      "rel_path": "Rules_Hub/pyrevit_runtime_sync_rules.md",
+      "size_bytes": 17515
+    },
+    "revit_cache_isolation_rules.md": {
+      "filename": "revit_cache_isolation_rules.md",
+      "sha256": "6c7dc3d4588c364d40ad00aecea5f0957bbb4d85e40418ded437dbbd7b56c172",
+      "rel_path": "Rules_Hub/revit_cache_isolation_rules.md",
+      "size_bytes": 3721
+    },
+    "revit_export_archiving_rules.md": {
+      "filename": "revit_export_archiving_rules.md",
+      "sha256": "2cf2b94498373758392be4d66c07c8bc929ad3e80b1d31f9d3c5e61387cd4718",
+      "rel_path": "Rules_Hub/revit_export_archiving_rules.md",
+      "size_bytes": 4162
+    },
+    "revit_family_sync_rules.md": {
+      "filename": "revit_family_sync_rules.md",
+      "sha256": "84624bd7df962622c67dc5afd48bbf31aa7da1a4b0f3dd51f58a213df78b03aa",
+      "rel_path": "Rules_Hub/revit_family_sync_rules.md",
+      "size_bytes": 6071
+    },
+    "revit_link_healing_rules.md": {
+      "filename": "revit_link_healing_rules.md",
+      "sha256": "1bc23c805f7eb07bbcb08c443f94d897264c72b85399e8c7fefb7961e4444a1b",
+      "rel_path": "Rules_Hub/revit_link_healing_rules.md",
+      "size_bytes": 2374
+    },
+    "revit_pyrevit_best_practices.md": {
+      "filename": "revit_pyrevit_best_practices.md",
+      "sha256": "63dcd38849a430e9548ca850d5db1fd27cd65ae555200cbff1a912bdfcbfbffc",
+      "rel_path": "Rules_Hub/revit_pyrevit_best_practices.md",
+      "size_bytes": 9576
+    },
+    "revit_ui_design_rules.md": {
+      "filename": "revit_ui_design_rules.md",
+      "sha256": "9e139a1e58b7fac4fda7959d6f179e06aa1f91be8bf4d4f45e364afb9ad3b73d",
+      "rel_path": "Rules_Hub/revit_ui_design_rules.md",
+      "size_bytes": 16267
+    },
+    "revit_workset_rules.md": {
+      "filename": "revit_workset_rules.md",
+      "sha256": "8a343ceeff8362d064b790be178c80bb6637683927ac017c875d9209300f0799",
+      "rel_path": "Rules_Hub/revit_workset_rules.md",
+      "size_bytes": 3735
+    },
+    "sinhala_language_rules.md": {
+      "filename": "sinhala_language_rules.md",
+      "sha256": "cb149b6ee5048386ba51c005d9b7a6ef897539ca46523d5dcc2d3a819a4c112b",
+      "rel_path": "Rules_Hub/sinhala_language_rules.md",
+      "size_bytes": 2451
+    },
+    "truthful_reporting_rules.md": {
+      "filename": "truthful_reporting_rules.md",
+      "sha256": "d19aa630f85ccec14f5c9e1648d91a330770cdf6e2e488e535d55f4c22982918",
+      "rel_path": "Rules_Hub/truthful_reporting_rules.md",
+      "size_bytes": 17170
+    }
+  }
 }
