@@ -1,6 +1,12 @@
-﻿title:
-tooltip: >-
-  Shows or hides both start and end bubbles on all grids in current view.
-  
+title: Toggle All Grid Bubbles
+tooltip: |
+  Shows or hides bubbles at both start and end datums for all grids in the active view.
+
+  - Toggles both ends (End0 and End1) simultaneously across all grids in view.
+  - Works on selected grids or entire view if nothing is selected.
+  - Clean presentation mode for client submittals and coordination sheets.
+
   How to use:
-  1. Click to toggle bubble visibility on both ends of all grid lines.
+  1. Open any view with grids visible (floor plan, section, or elevation).
+  2. Click Toggle All Grid Bubbles (or select specific grids first).
+  3. Select 'Show Bubbles' or 'Hide Bubbles' from the popup.

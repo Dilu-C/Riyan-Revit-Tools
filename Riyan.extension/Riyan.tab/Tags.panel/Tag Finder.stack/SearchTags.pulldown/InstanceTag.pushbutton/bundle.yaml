@@ -1,7 +1,11 @@
-﻿title: "Instance Tag\nFinder"
-tooltip: >-
-  Instantly locates and zooms to elements matching a specific Instance Tag.
-  
+title: "Instance Tag\nFinder"
+tooltip: |
+  Searches and selects elements in the active view by matching a specific Instance Tag value.
+
+  - Queries instance parameters across all visible elements.
+  - Highlights matching elements directly in Revit selection.
+
   How to use:
-  1. Click to enter the tag mark or number (e.g. C-12, B-04).
-  2. Press Enter to zoom and center the matching element.
+  1. Open an active model view.
+  2. Click Instance Tag Finder and enter tag value to search.
+  3. Matching elements are selected in Revit.

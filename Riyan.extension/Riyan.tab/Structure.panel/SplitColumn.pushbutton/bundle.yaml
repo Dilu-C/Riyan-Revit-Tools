@@ -1,12 +1,12 @@
-﻿title: Split Column
-tooltip: >-
-  Splits continuous vertical structural columns at specified levels.
-  
-  • Divides multi-story columns into individual level-hosted segments.
-  • Preserves structural parameters, offsets, and materials.
-  
+title: Split Column
+tooltip: |
+  Splits multi-story structural columns into individual per-floor segments at selected levels.
+
+  - Divides continuous columns at chosen intermediate building levels.
+  - Maintains cross-section type, materials, and structural properties on split segments.
+  - Corrects analytical framing models for multi-story buildings.
+
   How to use:
-  1. Select one or more structural columns.
-  2. Click Split Column and choose target split levels from dialog.
-  3. Confirm to split into separate column elements.
-author: Chalana Perera
+  1. Select continuous multi-story columns in active model.
+  2. Click Split Column.
+  3. Select target intermediate split levels and confirm.

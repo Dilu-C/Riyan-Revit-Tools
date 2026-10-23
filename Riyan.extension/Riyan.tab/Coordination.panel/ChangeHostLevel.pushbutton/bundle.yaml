@@ -1,12 +1,12 @@
-﻿title: Change Host
-tooltip: >-
-  Re-hosts elements or modifies level elevation without moving geometry.
-  
-  • Mode 1: Re-hosts selected elements to a new level while maintaining absolute elevation.
-  • Mode 2: Shifts level datum elevation without physically moving hosted elements.
-  
+title: Change Host
+tooltip: |
+  Re-hosts building elements to a new level without shifting their 3D elevation, or adjusts level height while preserving element positions.
+
+  - Re-hosts walls, columns, floors, ceilings, and stairs to any target level.
+  - Automatically recalculates base and top offsets to keep geometry 100% locked in place.
+  - Move Level Mode updates level elevation without displacing attached elements.
+
   How to use:
-  1. Click to open Change Host / Level dialog.
-  2. Choose operation mode and select target elements/levels.
-  3. Click Apply to update hosting data safely.
-author: Chalana
+  1. Select elements in active view or launch tool directly.
+  2. Choose 'Re-host Elements to New Level' or 'Adjust Level Elevation'.
+  3. Pick target level and confirm to update hosts with zero spatial displacement.

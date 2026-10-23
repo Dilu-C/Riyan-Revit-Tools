@@ -1,11 +1,12 @@
-﻿tooltip: >-
-  Batch joins or unjoins intersecting building elements across categories.
-  
-  • Eliminates visual overlaps between Walls, Columns, Beams, and Floors.
-  • Supports category-to-category joining and switch join order.
-  
+title: "Join / Unjoin"
+tooltip: |
+  Batch joins or unjoins intersecting building elements across categories in a single pass.
+
+  - Eliminates visual linework collisions between Walls, Columns, Beams, and Floors.
+  - Supports batch joining between any two selected categories.
+  - Fast cleanup before sheet publication and drawing export.
+
   How to use:
-  1. Click Join / Unjoin.
+  1. Open active project model and click Join / Unjoin.
   2. Select Primary category and Secondary intersecting category.
-  3. Click 'Join Elements' or 'Unjoin Elements'.
-author: Chalana
+  3. Choose 'Join' or 'Unjoin' to process all intersecting geometry.

@@ -1,11 +1,11 @@
-﻿title: Table
-tooltip: >-
-  Generates 2D tabulated drafting views with graphic door/window elevations.
-  
-  • Collects placed door/window types and organizes them into a schedule grid.
-  • Places elevation graphics and annotation headers automatically.
-  
+title: Table
+tooltip: |
+  Generates 2D tabulated drafting views with graphic door/window elevations and organized schedule grids.
+
+  - Collects placed types and organizes them into an auto-aligned elevation matrix.
+  - Places elevation graphics, headers, and type information automatically.
+
   How to use:
-  1. Click Table in Schedule stack.
-  2. Select categories/types to include and set layout grid spacing.
-  3. Click Generate to create schedule drafting views.
+  1. Click Table in the Schedule stack.
+  2. Select target Door or Window types and choose schedule template.
+  3. Click Generate to build 2D elevation graphics and tabulated drafting views.

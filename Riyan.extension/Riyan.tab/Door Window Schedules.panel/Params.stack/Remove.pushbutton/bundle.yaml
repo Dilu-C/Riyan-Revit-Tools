@@ -1,10 +1,11 @@
-﻿title: Remove
-tooltip: >-
-  Purges obsolete door/window schedule parameters from project or family.
-  
-  • Cleans up deprecated 'RYN_Door_Schedule_' parameters.
-  • Safely removes unused parameter bindings to keep schedule data lean.
-  
+title: Remove
+tooltip: |
+  Safely purges obsolete schedule parameters and unused family bindings.
+
+  - Scans project or family for deprecated 'RYN_Door_Schedule_' parameter definitions.
+  - Cleans model database to keep schedule parameters lean and fast.
+
   How to use:
-  1. Click Remove.
-  2. Review detected legacy parameters and confirm cleanup.
+  1. Open the project model or family in Revit.
+  2. Click Remove in the Params stack.
+  3. Review detected legacy parameters and confirm cleanup.

@@ -1,6 +1,11 @@
-﻿title: "Missing Floor\nTag Finder"
-tooltip: >-
-  Identifies and selects untagged structural/architectural floors in the active view.
-  
+title: "Missing Floor\nTag Finder"
+tooltip: |
+  Finds and selects untagged floors and slabs in the current view.
+
+  - Scans visible floors and isolates slabs missing tags.
+  - Ready for immediate 'Tag All Not Tagged' annotation workflow.
+
   How to use:
-  1. Click to select all untagged floors for rapid batch tagging.
+  1. Open an active model view (not a sheet).
+  2. Click Missing Floor Tag Finder.
+  3. Untagged floors are selected in Revit so you can tag them immediately.

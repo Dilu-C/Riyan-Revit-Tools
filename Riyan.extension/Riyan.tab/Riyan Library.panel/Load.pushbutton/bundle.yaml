@@ -1,13 +1,12 @@
 title: Load
-tooltip: >-
-  Visual family library browser for Riyan BIM Standards.
-  
-  • Browse architectural, structural, and MEP families with 3D thumbnails.
-  • Search by keywords, categories, and parameters.
-  • One-click direct loading into active Revit project.
-  
+tooltip: |
+  Visual family library browser connecting to verified cloud catalogs with real-time 3D thumbnails.
+
+  - Browse architectural, structural, and MEP families with studio-white 3D canvas previews.
+  - Instant keyword search and multi-discipline filter tabs (ARC, STR, PLU, FIRE, ACMV).
+  - 1-Click direct loading into active project model.
+
   How to use:
-  1. Click Riyan Library (Load).
-  2. Filter by discipline (ARC, STR, PLU, FIRE, ACMV) or search.
+  1. Click Load from the Riyan Library panel.
+  2. Filter by discipline tab or search by keyword.
   3. Select family and click 'Load into Project'.
-author: Dilupa

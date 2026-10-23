@@ -1,11 +1,11 @@
-﻿title: Map
-tooltip: >-
-  Maps generic annotation labels to Riyan schedule parameters in Family Editor.
-  
-  • Operates inside Door/Window Schedule Legend families.
-  • Detects selected '?' generic annotation labels and links them to parameter definitions.
-  
+title: Map
+tooltip: |
+  Maps generic annotation labels to schedule parameters inside schedule table legend families.
+
+  - Detects '?' generic annotation labels in Family Editor and links them to parameter definitions.
+  - Streamlines custom door/window elevation schedule legend creation.
+
   How to use:
-  1. Open the legend family in Revit Family Editor.
-  2. Select the '?' generic annotation labels to map.
-  3. Click Map to link them to corresponding Riyan schedule parameters.
+  1. Open the Schedule Table/Legend family (.rfa) in Revit Family Editor.
+  2. Select the generic annotation labels marked with '?'.
+  3. Click Map to link each '?' label to its corresponding schedule parameter.

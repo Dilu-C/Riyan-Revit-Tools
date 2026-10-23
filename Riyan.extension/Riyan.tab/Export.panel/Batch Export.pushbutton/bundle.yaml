@@ -1,15 +1,12 @@
-﻿title: Batch Export
-tooltip: >-
-  Multi-model background batch exporter for closed Revit projects.
-  
-  • Queues multiple unopened Revit models (.rvt) for automated export.
-  • Sheetwise Profile: Automatically exports separate individual sheet PDFs.
-  • Combined Profile: Automatically merges sheets into a single Combined PDF (CAD auto-disabled).
-  • Generates execution status logs and automated transmittal lists.
-  
+title: Batch Export
+tooltip: |
+  High-velocity background batch exporter that publishes CAD and PDF packages from multiple closed Revit models.
+
+  - Processes multiple closed models in memory without graphical view overhead.
+  - Automatic Sheetwise mode (separate PDFs) or Combined mode (single multi-page PDF).
+  - Generates automated Excel drawing list transmittals and execution status logs.
+
   How to use:
-  1. Click to open Batch Export queue window.
-  2. Add Revit project files (.rvt) to the list.
-  3. Select your Export Profile (Export Mode is automatically driven by profile).
-  4. Click 'Run Batch Export'.
-author: Chalana Perera
+  1. Click Batch Export to open the queue dashboard.
+  2. Add project models (.rvt) and select your export profile (PDF / DWG).
+  3. Click 'Run Batch Export' and let the engine export in the background.

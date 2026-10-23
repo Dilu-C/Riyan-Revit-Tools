@@ -1,6 +1,11 @@
-﻿title: "Missing Wall\nTag Finder"
-tooltip: >-
-  Identifies and selects untagged walls in the active view.
-  
+title: "Missing Wall\nTag Finder"
+tooltip: |
+  Finds and selects untagged walls in the current view.
+
+  - Scans visible walls and isolates members missing tags.
+  - Ready for immediate 'Tag All Not Tagged' annotation workflow.
+
   How to use:
-  1. Click to select all untagged walls for rapid batch tagging.
+  1. Open an active model view (not a sheet).
+  2. Click Missing Wall Tag Finder.
+  3. Untagged walls are selected in Revit so you can tag them immediately.

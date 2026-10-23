@@ -1,6 +1,11 @@
-﻿title: "Duplicate Column\nTag Finder"
-tooltip: >-
-  Finds and highlights duplicate tags assigned to structural columns.
-  
+title: "Duplicate Column\nTag Finder"
+tooltip: |
+  Finds and selects structural columns in the current view that have duplicate tags attached.
+
+  - Detects columns associated with multiple tags in active view.
+  - Highlights duplicate instances in selection set for one-click removal.
+
   How to use:
-  1. Click to scan active view and isolate duplicate column tags.
+  1. Open an active model view (not a sheet).
+  2. Click Duplicate Column Tag Finder.
+  3. Columns with duplicate tags are selected in Revit for easy tag cleanup.

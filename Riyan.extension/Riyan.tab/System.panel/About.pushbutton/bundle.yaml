@@ -1,3 +1,9 @@
-﻿title: About
-tooltip: >-
-  Displays version information, developer details, and license status for Riyan Revit Tools.
+title: About
+tooltip: |
+  Displays Riyan Revit Tools system overview, developer credits, and active build version.
+
+  - Shows installed extension version, build date, and pyRevit engine status.
+  - Quick link to documentation, company standards, and support.
+
+  How to use:
+  1. Click About to view extension details and build status.

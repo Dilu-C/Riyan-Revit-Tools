@@ -1,12 +1,12 @@
-﻿title: Get Coordinates
-tooltip: >-
-  Inspects and copies precise coordinates of any clicked point.
-  
-  • Reports Shared (Easting, Northing, Elevation), Survey, and Internal Coordinates.
-  • Single click to copy coordinates to Windows clipboard.
-  
+title: Get Coordinates
+tooltip: |
+  Extracts real-world coordinates and writes them into shared parameters for scheduling and site setting-out.
+
+  - Calculates X, Y, Z coordinates for structural columns, foundations, and piles.
+  - Supports Survey Point, Project Base Point, and Internal Origin systems.
+  - Populates Coord_X, Coord_Y, and Coord_Z parameters automatically.
+
   How to use:
-  1. Click Get Coordinates.
-  2. Pick any point or vertex in plan/section/3D view.
-  3. View coordinate readout and click Copy.
-author: Chalana
+  1. Open project model and select target elements or categories.
+  2. Click Get Coordinates to open coordinate mapping window.
+  3. Choose coordinate reference system and click 'Write Coordinates'.

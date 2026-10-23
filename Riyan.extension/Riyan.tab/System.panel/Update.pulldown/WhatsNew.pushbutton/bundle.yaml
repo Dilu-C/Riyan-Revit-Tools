@@ -1,3 +1,8 @@
-﻿title: "What's New"
-tooltip: >-
-  Displays release notes, changelog, and new features introduced in the latest version.
+title: "What's New"
+tooltip: |
+  Opens interactive changelog showcasing new features, bug fixes, and workflow improvements in active release.
+
+  - Visual feature changelog with tool highlights and release notes.
+
+  How to use:
+  1. Click What's New to view release notes and recent improvements.

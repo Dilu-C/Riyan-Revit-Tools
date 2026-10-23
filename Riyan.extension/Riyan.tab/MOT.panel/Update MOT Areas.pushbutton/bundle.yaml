@@ -1,11 +1,12 @@
 title: Update MOT Areas
-tooltip: >-
-  Calculates Covered and Open areas and updates Project Information for MOT Schedule.
-  
-  • Sums up Building Common Area and Exterior Open Areas across area schemes.
-  • Writes final values into MOT Project Information parameters automatically.
-  
+tooltip: |
+  Calculates room spatial boundaries and writes compliant Ministry of Tourism (MOT) area parameters into Project Information.
+
+  - Extracts live room boundaries from the 'TOTAL BUA PER UNIT' Area Plan view.
+  - Categorizes 'Building Common Area' as Covered and 'Exterior Area' as Open.
+  - Writes calculated areas directly into Project Information for MOT schedule headers.
+
   How to use:
-  1. Ensure Area Schemes are placed correctly.
-  2. Click Update MOT Areas to recalculate and store project values.
-author: Udarie & Dilupa
+  1. Ensure an Area Plan view named 'TOTAL BUA PER UNIT' exists with placed Area boundaries.
+  2. Verify Area Types are set to 'Building Common Area' (Covered) and 'Exterior Area' (Open).
+  3. Click Update MOT Areas - compliance parameters update automatically.

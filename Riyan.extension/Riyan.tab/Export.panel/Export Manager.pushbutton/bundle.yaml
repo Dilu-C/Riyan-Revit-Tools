@@ -1,14 +1,12 @@
-﻿title: Export Manager
-tooltip: >-
-  Exports active model sheets to PDF and DWG with custom naming.
-  
-  • Exports selected sheets to PDF (Separate or Combined) and DWG formats.
-  • Generates automated Document Transmittal reports in both Excel (.xlsx) and Word (.docx).
-  • Color / Greyscale / Black & White printing profiles.
-  
+title: Export Manager
+tooltip: |
+  Enterprise export and publishing platform for the active model with inline vector sheet previews and collision-free archiving.
+
+  - Exports selected sheets to PDF and DWG with custom naming conventions.
+  - Smart selective archiving moves only colliding files to 00 PREVIOUS folders.
+  - Generates automated Word (.docx) and Excel (.xlsx) Document Transmittal packages.
+
   How to use:
-  1. Click to open the Export Manager dashboard.
-  2. Select the sheets to export from the active model.
-  3. [CRITICAL] Choose your Naming Profile before proceeding.
-  4. Choose PDF / DWG export options and click 'Export'.
-author: Udarie & Chalana
+  1. Open the active project model and click Export Manager from the Export panel.
+  2. Select sheets to export and choose your Naming Profile.
+  3. Choose PDF / DWG export options and click 'Export'.

@@ -1,6 +1,11 @@
-﻿title: "Duplicate Wall\nTag Finder"
-tooltip: >-
-  Finds and highlights duplicate tags assigned to walls.
-  
+title: "Duplicate Wall\nTag Finder"
+tooltip: |
+  Finds and selects structural and architectural walls in the current view that have duplicate tags attached.
+
+  - Detects walls associated with multiple tags in active view.
+  - Highlights duplicate instances in selection set for one-click removal.
+
   How to use:
-  1. Click to scan active view and isolate duplicate wall tags.
+  1. Open an active model view (not a sheet).
+  2. Click Duplicate Wall Tag Finder.
+  3. Walls with duplicate tags are selected in Revit for easy tag cleanup.

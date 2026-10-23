@@ -1,12 +1,12 @@
-﻿title: Brick Masonry
-tooltip: >-
-  Calculates and coordinates standard modular brick coursing and wall layouts.
-  
-  • Calculates horizontal and vertical brick courses with mortar joints.
-  • Adjusts wall lengths and opening heights to prevent cut bricks.
-  
+title: Brick Masonry
+tooltip: |
+  Parametrically generates individual brick and block courses on selected wall geometry.
+
+  - Supports Standard Brick, Solid Concrete Block, Hollow Block, and Paving units.
+  - Configures realistic mortar joint thickness and bond patterns.
+  - Generates true individual unit counts for accurate quantity takeoffs.
+
   How to use:
-  1. Click Brick Masonry to launch the calculator and dimension setup.
-  2. Choose brick standard and enter wall dimensions.
-  3. Apply coordinated modular settings to walls.
-author: Dilupa
+  1. Select target wall in active model (or click tool to pick).
+  2. Choose block type, dimensions, and mortar joint gap in dialog.
+  3. Click Create to generate parametric masonry courses.

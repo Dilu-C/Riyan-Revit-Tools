@@ -1,6 +1,11 @@
-﻿title: "Missing Foundation\nTag Finder"
-tooltip: >-
-  Identifies and selects untagged structural foundations in the active view.
-  
+title: "Missing Foundation\nTag Finder"
+tooltip: |
+  Finds and selects untagged structural foundations and footings in the current view.
+
+  - Scans visible foundations and isolates members missing tags.
+  - Ready for immediate 'Tag All Not Tagged' annotation workflow.
+
   How to use:
-  1. Click to select all untagged foundations for rapid batch tagging.
+  1. Open an active model view (not a sheet).
+  2. Click Missing Foundation Tag Finder.
+  3. Untagged foundations are selected in Revit so you can tag them immediately.

@@ -1,6 +1,11 @@
-﻿title: "Missing Beam\nTag Finder"
-tooltip: >-
-  Identifies and selects untagged structural framing beams in the active view.
-  
+title: "Missing Beam\nTag Finder"
+tooltip: |
+  Finds and selects untagged structural framing beams in the current view.
+
+  - Scans visible beams and isolates members missing tags.
+  - Ready for immediate 'Tag All Not Tagged' annotation workflow.
+
   How to use:
-  1. Click to select all untagged beams for rapid batch tagging.
+  1. Open an active model view (not a sheet).
+  2. Click Missing Beam Tag Finder.
+  3. Untagged beams are selected in Revit so you can tag them immediately.

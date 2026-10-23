@@ -1,12 +1,12 @@
-﻿title: Copy from Link
-tooltip: >-
-  Copies selected elements directly from a linked Revit model into active project.
-  
-  • Select elements from linked architectures or engineering models.
-  • Transfers geometry, family types, and parameter values seamlessly.
-  
+title: Copy from Link
+tooltip: |
+  Batch-copies selected model elements or categories from linked Revit models into the active project with identical coordinates.
+
+  - Browse linked architectural, structural, or MEP models.
+  - Select specific categories or individual element types to copy.
+  - Preserves true 3D spatial alignment and geometry.
+
   How to use:
-  1. Click Copy from Link.
-  2. Select elements inside the linked model.
-  3. Press Finish to copy selected elements into active project.
-author: Chalana
+  1. Open host project model with linked Revit models loaded.
+  2. Click Copy from Link to open element selector.
+  3. Select source link and choose categories/types to copy into active model.

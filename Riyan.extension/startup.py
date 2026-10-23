@@ -4,6 +4,15 @@ import sys
 import threading
 import time
 
+# Prevent pyRevit from injecting Bundle Name and Author boilerplate into tooltips
+try:
+    from pyrevit.loader import uimaker
+    def _clean_button_tooltip(button):
+        return button.tooltip or ""
+    uimaker._make_button_tooltip = _clean_button_tooltip
+except Exception:
+    pass
+
 def get_versions():
     current_dir = os.path.dirname(__file__)
     extension_dir = os.path.dirname(current_dir)
@@ -434,9 +443,44 @@ _enforce_shared_params_safely()
 try:
     from pyrevit import HOST_APP
 
+    def _scrub_riyan_tooltips():
+        try:
+            import clr
+            clr.AddReference('AdWindows')
+            import Autodesk.Windows as adWin
+            import re
+
+            ribbon = adWin.ComponentManager.Ribbon
+            if not ribbon:
+                return
+
+            for tab in ribbon.Tabs:
+                if tab.Id == "Riyan" or tab.Title == "Riyan":
+                    for panel in tab.Panels:
+                        for item in panel.Source.Items:
+                            candidates = [item]
+                            if hasattr(item, "Items") and item.Items:
+                                candidates.extend(list(item.Items))
+                            for c in candidates:
+                                tt = getattr(c, "ToolTip", None)
+                                if tt and tt.Content:
+                                    content_str = str(tt.Content)
+                                    if "Bundle Name:" in content_str or "Author(s):" in content_str:
+                                        content_str = re.split(r'\n\s*Bundle Name:', content_str)[0].strip()
+                                        content_str = re.split(r'\n\s*Author\(s\):', content_str)[0].strip()
+                                    # Clean bullet mojibake
+                                    content_str = content_str.replace('\xe2\x80\xa2', '-').replace('\u2022', '-').replace('\xc2\xa2', '').replace('\xc3\xa2\xc2\xa2', '-')
+                                    tt.Content = content_str
+        except Exception:
+            pass
+
     def _on_revit_idling(sender, args):
         try:
             _enforce_shared_params_safely(sender)
+        except Exception:
+            pass
+        try:
+            _scrub_riyan_tooltips()
         except Exception:
             pass
         finally:

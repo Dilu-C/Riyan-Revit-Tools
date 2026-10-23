@@ -1,7 +1,11 @@
-﻿title: "Type Mark Tag\nFinder"
-tooltip: >-
-  Instantly locates and zooms to elements matching a specific Type Mark.
-  
+title: "Type Mark Tag\nFinder"
+tooltip: |
+  Searches and selects elements in the active view by matching a specific Type Mark value.
+
+  - Queries type parameters across all visible elements.
+  - Highlights matching elements directly in Revit selection.
+
   How to use:
-  1. Click to enter the type mark (e.g. W1, D2).
-  2. Press Enter to zoom and center matching elements.
+  1. Open an active model view.
+  2. Click Type Mark Tag Finder and enter Type Mark value to search.
+  3. Matching elements are selected in Revit.

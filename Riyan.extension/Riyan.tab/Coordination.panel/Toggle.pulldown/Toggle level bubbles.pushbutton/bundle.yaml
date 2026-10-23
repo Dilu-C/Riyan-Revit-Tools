@@ -1,6 +1,10 @@
-﻿title: "Toggle\nLevels"
-tooltip: >-
-  Shows or hides elevation heads on level datums in active section/elevation view.
-  
+title: "Toggle\nLevels"
+tooltip: |
+  Interactive level datum bubble visibility toggler for section and elevation views.
+
+  - Toggles level line bubbles at start and end datum points.
+  - Quickly cleans overlapping level annotations in dense building sections.
+
   How to use:
-  1. Click to toggle level datum bubbles in current view.
+  1. Open a section or elevation view containing level datum lines.
+  2. Click Toggle Levels to switch bubble visibility.

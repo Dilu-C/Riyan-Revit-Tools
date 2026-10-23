@@ -1,12 +1,12 @@
-﻿title: Smart Connect
-tooltip: >-
-  Instantly applies structural connections to intersecting framing elements.
-  
-  • Select a primary structural member (Beam or Column).
-  • Automatically detects all intersecting members and applies selected connection types.
-  
+title: Smart Connect
+tooltip: |
+  Batch-places structural steel connections between primary members and all intersecting framing.
+
+  - Detects intersecting beams, columns, and purlins automatically.
+  - Batch-places standard structural connection families (base plates, apex, clip angles).
+  - Eliminates manual connection-by-connection placement.
+
   How to use:
-  1. Click Smart Connect.
-  2. Pick the primary framing element in the 3D/Plan view.
-  3. Select connection type and intersecting members to connect.
-author: Chalana Perera
+  1. Open structural 3D or section view.
+  2. Click Smart Connect and pick the primary structural member.
+  3. Choose desired connection type to apply across all intersecting members.

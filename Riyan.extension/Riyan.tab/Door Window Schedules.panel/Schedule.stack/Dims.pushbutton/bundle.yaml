@@ -1,10 +1,12 @@
-﻿title: Dims
-tooltip: >-
-  Applies automated dimension strings to schedule elevation views.
-  
-  • Places overall width, total height, and panel division dimensions.
-  • Aligns dimension lines with standard graphic offsets.
-  
+title: Dims
+tooltip: |
+  Applies automated linear dimension strings to schedule elevation views.
+
+  - Detects door and window legend components in generated schedule views.
+  - Places overall width, total height, and panel division dimensions automatically.
+  - Aligns dimension lines with standardized graphic offsets.
+
   How to use:
-  1. Open or select the generated schedule drafting view.
-  2. Click Dims to calculate and place dimension strings.
+  1. Open the project model containing generated schedule drafting views.
+  2. Click Dims in the Schedule stack.
+  3. The tool detects legend components and places aligned dimension strings.

@@ -1,6 +1,10 @@
-﻿title: "Toggle\nGrids"
-tooltip: >-
-  Toggles end bubble visibility on selected grids in current view.
-  
+title: "Toggle\nGrids"
+tooltip: |
+  Interactive grid bubble visibility toggler for active view datum ends.
+
+  - Toggles bubble visibility for individual or selected grid ends.
+  - Eliminates repetitive manual bubble checkbox clicking.
+
   How to use:
-  1. Click to toggle grid bubble display.
+  1. Open any plan or elevation view containing grids.
+  2. Click Toggle Grids to toggle bubble display.

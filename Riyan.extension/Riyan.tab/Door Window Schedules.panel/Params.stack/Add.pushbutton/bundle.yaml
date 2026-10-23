@@ -1,10 +1,11 @@
-﻿title: Add
-tooltip: >-
-  Injects standard Riyan Door/Window Shared Parameters into the project.
-  
-  • Adds parameters: Location, Frame Material, Hardware, Fire Rating, Acoustic, etc.
-  • Binds parameters to Doors and Windows categories automatically.
-  
+title: Add
+tooltip: |
+  Injects standard Door & Window Shared Parameters into the project model or family in a single click.
+
+  - Adds Location, Frame Material, Hardware, Fire Rating, and Acoustic parameters.
+  - Binds parameters as Instance Parameters to Doors and Windows categories in project models.
+  - In Family Editor, adds parameters directly to the active family definition.
+
   How to use:
-  1. Click Add.
-  2. Confirms parameter group injection into active model.
+  1. In Project: Click Add to bind RYN_Schedule shared parameters to Doors and Windows.
+  2. In Family Editor: Click Add to add parameters directly to the family.
