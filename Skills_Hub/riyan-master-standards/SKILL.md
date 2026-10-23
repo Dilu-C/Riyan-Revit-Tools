@@ -59,3 +59,33 @@ This master skill enforces company-wide quality, communication, and execution st
     3. `generate_manifest.py` ධාවනය කර `skills_manifest.json` එක අලුත් කළ යුතුය.
     4. Repo දෙකෙහිම staging සහ commits පිළියෙල කර පරිශීලකයාට 1-click Push සඳහා සූදානම් කළ යුතුය.
 
+---
+
+## 6. Universal Cross-Chat Memory & Context Forensics Invariant (අතීත සංවාද මතකය ස්වයංක්‍රීයව විමර්ශනය කිරීමේ විශ්වීය නීතිය)
+- **Zero Blank-Slate Assumption (සෑම Chat එකක්ම අලුත් දෙයක් ලෙස නොසැලකීම)**:
+  - පරිශීලකයා කුමන Chat එකකදී හෝ යම් කාර්යයක්, මෙවලමක්, කේතයක්, දෝෂයක්, තීරණයක් හෝ මාතෘකාවක් ගැන කතා කරන විට, එය මෙම Chat එකට පමණක් සීමා වූ අලුත් දෙයක් ලෙස කිසිසේත්ම නොසැලකිය යුතුය.
+  - Agent යනු පරිශීලකයා සමඟ දිගුකාලීනව වැඩ කරන එකම ප්‍රධාන සහායකයාය. එබැවින් වෙනත් ඕනෑම සංවාදයකදී (Previous Conversations / Past Sessions) සාකච්ඡා වූ, තීරණය වූ හෝ නිර්මාණය කළ සියල්ල පිළිබඳ සම්පූර්ණ අඛණ්ඩ මතකයක් (continuous memory context) පවත්වා ගත යුතුය.
+- **Zero Redundant Questions (කලින් කළ දේ ගැන පරිශීලකයාගෙන් නැවත නොඇසීම)**:
+  - පරිශීලකයා විසින් අතීතයේදී සාකච්ඡා කළ, තීරණය කළ හෝ Agent විසින්ම සාදන ලද ක්‍රමවේද පිළිබඳව ("ඔබ ළඟ මේවා තියෙනවද?", "ඔබ මේක record කළාද?", "මේක හැදුවේ කොහොමද?", "කොහෙද තියෙන්නේ?") කියා පරිශීලකයාගෙන් නැවත නැවත කිසිදා නොවිමසිය යුතුය.
+  - සහායකයා අනිවාර්යයෙන්ම පළමුව:
+    1. Past Conversation Brain Logs (`C:\Users\User\.gemini\antigravity\brain\*\.system_generated\logs\transcript.jsonl`)
+    2. Past Scratch & Script Directories (`C:\Users\User\.gemini\antigravity\brain\*\scratch\*`)
+    3. Git commit history across all local repos (`git log -S "<keyword>"`, `git log -n 20 --oneline`)
+    4. Active Workspace files & rules
+    පරීක්ෂා කර, කලින් එම කාර්යය ක්‍රියාත්මක කළ සැබෑ ක්‍රමවේදය (exact C# scripts, generator logic, dependencies) තමන් විසින්ම සොයාගත යුතුය.
+
+---
+
+## 7. Autonomous Revit Ribbon Tooltip Video Generation Standard (ස්වයංක්‍රීය Tooltip Video සෑදීමේ ප්‍රමිතිය)
+- **Zero Manual Screen Recording**: Tooltip videos සෑදීමට පරිශීලකයාට manual screen recording කිරීමට අවශ්‍ය නොවේ.
+- **WPF DrawingVisual & FFmpeg Pipeline**:
+  1. **Before & After Visuals**: C# + WPF `DrawingVisual` මඟින් `1. BEFORE` (Red tag, wrong state) සහ `2. AFTER` (Green tag, solved state) 520x360 px canvas එකක් මත render කර තාවකාලික PNG ලෙස සුරැකීම.
+  2. **Crossfade Compilation**: `C:\Users\User\AppData\Roaming\D5\D5 Render\framework\ffmpeg.exe` භාවිත කර:
+     ```powershell
+     ffmpeg -y -loop 1 -t 2.2 -i $beforePng -loop 1 -t 2.2 -i $afterPng -loop 1 -t 2.2 -i $beforePng `
+       -filter_complex "[0:v][1:v]xfade=transition=fade:duration=0.4:offset=1.8[v1];[v1][2:v]xfade=transition=fade:duration=0.4:offset=3.6,format=yuv420p" `
+       -c:v libx264 -preset slow -crf 16 -pix_fmt yuv420p -r 30 $outMp4
+     ```
+  3. **Deployment**: උත්පාදනය වූ `tooltip.mp4` (ප්‍රමාණය ~60KB - 120KB) සෘජුවම අදාළ `.pushbutton` බහලුම වෙත deploy කිරීම.
+
+

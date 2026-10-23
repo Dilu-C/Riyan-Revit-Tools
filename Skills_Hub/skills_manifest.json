@@ -1,6 +1,6 @@
 {
   "hub_version": "1.0.0",
-  "generated_at": "2026-10-23T15:17:17",
+  "generated_at": "2026-10-23T16:51:12",
   "repo_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Skills_Hub",
   "rules_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Rules_Hub",
   "skills": {
@@ -110,9 +110,9 @@
       "office": "Sri Lanka & Maldives",
       "discipline": "General",
       "version": "1.0.0",
-      "sha256": "f9373100c3c94103c59fd3a98d425f0fff808b6e929665f732454382f55cd20a",
+      "sha256": "1e6569f3fb0d5ae679b0e214f0ef19640a3b328d5a063d360474da5950f8e9e3",
       "rel_path": "riyan-master-standards/SKILL.md",
-      "size_bytes": 8581
+      "size_bytes": 12719
     },
     "robot-structural-analysis": {
       "name": "robot-structural-analysis",
@@ -149,6 +149,12 @@
       "sha256": "7eb2eb6d0342ad25f6f0ebf91c5fb3204f98c7da45b17c62d2891f19bd957493",
       "rel_path": "Rules_Hub/batch_automation_and_escalation_rules.md",
       "size_bytes": 6594
+    },
+    "cross_chat_memory_rules.md": {
+      "filename": "cross_chat_memory_rules.md",
+      "sha256": "ee8203197fc982abb53a9bf313a7ee57f46282a660eb9d2f5fb471dfeb5e1ade",
+      "rel_path": "Rules_Hub/cross_chat_memory_rules.md",
+      "size_bytes": 4055
     },
     "custom_ui_rules.md": {
       "filename": "custom_ui_rules.md",
