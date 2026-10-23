@@ -47,3 +47,15 @@ This master skill enforces company-wide quality, communication, and execution st
 ## 4. Preservation of Existing Features (පවතින කේත Revert නොකිරීමේ නීතිය)
 - මෑතකදී කරන ලද කිසිදු වෙනස්කමක්, UI සැකසුමක් හෝ කේතයක් අහම්බෙන් overwrite හෝ undo නොකළ යුතුය.
 - යම් ගොනුවක් සංස්කරණය කිරීමට පෙර `git log` සහ working tree එක පරීක්ෂා කර පවතින විශේෂාංග සුරක්ෂිත කළ යුතුය.
+
+---
+
+## 5. Automatic Fleet & Skill Hub Mirroring Mandate (නව නීති ස්වයංක්‍රීයව Skill Hub සහ Fleet එකට එක්කිරීමේ නීතිය)
+- **Zero Reminder Policy (නැවත මතක් කිරීමකින් තොරව ස්වයංක්‍රීයව ක්‍රියාත්මක වීම)**:
+  - පරිශීලකයා විසින් අලුත් Rule එකක් සෑදූ විට හෝ යාවත්කාලීන කළ විට, "මේක Skill Hub එකටත් දාන්න" කියා පරිශීලකයා විසින් සහායකයාට නැවත කිසිදා මතක් නොකළ යුතුය.
+  - ඕනෑම Rule එකක් එක්කළ හෝ සංශෝධනය කළ සැනින්, සහායකයා විසින් ස්වයංක්‍රීයවම:
+    1. `Riyan-Revit-Tools\Rules_Hub\` වෙත එම rule ගොනුව mirror කළ යුතුය.
+    2. `Skills_Hub\riyan-master-standards\SKILL.md` වෙත අදාළ නව ප්‍රමිතීන් යාවත්කාලීන කළ යුතුය.
+    3. `generate_manifest.py` ධාවනය කර `skills_manifest.json` එක අලුත් කළ යුතුය.
+    4. Repo දෙකෙහිම staging සහ commits පිළියෙල කර පරිශීලකයාට 1-click Push සඳහා සූදානම් කළ යුතුය.
+

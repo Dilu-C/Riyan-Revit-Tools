@@ -71,3 +71,13 @@ description: Mandatory rules for absolute truthfulness, strict directive adheren
   - **පරිශීලකයාට පැවරෙන තීරණ (User Decisions)**: Design preferences, trade-offs, functional changes හෝ පරිශීලකයාගේ අනුමැතිය අවශ්‍ය ඕනෑම අවදානමක් ඇත්නම්, එය ක්‍රියාත්මක කිරීමට පෙර අනිවාර්යයෙන්ම පරිශීලකයාට පැහැදිලි කර අනුමැතිය ලබාගත යුතුය.
   - **Agent ගේ අභ්‍යන්තර වගකීම (Technical Self-Resolution)**: පරිශීලකයාට පැහැදිලි කිරීමට අවශ්‍ය නොවන, Agent ට පමණක් තේරෙන අභ්‍යන්තර කේත දෝෂ, syntax, API limitations, data-binding bugs ආදී සියල්ල පරිශීලකයාට කරදරයක් නොවන පරිදි Agent විසින්ම කල්තියා හඳුනාගෙන නිශ්ශබ්දව හා නිවැරදිව (proactively) නිරාකරණය කරගත යුතුය.
 
+## 10. Automatic Fleet & Skill Hub Mirroring Mandate (නව නීති ස්වයංක්‍රීයව Skill Hub සහ Fleet එකට එක්කිරීමේ නීතිය)
+- **Zero Reminder Policy (නැවත මතක් කිරීමකින් තොරව ස්වයංක්‍රීයව ක්‍රියාත්මක වීම)**:
+  - පරිශීලකයා විසින් අලුත් Rule එකක් සෑදූ විට හෝ යාවත්කාලීන කළ විට, "මේක Skill Hub එකටත් දාන්න" කියා පරිශීලකයා විසින් සහායකයාට නැවත කිසිදා මතක් නොකළ යුතුය.
+  - ඕනෑම Rule එකක් එක්කළ හෝ සංශෝධනය කළ සැනින්, සහායකයා විසින් ස්වයංක්‍රීයවම:
+    1. `Riyan-Revit-Tools\Rules_Hub\` වෙත එම rule ගොනුව mirror කළ යුතුය.
+    2. `Skills_Hub\riyan-master-standards\SKILL.md` වෙත අදාළ නව ප්‍රමිතීන් යාවත්කාලීන කළ යුතුය.
+    3. `generate_manifest.py` ධාවනය කර `skills_manifest.json` එක අලුත් කළ යුතුය.
+    4. Repo දෙකෙහිම staging සහ commits පිළියෙල කර පරිශීලකයාට 1-click Push සඳහා සූදානම් කළ යුතුය.
+
+

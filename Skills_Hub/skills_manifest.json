@@ -1,6 +1,6 @@
 {
   "hub_version": "1.0.0",
-  "generated_at": "2026-10-23T15:14:12",
+  "generated_at": "2026-10-23T15:17:17",
   "repo_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Skills_Hub",
   "rules_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Rules_Hub",
   "skills": {
@@ -110,9 +110,9 @@
       "office": "Sri Lanka & Maldives",
       "discipline": "General",
       "version": "1.0.0",
-      "sha256": "fe118b6b6de5a91d1d9f0a85f9b1d8233b202485e35ff824ae08802824aa4075",
+      "sha256": "f9373100c3c94103c59fd3a98d425f0fff808b6e929665f732454382f55cd20a",
       "rel_path": "riyan-master-standards/SKILL.md",
-      "size_bytes": 7054
+      "size_bytes": 8581
     },
     "robot-structural-analysis": {
       "name": "robot-structural-analysis",
@@ -236,9 +236,9 @@
     },
     "truthful_reporting_rules.md": {
       "filename": "truthful_reporting_rules.md",
-      "sha256": "d19aa630f85ccec14f5c9e1648d91a330770cdf6e2e488e535d55f4c22982918",
+      "sha256": "78efbb9448f740dd66a5f0f0e2d3b5fc5e68909b9c9fa662c408193a943fe249",
       "rel_path": "Rules_Hub/truthful_reporting_rules.md",
-      "size_bytes": 17170
+      "size_bytes": 18693
     }
   }
 }
