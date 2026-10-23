@@ -207,7 +207,7 @@ def publish_local_skills_to_fleet():
                 if sentinel:
                     is_safe, clash_info = sentinel.audit_incoming_skill(item, content, target_dirs)
                     if not is_safe:
-                        print(f"[SENTINEL] Refused to publish conflicting skill '{item}' to Fleet!")
+                        print("[SENTINEL] Refused to publish conflicting skill '" + str(item) + "' to Fleet!")
                         continue
 
                 try:
@@ -219,9 +219,9 @@ def publish_local_skills_to_fleet():
                         if os.path.isfile(src_f):
                             shutil.copy2(src_f, dst_f)
                     published += 1
-                    print(f"[FLEET UPLINK] Successfully published '{item}' to Corporate Fleet!")
+                    print("[FLEET UPLINK] Successfully published '" + str(item) + "' to Corporate Fleet!")
                 except Exception as ex:
-                    print(f"[FLEET ERROR] Could not publish '{item}': {ex}")
+                    print("[FLEET ERROR] Could not publish '" + str(item) + "': " + str(ex))
 
     return published > 0
 
@@ -271,7 +271,7 @@ def pull_skills_from_fleet():
                 if sentinel:
                     is_safe, clash_info = sentinel.audit_incoming_skill(item, content, target_dirs)
                     if not is_safe:
-                        print(f"[SENTINEL] Blocked incoming conflicting skill '{item}' from Fleet!")
+                        print("[SENTINEL] Blocked incoming conflicting skill '" + str(item) + "' from Fleet!")
                         continue
 
                 try:
@@ -357,7 +357,7 @@ def sync_approved_skills():
                         if sentinel:
                             is_safe, clash_info = sentinel.audit_incoming_skill(skill_key, content, target_dirs)
                             if not is_safe:
-                                print(f"[SENTINEL] Blocked conflicting skill '{skill_key}' from syncing!")
+                                print("[SENTINEL] Blocked conflicting skill '" + str(skill_key) + "' from syncing!")
                                 continue
                         try:
                             if not os.path.exists(dest_skill_dir):
@@ -401,7 +401,7 @@ def sync_approved_skills():
                                     s_content = sf.read()
                                 is_safe, clash_info = sentinel.audit_incoming_skill(item, s_content, target_dirs)
                                 if not is_safe:
-                                    print(f"[SENTINEL] Blocked conflicting skill '{item}' from local sync!")
+                                    print("[SENTINEL] Blocked conflicting skill '" + str(item) + "' from local sync!")
                                     continue
                             except Exception:
                                 pass

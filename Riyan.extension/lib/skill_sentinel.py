@@ -127,21 +127,23 @@ def send_windows_toast(title, body):
     """Triggers an instant, native Windows Toast notification on Dilu's screen."""
     clean_title = title.replace('"', '`"').replace("'", "’")
     clean_body = body.replace('"', '`"').replace("'", "’")
-    ps_code = f"""
+    ps_code = """
     [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
     $template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
     $textNodes = $template.GetElementsByTagName("text")
-    $textNodes.Item(0).AppendChild($template.CreateTextNode("{clean_title}")) | Out-Null
-    $textNodes.Item(1).AppendChild($template.CreateTextNode("{clean_body}")) | Out-Null
+    $textNodes.Item(0).AppendChild($template.CreateTextNode("{0}")) | Out-Null
+    $textNodes.Item(1).AppendChild($template.CreateTextNode("{1}")) | Out-Null
     $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
     $notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Riyan.BIM.Sentinel")
     $notifier.Show($toast)
-    """
+    """.format(clean_title, clean_body)
     try:
         subprocess.Popen(["powershell", "-NoProfile", "-WindowStyle", "Hidden", "-Command", ps_code],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except Exception:
         pass
+
+import io
 
 def parse_skill_frontmatter(file_path):
     """Extract YAML frontmatter and body from SKILL.md"""
@@ -149,11 +151,15 @@ def parse_skill_frontmatter(file_path):
         return None, ""
         
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with io.open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
     except Exception:
-        with open(file_path, 'r', encoding='latin-1', errors='replace') as f:
-            content = f.read()
+        try:
+            with io.open(file_path, 'r', encoding='latin-1', errors='replace') as f:
+                content = f.read()
+        except Exception:
+            with open(file_path, 'r') as f:
+                content = f.read()
 
     frontmatter = {}
     body = content
@@ -232,8 +238,8 @@ def audit_peer_conflict(skill_a_data, skill_b_data):
                 "type": "POLARITY_CONTRADICTION",
                 "topic": topic_item["topic"],
                 "description": topic_item["description"],
-                "skill_a": f"{skill_a_data['skill_name']} (by {skill_a_data['author']})",
-                "skill_b": f"{skill_b_data['skill_name']} (by {skill_b_data['author']})"
+                "skill_a": str(skill_a_data["skill_name"]) + " (by " + str(skill_a_data["author"]) + ")",
+                "skill_b": str(skill_b_data["skill_name"]) + " (by " + str(skill_b_data["author"]) + ")"
             })
 
     # 2. Strict Naming Collision with divergent logic
@@ -242,9 +248,9 @@ def audit_peer_conflict(skill_a_data, skill_b_data):
         conflicts.append({
             "type": "DUPLICATE_NAME_COLLISION",
             "topic": "Skill Identifier Collision",
-            "description": f"Duplicate skill name '{skill_a_data['skill_name']}' created independently by different authors.",
-            "skill_a": f"{skill_a_data['skill_name']} (by {skill_a_data['author']})",
-            "skill_b": f"{skill_b_data['skill_name']} (by {skill_b_data['author']})"
+            "description": "Duplicate skill name '" + str(skill_a_data["skill_name"]) + "' created independently by different authors.",
+            "skill_a": str(skill_a_data["skill_name"]) + " (by " + str(skill_a_data["author"]) + ")",
+            "skill_b": str(skill_b_data["skill_name"]) + " (by " + str(skill_b_data["author"]) + ")"
         })
 
     return conflicts
@@ -299,7 +305,7 @@ def audit_incoming_skill(skill_name, content, existing_skills_dirs=None):
 
     if incoming_data["clashes"]:
         send_windows_toast("Skill Sync Blocked (Company Rule)!",
-                           f"Incoming skill '{skill_name}' by {author} broke rule: {incoming_data['clashes'][0]['rule_id']}")
+                           "Incoming skill '" + str(skill_name) + "' by " + str(author) + " broke rule: " + str(incoming_data["clashes"][0]["rule_id"]))
         return False, {"type": "COMPANY_RULE_VIOLATION", "details": incoming_data["clashes"]}
 
     # 2. Peer-to-Peer Conflict Check against all installed skills
@@ -317,7 +323,7 @@ def audit_incoming_skill(skill_name, content, existing_skills_dirs=None):
                     if peer_conflicts:
                         c = peer_conflicts[0]
                         send_windows_toast("Peer Conflict Blocked!",
-                                           f"Clash between '{c['skill_a']}' and '{c['skill_b']}' on {c['topic']}!")
+                                           "Clash between '" + str(c["skill_a"]) + "' and '" + str(c["skill_b"]) + "' on " + str(c["topic"]) + "!")
                         return False, {"type": "PEER_CONFLICT", "details": peer_conflicts}
 
     return True, {}
@@ -370,21 +376,21 @@ def audit_all_skills_in_hub(hub_dir):
         if peer_conflicts:
             c = peer_conflicts[0]
             send_windows_toast("Peer Skill Conflict Detected!",
-                               f"Clash between '{c['skill_a']}' and '{c['skill_b']}' on {c['topic']}!")
+                               "Clash between '" + str(c["skill_a"]) + "' and '" + str(c["skill_b"]) + "' on " + str(c["topic"]) + "!")
         elif company_clashes:
             c = company_clashes[0]
             send_windows_toast("Company Rule Clash Detected!",
-                               f"Skill '{c['skill']}' by {c['author']} breaks {c['clash']['rule_id']}!")
+                               "Skill '" + str(c["skill"]) + "' by " + str(c["author"]) + " breaks " + str(c["clash"]["rule_id"]) + "!")
 
     return result
 
 if __name__ == "__main__":
     hub = sys.argv[1] if len(sys.argv) > 1 else r"C:\Users\User\AppData\Roaming\pyRevit\Extensions\Riyan-Revit-Tools\Skills_Hub"
-    print(f"[*] Auditing All-vs-All Skill Conflict Matrix in: {hub}")
+    print("[*] Auditing All-vs-All Skill Conflict Matrix in: " + str(hub))
     report = audit_all_skills_in_hub(hub)
-    print("STATUS: " + report["status"])
-    print(f"Total Audited Skills: {report['audited_skills_count']}")
-    print(f"Company Violations:   {len(report['company_rule_violations'])}")
-    print(f"Peer-to-Peer Clashes: {len(report['peer_to_peer_conflicts'])}")
+    print("STATUS: " + str(report["status"]))
+    print("Total Audited Skills: " + str(report["audited_skills_count"]))
+    print("Company Violations:   " + str(len(report["company_rule_violations"])))
+    print("Peer-to-Peer Clashes: " + str(len(report["peer_to_peer_conflicts"])))
     if report["status"] == "CLASH":
         print(json.dumps(report, indent=2))
