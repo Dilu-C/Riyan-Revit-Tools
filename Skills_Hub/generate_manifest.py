@@ -8,11 +8,15 @@ import os
 import sys
 import json
 import hashlib
+import io
 
 def get_file_hash(filepath):
     h = hashlib.sha256()
     with open(filepath, "rb") as f:
-        while chunk := f.read(8192):
+        while True:
+            chunk = f.read(8192)
+            if not chunk:
+                break
             h.update(chunk)
     return h.hexdigest()
 
@@ -21,11 +25,15 @@ def parse_frontmatter(md_path):
     if not os.path.exists(md_path):
         return frontmatter
     try:
-        with open(md_path, "r", encoding="utf-8") as f:
+        with io.open(md_path, "r", encoding="utf-8") as f:
             content = f.read()
     except Exception:
-        with open(md_path, "r", encoding="latin-1", errors="replace") as f:
-            content = f.read()
+        try:
+            with io.open(md_path, "r", encoding="latin-1", errors="replace") as f:
+                content = f.read()
+        except Exception:
+            with open(md_path, "r") as f:
+                content = f.read()
 
     if content.startswith("---"):
         parts = content.split("---", 2)
@@ -51,14 +59,14 @@ def build_manifest():
         if audit.get("status") == "CLASH":
             print("[ERROR] Skills Hub audit detected conflicts! Resolve before publishing:")
             for p in audit.get("peer_to_peer_conflicts", []):
-                print(f"  [PEER CLASH] {p['skill_a']} vs {p['skill_b']} on '{p['topic']}': {p['description']}")
+                print("  [PEER CLASH] " + str(p["skill_a"]) + " vs " + str(p["skill_b"]) + " on '" + str(p["topic"]) + "': " + str(p["description"]))
             for c in audit.get("company_rule_violations", []):
-                print(f"  [GUARDRAIL] {c['skill']} violates {c['clash']['rule_id']}: {c['clash']['description']}")
+                print("  [GUARDRAIL] " + str(c["skill"]) + " violates " + str(c["clash"]["rule_id"]) + ": " + str(c["clash"]["description"]))
             return None
         else:
             print("[OK] Sentinel Audit Passed: 0 Peer Conflicts, 0 Guardrail Violations.")
     except Exception as e:
-        print(f"[WARN] Sentinel check skipped: {e}")
+        print("[WARN] Sentinel check skipped: " + str(e))
 
     manifest = {
         "hub_version": "1.0.0",
@@ -82,15 +90,19 @@ def build_manifest():
                     "discipline": fm.get("discipline", "General"),
                     "version": fm.get("version", "1.0.0"),
                     "sha256": sha,
-                    "rel_path": f"{item}/SKILL.md",
+                    "rel_path": str(item) + "/SKILL.md",
                     "size_bytes": os.path.getsize(skill_md)
                 }
 
     manifest_path = os.path.join(hub_dir, "skills_manifest.json")
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, ensure_ascii=False)
+    try:
+        with io.open(manifest_path, "w", encoding="utf-8") as f:
+            json.dump(manifest, f, indent=2, ensure_ascii=False)
+    except Exception:
+        with open(manifest_path, "w") as f:
+            json.dump(manifest, f, indent=2)
 
-    print(f"[OK] Generated skills_manifest.json with {len(manifest['skills'])} skills.")
+    print("[OK] Generated skills_manifest.json with " + str(len(manifest["skills"])) + " skills.")
     return manifest_path
 
 if __name__ == "__main__":
