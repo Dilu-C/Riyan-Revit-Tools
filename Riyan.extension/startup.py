@@ -60,7 +60,14 @@ def get_versions():
     except Exception:
         online_version = None
 
-    return local_version, online_version
+    import re
+    def sanitize_v(s):
+        if not s:
+            return None
+        m = re.search(r'\d+(\.\d+)+', str(s))
+        return m.group(0) if m else str(s).strip()
+
+    return sanitize_v(local_version), sanitize_v(online_version)
 
 def parse_version(v_str):
     if not v_str:

@@ -138,6 +138,16 @@ def update_tools():
         except:
             show_dialog("ERROR", "Could not connect to GitHub to check for updates. Please check your internet connection.")
             return
+
+        import re
+        def sanitize_v(s):
+            if not s:
+                return "0.0.0"
+            m = re.search(r'\d+(\.\d+)+', str(s))
+            return m.group(0) if m else str(s).strip()
+
+        local_version = sanitize_v(local_version)
+        online_version = sanitize_v(online_version)
             
         # 4. Compare versions - strictly check if online version is newer
         if not is_newer_version(online_version, local_version):
