@@ -1,6 +1,6 @@
 {
   "hub_version": "1.0.0",
-  "generated_at": "2026-10-23T14:58:28",
+  "generated_at": "2026-10-23T15:14:12",
   "repo_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Skills_Hub",
   "rules_url": "https://raw.githubusercontent.com/Dilu-C/Riyan-Revit-Tools/main/Rules_Hub",
   "skills": {
@@ -102,6 +102,17 @@
       "sha256": "b9c09dbcd058140c86f8fff4b810f64d6d4a0f87609f5460580c99e255bc79d4",
       "rel_path": "revit-surface-snapping/SKILL.md",
       "size_bytes": 9188
+    },
+    "riyan-master-standards": {
+      "name": "riyan-master-standards",
+      "description": "Riyan company-wide engineering guardrails, truthful reporting mandate, pre-coding risk analysis & foresight, Sinhala communication guidelines, and zero-accident execution invariants across all tools and projects.",
+      "author": "Riyan BIM Team",
+      "office": "Sri Lanka & Maldives",
+      "discipline": "General",
+      "version": "1.0.0",
+      "sha256": "fe118b6b6de5a91d1d9f0a85f9b1d8233b202485e35ff824ae08802824aa4075",
+      "rel_path": "riyan-master-standards/SKILL.md",
+      "size_bytes": 7054
     },
     "robot-structural-analysis": {
       "name": "robot-structural-analysis",
