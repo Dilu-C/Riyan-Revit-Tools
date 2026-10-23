@@ -158,7 +158,7 @@ def update_tools():
                 pb.update_progress(10, 100)
                 
                 # 6. Download ZIP
-                zip_url = "https://github.com/Dilu-C/Riyan-Revit-Tools/archive/refs/heads/main.zip"
+                zip_url = "https://api.github.com/repos/Dilu-C/Riyan-Revit-Tools/zipball/main"
                 temp_dir = tempfile.gettempdir()
                 zip_path = os.path.join(temp_dir, "Riyan_Update.zip")
                 
@@ -188,6 +188,12 @@ def update_tools():
                 
                 # 8. Copy contents over the active extension directory
                 source_dir = os.path.join(extract_path, "Riyan-Revit-Tools-main")
+                if not os.path.exists(source_dir):
+                    for item in os.listdir(extract_path):
+                        full = os.path.join(extract_path, item)
+                        if os.path.isdir(full) and "Riyan-Revit-Tools" in item:
+                            source_dir = full
+                            break
                 source_ext = os.path.join(source_dir, "Riyan.extension")
                 
                 def sync_clean_tree(src, dst):

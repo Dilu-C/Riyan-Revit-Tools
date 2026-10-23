@@ -97,7 +97,7 @@ try {
     $d = @(106,108,119,107,120,101,98,115,100,119,98,52,52,70,80,91,81,83,53,68,51,79,81,116,93,110,91,88,75,100,123,87,76,98,114,113,122,123,123,120,117,70,52,122,121,124,92,85,87,83,85,122,102,84,79,89,121,123,121,70,125,81,114,102,111,114,54,88,76,110,121,58,58,123,71,106,109,82,92,82,81,82,90,71,84,72,52,93,52,113,54,123,72)
     $tk = -join ($d | ForEach-Object { [char]($_ - 3) })
     $wc.Headers.Add("Authorization", "Bearer $tk")
-    $wc.DownloadFile('https://github.com/Dilu-C/Riyan-Revit-Tools/archive/refs/heads/main.zip', $zipPath)
+    $wc.DownloadFile('https://api.github.com/repos/Dilu-C/Riyan-Revit-Tools/zipball/main', $zipPath)
 
     if (!(Test-Path $zipPath) -or (Get-Item $zipPath).Length -lt 1000) {
         throw "Failed to download zip file from GitHub (file is missing or empty)."
@@ -111,7 +111,9 @@ try {
 
     $sourceRoot = Join-Path $extractFolder 'Riyan-Revit-Tools-main'
     if (!(Test-Path $sourceRoot)) {
-        throw "Extracted archive does not contain 'Riyan-Revit-Tools-main'."
+        $detected = Get-ChildItem -Path $extractFolder -Directory | Where-Object { $_.Name -like '*Riyan-Revit-Tools*' } | Select-Object -First 1
+        if ($detected) { $sourceRoot = $detected.FullName }
+        else { throw "Extracted archive does not contain 'Riyan-Revit-Tools'." }
     }
 
     # Atomic Clean-Slate Installation: Wipe old extension to eliminate ghost panels and orphaned buttons
