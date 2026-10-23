@@ -380,6 +380,7 @@ def get_family_priority(item):
         "COLUMNS": 9,
         "FLOOR FINISHES": 10,
         "TITLE BLOCKS": 20,
+        "COVER PAGES": 21,
         "TAGS": 25,
         "DETAIL ITEMS": 30,
     }
@@ -390,59 +391,66 @@ def get_family_priority(item):
 def classify_library_item(code, title="", orig_cat="", is_sys=False, sys_type=""):
     """
     Intelligently classifies any family or system type into standard architectural categories.
-    Prevents floating elements (TitleBlocks, Balusters, Columns) from polluting WALLS.
+    Prevents floating elements (TitleBlocks, Balusters, Columns) from polluting WALLS or WINDOWS.
     """
     text = (str(code) + " " + str(title) + " " + str(orig_cat)).upper()
     code_up = str(code).upper()
-    
+
     # 1. Detail Items & Schedules
     if "SCHEDULE" in text or "REINF" in text or "DETAIL" in text:
         return "DETAIL ITEMS"
-        
-    # 2. Title Blocks & Cover Pages
-    if any(k in text for k in ["TITLEBLOCK", "TITLE BLOCK", "COVERPAGE", "COVER PAGE", "TITLESTARTUPBOX", "RTB"]):
+
+    # 2. Cover Pages (Separate Dedicated Category!)
+    if "COVERPAGE" in code_up or "COVER PAGE" in text or "COVER_PAGE" in text:
+        return "COVER PAGES"
+
+    # 3. Title Blocks
+    if any(k in text for k in ["TITLEBLOCK", "TITLE BLOCK", "TITLESTARTUPBOX", "RTB"]):
         return "TITLE BLOCKS"
-        
-    # 3. Tags & Annotations
+
+    # 4. Tags & Annotations
     if "TAG" in text or "ANO_" in text:
         return "TAGS"
-        
-    # 4. Columns
-    if code_up.startswith("RYN_COL_") or "COLUMN" in text:
+
+    # 5. Columns
+    if code_up.startswith("RYN_COL_") or "COLUMN" in text or orig_cat in ["COLUMN", "COLUMNS"]:
         return "COLUMNS"
-        
-    # 5. Railings & Balusters
-    if any(k in text for k in ["BALUSTER", "BALUSTRADE", "HANDRAIL", "RYN_RAIL_", "POST - SQUARE"]) or sys_type == "Railing":
+
+    # 6. Railings & Balusters
+    if any(k in text for k in ["BALUSTER", "BALUSTRADE", "HANDRAIL", "RYN_RAIL_", "POST - SQUARE"]) or sys_type == "Railing" or orig_cat == "RAILINGS":
         return "RAILINGS"
-        
-    # 6. Stairs
-    if any(k in text for k in ["STAIR", "STARI", "NOSING", "NOZING", "LADDER"]) or sys_type == "Stairs":
+
+    # 7. Stairs
+    if any(k in text for k in ["STAIR", "STARI", "NOSING", "NOZING", "LADDER"]) or sys_type == "Stairs" or orig_cat == "STAIRS":
         return "STAIRS"
-        
-    # 7. Floor Finishes
+
+    # 8. Floor Finishes
     if orig_cat == "FLOOR FINISHES" or code_up.startswith("FF-"):
         return "FLOOR FINISHES"
-        
-    # 8. Floors (Strictly real floor system families)
-    if (is_sys and sys_type == "Floor") or code_up.startswith("RYN_FLO_"):
+
+    # 9. Floors (Strictly real floor system families)
+    if (is_sys and sys_type == "Floor") or code_up.startswith("RYN_FLO_") or orig_cat == "FLOORS":
         return "FLOORS"
-        
-    # 9. Walls (Strictly real wall system families or curtain wall components)
-    if (is_sys and sys_type == "Wall") or code_up.startswith("RYN_WAL_") or code_up.startswith("RYN_CT.WAL_") or code_up == "RYN_STKD.WAL" or code in ["System Panel", "Rectangular Mullion"]:
+
+    # 10. Walls (Strictly real wall system families or curtain wall components)
+    if (is_sys and sys_type == "Wall") or code_up.startswith("RYN_WAL_") or code_up.startswith("RYN_CT.WAL_") or code_up == "RYN_STKD.WAL" or code in ["System Panel", "Rectangular Mullion"] or orig_cat == "WALLS":
         return "WALLS"
-        
-    # 10. Furniture (check prefix RYN_FUR_, RYN_KCH_ or keywords)
+
+    # 11. Furniture (check prefix RYN_FUR_, RYN_KCH_ or keywords)
     if code_up.startswith("RYN_FUR_") or code_up.startswith("RYN_KCH_") or orig_cat == "FURNITURES":
         return "FURNITURES"
-        
-    # 11. Doors (Check DOR_ or DOOR, excluding furniture)
-    if code_up.startswith("RYN_DOR_") or code_up.startswith("RYN_CT.DOR_") or ("DOOR" in text and not code_up.startswith("RYN_FUR_")):
+
+    # 12. Doors (Check DOR_ or DOOR, excluding furniture)
+    if code_up.startswith("RYN_DOR_") or code_up.startswith("RYN_CT.DOR_") or (("DOOR" in text or "DOR_" in code_up) and not code_up.startswith("RYN_FUR_")):
         return "DOORS"
-        
-    # 12. Windows
-    if code_up.startswith("RYN_WIN_") or code_up.startswith("RYN_CT.WIN_") or "WINDOW" in text:
+
+    # 13. Windows (Strict check - NEVER match file paths)
+    if code_up.startswith("RYN_WIN_") or code_up.startswith("RYN_CT.WIN_") or (("WINDOW" in text or "WIN_" in code_up) and not code_up.startswith("RYN_FUR_")):
         return "WINDOWS"
-        
+
+    if orig_cat and orig_cat != "GENERIC MODELS":
+        return orig_cat.upper()
+
     return "GENERIC MODELS"
 
 def category_sort_key(cat_name):
@@ -463,6 +471,7 @@ def category_sort_key(cat_name):
         "STAIRS",
         "COLUMNS",
         "TITLE BLOCKS",
+        "COVER PAGES",
         "TAGS",
         "DETAIL ITEMS",
         "FOUNDATIONS",
@@ -753,23 +762,25 @@ def categorize_by_level_rule(filename, directory_name=""):
     # Category matching Dilupa's RVT Levels
     cat = "GENERIC MODELS"
     if disc == "ARCHITECTURAL":
-        if "RYN_DOR_" in name_upper or name_upper.startswith("DOR_") or "DOOR" in name_upper or "DOOR" in dir_upper:
+        if "RYN_FUR_" in name_upper or "RYN_KCH_" in name_upper or "\\FURNITURE\\" in dir_upper:
+            cat = "FURNITURES"
+        elif "RYN_DOR_" in name_upper or name_upper.startswith("DOR_") or "DOOR" in name_upper or "\\DOORS\\" in dir_upper or dir_upper.endswith("\\DOORS"):
             cat = "DOORS"
-        elif "RYN_WIN_" in name_upper or name_upper.startswith("WIN_") or "WINDOW" in name_upper or "WINDOW" in dir_upper:
+        elif "RYN_WIN_" in name_upper or name_upper.startswith("WIN_") or "WINDOW" in name_upper or "\\WINDOWS\\" in dir_upper or dir_upper.endswith("\\WINDOWS"):
             cat = "WINDOWS"
-        elif "WALL" in name_upper or "WALL" in dir_upper or "FACADE" in name_upper or "FACADE" in dir_upper:
+        elif "COVERPAGE" in name_upper or "COVER PAGE" in name_upper or "COVER_PAGE" in name_upper:
+            cat = "COVER PAGES"
+        elif "TITLEBLOCK" in name_upper or "TITLE BLOCK" in name_upper or "TITLESTARTUPBOX" in name_upper or "RTB" in name_upper:
+            cat = "TITLE BLOCKS"
+        elif "COL" in name_upper or "\\COLUMN" in dir_upper:
+            cat = "COLUMNS"
+        elif "ANO_" in name_upper or "TAG" in name_upper or "ANNOTAT" in dir_upper:
+            cat = "TAGS"
+        elif "WALL" in name_upper or "\\WALLS\\" in dir_upper or dir_upper.endswith("\\WALLS") or "FACADE" in name_upper:
             if not any(k in name_upper.lower() for k in ["toilet", "lavatory", "shower", "sink", "fountain", "washfountain", "urinal", "lighting", "light", "tag", "drain", "tree", "plant", "container", "hute", "door", "window"]):
                 cat = "WALLS"
             else:
                 cat = "GENERIC MODELS"
-        elif "TITLEBLOCK" in name_upper or "COVERPAGE" in name_upper or "TITLE" in dir_upper:
-            cat = "TITLE BLOCKS"
-        elif "ANO_" in name_upper or "TAG" in name_upper or "ANNOTAT" in dir_upper:
-            cat = "TAGS"
-        elif "SOFA" in dir_upper or "CHAIR" in dir_upper or "TABLE" in dir_upper or "FURNITURE" in dir_upper:
-            cat = "FURNITURES"
-        elif "COL" in name_upper or "COLUMN" in dir_upper:
-            cat = "COLUMNS"
         else:
             cat = "GENERIC MODELS"
     elif disc == "STRUCTURAL":
@@ -1097,12 +1108,15 @@ class RiyanFamilyBrowser(forms.WPFWindow):
                 cat_raw = (item.get("category") or "GENERIC MODELS").strip()
                 cat_upper = cat_raw.upper()
 
-                if "DOOR" in cat_upper or "DOR_" in c_up or "DOOR" in c_up or "DOOR" in r_up:
-                    item["category"] = "DOORS"
-                elif "WINDOW" in cat_upper or "WIN_" in c_up or "WINDOW" in c_up or "WINDOW" in r_up:
-                    item["category"] = "WINDOWS"
-                else:
-                    item["category"] = cat_upper
+                # Classify strictly using item attributes (Zero r_up Windows folder contamination)
+                cat_raw = (item.get("category") or "GENERIC MODELS").strip()
+                item["category"] = classify_library_item(
+                    code=c,
+                    title=item.get("title", ""),
+                    orig_cat=cat_raw,
+                    is_sys=item.get("is_system", False),
+                    sys_type=item.get("system_type", "")
+                )
 
                 self.catalog.append(item)
         else:
